@@ -30,7 +30,7 @@ public class Logbook
             if (from < From) { from = From; }
             if (till > Till) { till = Till; }
 
-            var logbook = new Logbook();
+            var logbook = CreateSubRangedLogbook();
             var i = 0;
             while (i<_transactions.Count && _transactions[i].Timestamp < from) { i++; }
 
@@ -72,4 +72,6 @@ public class Logbook
 
         return Result.Ok();
     }
+
+    protected virtual Logbook CreateSubRangedLogbook() => new();
 }
