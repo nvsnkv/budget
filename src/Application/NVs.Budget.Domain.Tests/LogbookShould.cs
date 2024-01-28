@@ -10,10 +10,12 @@ namespace NVs.Budget.Domain.Tests;
 public class LogbookShould
 {
 
+    protected virtual Logbook CreateLogbook() => new();
+
     [Fact]
     public void BeEmptyByDefault()
     {
-        var logbook = new Logbook();
+        var logbook = CreateLogbook();
         logbook.IsEmpty.Should().BeTrue();
         logbook.Sum.Should().Be(Money.Zero());
         logbook.Transactions.Should().BeEmpty();
@@ -24,12 +26,12 @@ public class LogbookShould
     [Fact]
     public void AcceptTransactionsWithSameCurrency()
     {
-        var transactions = GenerateTestTransactions(5);
+        var transactions = TestData.GenerateTestTransactions(5);
         var expectedFrom = transactions.Min(x => x.Timestamp);
         var expectedTill = transactions.Max(t => t.Timestamp);
         var expectedSum = transactions.Select(t => t.Amount).Aggregate((l, r) => l + r);
 
-        var logbook = new Logbook();
+        var logbook = CreateLogbook();
         var results = transactions.Select(t => logbook.Register(t)).ToList();
         logbook.IsEmpty.Should().BeFalse();
         results.Select(r => r.IsSuccess).Should().AllBeEquivalentTo(true);
@@ -45,7 +47,7 @@ public class LogbookShould
     {
         var fixture = new Fixture();
         var transactions = fixture.Create<Generator<Transaction>>().Take(2).ToList();
-        var logbook = new Logbook();
+        var logbook = CreateLogbook();
 
         logbook.Register(transactions.First());
         var result = logbook.Register(transactions.Last());
@@ -57,11 +59,23 @@ public class LogbookShould
         logbook.Transactions.First().Should().Be(transactions.First());
     }
 
-    private static List<Transaction> GenerateTestTransactions(int count)
+    [Fact]
+    public void CreateChildLogbookWithRelatedTransactions()
     {
-        var fixture = new Fixture();
-        fixture.Customizations.Add(new NamedParameterBuilder<CurrencyIsoCode>("currency", fixture.Create<CurrencyIsoCode>(), false));
-        var transactions = fixture.Create<Generator<Transaction>>().Take(count).ToList();
-        return transactions;
+        var transactions = TestData.GenerateTestTransactions(50);
+        var min = transactions.Min(t => t.Timestamp);
+        var max = transactions.Max(t => t.Timestamp);
+
+        var childMin = min + (max - min) / 3;
+        var childMax = min + (max - min) * 2 / 3;
+        var expectedTransactions = transactions
+            .Where(t => t.Timestamp >= childMin && t.Timestamp <= childMax)
+            .OrderBy(t => t.Timestamp);
+
+        var logbook = CreateLogbook();
+        foreach (var transaction in transactions) logbook.Register(transaction);
+
+        var child = logbook[childMin, childMax];
+        child.Transactions.Should().BeEquivalentTo(expectedTransactions);
     }
 }
