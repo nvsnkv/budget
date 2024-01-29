@@ -31,6 +31,8 @@ public class Transaction : EntityBase<Guid>
                 Attributes.Add(attribute);
             }
         }
+
+        _tags = tags.Distinct().ToList();
     }
 
     public void Tag(Tag value)
