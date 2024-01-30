@@ -33,7 +33,7 @@ public class Transfer
 
         Source = source;
         Sink = sink;
-        Fee = sink.Amount - source.Amount;
+        Fee = sink.Amount + source.Amount;
         Comment = comment;
     }
 
@@ -51,6 +51,22 @@ public class Transfer
             throw new ArgumentException("Sink must be an income!", nameof(sink))
                 .WithData(nameof(source), source.Id)
                 .WithData(nameof(sink), sink.Id);
+        }
+
+        if (fee.Amount < 0 && !fee.HasSameCurrencyAs(source.Amount))
+        {
+            throw new ArgumentException("Negative fee should have same currency as source!", nameof(fee))
+                .WithData(nameof(source), source.Id)
+                .WithData(nameof(sink), sink.Id)
+                .WithData(nameof(fee.CurrencyCode), fee.CurrencyCode);
+        }
+
+        if (fee.Amount > 0 && !fee.HasSameCurrencyAs(sink.Amount))
+        {
+            throw new ArgumentException("Positive fee should have same currency as sink!", nameof(fee))
+                .WithData(nameof(source), source.Id)
+                .WithData(nameof(sink), sink.Id)
+                .WithData(nameof(fee.CurrencyCode), fee.CurrencyCode);
         }
 
         Source = source;
