@@ -48,6 +48,18 @@ public class TransferShould
         transaction.Account.Should().Be(source.Account);
     }
 
+    [Fact]
+    public void CalculateZeroFeeProperly()
+    {
+        var fixture = new Fixture();
+        var source = CreateTransaction(-100, -10, fixture.Create<CurrencyIsoCode>());
+        fixture.Customizations.Add(new NamedParameterBuilder<Money>("amount", source.Amount * -1, false));
+        var sink = fixture.Create<Transaction>();
+
+        var transfer = new Transfer(source, sink, fixture.Create<string>());
+        transfer.Fee.IsZero().Should().BeTrue();
+    }
+
     private Transaction CreateTransaction(int minAmount, int maxAmount, CurrencyIsoCode currency)
     {
         var fixture = new Fixture();
