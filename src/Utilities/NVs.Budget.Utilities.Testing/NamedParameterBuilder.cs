@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using AutoFixture.Kernel;
 
-namespace NVs.Budget.Utils.Testing.TestUtilities;
+namespace NVs.Budget.Utilities.Testing;
 
 public sealed class NamedParameterBuilder<T>(string name, T? value, bool ignoreCase) : ISpecimenBuilder
 {

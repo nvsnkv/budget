@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\NVs.Budget.Utils.Testing.AutoFixtureUtils\NVs.Budget.Utils.Testing.AutoFixtureUtils.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj" />
       <ProjectReference Include="..\NVs.Budget.Application\NVs.Budget.Application.csproj" />
     </ItemGroup>
 

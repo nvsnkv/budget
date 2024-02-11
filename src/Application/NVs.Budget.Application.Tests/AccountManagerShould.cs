@@ -7,7 +7,7 @@ using NVs.Budget.Application.Services.Accounting.Errors;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Utils.Testing.TestUtilities;
+using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
 
