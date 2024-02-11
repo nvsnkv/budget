@@ -3,14 +3,10 @@
 public class Account : EntityBase<Guid>
 {
     private readonly List<Owner> _owners = new();
-    public string Name { get; }
-    public string? Bank { get; }
+    public string Name { get; private set; }
+    public string Bank { get; private set; }
 
-    public Account(Guid id, string name, IEnumerable<Owner> owners) : this(id, name, null, owners)
-    {
-    }
-
-    public Account(Guid id, string name, string? bank, IEnumerable<Owner> owners) : base(id)
+    public Account(Guid id, string name, string bank, IEnumerable<Owner> owners) : base(id)
     {
         Name = name;
         Bank = bank;
@@ -20,6 +16,12 @@ public class Account : EntityBase<Guid>
         {
             throw new ArgumentException("Unable to create account without owners!");
         }
+    }
+
+    public void Rename(string name, string bank)
+    {
+        Name = name;
+        Bank = bank;
     }
 
     public IReadOnlyCollection<Owner> Owners => _owners.AsReadOnly();

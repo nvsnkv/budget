@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Utils.Testing.TestUtilities;
 
 namespace NVs.Budget.Domain.Tests;
 

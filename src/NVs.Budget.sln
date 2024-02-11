@@ -6,6 +6,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain", "Applic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain.Tests", "Application\NVs.Budget.Domain.Tests\NVs.Budget.Domain.Tests.csproj", "{923B5464-1067-433F-9DD2-38183F146C83}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application", "Application\NVs.Budget.Application\NVs.Budget.Application.csproj", "{58BB6059-CF8B-4C15-B763-62B8D77F01C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.Tests", "Application\NVs.Budget.Application.Tests\NVs.Budget.Application.Tests.csproj", "{FB25F31F-C6D4-4A28-94A1-06E859713387}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{52A892E9-EDF9-4297-9447-58C343C4EAF4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{F05CB34D-16DD-4098-BEB1-1D34454699AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utils.Testing.AutoFixtureUtils", "NVs.Budget.Utils.Testing.AutoFixtureUtils\NVs.Budget.Utils.Testing.AutoFixtureUtils.csproj", "{F53F1FC3-A598-4BD7-B160-15E476E50997}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +24,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{923B5464-1067-433F-9DD2-38183F146C83} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
+		{58BB6059-CF8B-4C15-B763-62B8D77F01C7} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
+		{FB25F31F-C6D4-4A28-94A1-06E859713387} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
+		{F05CB34D-16DD-4098-BEB1-1D34454699AF} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
+		{F53F1FC3-A598-4BD7-B160-15E476E50997} = {F05CB34D-16DD-4098-BEB1-1D34454699AF}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +38,17 @@ Global
 		{923B5464-1067-433F-9DD2-38183F146C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{923B5464-1067-433F-9DD2-38183F146C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{923B5464-1067-433F-9DD2-38183F146C83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58BB6059-CF8B-4C15-B763-62B8D77F01C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58BB6059-CF8B-4C15-B763-62B8D77F01C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58BB6059-CF8B-4C15-B763-62B8D77F01C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58BB6059-CF8B-4C15-B763-62B8D77F01C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB25F31F-C6D4-4A28-94A1-06E859713387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB25F31F-C6D4-4A28-94A1-06E859713387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB25F31F-C6D4-4A28-94A1-06E859713387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB25F31F-C6D4-4A28-94A1-06E859713387}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F53F1FC3-A598-4BD7-B160-15E476E50997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F53F1FC3-A598-4BD7-B160-15E476E50997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F53F1FC3-A598-4BD7-B160-15E476E50997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F53F1FC3-A598-4BD7-B160-15E476E50997}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
