@@ -11,5 +11,3 @@ public interface IAccountsRepository
     Task<Result> Update(TrackedAccount account, CancellationToken ct);
     Task<Result> Remove(TrackedAccount account, CancellationToken ct);
 }
-
-public record UnregisteredAccount(string Name, string Bank);
