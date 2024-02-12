@@ -1,0 +1,41 @@
+﻿using NVs.Budget.Application.Services.Storage.Accounting;
+
+namespace NVs.Budget.Application.Services.Accounting;
+
+internal class DuplicatesDetector(IDuplicatesFinderSettings settings)
+{
+    public IReadOnlyCollection<IReadOnlyCollection<TrackedTransaction>> FindDuplicates(IEnumerable<TrackedTransaction> transactions)
+    {
+        var buckets = new List<List<TrackedTransaction>>();
+        foreach (var transaction in transactions)
+        {
+            var duplicateFound = false;
+            foreach (var bucket in buckets.Where(b => CheckIsDuplicate(b.First(), transaction)))
+            {
+                bucket.Add(transaction);
+                break;
+            }
+
+            if (!duplicateFound)
+            {
+                buckets.Add(new List<TrackedTransaction>() { transaction });
+            }
+        }
+
+        return buckets.Where(d => d.Count > 1)
+            .Select(d => d.AsReadOnly())
+            .ToList()
+            .AsReadOnly();
+    }
+
+    private bool CheckIsDuplicate(TrackedTransaction left, TrackedTransaction right) =>
+        left.Account == right.Account
+        && left.Amount == right.Amount
+        && left.Description == right.Description
+        && left.Timestamp - right.Timestamp < settings.Offset;
+}
+
+internal interface IDuplicatesFinderSettings
+{
+    TimeSpan Offset => TimeSpan.FromDays(3);
+}
