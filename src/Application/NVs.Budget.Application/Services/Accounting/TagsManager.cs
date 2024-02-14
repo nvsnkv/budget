@@ -11,5 +11,3 @@ public class TagsManager(IReadOnlyCollection<TaggingCriterion> criteria)
         return criteria.Where(c => c.Criterion(transaction)).Select(c => c.Tag).ToList().AsReadOnly();
     }
 }
-
-public record TaggingCriterion(Tag Tag, Func<TrackedTransaction, bool> Criterion);

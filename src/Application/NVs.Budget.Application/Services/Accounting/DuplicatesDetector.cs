@@ -2,9 +2,9 @@
 
 namespace NVs.Budget.Application.Services.Accounting;
 
-internal class DuplicatesDetector(IDuplicatesFinderSettings settings)
+internal class DuplicatesDetector(DuplicatesDetectorSettings settings)
 {
-    public IReadOnlyCollection<IReadOnlyCollection<TrackedTransaction>> FindDuplicates(IEnumerable<TrackedTransaction> transactions)
+    public IReadOnlyCollection<IReadOnlyCollection<TrackedTransaction>> DetectDuplicates(IEnumerable<TrackedTransaction> transactions)
     {
         var buckets = new List<List<TrackedTransaction>>();
         foreach (var transaction in transactions)
@@ -33,9 +33,4 @@ internal class DuplicatesDetector(IDuplicatesFinderSettings settings)
         && left.Amount == right.Amount
         && left.Description == right.Description
         && left.Timestamp - right.Timestamp < settings.Offset;
-}
-
-internal interface IDuplicatesFinderSettings
-{
-    TimeSpan Offset => TimeSpan.FromDays(3);
 }
