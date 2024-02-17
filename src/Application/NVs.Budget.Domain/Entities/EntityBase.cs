@@ -1,6 +1,6 @@
 ﻿namespace NVs.Budget.Domain.Entities;
 
-public abstract class EntityBase<T>
+public abstract class EntityBase<T> where T: struct
 {
     protected EntityBase(T id)
     {
@@ -11,7 +11,7 @@ public abstract class EntityBase<T>
 
     public static bool operator ==(EntityBase<T>? left, EntityBase<T>? right)
     {
-        return left?.Equals((object?)right) ?? false;
+        return left?.Equals((object?)right) ?? right is null;
     }
 
     public static bool operator !=(EntityBase<T>? left, EntityBase<T>? right)

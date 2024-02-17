@@ -1,4 +1,5 @@
-﻿using NVs.Budget.Application.Services.Storage.Accounting;
+﻿using NVs.Budget.Application.Entities.Accounting;
+using NVs.Budget.Application.Services.Storage.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
@@ -31,6 +32,12 @@ internal class TransfersListBuilder(TransferDetector detector)
                 _transfers.Add(detectionResult.Value);
                 _parts.Remove(source);
                 transferDetected = true;
+
+                source.Tag(TransferTags.Transfer);
+                source.Tag(TransferTags.Source);
+
+                sink.Tag(TransferTags.Transfer);
+                sink.Tag(TransferTags.Sink);
                 break;
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FluentResults;
+using NVs.Budget.Application.Entities.Accounting;
 
 namespace NVs.Budget.Application.Services.Storage.Accounting;
 

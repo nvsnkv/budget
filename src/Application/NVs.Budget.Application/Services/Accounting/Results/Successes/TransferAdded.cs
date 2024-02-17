@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Application.Services.Storage.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting.Results.Successes;

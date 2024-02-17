@@ -1,4 +1,4 @@
-﻿namespace NVs.Budget.Application.Services.Storage;
+﻿namespace NVs.Budget.Application.Entities;
 
 public interface ITrackableEntity<out T>
 {

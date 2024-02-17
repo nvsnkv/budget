@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Storage.Accounting;
@@ -14,7 +15,7 @@ namespace NVs.Budget.Application.Services.Accounting.Reckon;
 internal class Reckoner(
     ITransactionsRepository transactionsRepo,
     ITransfersRepository transfersRepo,
-    CurrencyConverter converter,
+    MoneyConverter converter,
     DuplicatesDetector detector,
     AccountManager manager) : ReckonerBase(manager)
 {

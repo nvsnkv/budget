@@ -5,7 +5,7 @@ using NVs.Budget.Domain.Entities.Transactions;
 
 namespace NVs.Budget.Application.Services.Accounting.Exchange;
 
-internal class CurrencyConverter(IExchangeRatesRepository repository, IExchangeRatesProvider provider, IUser currentUser)
+internal class MoneyConverter(IExchangeRatesRepository repository, IExchangeRatesProvider provider, IUser currentUser)
 {
     public async Task<Transaction> Convert(Transaction transaction, Currency targetCurrency, CancellationToken ct)
     {

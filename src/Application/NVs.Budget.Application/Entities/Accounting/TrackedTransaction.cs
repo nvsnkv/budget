@@ -3,7 +3,7 @@ using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Transactions;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Services.Storage.Accounting;
+namespace NVs.Budget.Application.Entities.Accounting;
 
 public class TrackedTransaction(
     Guid id,
