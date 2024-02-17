@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using NVs.Budget.Application.Services.Storage.Accounting;
 
-namespace NVs.Budget.Application.Services.Accounting;
+namespace NVs.Budget.Application.Services.Accounting.Results;
 
 public class ImportResult : Result
 {

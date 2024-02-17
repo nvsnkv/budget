@@ -1,4 +1,4 @@
-﻿namespace NVs.Budget.Application.Services.Accounting;
+﻿namespace NVs.Budget.Application.Services.Accounting.Duplicates;
 
 public record DuplicatesDetectorSettings(TimeSpan Offset)
 {

@@ -2,7 +2,7 @@
 using NVs.Budget.Domain.Entities.Transactions;
 using NVs.Budget.Domain.Extensions;
 
-namespace NVs.Budget.Application.Services.Accounting.Successes;
+namespace NVs.Budget.Application.Services.Accounting.Results.Successes;
 
 internal class TransactionUpdated : Success
 {

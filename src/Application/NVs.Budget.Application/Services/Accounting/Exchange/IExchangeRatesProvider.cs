@@ -1,7 +1,7 @@
 ﻿using NMoneys;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Services.Accounting.Reckon;
+namespace NVs.Budget.Application.Services.Accounting.Exchange;
 
 public interface IExchangeRatesProvider
 {

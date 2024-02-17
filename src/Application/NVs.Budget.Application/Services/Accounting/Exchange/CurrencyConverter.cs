@@ -3,7 +3,7 @@ using NVs.Budget.Application.Entities.Contracts;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Transactions;
 
-namespace NVs.Budget.Application.Services.Accounting.Reckon;
+namespace NVs.Budget.Application.Services.Accounting.Exchange;
 
 internal class CurrencyConverter(IExchangeRatesRepository repository, IExchangeRatesProvider provider, IUser currentUser)
 {

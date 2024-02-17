@@ -1,6 +1,6 @@
 ﻿using NVs.Budget.Application.Services.Storage.Accounting;
 
-namespace NVs.Budget.Application.Services.Accounting;
+namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
 internal class TransfersListBuilder(TransferDetector detector)
 {

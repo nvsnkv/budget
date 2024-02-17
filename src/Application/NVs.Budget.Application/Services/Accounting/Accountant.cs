@@ -1,7 +1,10 @@
 ﻿using System.Linq.Expressions;
 using FluentResults;
-using NVs.Budget.Application.Services.Accounting.Errors;
-using NVs.Budget.Application.Services.Accounting.Successes;
+using NVs.Budget.Application.Services.Accounting.Results;
+using NVs.Budget.Application.Services.Accounting.Results.Errors;
+using NVs.Budget.Application.Services.Accounting.Results.Successes;
+using NVs.Budget.Application.Services.Accounting.Tags;
+using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Extensions;
 

@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 
-namespace NVs.Budget.Application.Services.Accounting.Errors;
+namespace NVs.Budget.Application.Services.Accounting.Results.Errors;
 
 public class NoTransferCriteriaMatchedError: IError
 {

@@ -1,9 +1,9 @@
 ﻿using FluentResults;
-using NVs.Budget.Application.Services.Accounting.Errors;
+using NVs.Budget.Application.Services.Accounting.Results.Errors;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Extensions;
 
-namespace NVs.Budget.Application.Services.Accounting;
+namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
 internal class TransferDetector(IReadOnlyCollection<TransferCriteria> criteria)
 {
