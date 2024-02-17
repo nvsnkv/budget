@@ -61,5 +61,33 @@ public class MoneyConverterShould
         converted.Should().BeEquivalentTo(transaction, o => o.Excluding(t => t.Amount));
     }
 
+    [Fact]
+    public async Task UseExternalProviderWhenNoRatesFound()
+    {
+        _fixture.Customizations.Add(new NamedParameterBuilder<CurrencyIsoCode>("currency", CurrencyIsoCode.MYR, false));
+        var transaction = _fixture.Create<Transaction>();
+        var targetCurrency = Currency.Dkk;
+        var rate = 4m;
+
+        var expectedRate = new ExchangeRate(transaction.Timestamp, transaction.Amount.GetCurrency(), targetCurrency, rate);
+        _provider
+            .Setup(p => p.Get(transaction.Timestamp, transaction.Amount.GetCurrency(), targetCurrency, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedRate);
+
+        _repository
+            .Setup(r => r.Add(expectedRate, _owner, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable();
+
+        var converter = new MoneyConverter(_repository.Object, _provider.Object, _user.Object);
+
+        var converted = await converter.Convert(transaction, targetCurrency, CancellationToken.None);
+
+        converted.Amount.GetCurrency().Should().Be(targetCurrency);
+        converted.Amount.Amount.Should().Be(transaction.Amount.Amount * rate);
+        converted.Should().BeEquivalentTo(transaction, o => o.Excluding(t => t.Amount));
+        _repository.VerifyAll();
+    }
+
 
 }
