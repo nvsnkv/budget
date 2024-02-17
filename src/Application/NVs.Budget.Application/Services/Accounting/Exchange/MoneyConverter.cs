@@ -25,7 +25,7 @@ internal class MoneyConverter(IExchangeRatesRepository repository, IExchangeRate
         return new Transaction(
             transaction.Id,
             transaction.Timestamp,
-            new Money(transaction.Amount.Amount, targetCurrency),
+            new Money(transaction.Amount.Amount * rate.Rate, targetCurrency),
             transaction.Description,
             transaction.Account,
             transaction.Tags.ToList(),
