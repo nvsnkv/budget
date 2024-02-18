@@ -2,7 +2,6 @@
 using FluentAssertions;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
-using NVs.Budget.Domain.Entities.Transactions;
 
 namespace NVs.Budget.Application.Tests;
 

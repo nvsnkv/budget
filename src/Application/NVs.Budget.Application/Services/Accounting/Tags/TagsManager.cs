@@ -1,10 +1,9 @@
 ﻿using NVs.Budget.Application.Entities.Accounting;
-using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Application.Services.Accounting.Tags;
 
-public class TagsManager(IReadOnlyCollection<TaggingCriterion> criteria)
+internal class TagsManager(IReadOnlyCollection<TaggingCriterion> criteria)
 {
     public IReadOnlyCollection<Tag> GetTags(TrackedTransaction transaction)
     {

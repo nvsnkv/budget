@@ -1,6 +1,4 @@
-﻿using NVs.Budget.Application.Services.Storage.Accounting;
-
-namespace NVs.Budget.Application.Tests.Fakes;
+﻿namespace NVs.Budget.Application.Tests.Fakes;
 
 internal class Storage
 {

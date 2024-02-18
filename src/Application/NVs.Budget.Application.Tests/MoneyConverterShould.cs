@@ -1,8 +1,5 @@
-﻿using System.Xml.Serialization;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
-using FluentAssertions.Execution;
-using FluentResults;
 using Moq;
 using NMoneys;
 using NVs.Budget.Application.Entities.Contracts;
