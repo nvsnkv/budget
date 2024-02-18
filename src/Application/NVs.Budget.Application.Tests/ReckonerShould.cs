@@ -109,7 +109,32 @@ public class ReckonerShould
         actual.Any(a => CheckIfTheSameTransactions(a, accessibleTransferWithoutFee.AsTransaction())).Should().BeFalse();
     }
 
-    public bool CheckIfTheSameTransactions(Transaction left, Transaction right)
+    [Fact]
+    public async Task DetectDuplicates()
+    {
+        _storage.Transactions.Append(Enumerable.Repeat(_data.OwnedTransactions.First(), 3));
+        _storage.Transactions.Append(Enumerable.Repeat(_data.OwnedTransactions.Last(), 2));
+        _storage.Transactions.Append(Enumerable.Repeat(_data.NotOwnedTransactions.Last(), 2));
+
+        var duplicates = await _reckoner.GetDuplicates(_ => true, CancellationToken.None);
+        duplicates.Should().HaveCount(2);
+        foreach (var duplicate in duplicates)
+        {
+            if (duplicate.First() == _data.OwnedTransactions.First())
+            {
+                duplicate.Should().HaveCount(4);
+                duplicate.Should().AllBeEquivalentTo(_data.OwnedTransactions.First());
+            }
+            else
+            {
+                duplicate.Should().HaveCount(3);
+                duplicate.Should().AllBeEquivalentTo(_data.OwnedTransactions.Last());
+            }
+        }
+
+    }
+
+    private bool CheckIfTheSameTransactions(Transaction left, Transaction right)
     {
         return left.Amount == right.Amount
                && left.Description == right.Description
