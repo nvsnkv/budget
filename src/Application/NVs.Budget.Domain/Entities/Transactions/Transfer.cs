@@ -1,12 +1,13 @@
-﻿using NMoneys;
+﻿using System.Collections;
+using NMoneys;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Domain.Entities.Transactions;
 
-public class Transfer
+public class Transfer : IEnumerable<Transaction>
 {
-    public static readonly Tag TransferTag = new Tag(nameof(Transfer));
+    public static readonly Tag TransferTag = new(nameof(Transfer));
 
     public Transfer(Transaction source, Transaction sink, string comment)
     {
@@ -81,7 +82,7 @@ public class Transfer
 
     public string Comment { get; }
 
-    public Money Fee { get; } = Money.Zero();
+    public Money Fee { get; }
 
     public Transaction AsTransaction()
     {
@@ -104,5 +105,45 @@ public class Transfer
         };
 
         return new Transaction(Guid.Empty, timestamp, amount, description, account, tags, attributes);
+    }
+
+    public IEnumerator<Transaction> GetEnumerator() => new Enumerator(this);
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    private class Enumerator(Transfer transfer) : IEnumerator<Transaction>
+    {
+        private Transaction? _current;
+        public void Dispose()
+        {
+        }
+
+        public bool MoveNext()
+        {
+            if (_current is null)
+            {
+                _current = transfer.Source;
+                return true;
+            }
+            if (_current == transfer.Source)
+            {
+                _current = transfer.Sink;
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Reset()
+        {
+            _current = null;
+        }
+
+        public Transaction Current => _current ?? throw new InvalidOperationException("Current should not be used in current state");
+
+        object IEnumerator.Current => Current;
     }
 }

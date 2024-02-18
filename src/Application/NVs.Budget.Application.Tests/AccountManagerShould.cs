@@ -14,7 +14,7 @@ namespace NVs.Budget.Application.Tests;
 
 public class AccountManagerShould
 {
-    private readonly FakeAccountRepository _repository = new();
+    private readonly FakeAccountsRepository _repository = new();
     private readonly Fixture _fixture = new();
     private readonly Mock<IUser> _user = new();
 
@@ -34,8 +34,8 @@ public class AccountManagerShould
         var ownedAccounts = GenerateAccounts(3, _owner).ToList();
         var notOwnedAccounts = GenerateAccounts(3, _fixture.Create<Owner>());
 
-        _repository.AppendAccounts(ownedAccounts);
-        _repository.AppendAccounts(notOwnedAccounts);
+        _repository.Append(ownedAccounts);
+        _repository.Append(notOwnedAccounts);
 
         var accounts = await _manager.GetOwnedAccounts(CancellationToken.None);
         accounts.Should().BeEquivalentTo(ownedAccounts);
@@ -59,7 +59,7 @@ public class AccountManagerShould
     public async Task RenameOwnedAccounts()
     {
         IReadOnlyList<TrackedAccount> accounts = GenerateAccounts(1, _owner).ToList().AsReadOnly();
-        _repository.AppendAccounts(accounts);
+        _repository.Append(accounts);
 
         var expected = new TrackedAccount(accounts[0].Id, accounts[0].Name, accounts[0].Bank, accounts[0].Owners)
         {
@@ -86,7 +86,7 @@ public class AccountManagerShould
     public async Task NotUpdateAccountThatDoesNotBelongToCurrentOwner()
     {
         var accounts = GenerateAccounts(1, _fixture.Create<Owner>()).ToList();
-        _repository.AppendAccounts(accounts);
+        _repository.Append(accounts);
 
         var result = await _manager.Update(accounts.Single(), CancellationToken.None);
         result.IsSuccess.Should().BeFalse();
@@ -107,7 +107,7 @@ public class AccountManagerShould
     public async Task ChangeOwnersWhenCurrentOwnerRemainsInList()
     {
         var accounts = GenerateAccounts(1, _owner).ToList();
-        _repository.AppendAccounts(accounts);
+        _repository.Append(accounts);
         var expected = accounts.Single();
 
         var owners = _fixture.Create<Generator<Owner>>().Take(3).Append(_owner).ToList();
@@ -125,7 +125,7 @@ public class AccountManagerShould
     public async Task NotChangeOwnersIfCurrentOwnerLosesAccess()
     {
         var accounts = GenerateAccounts(1, _fixture.Create<Owner>(), _owner).ToList();
-        _repository.AppendAccounts(accounts);
+        _repository.Append(accounts);
         var expected = accounts.Single();
 
         var owners = _fixture.Create<Generator<Owner>>().Take(3).Where(o => o != _owner).ToList();
@@ -139,7 +139,7 @@ public class AccountManagerShould
     public async Task RemoveAccountOwnedOnlyByCurrentOwner()
     {
         IReadOnlyList<TrackedAccount> accounts = GenerateAccounts(1, _owner).ToList().AsReadOnly();
-        _repository.AppendAccounts(accounts);
+        _repository.Append(accounts);
 
         var expected = new TrackedAccount(accounts[0].Id, accounts[0].Name, accounts[0].Bank, accounts[0].Owners)
         {
@@ -154,7 +154,7 @@ public class AccountManagerShould
     public async Task NotRemoveAccountOwnedByMultipleOwners()
     {
         var accounts = GenerateAccounts(1, _fixture.Create<Owner>(), _owner).ToList();
-        _repository.AppendAccounts(accounts);
+        _repository.Append(accounts);
 
         var result = await _manager.Remove(accounts.Single(), CancellationToken.None);
         result.IsSuccess.Should().BeFalse();

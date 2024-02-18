@@ -45,7 +45,8 @@ internal class AccountManager(IAccountsRepository repository, IUser currentUser)
             found.AddOwner(owner);
         }
 
-        return await repository.Update(found, ct);
+        var result = await repository.Update(found, ct);
+        return result.ToResult();
     }
 
     public async Task<Result> Update(TrackedAccount account, CancellationToken ct)
@@ -55,7 +56,8 @@ internal class AccountManager(IAccountsRepository repository, IUser currentUser)
         if (!found.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
 
         found.Rename(account.Name, account.Bank);
-        return await repository.Update(found, ct);
+        var result = await repository.Update(found, ct);
+        return result.ToResult();
     }
 
     public async Task<Result> Remove(TrackedAccount account, CancellationToken ct)

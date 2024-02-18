@@ -102,7 +102,7 @@ internal class Accountant(
     public async Task<Result> Delete(Expression<Func<TrackedTransaction, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        return await transactionsRepository.Delete(criteria, ct);
+        return await transactionsRepository.Remove(criteria, ct);
     }
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
@@ -142,7 +142,7 @@ internal class Accountant(
             }
 
             var trackedTransfer = new TrackedTransfer(transfer.Source, transfer.Sink, transfer.Fee, transfer.Comment) {Accuracy = transfer.Accuracy};
-            var registrationResult = await transfersRepository.Track(trackedTransfer, ct);
+            var registrationResult = await transfersRepository.Register(trackedTransfer, ct);
             result.Reasons.AddRange(registrationResult.Reasons);
         }
 

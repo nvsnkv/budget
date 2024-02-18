@@ -25,14 +25,20 @@ internal class Reckoner(
     {
         var criteria = await ExtendCriteria(query.Conditions, ct);
 
-        var transactions = await transactionsRepo.GetTransactions(criteria, ct);
+        var transactions = await transactionsRepo.Get(criteria, ct);
 
         IReadOnlyCollection<TrackedTransfer> transfers = Empty;
-        if (query.ExcludeTransfers) {
-            transfers = await transfersRepo.GetTransfersFor(transactions, ct);
+        if (query.ExcludeTransfers)
+        {
+            var accounts = await Manager.GetOwnedAccounts(ct);
+            var ids = transactions.Select(t => t.Id).ToList();
+            transfers = await transfersRepo.Get(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id), ct);
+            transfers = transfers
+                .Where(t => accounts.Contains(t.Source.Account) && accounts.Contains(t.Sink.Account))
+                .ToList();
         }
 
-        var exclusions = transfers.SelectMany(IterateTransfer).Select(t => t.Id).ToHashSet();
+        var exclusions = transfers.SelectMany(t => t).Select(t => t.Id).ToHashSet();
 
         foreach (var transaction in transactions.Where(t => !exclusions.Contains(t.Id)))
         {
@@ -40,10 +46,18 @@ internal class Reckoner(
             {
                 yield return await converter.Convert(transaction, query.OutputCurrency!, ct);
             }
+            else
+            {
+                yield return transaction;
+            }
+        }
 
-            yield return transaction;
+        foreach (var transfer in transfers.Where(t => !t.Fee.IsZero()))
+        {
+            yield return transfer.AsTransaction();
         }
     }
+
 
     public async Task<CriteriaBasedLogbook> GetLogbook(LogbookQuery query, CancellationToken ct)
     {
@@ -59,13 +73,7 @@ internal class Reckoner(
     public async Task<IReadOnlyCollection<IReadOnlyCollection<TrackedTransaction>>> GetDuplicates(Expression<Func<TrackedTransaction, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        var transactions = await transactionsRepo.GetTransactions(criteria, ct);
+        var transactions = await transactionsRepo.Get(criteria, ct);
         return detector.DetectDuplicates(transactions);
-    }
-
-    private static IEnumerable<Transaction> IterateTransfer(TrackedTransfer transfer)
-    {
-        yield return transfer.Source;
-        yield return transfer.Sink;
     }
 }

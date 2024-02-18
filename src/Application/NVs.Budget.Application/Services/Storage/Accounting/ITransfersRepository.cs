@@ -6,6 +6,6 @@ namespace NVs.Budget.Application.Services.Storage.Accounting;
 
 public interface ITransfersRepository
 {
-    Task<IReadOnlyCollection<TrackedTransfer>> GetTransfersFor(IEnumerable<TrackedTransaction> transactions, CancellationToken ct);
-    Task<Result> Track(TrackedTransfer transfer, CancellationToken ct);
+    Task<IReadOnlyCollection<TrackedTransfer>> Get(Expression<Func<TrackedTransfer, bool>> filter, CancellationToken ct);
+    Task<Result> Register(TrackedTransfer transfer, CancellationToken ct);
 }
