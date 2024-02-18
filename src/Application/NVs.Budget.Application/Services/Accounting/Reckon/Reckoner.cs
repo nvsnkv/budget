@@ -17,7 +17,7 @@ internal class Reckoner(
     ITransfersRepository transfersRepo,
     MoneyConverter converter,
     DuplicatesDetector detector,
-    AccountManager manager) : ReckonerBase(manager)
+    IAccountManager manager) : ReckonerBase(manager), IReckoner
 {
     private static readonly TrackedTransfer[] Empty = [];
 

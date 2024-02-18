@@ -2,7 +2,7 @@
 
 namespace NVs.Budget.Application.Services.Accounting.Results.Errors;
 
-internal sealed class AccountBelongsToMultipleOwnersError : IError
+internal class AccountBelongsToMultipleOwnersError : IError
 {
     public string Message => "Cannot remove account with more than one owner!";
     public Dictionary<string, object> Metadata { get; } = new();

@@ -17,10 +17,10 @@ namespace NVs.Budget.Application.Services.Accounting;
 internal class Accountant(
     ITransactionsRepository transactionsRepository,
     ITransfersRepository transfersRepository,
-    AccountManager manager,
+    IAccountManager manager,
     TagsManager tagsManager,
     TransfersListBuilder transfersListBuilder,
-    ImportResultBuilder importResultBuilder) :ReckonerBase(manager)
+    ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
     public async Task<ImportResult> ImportTransactions(IAsyncEnumerable<UnregisteredTransaction> transactions, ImportOptions options, CancellationToken ct)
     {
@@ -149,7 +149,14 @@ internal class Accountant(
 
             var trackedTransfer = new TrackedTransfer(transfer.Source, transfer.Sink, transfer.Fee, transfer.Comment) {Accuracy = transfer.Accuracy};
             var registrationResult = await transfersRepository.Register(trackedTransfer, ct);
-            result.Reasons.AddRange(registrationResult.Reasons);
+            if (registrationResult.IsSuccess)
+            {
+                result.Reasons.Add(new TransferTracked(trackedTransfer));
+            }
+            else
+            {
+                result.Reasons.AddRange(registrationResult.Errors);
+            }
         }
 
         return result;

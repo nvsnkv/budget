@@ -7,7 +7,7 @@ using NVs.Budget.Domain.Entities.Accounts;
 
 namespace NVs.Budget.Application.Services.Accounting;
 
-internal class AccountManager(IAccountsRepository repository, IUser currentUser)
+internal class AccountManager(IAccountsRepository repository, IUser currentUser) : IAccountManager
 {
     private readonly Owner _currentOwner = currentUser.AsOwner();
 

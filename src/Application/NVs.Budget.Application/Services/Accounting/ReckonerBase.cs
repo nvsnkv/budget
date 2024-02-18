@@ -4,9 +4,9 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Application.Services.Accounting;
 
-internal class ReckonerBase(AccountManager manager)
+internal abstract class ReckonerBase(IAccountManager manager)
 {
-    protected readonly AccountManager Manager = manager;
+    protected readonly IAccountManager Manager = manager;
 
     private static readonly Expression<Func<TrackedTransaction, bool>> Any = _ => true;
     protected async Task<Expression<Func<TrackedTransaction, bool>>> ExtendCriteria(Expression<Func<TrackedTransaction, bool>>? criteria, CancellationToken ct)
