@@ -2,7 +2,7 @@
 
 namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
-public record TransferCriteria(
+public record TransferCriterion(
     DetectionAccuracy Accuracy,
     string Comment,
     Func<TrackedTransaction, TrackedTransaction, bool> Criterion);

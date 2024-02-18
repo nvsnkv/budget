@@ -5,7 +5,7 @@ namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
 public static class TransferTags
 {
-    public static readonly Tag Transfer = new(nameof(Transfer));
+    public static readonly Tag Transfer = Domain.Entities.Transactions.Transfer.TransferTag;
     public static readonly Tag Source = new(nameof(Domain.Entities.Transactions.Transfer.Source));
     public static readonly Tag Sink = new(nameof(Domain.Entities.Transactions.Transfer.Sink));
 

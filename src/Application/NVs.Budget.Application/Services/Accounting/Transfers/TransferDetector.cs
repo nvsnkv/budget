@@ -5,7 +5,7 @@ using NVs.Budget.Domain.Extensions;
 
 namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
-internal class TransferDetector(IReadOnlyCollection<TransferCriteria> criteria)
+internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
 {
     public Result<TrackedTransfer> Detect(TrackedTransaction source, TrackedTransaction sink)
     {
