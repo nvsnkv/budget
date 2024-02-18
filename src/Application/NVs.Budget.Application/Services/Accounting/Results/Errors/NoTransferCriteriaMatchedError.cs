@@ -2,7 +2,7 @@
 
 namespace NVs.Budget.Application.Services.Accounting.Results.Errors;
 
-public class NoTransferCriteriaMatchedError: IError
+internal class NoTransferCriteriaMatchedError: IError
 {
     public string Message => "No transfer criteria matched for this pair!";
     public Dictionary<string, object> Metadata { get; } = new();

@@ -25,7 +25,7 @@ internal class ReckonerTestData
     {
         var fixture = new Fixture();
         OwnedAccounts = fixture
-            .Create<Generator<TrackedAccount>>()
+            .CreateMany<TrackedAccount>()
             .Take(ownedAccountsCount)
             .ToList();
         foreach (var account in OwnedAccounts)
@@ -35,22 +35,17 @@ internal class ReckonerTestData
 
         OwnedTransactions = OwnedAccounts.SelectMany((a, i) =>
         {
-            var tFixture = new Fixture();
-            tFixture.Customizations.Add(new NamedParameterBuilder<Account>("account", a, false));
-            tFixture.Customizations.Add(i % 2 == 0
-                ? new RandomNumericSequenceGenerator(-1000, -100)
-                : new RandomNumericSequenceGenerator(100, 1001));
+            using (fixture.SetAccount(a))
+            {
+                return i % 2 == 0
+                ? fixture.CreateWithdraws<TrackedTransaction>(ownedTransactionsPerAccount)
+                : fixture.CreateIncomes<TrackedTransaction>(ownedTransactionsPerAccount);
+            }
 
-            return tFixture.Create<Generator<TrackedTransaction>>().Take(ownedTransactionsPerAccount);
         }).ToList();
 
-        var generator = new RandomNumericSequenceGenerator(-99, -1);
-        fixture.Customizations.Add(generator);
-        var withdraws = fixture.Create<Generator<TrackedTransaction>>().Take(notOwnedTransactionsCount / 2);
-
-       fixture.Customizations.Remove(generator);
-       fixture.Customizations.Add(new RandomNumericSequenceGenerator(1,99));
-       var incomes = fixture.Create<Generator<TrackedTransaction>>().Take(notOwnedTransactionsCount / 2);
+       var withdraws = fixture.CreateWithdraws<TrackedTransaction>(notOwnedTransactionsCount / 2);
+       var incomes = fixture.CreateIncomes<TrackedTransaction>(notOwnedTransactionsCount / 2);
        NotOwnedTransactions = withdraws.Concat(incomes).ToList();
     }
 }

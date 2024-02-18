@@ -41,7 +41,7 @@ public class MoneyConverterShould
     [Fact]
     public async Task UseStoredExchangeRateFirst()
     {
-        _fixture.Customizations.Add(new NamedParameterBuilder<CurrencyIsoCode>("currency", CurrencyIsoCode.MYR, false));
+        _fixture.SetCurrency(CurrencyIsoCode.MYR);
         var transaction = _fixture.Create<Transaction>();
         var targetCurrency = Currency.Dkk;
         var rate = 4m;
@@ -61,7 +61,7 @@ public class MoneyConverterShould
     [Fact]
     public async Task UseExternalProviderWhenNoRatesFound()
     {
-        _fixture.Customizations.Add(new NamedParameterBuilder<CurrencyIsoCode>("currency", CurrencyIsoCode.MYR, false));
+        _fixture.SetCurrency(CurrencyIsoCode.MYR);
         var transaction = _fixture.Create<Transaction>();
         var targetCurrency = Currency.Dkk;
         var rate = 4m;

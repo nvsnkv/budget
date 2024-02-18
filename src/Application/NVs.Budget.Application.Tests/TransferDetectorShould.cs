@@ -3,7 +3,6 @@ using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Transfers;
-using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
 
@@ -13,16 +12,10 @@ public class TransferDetectorShould
     [Fact]
     public void DetectTransfersUsingCriteriaList()
     {
-        _fixture.Customizations.Add(new NamedParameterBuilder<CurrencyIsoCode>("currency", _fixture.Create<CurrencyIsoCode>(), false));
-        var generator = new RandomNumericSequenceGenerator(-100, -1);
-        _fixture.Customizations.Add(generator);
-        var source = _fixture.Create<TrackedTransaction>();
-
-        _fixture.Customizations.Remove(generator);
-        _fixture.Customizations.Add(new RandomNumericSequenceGenerator(1, 100));
-
-        var sink = _fixture.Create<TrackedTransaction>();
-        var maybeSink = _fixture.Create<TrackedTransaction>();
+        using var _ = _fixture.SetCurrency(_fixture.Create<CurrencyIsoCode>());
+        var source = _fixture.CreateWithdraws<TrackedTransaction>(1).Single();
+        var sink = _fixture.CreateIncomes<TrackedTransaction>(1).Single();
+        var maybeSink = _fixture.CreateIncomes<TrackedTransaction>(1).Single();
 
         var criteria = new TransferCriterion[]
         {
@@ -47,5 +40,36 @@ public class TransferDetectorShould
 
         result = detector.Detect(maybeSink, sink);
         result.IsSuccess.Should().BeFalse();
+    }
+
+    [Theory]
+    [MemberData(nameof(GetBadOptions))]
+    public void PreserveDomainInvariants(TrackedTransaction source, TrackedTransaction sink, string error)
+    {
+        var criteria = new TransferCriterion[] { new(DetectionAccuracy.Exact, "For sure!", (_ , _) => true) };
+        var detector = new TransferDetector(criteria);
+
+        detector.Detect(source, sink).IsSuccess.Should().BeFalse($"Following error was not tracked: {error}");
+    }
+
+    public static IEnumerable<object[]> GetBadOptions()
+    {
+        var fixture = new Fixture();
+        using (fixture.SetCurrency(fixture.Create<CurrencyIsoCode>()))
+        {
+            var withdraws = fixture.CreateWithdraws<TrackedTransaction>(2);
+            var incomes = fixture.CreateIncomes<TrackedTransaction>(2);
+
+            yield return [withdraws[0], withdraws[1], "both are withdraws"];
+            yield return [incomes[0], withdraws[1], "reversed params, incomes passed instead of withdraw"];
+            yield return [incomes[0], incomes[1], "both are incomes"];
+        }
+
+        fixture.SetCurrency(fixture.Create<CurrencyIsoCode>());
+        var source = fixture.CreateWithdraws<TrackedTransaction>(1).Single();
+        fixture.SetCurrency(fixture.Create<CurrencyIsoCode>());
+        var sink = fixture.CreateIncomes<TrackedTransaction>(1).Single();
+
+        yield return [source, sink, "currencies are different"];
     }
 }
