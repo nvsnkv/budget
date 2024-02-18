@@ -14,6 +14,7 @@ using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Transactions;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Domain.ValueObjects.Criteria;
 
 namespace NVs.Budget.Application.Tests;
 
@@ -64,6 +65,28 @@ public class ReckonerShould
 
         actual.Should().BeEquivalentTo(expectedTransactions);
         actual.Select(a => a.Account).Should().AllSatisfy(a => a.Owners.Contains(_currentOwner).Should().BeTrue());
+    }
+
+    [Fact]
+    public async Task CreateLogbookOnlyFromAccessibleTransactionsThatMatchesCriteria()
+    {
+        var filterIds = _data.AllTransactions.Select((t, i) => i % 2 == 0 ? t : null)
+            .Where(t => t is not null)
+            .Select(t => t!.Id)
+            .ToList();
+
+        var expectedCurrency = _fixture.Create<Currency>();
+        var rate = 1.25m;
+        _ratesProvider
+            .Setup(p => p.Get(It.IsAny<DateTime>(), It.IsAny<Currency>(), expectedCurrency, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExchangeRate(DateTime.Today, Currency.Xxx, expectedCurrency, rate));
+
+        var query = new LogbookQuery(LogbookCriterion: new UniversalCriterion("Everyone"),OutputCurrency: expectedCurrency, t => filterIds.Contains(t.Id));
+        var expectedTransactions = _data.OwnedTransactions.Where(query.Conditions!.Compile()).ToList();
+
+        var logbook = await _reckoner.GetLogbook(query, CancellationToken.None);
+        logbook.Transactions.Select(t => t.Id).Should().BeEquivalentTo(expectedTransactions.Select(t => t.Id));
+        logbook.Transactions.Should().AllSatisfy(t => t.Amount.GetCurrency().Should().Be(expectedCurrency));
     }
 
     [Fact]

@@ -16,11 +16,11 @@ namespace NVs.Budget.Application.Services.Accounting;
 /// </summary>
 internal class Accountant(
     ITransactionsRepository transactionsRepository,
-    AccountManager manager,
-    TransfersListBuilder transfersListBuilder,
     ITransfersRepository transfersRepository,
-    ImportResultBuilder importResultBuilder,
-    TagsManager tagsManager) :ReckonerBase(manager)
+    AccountManager manager,
+    TagsManager tagsManager,
+    TransfersListBuilder transfersListBuilder,
+    ImportResultBuilder importResultBuilder) :ReckonerBase(manager)
 {
     public async Task<ImportResult> ImportTransactions(IAsyncEnumerable<UnregisteredTransaction> transactions, ImportOptions options, CancellationToken ct)
     {
@@ -56,7 +56,13 @@ internal class Accountant(
                     {
                         importResultBuilder.Append(transactionResult);
                     }
+                    else
+                    {
+                        transaction = transactionResult.Value;
+                    }
                 }
+
+                transfersListBuilder.Add(transaction);
             }
         }
 
@@ -164,7 +170,7 @@ internal class Accountant(
             : Result.Fail(updateResult.Errors);
     }
 
-    private async Task<Result<TrackedAccount>> TryGetAccount(List<TrackedAccount> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
+    private async Task<Result<TrackedAccount>> TryGetAccount(ICollection<TrackedAccount> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
     {
         var registeredAccount = accounts.FirstOrDefault(a => a.Name == account.Name && a.Bank == account.Bank);
         if (registeredAccount is not null) return Result.Ok(registeredAccount);
