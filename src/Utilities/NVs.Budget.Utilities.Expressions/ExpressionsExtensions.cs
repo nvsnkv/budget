@@ -18,8 +18,13 @@ public static class ExpressionsExtensions
             Expression.AndAlso(left, right), parameter);
     }
 
-    private class ReplaceExpressionVisitor(Expression oldValue, Expression newValue) : ExpressionVisitor
+    public static Expression<Func<TTo, bool>> ConvertTypes<TFrom, TTo>(this Expression<Func<TFrom, bool>> expression, IReadOnlyDictionary<Type, Type> mappings)
     {
-        public override Expression? Visit(Expression? node) => node == oldValue ? newValue : base.Visit(node);
+        if (!mappings.Keys.Contains(typeof(TFrom))) throw new ArgumentException($"Mapping from {nameof(TFrom)} is not defined!");
+        if (mappings[typeof(TFrom)] != typeof(TTo)) throw new AggregateException($"Mapping from ${typeof(TFrom)} is defined to another type!");
+
+        var visitor = new ReplaceTypeVisitor(mappings);
+        return (Expression<Func<TTo, bool>>)visitor.Visit(expression);
+
     }
 }
