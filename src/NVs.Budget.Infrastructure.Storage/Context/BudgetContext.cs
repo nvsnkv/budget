@@ -3,15 +3,9 @@ using NVs.Budget.Infrastructure.Storage.Entities;
 
 namespace NVs.Budget.Infrastructure.Storage.Context;
 
-internal class BudgetContext : DbContext
+internal class BudgetContext(DbContextOptions options) : DbContext(options)
 {
-    protected BudgetContext()
-    {
-    }
-
-    public BudgetContext(DbContextOptions options) : base(options)
-    {
-    }
+    public BudgetContext() : this(new DbContextOptionsBuilder<BudgetContext>().UseNpgsql().Options) { }
 
     public DbSet<StoredOwner> Owners { get; init; } = null!;
 
@@ -19,8 +13,12 @@ internal class BudgetContext : DbContext
 
     public DbSet<StoredTransaction> Transactions { get; init; } = null!;
 
+    public DbSet<StoredRate> Rates { get; init; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseIdentityByDefaultColumns();
+
         modelBuilder.Entity<StoredOwner>()
             .HasMany(o => o.Accounts)
             .WithMany(a => a.Owners);

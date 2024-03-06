@@ -1,5 +1,8 @@
-﻿namespace NVs.Budget.Domain.Entities;
+﻿using System.Diagnostics;
 
+namespace NVs.Budget.Domain.Entities;
+
+[DebuggerDisplay("{GetType().Name}: {Id}")]
 public abstract class EntityBase<T> where T: struct
 {
     protected EntityBase(T id)

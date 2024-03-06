@@ -1,44 +1,33 @@
 ﻿using AutoFixture;
-using AutoMapper;
 using FluentAssertions;
+using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Entities.Accounting;
-using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Infrastructure.Storage.Entities;
 using NVs.Budget.Infrastructure.Storage.Repositories;
+using NVs.Budget.Infrastructure.Storage.Repositories.Results;
 using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.Storage.Tests;
 
 [Collection(nameof(DatabaseCollectionFixture))]
-public class AccountsRepositoryShould
+public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<DbContextManager>
 {
-    private readonly Fixture _fixture = new();
-    private readonly DatabaseCollectionFixture.PostgreSqlDbContext _contextAccessor;
-    private readonly AccountsRepository _repo;
-    private readonly IMapper _mapper;
-
-    public AccountsRepositoryShould(DatabaseCollectionFixture.PostgreSqlDbContext contextAccessor)
-    {
-        _contextAccessor = contextAccessor;
-
-        _mapper = new Mapper(new MapperConfiguration(c => c.AddProfile(new MappingProfile())));
-        _repo = new AccountsRepository(_mapper, _contextAccessor.GetDbBudgetContext());
-    }
+    private readonly AccountsRepository _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
 
     [Fact]
     public async Task RegisterAnAccount()
     {
-        var owner = _mapper.Map<Owner>(await GetOwner());
+        var owner = manager.TestData.Owners.First();
 
-        var account = _fixture.Create<UnregisteredAccount>();
+        var account = manager.TestData.Fixture.Create<UnregisteredAccount>();
         var result = await _repo.Register(account, owner, CancellationToken.None);
 
-        result.IsSuccess.Should().BeTrue();
+        result.Should().BeSuccess();
 
         var created = result.Value;
-        created.Should().NotBeNull();
-        created.Should().BeEquivalentTo(account);
+        created.Should().NotBeNull().And.BeEquivalentTo(account);
+        created.Id.Should().NotBe(default(Guid));
+        created.Version.Should().NotBeNullOrEmpty();
 
         var red = await _repo.Get(a => a.Id == created.Id, CancellationToken.None);
         red.Should().HaveCount(1);
@@ -46,38 +35,55 @@ public class AccountsRepositoryShould
     }
 
     [Fact]
-    public async Task UpdateAccount()
+    public async Task GetAccount()
     {
-        var id = _fixture.Create<Guid>();
-        _fixture.SetNamedParameter(nameof(id), id);
-        var account = _fixture.Build<StoredAccount>()
-            .Without(a => a.Owners)
-            .Without(a => a.Transactions)
-            .Create();
-
-        var owner = await GetOwner();
-        account.Owners.Add(owner);
-
-        await using var context = _contextAccessor.GetDbBudgetContext();
-        await context.Accounts.AddAsync(account);
-        await context.SaveChangesAsync();
-
-        var expected = _fixture.Create<TrackedAccount>();
-        expected.AddOwner(_mapper.Map<Owner>(owner));
-
-        var updated = await _repo.Update(expected, CancellationToken.None);
-        updated.IsSuccess.Should().BeTrue();
-        updated.Value.Should().BeEquivalentTo(expected);
+        var expected = manager.TestData.Accounts.Last();
+        var collection = await _repo.Get(a => a.Id == expected.Id, CancellationToken.None);
+        collection.Should().HaveCount(1);
+        collection.Single().Should().BeEquivalentTo(expected, c => c.ComparingByMembers<TrackedAccount>());
     }
 
-
-
-    private async Task<StoredOwner> GetOwner()
+    [Fact]
+    public async Task UpdateAccountIfVersionsAreTheSame()
     {
-        var owner = _mapper.Map<StoredOwner>(_fixture.Create<Owner>());
-        await using var context = _contextAccessor.GetDbBudgetContext();
-        await context.AddAsync(owner);
-        await context.SaveChangesAsync();
-        return owner;
+        var target = manager.TestData.Accounts.First();
+        var fixture = manager.TestData.Fixture;
+        TrackedAccount updated;
+        using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
+        using (fixture.SetNamedParameter(nameof(target.Owners).ToLower(), manager.TestData.Owners.AsEnumerable()))
+        {
+            updated = fixture.Create<TrackedAccount>();
+        }
+
+        updated.Version = target.Version;
+
+        var result = await _repo.Update(updated, CancellationToken.None);
+        result.Should().BeSuccess();
+        result.Value.Should().BeEquivalentTo(
+            updated,
+            c => c.ComparingByMembers<TrackedAccount>()
+                .Excluding(a => a.Version)
+        );
+        result.Value.Version.Should().NotBeNull().And.NotBe(target.Version);
     }
+
+    [Fact]
+    public async Task NotUpdateAccountIfVersionsAreDifferent()
+    {
+        var target = manager.TestData.Accounts.First();
+        var fixture = manager.TestData.Fixture;
+        TrackedAccount updated;
+        using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
+        using (fixture.SetNamedParameter(nameof(target.Owners).ToLower(), manager.TestData.Owners.AsEnumerable()))
+        {
+            updated = fixture.Create<TrackedAccount>();
+        }
+
+        updated.Version = fixture.Create<string>();
+
+        var result = await _repo.Update(updated, CancellationToken.None);
+        result.Should().BeFailure();
+        result.Should().HaveReason<VersionDoesNotMatchError<TrackedAccount, Guid>>("Version of entity differs from recorded entity!");
+    }
+
 }
