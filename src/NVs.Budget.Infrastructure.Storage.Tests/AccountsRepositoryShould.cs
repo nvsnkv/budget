@@ -46,7 +46,10 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
     [Fact]
     public async Task UpdateAccountIfVersionsAreTheSame()
     {
-        var target = manager.TestData.Accounts.First();
+        var id = manager.TestData.Accounts.First().Id;
+        var targets = await _repo.Get(a => a.Id == id, CancellationToken.None);
+        var target = targets.Single();
+
         var fixture = manager.TestData.Fixture;
         TrackedAccount updated;
         using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
