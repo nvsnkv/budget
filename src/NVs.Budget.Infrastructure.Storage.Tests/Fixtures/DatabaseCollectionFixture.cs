@@ -20,7 +20,6 @@ public class DbContextManager : IAsyncLifetime
     {
         c.AddProfile<MappingProfile>();
         c.AddCollectionMappers();
-        c.UseEntityFrameworkCoreModel<BudgetContext>();
     }));
 
     public async Task InitializeAsync()

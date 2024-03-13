@@ -5,8 +5,6 @@ namespace NVs.Budget.Infrastructure.Storage.Context;
 
 internal class BudgetContext(DbContextOptions options) : DbContext(options)
 {
-    public BudgetContext() : this(new DbContextOptionsBuilder<BudgetContext>().UseNpgsql().Options) { }
-
     public DbSet<StoredOwner> Owners { get; init; } = null!;
 
     public DbSet<StoredAccount> Accounts { get; init; } = null!;

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Storage.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    [Migration("20240224185236_inital")]
-    partial class inital
+    [Migration("20240310172526_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,7 +49,6 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Version")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -100,7 +99,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("StoredRate");
+                    b.ToTable("Rates");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredTransaction", b =>
@@ -112,6 +111,12 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -119,8 +124,10 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Version")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

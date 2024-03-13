@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Storage.Migrations
 {
     /// <inheritdoc />
-    public partial class inital : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Bank = table.Column<string>(type: "text", nullable: false),
-                    Version = table.Column<string>(type: "text", nullable: false),
+                    Version = table.Column<string>(type: "text", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Deleted = table.Column<bool>(type: "boolean", nullable: false)
@@ -53,8 +53,11 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     Amount_Amount = table.Column<decimal>(type: "numeric", nullable: true),
                     Amount_Currency = table.Column<int>(type: "integer", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    Version = table.Column<string>(type: "text", nullable: false),
+                    Version = table.Column<string>(type: "text", nullable: true),
                     AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Deleted = table.Column<bool>(type: "boolean", nullable: false),
                     Attributes = table.Column<string>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
@@ -64,6 +67,26 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         name: "FK_Transactions_Accounts_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rates",
+                columns: table => new
+                {
+                    AsOf = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    From = table.Column<int>(type: "integer", nullable: false),
+                    To = table.Column<int>(type: "integer", nullable: false),
+                    Rate = table.Column<decimal>(type: "numeric", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.ForeignKey(
+                        name: "FK_Rates_Owners_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Owners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -93,26 +116,6 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StoredRate",
-                columns: table => new
-                {
-                    AsOf = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    From = table.Column<int>(type: "integer", nullable: false),
-                    To = table.Column<int>(type: "integer", nullable: false),
-                    Rate = table.Column<decimal>(type: "numeric", nullable: false),
-                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.ForeignKey(
-                        name: "FK_StoredRate_Owners_OwnerId",
-                        column: x => x.OwnerId,
-                        principalTable: "Owners",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "StoredTag",
                 columns: table => new
                 {
@@ -133,14 +136,14 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Rates_OwnerId",
+                table: "Rates",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StoredAccountStoredOwner_OwnersId",
                 table: "StoredAccountStoredOwner",
                 column: "OwnersId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StoredRate_OwnerId",
-                table: "StoredRate",
-                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_AccountId",
@@ -152,10 +155,10 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "StoredAccountStoredOwner");
+                name: "Rates");
 
             migrationBuilder.DropTable(
-                name: "StoredRate");
+                name: "StoredAccountStoredOwner");
 
             migrationBuilder.DropTable(
                 name: "StoredTag");

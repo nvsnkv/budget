@@ -46,7 +46,6 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Version")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -97,7 +96,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("StoredRate");
+                    b.ToTable("Rates");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredTransaction", b =>
@@ -109,6 +108,12 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -116,8 +121,10 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Version")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

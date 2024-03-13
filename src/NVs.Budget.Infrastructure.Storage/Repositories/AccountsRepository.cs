@@ -44,7 +44,10 @@ internal class AccountsRepository(IMapper mapper, BudgetContext context, Version
 
     protected override Task<StoredAccount?> GetTarget(TrackedAccount item, CancellationToken ct)
     {
-        return context.Accounts.Include(a => a.Owners.Where(o => !o.Deleted)).FirstOrDefaultAsync(ct);
+        return context.Accounts
+            .Include(a => a.Owners.Where(o => !o.Deleted))
+            .Where(a => a.Id == item.Id)
+            .FirstOrDefaultAsync(ct);
     }
 
     protected override async Task<Result<StoredAccount>> Update(StoredAccount target, TrackedAccount updated, CancellationToken ct)

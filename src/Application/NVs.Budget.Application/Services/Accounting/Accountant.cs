@@ -108,7 +108,26 @@ internal class Accountant(
     public async Task<Result> Delete(Expression<Func<TrackedTransaction, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        return await transactionsRepository.Remove(criteria, ct);
+        var targets = await transactionsRepository.Get(criteria, ct);
+        var successes = new List<Success>();
+        var errors = new List<IError>();
+        foreach (var target in targets)
+        {
+            var opResult = await transactionsRepository.Remove(target, ct);
+            if (opResult.IsSuccess)
+            {
+                successes.Add(new TransactionRemoved(target));
+            }
+            else
+            {
+                errors.AddRange(opResult.Errors);
+            }
+        }
+
+        var result = errors.Any() ? Result.Fail(errors) : Result.Ok();
+        result.Reasons.AddRange(successes);
+
+        return result;
     }
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
