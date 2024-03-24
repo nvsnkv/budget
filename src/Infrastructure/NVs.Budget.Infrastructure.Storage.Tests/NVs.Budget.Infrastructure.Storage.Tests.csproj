@@ -27,9 +27,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Application\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj" />
       <ProjectReference Include="..\NVs.Budget.Infrastructure.Storage\NVs.Budget.Infrastructure.Storage.csproj" />
-      <ProjectReference Include="..\Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj" />
     </ItemGroup>
 
 </Project>

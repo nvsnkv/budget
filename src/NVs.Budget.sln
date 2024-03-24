@@ -18,9 +18,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.Expres
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{BBC78D28-4FE0-4044-8540-5E026D8BACB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Storage", "NVs.Budget.Infrastructure.Storage\NVs.Budget.Infrastructure.Storage.csproj", "{8BE1189F-A57A-4904-B167-675F3E4EBA3E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Storage", "Infrastructure\NVs.Budget.Infrastructure.Storage\NVs.Budget.Infrastructure.Storage.csproj", "{8BE1189F-A57A-4904-B167-675F3E4EBA3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Storage.Tests", "NVs.Budget.Infrastructure.Storage.Tests\NVs.Budget.Infrastructure.Storage.Tests.csproj", "{C955D374-83C1-43CC-9778-5A58EFFCF949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Storage.Tests", "Infrastructure\NVs.Budget.Infrastructure.Storage.Tests\NVs.Budget.Infrastructure.Storage.Tests.csproj", "{C955D374-83C1-43CC-9778-5A58EFFCF949}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

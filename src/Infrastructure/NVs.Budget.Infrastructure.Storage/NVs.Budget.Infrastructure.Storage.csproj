@@ -20,8 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
-      <ProjectReference Include="..\Application\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
