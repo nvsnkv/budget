@@ -15,6 +15,8 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 
     public DbSet<StoredRate> Rates { get; init; } = null!;
 
+    public DbSet<StoredTransfer> Transfers { get; init; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseIdentityByDefaultColumns();
@@ -32,16 +34,23 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
             .HasMany(a => a.Operations)
             .WithOne(t => t.Account);
 
-        var tBuilder = modelBuilder.Entity<StoredOperation>();
-        tBuilder.OwnsOne(t => t.Amount);
-        tBuilder.OwnsMany(t => t.Tags).WithOwner();
-        tBuilder.Property(t => t.Attributes)
+        var oBuilder = modelBuilder.Entity<StoredOperation>();
+        oBuilder.OwnsOne(t => t.Amount);
+        oBuilder.OwnsMany(t => t.Tags).WithOwner();
+        oBuilder.Property(t => t.Attributes)
             .HasColumnType("jsonb")
             .HasConversion(
                 v => v.ToJsonString(),
                 v => v.ToDictionary(),
                 new ShallowDictionaryComparer()
             );
+        oBuilder.HasOne<StoredTransfer>(o => o.SourceTransfer);
+        oBuilder.HasOne<StoredTransfer>(o => o.SinkTransfer);
+
+        var tBuilder = modelBuilder.Entity<StoredTransfer>();
+        tBuilder.OwnsOne(t => t.Fee);
+        tBuilder.HasOne(t => t.Source);
+        tBuilder.HasOne(t => t.Sink);
 
         base.OnModelCreating(modelBuilder);
     }

@@ -7,6 +7,7 @@ using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Storage.Entities;
+using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.Storage.Tests;
@@ -15,10 +16,12 @@ public class MappingProfileShould
 {
     private static readonly Dictionary<Type, Action<Fixture>> Setup = new()
     {
-        { typeof(ExchangeRate), SetupCurrenciesForRatesTest }
+        { typeof(ExchangeRate), SetupCurrenciesForRatesTest },
+        { typeof(TrackedTransfer), SetupOperationsForTransfersTest }
     };
 
     private readonly Fixture _fixture = new();
+
     private readonly Mapper _mapper = new(new MapperConfiguration(config => config.AddProfile(new MappingProfile())));
 
     [Theory]
@@ -28,6 +31,7 @@ public class MappingProfileShould
     [InlineData(typeof(TrackedOperation), typeof(StoredOperation))]
     [InlineData(typeof(ExchangeRate), typeof(StoredRate))]
     [InlineData(typeof(Money), typeof(StoredMoney))]
+    [InlineData(typeof(TrackedTransfer), typeof(StoredTransfer))]
     public void ContainMappingsForDomainEntities(Type sourceType, Type destType)
     {
         if (Setup.TryGetValue(sourceType, out var setup))
@@ -38,6 +42,11 @@ public class MappingProfileShould
         var dest = _mapper.Map(instance, sourceType, destType);
         var back = _mapper.Map(dest, destType, sourceType);
         back.Should().BeEquivalentTo(instance);
+    }
+
+    private static void SetupOperationsForTransfersTest(Fixture fixture)
+    {
+        fixture.Customizations.Add(new TransferOperationsBuilder());
     }
 
     private static void SetupCurrenciesForRatesTest(Fixture fixture)

@@ -19,4 +19,8 @@ internal class StoredOperation(Guid id, DateTime timestamp, string description) 
     public Dictionary<string, object> Attributes { get; set; } = new();
 
     public virtual StoredAccount Account { get; init; } = StoredAccount.Invalid;
+    public virtual StoredTransfer? SourceTransfer { get; set; }
+    public virtual StoredTransfer? SinkTransfer { get; set; }
+
+    public static readonly StoredOperation Invalid = new(Guid.Empty, DateTime.MinValue, string.Empty);
 }

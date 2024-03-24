@@ -2,6 +2,7 @@
 using NMoneys;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Infrastructure.Storage.Entities;
@@ -15,7 +16,8 @@ internal class MappingProfile : Profile
         { typeof(Owner), typeof(StoredOwner) },
         { typeof(TrackedAccount), typeof(StoredAccount) },
         { typeof(TrackedOperation), typeof(StoredOperation) },
-        { typeof(ExchangeRate), typeof(StoredRate) }
+        { typeof(ExchangeRate), typeof(StoredRate) },
+        { typeof(TrackedTransfer), typeof(StoredTransfer) }
     };
 
     public MappingProfile()
@@ -29,7 +31,9 @@ internal class MappingProfile : Profile
         CreateMap<Owner, StoredOwner>().ReverseMap();
         CreateMap<Account, StoredAccount>().ReverseMap();
         CreateMap<TrackedAccount, StoredAccount>().ReverseMap();
+        CreateMap<Operation, StoredOperation>().ReverseMap();
         CreateMap<TrackedOperation, StoredOperation>().ReverseMap();
+        CreateMap<TrackedTransfer, StoredTransfer>().ReverseMap();
 
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
     }
