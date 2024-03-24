@@ -1,10 +1,8 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Application.Entities;
-using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Infrastructure.Storage.Entities;
 using NVs.Budget.Infrastructure.Storage.Repositories.Results;
 using NVs.Budget.Utilities.Expressions;

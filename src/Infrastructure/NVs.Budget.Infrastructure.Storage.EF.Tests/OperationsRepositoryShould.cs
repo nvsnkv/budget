@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Infrastructure.Storage.Repositories;

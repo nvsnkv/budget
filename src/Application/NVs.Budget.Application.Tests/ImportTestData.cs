@@ -4,7 +4,6 @@ using NMoneys;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;

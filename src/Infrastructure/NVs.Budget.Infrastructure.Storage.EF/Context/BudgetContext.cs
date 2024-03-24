@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NMoneys;
+using NVs.Budget.Infrastructure.Storage.Context.DictionariesSupport;
 using NVs.Budget.Infrastructure.Storage.Entities;
 
 namespace NVs.Budget.Infrastructure.Storage.Context;
@@ -39,7 +39,8 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
             .HasColumnType("jsonb")
             .HasConversion(
                 v => v.ToJsonString(),
-                v => v.ToDictionary()
+                v => v.ToDictionary(),
+                new ShallowDictionaryComparer()
             );
 
         base.OnModelCreating(modelBuilder);

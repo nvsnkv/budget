@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Domain.Entities.Operations;

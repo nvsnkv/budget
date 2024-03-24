@@ -2,7 +2,7 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-namespace NVs.Budget.Infrastructure.Storage.Context;
+namespace NVs.Budget.Infrastructure.Storage.Context.DictionariesSupport;
 
 internal static class DictionaryToJsonExtensions
 {
