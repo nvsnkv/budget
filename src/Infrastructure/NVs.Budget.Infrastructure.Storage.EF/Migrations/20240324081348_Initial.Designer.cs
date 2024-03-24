@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NVs.Budget.Infrastructure.Storage.Context;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Storage.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    partial class BudgetContextModelSnapshot : ModelSnapshot
+    [Migration("20240324081348_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -53,7 +56,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredOperation", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOperation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,7 +95,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("Operations");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredOwner", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOwner", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,7 +119,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("Owners");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredRate", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredRate", b =>
                 {
                     b.Property<DateTime>("AsOf")
                         .HasColumnType("timestamp with time zone");
@@ -153,15 +156,15 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("StoredAccountStoredOwner");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredOperation", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOperation", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", "Account")
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", "Account")
                         .WithMany("Operations")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("NVs.Budget.Infrastructure.Storage.Entities.StoredMoney", "Amount", b1 =>
+                    b.OwnsOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredMoney", "Amount", b1 =>
                         {
                             b1.Property<Guid>("StoredOperationId")
                                 .HasColumnType("uuid");
@@ -180,7 +183,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                                 .HasForeignKey("StoredOperationId");
                         });
 
-                    b.OwnsMany("NVs.Budget.Infrastructure.Storage.Entities.StoredTag", "Tags", b1 =>
+                    b.OwnsMany("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredTag", "Tags", b1 =>
                         {
                             b1.Property<Guid>("StoredOperationId")
                                 .HasColumnType("uuid");
@@ -211,9 +214,9 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Navigation("Tags");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredRate", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredRate", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredOwner", "Owner")
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOwner", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -224,20 +227,20 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
 
             modelBuilder.Entity("StoredAccountStoredOwner", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", null)
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", null)
                         .WithMany()
                         .HasForeignKey("AccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredOwner", null)
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOwner", null)
                         .WithMany()
                         .HasForeignKey("OwnersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", b =>
                 {
                     b.Navigation("Operations");
                 });
