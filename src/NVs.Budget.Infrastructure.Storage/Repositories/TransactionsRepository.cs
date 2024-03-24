@@ -8,17 +8,30 @@ using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Storage.Context;
 using NVs.Budget.Infrastructure.Storage.Entities;
 using NVs.Budget.Infrastructure.Storage.Repositories.Results;
+using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Storage.Repositories;
 
 internal class TransactionsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator) :
     RepositoryBase<TrackedTransaction, Guid, StoredTransaction>(mapper, versionGenerator), ITransactionsRepository
 {
-    protected override IQueryable<StoredTransaction> GetData(Expression<Func<StoredTransaction, bool>> expression) =>
-        context.Transactions
+    private readonly ExpressionSplitter _splitter = new();
+
+    public override async Task<IReadOnlyCollection<TrackedTransaction>> Get(Expression<Func<TrackedTransaction, bool>> filter, CancellationToken ct)
+    {
+        var expression = filter.ConvertTypes<TrackedTransaction, StoredTransaction>(MappingProfile.TypeMappings);
+        expression = expression.CombineWith(a => !a.Deleted);
+
+        var (queryable, enumerable) = _splitter.Split(expression);
+        var query = context.Transactions
             .Include(t => t.Account)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
-            .Where(expression);
+            .Where(queryable);
+
+        var items = await query.AsNoTracking().ToListAsync(ct);
+        items = items.Where(enumerable).ToList();
+        return Mapper.Map<List<TrackedTransaction>>(items).AsReadOnly();
+    }
 
     protected override Task<StoredTransaction?> GetTarget(TrackedTransaction item, CancellationToken ct)
     {
@@ -32,19 +45,17 @@ internal class TransactionsRepository(IMapper mapper, BudgetContext context, Ver
         {
             return Result.Fail(new CannotChangeAccountError(updated));
         }
-        else
-        {
-            target.Amount = Mapper.Map<StoredMoney>(updated.Amount);
-            target.Timestamp = updated.Timestamp;
-            target.Description = updated.Description;
 
-            UpdateTags(target.Tags, updated.Tags);
-            target.Attributes = updated.Attributes.ToJson();
+        target.Amount = Mapper.Map<StoredMoney>(updated.Amount);
+        target.Timestamp = updated.Timestamp;
+        target.Description = updated.Description;
 
-            await context.SaveChangesAsync(ct);
+        UpdateTags(target.Tags, updated.Tags);
+        target.Attributes = updated.Attributes.ToDictionary();
 
-            return Result.Ok(target);
-        }
+        await context.SaveChangesAsync(ct);
+
+        return Result.Ok(target);
     }
 
     private void UpdateTags(IList<StoredTag> targetTags, IReadOnlyCollection<Tag> updatedTags)
@@ -83,7 +94,7 @@ internal class TransactionsRepository(IMapper mapper, BudgetContext context, Ver
         {
             Account = storedAccount,
             Amount = Mapper.Map<StoredMoney>(transaction.Amount),
-            Attributes = new Dictionary<string, object>(transaction.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>()).ToJson()
+            Attributes = new Dictionary<string, object>(transaction.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
         };
 
         BumpVersion(storedTransaction);
@@ -91,5 +102,10 @@ internal class TransactionsRepository(IMapper mapper, BudgetContext context, Ver
         await context.SaveChangesAsync(ct);
 
         return Mapper.Map<TrackedTransaction>(storedTransaction);
+    }
+
+    protected override IQueryable<StoredTransaction> GetData(Expression<Func<StoredTransaction, bool>> expression)
+    {
+        throw new NotImplementedException();
     }
 }

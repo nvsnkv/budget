@@ -17,13 +17,13 @@ internal abstract class RepositoryBase<TItem, TKey, TRecord>(IMapper mapper, Ver
     where TKey : struct
 {
     protected readonly IMapper Mapper = mapper;
-    public async Task<IReadOnlyCollection<TItem>> Get(Expression<Func<TItem, bool>> filter, CancellationToken ct)
+    public virtual async Task<IReadOnlyCollection<TItem>> Get(Expression<Func<TItem, bool>> filter, CancellationToken ct)
     {
         var expression = filter.ConvertTypes<TItem, TRecord>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
-        var items = await GetData(expression).AsNoTracking().ProjectTo<TItem>(Mapper.ConfigurationProvider).ToListAsync(ct);
-        return items;
+        var items = await GetData(expression).AsNoTracking().ToListAsync(ct);
+        return Mapper.Map<List<TItem>>(items).AsReadOnly();
     }
 
     public async Task<Result<TItem>> Update(TItem item, CancellationToken ct)

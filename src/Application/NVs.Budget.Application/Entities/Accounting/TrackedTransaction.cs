@@ -5,7 +5,7 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Application.Entities.Accounting;
 
-public class TrackedTransaction(
+public class  TrackedTransaction(
     Guid id,
     DateTime timestamp,
     Money amount,

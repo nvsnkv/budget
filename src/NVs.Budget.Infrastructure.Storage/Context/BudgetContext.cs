@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Infrastructure.Storage.Entities;
 
 namespace NVs.Budget.Infrastructure.Storage.Context;
@@ -32,10 +33,12 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         var tBuilder = modelBuilder.Entity<StoredTransaction>();
         tBuilder.OwnsOne(t => t.Amount);
         tBuilder.OwnsMany(t => t.Tags).WithOwner();
-        tBuilder.OwnsOne(t => t.Attributes, d =>
-        {
-            d.ToJson();
-        });
+        tBuilder.Property(t => t.Attributes)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, new JsonSerializerOptions(JsonSerializerDefaults.General)),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, new JsonSerializerOptions(JsonSerializerDefaults.General))!
+            );
 
         base.OnModelCreating(modelBuilder);
     }

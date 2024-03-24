@@ -4,6 +4,7 @@ using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Infrastructure.Storage.Repositories;
 using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
 using FluentResults.Extensions.FluentAssertions;
+using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Utilities.Testing;
 
@@ -14,6 +15,7 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
 {
     private readonly Fixture _fixture;
     private readonly TransactionsRepository _repo;
+    private readonly AccountsRepository _accountsRepo;
     private readonly TestDataFixture _testData;
 
     public TransactionsRepositoryShould(DbContextManager manager)
@@ -25,6 +27,7 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
         }
 
         _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
+        _accountsRepo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
         _testData = manager.TestData;
     }
 
@@ -32,15 +35,17 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
     public async Task RegisterTransactionSuccessfully()
     {
         var transaction = _fixture.Create<UnregisteredTransaction>();
-        var account = _testData.Accounts.First();
+        var accountId = _testData.Accounts.First().Id;
+        var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
+        var account = accounts.Single();
 
         var result = await _repo.Register(transaction, account, CancellationToken.None);
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
-        trackedTransaction.Should().BeEquivalentTo(transaction);
+        trackedTransaction.Should().BeEquivalentTo(transaction, c => c.Excluding(t => t.Account));
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
-        trackedTransaction.Account.Should().BeEquivalentTo(account);
+        trackedTransaction.Account.Should().BeEquivalentTo((Account)account, c => c.ComparingByMembers<Account>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -68,7 +73,10 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
     private async Task<TrackedTransaction> AddTransaction()
     {
         var unregistered = _fixture.Create<UnregisteredTransaction>();
-        var account = _testData.Accounts.First();
+        var accountId = _testData.Accounts.First().Id;
+
+        var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
+        var account = accounts.Single();
 
         var result = await _repo.Register(unregistered, account, CancellationToken.None);
         result.Should().BeSuccess();
@@ -79,7 +87,7 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
     [Fact]
     public async Task GetTransactionsThatMatchQuery()
     {
-        var key = _fixture.Create<string>();
+        var key = _fixture.Create<string>().Substring(0,5);
         var value = _fixture.Create<string>();
 
         var transaction = await AddTransaction();
@@ -96,10 +104,11 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
     [Fact]
     public async Task DeleteTransactions()
     {
-        var transactions = await AddTransaction();
-        var result = await _repo.Remove(transactions, CancellationToken.None);
+        var transaction = await AddTransaction();
+        var result = await _repo.Remove(transaction, CancellationToken.None);
+        result.Should().BeSuccess();
 
-        var items = await _repo.Get(t => t.Id == transactions.Id, CancellationToken.None);
+        var items = await _repo.Get(t => t.Id == transaction.Id, CancellationToken.None);
         items.Should().HaveCount(0);
     }
 
