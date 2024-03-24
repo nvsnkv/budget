@@ -33,7 +33,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
@@ -43,7 +43,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Updated")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Version")
@@ -67,7 +67,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
@@ -80,7 +80,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("Updated")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Version")
@@ -99,7 +99,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
@@ -109,7 +109,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Updated")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -126,7 +126,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<DateTime>("AsOf")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("Created")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("Deleted")
@@ -144,7 +144,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Property<int>("To")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("Updated")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

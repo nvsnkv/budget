@@ -2,7 +2,8 @@
 
 internal class DbRecord
 {
-    public DateTime Created { get; init; } = DateTime.UtcNow;
-    public DateTime? Updated { get; set; }
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; }
+
     public bool Deleted { get; set; }
 }
