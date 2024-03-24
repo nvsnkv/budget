@@ -10,5 +10,5 @@ internal class StoredOwner(Guid id, string name) : DbRecord
     public Guid Id { get; private set; } = id;
     public string Name { get; set; } = name;
 
-    public virtual IList<StoredAccount> Accounts { get; init; }= new List<StoredAccount>();
+    public virtual IList<StoredAccount> Accounts { get; init; } = new List<StoredAccount>();
 }

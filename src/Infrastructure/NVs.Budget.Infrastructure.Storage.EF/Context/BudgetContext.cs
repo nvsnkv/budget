@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using NMoneys;
 using NVs.Budget.Infrastructure.Storage.Entities;
 
 namespace NVs.Budget.Infrastructure.Storage.Context;
@@ -17,14 +18,15 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseIdentityByDefaultColumns();
+        modelBuilder.HasPostgresEnum<CurrencyIsoCode>();
 
         modelBuilder.Entity<StoredOwner>()
             .HasMany(o => o.Accounts)
             .WithMany(a => a.Owners);
 
         var rBuilder = modelBuilder.Entity<StoredRate>();
-        rBuilder.HasNoKey();
-        rBuilder.HasOne(r => r.Owner).WithMany();
+        rBuilder.HasOne(r => r.Owner).WithMany()
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<StoredAccount>()
             .HasMany(a => a.Operations)

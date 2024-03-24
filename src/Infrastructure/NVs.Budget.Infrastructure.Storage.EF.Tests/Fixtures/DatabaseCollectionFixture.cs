@@ -26,7 +26,7 @@ public class DbContextManager : IAsyncLifetime
     {
         await _postgreSqlContainer.StartAsync();
         var context = GetDbBudgetContext();
-        await context.Database.MigrateAsync();
+        await new PostgreSqlDbMigrator(context).MigrateAsync(CancellationToken.None);
 
         var owners = Mapper.Map<IEnumerable<StoredOwner>>(TestData.Owners).ToList().ToDictionary(o => o.Id);
         var accounts = Mapper.Map<IEnumerable<StoredAccount>>(TestData.Accounts).ToList();

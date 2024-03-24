@@ -12,6 +12,9 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:currency_iso_code", "aed,afn,all,amd,ang,aoa,ars,aud,awg,azn,bam,bbd,bdt,bgn,bhd,bif,bmd,bnd,bob,bov,brl,bsd,btn,bwp,byn,byr,bzd,cad,cdf,che,chf,chw,clf,clp,cny,cop,cou,crc,cuc,cup,cve,czk,djf,dkk,dop,dzd,eek,egp,ern,etb,eur,fjd,fkp,gbp,gel,ghs,gip,gmd,gnf,gtq,gyd,hkd,hnl,hrk,htg,huf,idr,ils,inr,iqd,irr,isk,jmd,jod,jpy,kes,kgs,khr,kmf,kpw,krw,kwd,kyd,kzt,lak,lbp,lkr,lrd,lsl,ltl,lvl,lyd,mad,mdl,mga,mkd,mmk,mnt,mop,mro,mru,mur,mvr,mwk,mxn,mxv,myr,mzn,nad,ngn,nio,nok,npr,nzd,omr,pab,pen,pgk,php,pkr,pln,pyg,qar,ron,rsd,rub,rwf,sar,sbd,scr,sdg,sek,sgd,shp,sll,sos,srd,ssp,std,stn,svc,syp,szl,thb,tjs,tmt,tnd,top,try,ttd,twd,tzs,uah,ugx,usd,usn,uss,uyi,uyu,uyw,uzs,vef,ves,vnd,vuv,wst,xaf,xag,xau,xba,xbb,xbc,xbd,xcd,xdr,xof,xpd,xpf,xpt,xsu,xts,xua,xxx,yer,zar,zmk,zmw,zwl");
+
             migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new
@@ -75,14 +78,19 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                 name: "Rates",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     AsOf = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     From = table.Column<int>(type: "integer", nullable: false),
                     To = table.Column<int>(type: "integer", nullable: false),
                     Rate = table.Column<decimal>(type: "numeric", nullable: false),
-                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false)
+                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Deleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_Rates", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Rates_Owners_OwnerId",
                         column: x => x.OwnerId,

@@ -24,7 +24,6 @@ public sealed class AppServicesFactory(
 
     public IAccountManager CreateAccountManager() => new AccountManager(accountsRepository, user);
     public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
-
     public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
     private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, user);

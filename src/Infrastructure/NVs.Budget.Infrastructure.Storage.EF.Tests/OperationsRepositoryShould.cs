@@ -92,6 +92,8 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var value = _fixture.Create<string>();
 
         var transaction = await AddTransaction();
+        _ = await AddTransaction();
+
         transaction.Attributes[key] = value;
 
         var result = await _repo.Update(transaction, CancellationToken.None);
@@ -110,6 +112,8 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task DeleteTransactions()
     {
         var transaction = await AddTransaction();
+        _ = await AddTransaction();
+
         var result = await _repo.Remove(transaction, CancellationToken.None);
         result.Should().BeSuccess();
 

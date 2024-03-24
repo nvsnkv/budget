@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Storage.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    [Migration("20240324081348_Initial")]
+    [Migration("20240324131107_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -23,9 +23,10 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                 .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "currency_iso_code", new[] { "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bhd", "bif", "bmd", "bnd", "bob", "bov", "brl", "bsd", "btn", "bwp", "byn", "byr", "bzd", "cad", "cdf", "che", "chf", "chw", "clf", "clp", "cny", "cop", "cou", "crc", "cuc", "cup", "cve", "czk", "djf", "dkk", "dop", "dzd", "eek", "egp", "ern", "etb", "eur", "fjd", "fkp", "gbp", "gel", "ghs", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "iqd", "irr", "isk", "jmd", "jod", "jpy", "kes", "kgs", "khr", "kmf", "kpw", "krw", "kwd", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "ltl", "lvl", "lyd", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mro", "mru", "mur", "mvr", "mwk", "mxn", "mxv", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "omr", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sdg", "sek", "sgd", "shp", "sll", "sos", "srd", "ssp", "std", "stn", "svc", "syp", "szl", "thb", "tjs", "tmt", "tnd", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "usd", "usn", "uss", "uyi", "uyu", "uyw", "uzs", "vef", "ves", "vnd", "vuv", "wst", "xaf", "xag", "xau", "xba", "xbb", "xbc", "xbd", "xcd", "xdr", "xof", "xpd", "xpf", "xpt", "xsu", "xts", "xua", "xxx", "yer", "zar", "zmk", "zmw", "zwl" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,7 +57,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOperation", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredOperation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,7 +96,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("Operations");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOwner", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredOwner", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -119,10 +120,20 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("Owners");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredRate", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredRate", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("AsOf")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("From")
                         .HasColumnType("integer");
@@ -135,6 +146,11 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
 
                     b.Property<int>("To")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
@@ -156,15 +172,15 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.ToTable("StoredAccountStoredOwner");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOperation", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredOperation", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", "Account")
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", "Account")
                         .WithMany("Operations")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredMoney", "Amount", b1 =>
+                    b.OwnsOne("NVs.Budget.Infrastructure.Storage.Entities.StoredMoney", "Amount", b1 =>
                         {
                             b1.Property<Guid>("StoredOperationId")
                                 .HasColumnType("uuid");
@@ -183,7 +199,7 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                                 .HasForeignKey("StoredOperationId");
                         });
 
-                    b.OwnsMany("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredTag", "Tags", b1 =>
+                    b.OwnsMany("NVs.Budget.Infrastructure.Storage.Entities.StoredTag", "Tags", b1 =>
                         {
                             b1.Property<Guid>("StoredOperationId")
                                 .HasColumnType("uuid");
@@ -214,9 +230,9 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
                     b.Navigation("Tags");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredRate", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredRate", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOwner", "Owner")
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredOwner", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -227,20 +243,20 @@ namespace NVs.Budget.Infrastructure.Storage.Migrations
 
             modelBuilder.Entity("StoredAccountStoredOwner", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", null)
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", null)
                         .WithMany()
                         .HasForeignKey("AccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredOwner", null)
+                    b.HasOne("NVs.Budget.Infrastructure.Storage.Entities.StoredOwner", null)
                         .WithMany()
                         .HasForeignKey("OwnersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.EF.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Storage.Entities.StoredAccount", b =>
                 {
                     b.Navigation("Operations");
                 });
