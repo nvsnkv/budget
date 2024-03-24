@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 
 namespace NVs.Budget.Domain.Tests;
@@ -14,7 +14,7 @@ public class CriterionShould
     [Fact]
     public void ReturnFirstMatchedSubcriterion()
     {
-        var transaction = new Fixture().Create<Transaction>();
+        var transaction = new Fixture().Create<Operation>();
         var notMatchedCriterion = new PredicateBasedCriterion(_fixture.Create<string>(), t => t != transaction);
         var firstMatchedCriterion = new PredicateBasedCriterion(_fixture.Create<string>(), t => t == transaction);
         var secondMatchedCriterion = new UniversalCriterion(_fixture.Create<string>());
@@ -28,7 +28,7 @@ public class CriterionShould
     [Fact]
     public void ReturnNullIfNoMatchedSubcriterionFound()
     {
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
 
         var notMatchedCriterion = new PredicateBasedCriterion(_fixture.Create<string>(), t => t != transaction);
         var anotherNotMatchedCriterion = new PredicateBasedCriterion(_fixture.Create<string>(), t => t != transaction);
@@ -41,7 +41,7 @@ public class CriterionShould
     [Fact]
     public void ReturnNullIfNoSubcriteriaProvided()
     {
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
 
         var testCriterion = CreateCriterion(Enumerable.Empty<Criterion>());
         var subcriterion = testCriterion.GetMatchedSubcriterion(transaction);

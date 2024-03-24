@@ -25,7 +25,7 @@ public class MappingProfileShould
     [InlineData(typeof(Owner), typeof(StoredOwner))]
     [InlineData(typeof(Account), typeof(StoredAccount))]
     [InlineData(typeof(TrackedAccount), typeof(StoredAccount))]
-    [InlineData(typeof(TrackedTransaction), typeof(StoredTransaction))]
+    [InlineData(typeof(TrackedOperation), typeof(StoredOperation))]
     [InlineData(typeof(ExchangeRate), typeof(StoredRate))]
     [InlineData(typeof(Money), typeof(StoredMoney))]
     public void ContainMappingsForDomainEntities(Type sourceType, Type destType)

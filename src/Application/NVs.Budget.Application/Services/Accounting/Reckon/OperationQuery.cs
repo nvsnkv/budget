@@ -4,7 +4,7 @@ using NVs.Budget.Application.Entities.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting.Reckon;
 
-public record TransactionQuery(
-    Expression<Func<TrackedTransaction, bool>>? Conditions = null,
+public record OperationQuery(
+    Expression<Func<TrackedOperation, bool>>? Conditions = null,
     Currency? OutputCurrency = null,
     bool ExcludeTransfers = false);

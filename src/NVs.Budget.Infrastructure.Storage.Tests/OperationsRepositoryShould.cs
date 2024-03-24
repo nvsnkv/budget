@@ -11,14 +11,14 @@ using NVs.Budget.Utilities.Testing;
 namespace NVs.Budget.Infrastructure.Storage.Tests;
 
 [Collection(nameof(DatabaseCollectionFixture))]
-public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDisposable
+public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisposable
 {
     private readonly Fixture _fixture;
-    private readonly TransactionsRepository _repo;
+    private readonly OperationsRepository _repo;
     private readonly AccountsRepository _accountsRepo;
     private readonly TestDataFixture _testData;
 
-    public TransactionsRepositoryShould(DbContextManager manager)
+    public OperationsRepositoryShould(DbContextManager manager)
     {
         _fixture = manager.TestData.Fixture;
         if (!_fixture.Customizations.Any(c => c is UtcRandomDateTimeSequenceGenerator))
@@ -34,7 +34,7 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
     [Fact]
     public async Task RegisterTransactionSuccessfully()
     {
-        var transaction = _fixture.Create<UnregisteredTransaction>();
+        var transaction = _fixture.Create<UnregisteredOperation>();
         var accountId = _testData.Accounts.First().Id;
         var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
         var account = accounts.Single();
@@ -54,12 +54,12 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
     {
         var target = await AddTransaction();
 
-        TrackedTransaction updated;
+        TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
         using (_fixture.SetNamedParameter(nameof(target.Account).ToLower(), target.Account))
         using (_fixture.SetNamedParameter(nameof(target.Tags).ToLower(), _fixture.Create<Generator<Tag>>().Take(3)))
         {
-            updated = _fixture.Create<TrackedTransaction>();
+            updated = _fixture.Create<TrackedOperation>();
         }
 
         updated.Version = target.Version;
@@ -70,9 +70,9 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
         result.Value.Version.Should().NotBe(updated.Version);
     }
 
-    private async Task<TrackedTransaction> AddTransaction()
+    private async Task<TrackedOperation> AddTransaction()
     {
-        var unregistered = _fixture.Create<UnregisteredTransaction>();
+        var unregistered = _fixture.Create<UnregisteredOperation>();
         var accountId = _testData.Accounts.First().Id;
 
         var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
@@ -98,7 +98,7 @@ public class TransactionsRepositoryShould : IClassFixture<DbContextManager>, IDi
 
         var items = await _repo.Get(t => t.Attributes[key].Equals(value), CancellationToken.None);
         items.Should().HaveCount(1);
-        items.Single().Should().BeEquivalentTo(transaction, s => s.ComparingByMembers<TrackedTransaction>());
+        items.Single().Should().BeEquivalentTo(transaction, s => s.ComparingByMembers<TrackedOperation>());
     }
 
     [Fact]

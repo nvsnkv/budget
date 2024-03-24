@@ -12,7 +12,7 @@ namespace NVs.Budget.Application;
 
 public sealed class AppServicesFactory(
     IAccountsRepository accountsRepository,
-    ITransactionsRepository transactionsRepository,
+    IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
     IExchangeRatesRepository ratesRepository,
     IExchangeRatesProvider ratesProvider,
@@ -23,9 +23,9 @@ public sealed class AppServicesFactory(
     public DuplicatesDetectorSettings DuplicatesDetectorSettings { get; set; } = DuplicatesDetectorSettings.Default;
 
     public IAccountManager CreateAccountManager() => new AccountManager(accountsRepository, user);
-    public IReckoner CreateReckoner() => new Reckoner(transactionsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
+    public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
 
-    public IAccountant CreateAccountant() => new Accountant(transactionsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
+    public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
     private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, user);
     private DuplicatesDetector CreateDuplicatesDetector() => new(DuplicatesDetectorSettings);

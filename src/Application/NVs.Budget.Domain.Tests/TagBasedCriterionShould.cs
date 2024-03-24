@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Utilities.Testing;
@@ -22,7 +22,7 @@ public class TagBasedCriterionShould : CriterionShould
         var generator = _fixture.Create<Generator<Tag>>();
         var ruleTags = generator.Take(2).ToList();
 
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
         foreach (var tag in ruleTags)
         {
             transaction.Tag(tag);
@@ -44,7 +44,7 @@ public class TagBasedCriterionShould : CriterionShould
         var badTags = generator.Take(2);
         var otherTags = generator.Take(5);
 
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
         foreach (var tag in otherTags)
         {
             transaction.Tag(tag);
@@ -60,7 +60,7 @@ public class TagBasedCriterionShould : CriterionShould
         var generator = _fixture.Create<Generator<Tag>>();
         var requiredTags = generator.Take(3).ToList();
 
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
         foreach (var tag in requiredTags.Skip(1))
         {
             transaction.Tag(tag);
@@ -74,7 +74,7 @@ public class TagBasedCriterionShould : CriterionShould
     public void NotMatchWithTransactionThatHasAtLeastOneProhibitedTag()
     {
         var badTags = _fixture.Create<Generator<Tag>>().Take(3).ToList();
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
         transaction.Tag(badTags.First());
 
         var criterion = new TagBasedCriterion(_fixture.Create<string>(), badTags, TagBasedCriterionType.Excluding);

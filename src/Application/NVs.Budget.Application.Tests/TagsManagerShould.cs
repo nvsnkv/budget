@@ -17,8 +17,8 @@ public class TagsManagerShould
         var uniqueTag = new Tag("Unique");
         var exceptTag = new Tag("Except");
 
-        var transaction = _fixture.Create<TrackedTransaction>();
-        var another = _fixture.Create<TrackedTransaction>();
+        var transaction = _fixture.Create<TrackedOperation>();
+        var another = _fixture.Create<TrackedOperation>();
 
         var criteria = new TaggingCriterion[]
         {

@@ -26,8 +26,8 @@ public class CriteriaBasedLogbookShould : LogbookShould
         results.Select(r => r.IsSuccess).Should().AllBeEquivalentTo(true);
 
         book.Children.Should().HaveCount(criterion.Subcriteria.Count);
-        book.Children[oddCriteria].Transactions.Should().BeEquivalentTo(odds.OrderBy(t => t.Timestamp));
-        book.Children[evenCriteria].Transactions.Should().BeEquivalentTo(evens.OrderBy(t => t.Timestamp));
+        book.Children[oddCriteria].Operations.Should().BeEquivalentTo(odds.OrderBy(t => t.Timestamp));
+        book.Children[evenCriteria].Operations.Should().BeEquivalentTo(evens.OrderBy(t => t.Timestamp));
     }
 
     [Fact]
@@ -54,10 +54,10 @@ public class CriteriaBasedLogbookShould : LogbookShould
         var logBook = (CriteriaBasedLogbook)subRanged;
 
         logBook.Criterion.Should().Be(criterion);
-        logBook.Children[pastCriterion].Transactions.Should().BeEmpty();
+        logBook.Children[pastCriterion].Operations.Should().BeEmpty();
 
         var expectedFutureTransactions = transactions.Where(t => t.Timestamp >= now).OrderBy(t => t.Timestamp);
-        logBook.Children[futureCriterion].Transactions.Should().BeEquivalentTo(expectedFutureTransactions);
+        logBook.Children[futureCriterion].Operations.Should().BeEquivalentTo(expectedFutureTransactions);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class CriteriaBasedLogbookShould : LogbookShould
 
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().Should().BeOfType<TransactionDidNotMatchCriteriaError>();
+        result.Errors.Single().Should().BeOfType<OperationDidNotMatchCriteriaError>();
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class CriteriaBasedLogbookShould : LogbookShould
 
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().Should().BeOfType<TransactionDidNotMatchSubcriteriaError>();
+        result.Errors.Single().Should().BeOfType<OperationDidNotMatchSubcriteriaError>();
     }
 
     protected override Logbook CreateLogbook() => new CriteriaBasedLogbook(new UniversalCriterion("Anyone"));

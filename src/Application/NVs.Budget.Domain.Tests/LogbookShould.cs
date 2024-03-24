@@ -2,7 +2,7 @@ using AutoFixture;
 using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Domain.Aggregates;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Errors;
 
 namespace NVs.Budget.Domain.Tests;
@@ -18,7 +18,7 @@ public class LogbookShould
         var logbook = CreateLogbook();
         logbook.IsEmpty.Should().BeTrue();
         logbook.Sum.Should().Be(Money.Zero());
-        logbook.Transactions.Should().BeEmpty();
+        logbook.Operations.Should().BeEmpty();
         logbook.From.Should().Be(DateTime.MinValue);
         logbook.Till.Should().Be(DateTime.MaxValue);
     }
@@ -39,14 +39,14 @@ public class LogbookShould
         logbook.Sum.Should().Be(expectedSum);
         logbook.From.Should().Be(expectedFrom);
         logbook.Till.Should().Be(expectedTill);
-        logbook.Transactions.Should().BeEquivalentTo(transactions.OrderBy(t => t.Timestamp));
+        logbook.Operations.Should().BeEquivalentTo(transactions.OrderBy(t => t.Timestamp));
     }
 
     [Fact]
     public void RejectTransactionsWithDifferentCurrencies()
     {
         var fixture = new Fixture();
-        var transactions = fixture.Create<Generator<Transaction>>().Take(2).ToList();
+        var transactions = fixture.Create<Generator<Operation>>().Take(2).ToList();
         var logbook = CreateLogbook();
 
         logbook.Register(transactions.First());
@@ -55,8 +55,8 @@ public class LogbookShould
         result.Errors.Should().HaveCount(1);
         result.Errors.Should().AllBeOfType<UnexpectedCurrencyError>();
 
-        logbook.Transactions.Should().HaveCount(1);
-        logbook.Transactions.First().Should().Be(transactions.First());
+        logbook.Operations.Should().HaveCount(1);
+        logbook.Operations.First().Should().Be(transactions.First());
     }
 
     [Fact]
@@ -76,6 +76,6 @@ public class LogbookShould
         foreach (var transaction in transactions) logbook.Register(transaction);
 
         var child = logbook[childMin, childMax];
-        child.Transactions.Should().BeEquivalentTo(expectedTransactions);
+        child.Operations.Should().BeEquivalentTo(expectedTransactions);
     }
 }

@@ -47,7 +47,7 @@ public class AccountantShould
         var tagsManager = new TagsManager(new[] { _tagMeCriterion });
 
         _accountant = new(
-            _storage.Transactions,
+            _storage.Operations,
             _storage.Transfers,
             accountManager,
             tagsManager,
@@ -66,7 +66,7 @@ public class AccountantShould
 
         var data = new ImportTestData(_fixture, [account], _owner);
 
-        var result = await _accountant.ImportTransactions(data.Transactions, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
+        var result = await _accountant.ImportTransactions(data.Operations, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
 
         data.VerifyResult(result);
     }

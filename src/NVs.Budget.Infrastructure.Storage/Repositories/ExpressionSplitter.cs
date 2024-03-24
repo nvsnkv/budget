@@ -7,7 +7,7 @@ internal class ExpressionSplitter
 {
     private readonly ExcludeDictionariesVisitor _visitor = new();
 
-    public (Expression<Func<StoredTransaction, bool>>, Func<StoredTransaction, bool>) Split(Expression<Func<StoredTransaction, bool>> expression)
+    public (Expression<Func<StoredOperation, bool>>, Func<StoredOperation, bool>) Split(Expression<Func<StoredOperation, bool>> expression)
     {
         var queryable = _visitor.VisitAndConvert(expression, nameof(Split));
 

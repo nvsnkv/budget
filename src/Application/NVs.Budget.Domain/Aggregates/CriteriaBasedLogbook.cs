@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Errors;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects.Criteria;
@@ -20,10 +20,10 @@ public class CriteriaBasedLogbook : Logbook
 
     public IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> Children { get; }
 
-    public override Result Register(Transaction t)
+    public override Result Register(Operation t)
     {
         if (!Criterion.Matched(t))
-            return Result.Fail(new TransactionDidNotMatchCriteriaError()
+            return Result.Fail(new OperationDidNotMatchCriteriaError()
                 .WithTransactionId(t)
                 .WithMetadata(nameof(Criterion), Criterion)
             );
@@ -33,7 +33,7 @@ public class CriteriaBasedLogbook : Logbook
         {
             var subcriterion = Criterion.GetMatchedSubcriterion(t);
             if (subcriterion is null)
-                return Result.Fail(new TransactionDidNotMatchSubcriteriaError().WithTransactionId(t)
+                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithTransactionId(t)
                     .WithMetadata(nameof(Criterion), Criterion)
                 );
 

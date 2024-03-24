@@ -21,7 +21,7 @@ public class TypeReplacerShould
 
         var account = _fixture.Build<StoredAccount>()
             .Without(a => a.Owners)
-            .Without(a => a.Transactions)
+            .Without(a => a.Operations)
             .Create();
 
         var predicate = converted.Compile();

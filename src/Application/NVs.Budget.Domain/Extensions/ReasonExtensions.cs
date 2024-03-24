@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.Extensions;
 
@@ -12,9 +12,9 @@ public static class ReasonExtensions
         return reason;
     }
 
-    public static T WithTransactionId<T>(this T reason, Transaction t) where T: IReason
+    public static T WithTransactionId<T>(this T reason, Operation t) where T: IReason
     {
-        return reason.WithMetadata($"{nameof(Transaction)}.{nameof(Transaction.Id)}", t.Id);
+        return reason.WithMetadata($"{nameof(Operation)}.{nameof(Operation.Id)}", t.Id);
     }
 
     public static T WithAccountId<T>(this T reason, Account a) where T : IReason

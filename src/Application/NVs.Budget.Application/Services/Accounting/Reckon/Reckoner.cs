@@ -5,7 +5,7 @@ using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Aggregates;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Application.Services.Accounting.Reckon;
 
@@ -13,7 +13,7 @@ namespace NVs.Budget.Application.Services.Accounting.Reckon;
 /// Reads transactions etc
 /// </summary>
 internal class Reckoner(
-    ITransactionsRepository transactionsRepo,
+    IOperationsRepository operationsRepo,
     ITransfersRepository transfersRepo,
     MoneyConverter converter,
     DuplicatesDetector detector,
@@ -21,11 +21,11 @@ internal class Reckoner(
 {
     private static readonly TrackedTransfer[] Empty = [];
 
-    public async IAsyncEnumerable<Transaction> GetTransactions(TransactionQuery query, [EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<Operation> GetTransactions(OperationQuery query, [EnumeratorCancellation] CancellationToken ct)
     {
         var criteria = await ExtendCriteria(query.Conditions, ct);
 
-        var transactions = await transactionsRepo.Get(criteria, ct);
+        var transactions = await operationsRepo.Get(criteria, ct);
 
         IReadOnlyCollection<TrackedTransfer> transfers = Empty;
         if (query.ExcludeTransfers)
@@ -70,10 +70,10 @@ internal class Reckoner(
         return logbook;
     }
 
-    public async Task<IReadOnlyCollection<IReadOnlyCollection<TrackedTransaction>>> GetDuplicates(Expression<Func<TrackedTransaction, bool>> criteria, CancellationToken ct)
+    public async Task<IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>>> GetDuplicates(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        var transactions = await transactionsRepo.Get(criteria, ct);
+        var transactions = await operationsRepo.Get(criteria, ct);
         return detector.DetectDuplicates(transactions);
     }
 }

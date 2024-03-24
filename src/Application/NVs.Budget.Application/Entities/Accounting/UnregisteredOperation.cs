@@ -2,7 +2,7 @@
 
 namespace NVs.Budget.Application.Entities.Accounting;
 
-public record UnregisteredTransaction(
+public record UnregisteredOperation(
     DateTime Timestamp,
     Money Amount,
     string Description,

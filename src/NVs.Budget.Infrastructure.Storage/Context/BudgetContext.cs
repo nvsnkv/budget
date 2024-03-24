@@ -10,7 +10,7 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 
     public DbSet<StoredAccount> Accounts { get; init; } = null!;
 
-    public DbSet<StoredTransaction> Transactions { get; init; } = null!;
+    public DbSet<StoredOperation> Operations { get; init; } = null!;
 
     public DbSet<StoredRate> Rates { get; init; } = null!;
 
@@ -27,10 +27,10 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         rBuilder.HasOne(r => r.Owner).WithMany();
 
         modelBuilder.Entity<StoredAccount>()
-            .HasMany(a => a.Transactions)
+            .HasMany(a => a.Operations)
             .WithOne(t => t.Account);
 
-        var tBuilder = modelBuilder.Entity<StoredTransaction>();
+        var tBuilder = modelBuilder.Entity<StoredOperation>();
         tBuilder.OwnsOne(t => t.Amount);
         tBuilder.OwnsMany(t => t.Tags).WithOwner();
         tBuilder.Property(t => t.Attributes)

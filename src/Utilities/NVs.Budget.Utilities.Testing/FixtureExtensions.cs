@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using NMoneys;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Utilities.Testing;
 
@@ -25,10 +25,10 @@ public static class FixtureExtensions
         return new Scope<T>(fixture, name);
     }
 
-    public static IReadOnlyList<T> CreateWithdraws<T>(this Fixture fixture, int count) where T : Transaction => CreateTransactions<T>(fixture, count, -100, -1);
-    public static IReadOnlyList<T> CreateIncomes<T>(this Fixture fixture, int count) where T : Transaction => CreateTransactions<T>(fixture, count, 1, 100);
+    public static IReadOnlyList<T> CreateWithdraws<T>(this Fixture fixture, int count) where T : Operation => CreateTransactions<T>(fixture, count, -100, -1);
+    public static IReadOnlyList<T> CreateIncomes<T>(this Fixture fixture, int count) where T : Operation => CreateTransactions<T>(fixture, count, 1, 100);
 
-    public static IReadOnlyList<T> CreateTransactions<T>(this Fixture fixture, int count, long min, long max) where T : Transaction
+    public static IReadOnlyList<T> CreateTransactions<T>(this Fixture fixture, int count, long min, long max) where T : Operation
     {
         var generator = new RandomNumericSequenceGenerator(min, max);
         fixture.Customizations.Add(generator);
@@ -42,9 +42,9 @@ public static class FixtureExtensions
 
     public static Fixture ResetCurrency(this Fixture fixture) => fixture.ResetNamedParameter<CurrencyIsoCode>("currency");
 
-    public static IDisposable SetAccount(this Fixture fixture, Account account) => fixture.SetNamedParameter(nameof(Transaction.Account).ToLower(), account);
+    public static IDisposable SetAccount(this Fixture fixture, Account account) => fixture.SetNamedParameter(nameof(Operation.Account).ToLower(), account);
 
-    public static Fixture ResetAccount(this Fixture fixture) => fixture.ResetNamedParameter<Account>(nameof(Transaction.Account).ToLower());
+    public static Fixture ResetAccount(this Fixture fixture) => fixture.ResetNamedParameter<Account>(nameof(Operation.Account).ToLower());
 
     private class Scope<T>(Fixture fixture, string name) : IDisposable
     {

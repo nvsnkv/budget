@@ -13,9 +13,9 @@ internal class ImportTestData
 {
     private readonly Owner _owner;
     private readonly UnregisteredAccount[] _accounts;
-    private readonly UnregisteredTransaction[] _justTransactions;
-    private readonly UnregisteredTransaction[] _transfer;
-    private readonly UnregisteredTransaction[] _duplicates;
+    private readonly UnregisteredOperation[] _justTransactions;
+    private readonly UnregisteredOperation[] _transfer;
+    private readonly UnregisteredOperation[] _duplicates;
 
     public ImportTestData(Fixture fixture, IEnumerable<TrackedAccount> knownAccounts, Owner owner)
     {
@@ -26,33 +26,33 @@ internal class ImportTestData
 
         _justTransactions = _accounts.SelectMany(a =>
         {
-            using (fixture.SetNamedParameter(nameof(UnregisteredTransaction.Account), a))
+            using (fixture.SetNamedParameter(nameof(UnregisteredOperation.Account), a))
             using (fixture.SetCurrency(fixture.Create<CurrencyIsoCode>()))
             {
-                return fixture.CreateMany<UnregisteredTransaction>(5);
+                return fixture.CreateMany<UnregisteredOperation>(5);
             }
         }).ToArray();
 
-        fixture.SetNamedParameter(nameof(UnregisteredTransaction.Account), _accounts[0]);
+        fixture.SetNamedParameter(nameof(UnregisteredOperation.Account), _accounts[0]);
         fixture.SetNamedParameter<decimal>(nameof(Money.Amount), -900);
-        var source = fixture.Create<UnregisteredTransaction>();
-        var sink = new UnregisteredTransaction(source.Timestamp, source.Amount * -1, source.Description, new Dictionary<string, object>(), _accounts[1]);
+        var source = fixture.Create<UnregisteredOperation>();
+        var sink = new UnregisteredOperation(source.Timestamp, source.Amount * -1, source.Description, new Dictionary<string, object>(), _accounts[1]);
         _transfer = [source, sink];
-        fixture.ResetNamedParameter<UnregisteredAccount>(nameof(UnregisteredTransaction.Account));
+        fixture.ResetNamedParameter<UnregisteredAccount>(nameof(UnregisteredOperation.Account));
         fixture.ResetNamedParameter<decimal>(nameof(Money.Amount));
 
-        fixture.SetNamedParameter(nameof(UnregisteredTransaction.Account), _accounts[^1]);
-        _duplicates = fixture.CreateMany<UnregisteredTransaction>().Take(2).SelectMany(t => Enumerable.Repeat(t, 2)).ToArray();
+        fixture.SetNamedParameter(nameof(UnregisteredOperation.Account), _accounts[^1]);
+        _duplicates = fixture.CreateMany<UnregisteredOperation>().Take(2).SelectMany(t => Enumerable.Repeat(t, 2)).ToArray();
     }
 
-    public IAsyncEnumerable<UnregisteredTransaction> Transactions => _justTransactions.Concat(_transfer).Concat(_duplicates).ToAsyncEnumerable();
+    public IAsyncEnumerable<UnregisteredOperation> Operations => _justTransactions.Concat(_transfer).Concat(_duplicates).ToAsyncEnumerable();
 
     public void VerifyResult(ImportResult result)
     {
         var expectedTransactions = _justTransactions.Concat(_transfer).Concat(_duplicates);
 
         result.IsSuccess.Should().BeTrue();
-        result.Transactions.Should().BeEquivalentTo(expectedTransactions);
+        result.Operations.Should().BeEquivalentTo(expectedTransactions);
 
         result.Transfers.Should().HaveCount(1);
         var transfer = result.Transfers.Single();

@@ -5,8 +5,8 @@ namespace NVs.Budget.Application.Services.Accounting.Tags;
 
 internal class TagsManager(IReadOnlyCollection<TaggingCriterion> criteria)
 {
-    public IReadOnlyCollection<Tag> GetTags(TrackedTransaction transaction)
+    public IReadOnlyCollection<Tag> GetTags(TrackedOperation operation)
     {
-        return criteria.Where(c => c.Criterion(transaction)).Select(c => c.Tag).ToList().AsReadOnly();
+        return criteria.Where(c => c.Criterion(operation)).Select(c => c.Tag).ToList().AsReadOnly();
     }
 }

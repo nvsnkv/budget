@@ -14,7 +14,7 @@ internal class MappingProfile : Profile
         { typeof(Tag), typeof(StoredTag) },
         { typeof(Owner), typeof(StoredOwner) },
         { typeof(TrackedAccount), typeof(StoredAccount) },
-        { typeof(TrackedTransaction), typeof(StoredTransaction) },
+        { typeof(TrackedOperation), typeof(StoredOperation) },
         { typeof(ExchangeRate), typeof(StoredRate) }
     };
 
@@ -29,7 +29,7 @@ internal class MappingProfile : Profile
         CreateMap<Owner, StoredOwner>().ReverseMap();
         CreateMap<Account, StoredAccount>().ReverseMap();
         CreateMap<TrackedAccount, StoredAccount>().ReverseMap();
-        CreateMap<TrackedTransaction, StoredTransaction>().ReverseMap();
+        CreateMap<TrackedOperation, StoredOperation>().ReverseMap();
 
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
     }

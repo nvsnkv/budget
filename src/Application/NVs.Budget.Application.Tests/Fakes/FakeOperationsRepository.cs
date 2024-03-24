@@ -6,18 +6,18 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Application.Tests.Fakes;
 
-internal class FakeTransactionsRepository : FakeRepository<TrackedTransaction>, ITransactionsRepository
+internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository
 {
-    public Task<Result<TrackedTransaction>> Register(UnregisteredTransaction transaction, TrackedAccount account, CancellationToken ct)
+    public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
     {
-        var trackedTransaction = new TrackedTransaction(
+        var trackedTransaction = new TrackedOperation(
             Guid.NewGuid(),
-            transaction.Timestamp,
-            transaction.Amount,
-            transaction.Description,
+            operation.Timestamp,
+            operation.Amount,
+            operation.Description,
             account,
             Enumerable.Empty<Tag>(),
-            transaction.Attributes)
+            operation.Attributes)
         {
             Version = Guid.NewGuid().ToString()
         };
@@ -26,7 +26,7 @@ internal class FakeTransactionsRepository : FakeRepository<TrackedTransaction>, 
         return Task.FromResult(Result.Ok(trackedTransaction));
     }
 
-    public Task<Result> Remove(Expression<Func<TrackedTransaction, bool>> filter, CancellationToken ct)
+    public Task<Result> Remove(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
     {
         var targets = Data.Where(filter.Compile()).ToList();
         foreach (var target in targets)

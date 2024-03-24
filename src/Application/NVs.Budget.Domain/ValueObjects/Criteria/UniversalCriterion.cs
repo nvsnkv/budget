@@ -1,4 +1,4 @@
-﻿using NVs.Budget.Domain.Entities.Transactions;
+﻿using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
@@ -12,5 +12,5 @@ public class UniversalCriterion : PredicateBasedCriterion
     {
     }
 
-    private static bool UniversalPredicate(Transaction _) => true;
+    private static bool UniversalPredicate(Operation _) => true;
 }

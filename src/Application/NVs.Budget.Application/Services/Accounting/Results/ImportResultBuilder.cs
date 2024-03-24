@@ -7,7 +7,7 @@ namespace NVs.Budget.Application.Services.Accounting.Results;
 
 internal class ImportResultBuilder(DuplicatesDetector detector)
 {
-    private readonly List<TrackedTransaction> _transactions = new();
+    private readonly List<TrackedOperation> _transactions = new();
     private readonly List<TrackedTransfer> _transfers = new();
     private readonly List<IReason> _reasons = new();
 
@@ -18,12 +18,12 @@ internal class ImportResultBuilder(DuplicatesDetector detector)
         _reasons.Clear();
     }
 
-    public void Append(Result<TrackedTransaction> result)
+    public void Append(Result<TrackedOperation> result)
     {
         if (result.IsSuccess)
         {
             _transactions.Add(result.Value);
-            _reasons.Add(new TransactionAdded(result.Value));
+            _reasons.Add(new OperationAdded(result.Value));
         }
         else
         {

@@ -15,14 +15,14 @@ namespace NVs.Budget.Application.Services.Accounting;
 /// Manages transactions (register, update, delete etc)
 /// </summary>
 internal class Accountant(
-    ITransactionsRepository transactionsRepository,
+    IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
     IAccountManager manager,
     TagsManager tagsManager,
     TransfersListBuilder transfersListBuilder,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportTransactions(IAsyncEnumerable<UnregisteredTransaction> transactions, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportTransactions(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
         transfersListBuilder.Clear();
@@ -38,7 +38,7 @@ internal class Accountant(
                 continue;
             }
 
-            var transactionResult = await transactionsRepository.Register(unregisteredTransaction, accountResult.Value, ct);
+            var transactionResult = await operationsRepository.Register(unregisteredTransaction, accountResult.Value, ct);
             importResultBuilder.Append(transactionResult);
 
             if (transactionResult.IsSuccess)
@@ -51,7 +51,7 @@ internal class Accountant(
 
                 if (transaction.Tags.Count > 0)
                 {
-                    transactionResult = await transactionsRepository.Update(transaction, ct);
+                    transactionResult = await operationsRepository.Update(transaction, ct);
                     if (!transactionResult.IsSuccess)
                     {
                         importResultBuilder.Append(transactionResult);
@@ -78,8 +78,8 @@ internal class Accountant(
             var transfers = result.Transfers
                 .Where(t => t.Accuracy >= options.TransferConfidenceLevel)
                 .Select(t => new UnregisteredTransfer(
-                    t.Source as TrackedTransaction ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithTransactionId(t.Source),
-                    t.Sink as TrackedTransaction ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithTransactionId(t.Sink),
+                    t.Source as TrackedOperation ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithOperationId(t.Source),
+                    t.Sink as TrackedOperation ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithOperationId(t.Sink),
                     t.Fee,
                     t.Comment,
                     t.Accuracy))
@@ -89,10 +89,10 @@ internal class Accountant(
             result.Reasons.AddRange(registrationResult.Reasons);
         }
 
-        return new ImportResult(result.Transactions, result.Transfers, result.Duplicates, result.Reasons);
+        return new ImportResult(result.Operations, result.Transfers, result.Duplicates, result.Reasons);
     }
 
-    public async Task<Result> Update(IAsyncEnumerable<TrackedTransaction> transactions, CancellationToken ct)
+    public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> transactions, CancellationToken ct)
     {
         var accounts = await Manager.GetOwnedAccounts(ct);
         var result = new Result();
@@ -105,18 +105,18 @@ internal class Accountant(
         return result;
     }
 
-    public async Task<Result> Delete(Expression<Func<TrackedTransaction, bool>> criteria, CancellationToken ct)
+    public async Task<Result> Delete(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        var targets = await transactionsRepository.Get(criteria, ct);
+        var targets = await operationsRepository.Get(criteria, ct);
         var successes = new List<Success>();
         var errors = new List<IError>();
         foreach (var target in targets)
         {
-            var opResult = await transactionsRepository.Remove(target, ct);
+            var opResult = await operationsRepository.Remove(target, ct);
             if (opResult.IsSuccess)
             {
-                successes.Add(new TransactionRemoved(target));
+                successes.Add(new OperationRemoved(target));
             }
             else
             {
@@ -152,14 +152,14 @@ internal class Accountant(
             transfer.Source.TagSource();
             transfer.Sink.TagSink();
 
-            var updateResult = await transactionsRepository.Update(transfer.Source, ct);
+            var updateResult = await operationsRepository.Update(transfer.Source, ct);
             if (!updateResult.IsSuccess)
             {
                 result.Reasons.Add(new UnableToTagTransferError(updateResult.Errors).WithTransactionId(transfer.Source));
                 continue;
             }
 
-            updateResult = await transactionsRepository.Update(transfer.Sink, ct);
+            updateResult = await operationsRepository.Update(transfer.Sink, ct);
             if (!updateResult.IsSuccess)
             {
                 result.Reasons.Add(new UnableToTagTransferError(updateResult.Errors).WithTransactionId(transfer.Sink));
@@ -181,18 +181,18 @@ internal class Accountant(
         return result;
     }
 
-    private async Task<Result<TrackedTransaction>> Update(TrackedTransaction transaction, IReadOnlyCollection<TrackedAccount> ownedAccounts, CancellationToken ct)
+    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedAccount> ownedAccounts, CancellationToken ct)
     {
-        if (ownedAccounts.All(a => transaction.Account != a))
+        if (ownedAccounts.All(a => operation.Account != a))
         {
             return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError()
-                .WithTransactionId(transaction)
-                .WithAccountId(transaction.Account));
+                .WithTransactionId(operation)
+                .WithAccountId(operation.Account));
         }
 
-        var updateResult = await transactionsRepository.Update(transaction, ct);
+        var updateResult = await operationsRepository.Update(operation, ct);
         return updateResult.IsSuccess
-            ? Result.Ok(updateResult.Value).WithReason(new TransactionUpdated(updateResult.Value))
+            ? Result.Ok(updateResult.Value).WithReason(new OperationUpdated(updateResult.Value))
             : Result.Fail(updateResult.Errors);
     }
 

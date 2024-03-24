@@ -8,8 +8,8 @@ internal abstract class ReckonerBase(IAccountManager manager)
 {
     protected readonly IAccountManager Manager = manager;
 
-    private static readonly Expression<Func<TrackedTransaction, bool>> Any = _ => true;
-    protected async Task<Expression<Func<TrackedTransaction, bool>>> ExtendCriteria(Expression<Func<TrackedTransaction, bool>>? criteria, CancellationToken ct)
+    private static readonly Expression<Func<TrackedOperation, bool>> Any = _ => true;
+    protected async Task<Expression<Func<TrackedOperation, bool>>> ExtendCriteria(Expression<Func<TrackedOperation, bool>>? criteria, CancellationToken ct)
     {
         criteria ??= Any;
         var accounts= await Manager.GetOwnedAccounts(ct);

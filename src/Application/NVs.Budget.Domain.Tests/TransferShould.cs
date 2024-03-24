@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NMoneys;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Domain.Tests;
@@ -55,7 +55,7 @@ public class TransferShould
         var fixture = new Fixture();
         var source = CreateTransaction(-100, -10, fixture.Create<CurrencyIsoCode>());
         fixture.Customizations.Add(new NamedParameterBuilder<Money>("amount", source.Amount * -1, false));
-        var sink = fixture.Create<Transaction>();
+        var sink = fixture.Create<Operation>();
 
         var transfer = new Transfer(source, sink, fixture.Create<string>());
         transfer.Fee.IsZero().Should().BeTrue();
@@ -67,18 +67,18 @@ public class TransferShould
         var fixture = new Fixture();
         var source = CreateTransaction(-100, -10, fixture.Create<CurrencyIsoCode>());
         fixture.Customizations.Add(new NamedParameterBuilder<Money>("amount", source.Amount * -1, false));
-        var sink = fixture.Create<Transaction>();
+        var sink = fixture.Create<Operation>();
 
         var transfer = new Transfer(source, sink, fixture.Create<string>());
         transfer.ToList().Should().BeEquivalentTo(new[] { source, sink });
     }
 
-    private Transaction CreateTransaction(int minAmount, int maxAmount, CurrencyIsoCode currency)
+    private Operation CreateTransaction(int minAmount, int maxAmount, CurrencyIsoCode currency)
     {
         var fixture = new Fixture();
         fixture.Customizations.Add(new RandomNumericSequenceGenerator(minAmount, maxAmount));
         fixture.Customizations.Add(new NamedParameterBuilder<CurrencyIsoCode>("currency", currency, false));
 
-        return fixture.Create<Transaction>();
+        return fixture.Create<Operation>();
     }
 }

@@ -1,4 +1,4 @@
-﻿using NVs.Budget.Domain.Entities.Transactions;
+﻿using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
@@ -22,7 +22,7 @@ public class TagBasedCriterion : Criterion
 
     public TagBasedCriterionType Type { get; }
 
-    public override bool Matched(Transaction t)
+    public override bool Matched(Operation t)
     {
         switch (Type)
         {

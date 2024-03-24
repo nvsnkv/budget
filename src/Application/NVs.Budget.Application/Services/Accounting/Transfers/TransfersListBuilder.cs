@@ -5,7 +5,7 @@ namespace NVs.Budget.Application.Services.Accounting.Transfers;
 internal class TransfersListBuilder(TransferDetector detector)
 {
     private readonly List<TrackedTransfer> _transfers = new();
-    private readonly List<TrackedTransaction> _parts = new();
+    private readonly List<TrackedOperation> _parts = new();
 
     public void Clear()
     {
@@ -15,14 +15,14 @@ internal class TransfersListBuilder(TransferDetector detector)
 
     public IReadOnlyCollection<TrackedTransfer> ToList() => _transfers.AsReadOnly();
 
-    public void Add(TrackedTransaction transaction)
+    public void Add(TrackedOperation operation)
     {
         var transferDetected = false;
-        foreach (var part in _parts.Where(p => Math.Sign(p.Amount.Amount) != Math.Sign(transaction.Amount.Amount)))
+        foreach (var part in _parts.Where(p => Math.Sign(p.Amount.Amount) != Math.Sign(operation.Amount.Amount)))
         {
-            var (source, sink) = part.Amount.Amount > transaction.Amount.Amount
-                ? (transaction, part)
-                : (part, transaction);
+            var (source, sink) = part.Amount.Amount > operation.Amount.Amount
+                ? (operation, part)
+                : (part, operation);
 
             var detectionResult = detector.Detect(source, sink);
 
@@ -43,7 +43,7 @@ internal class TransfersListBuilder(TransferDetector detector)
 
         if (!transferDetected)
         {
-            _parts.Add(transaction);
+            _parts.Add(operation);
         }
 
     }

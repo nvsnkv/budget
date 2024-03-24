@@ -7,7 +7,7 @@ using NVs.Budget.Application.Entities;
 namespace NVs.Budget.Infrastructure.Storage.Entities;
 
 [SuppressMessage("ReSharper", "ClassWithVirtualMembersNeverInherited.Global", Justification = "Virtual nav props are required to perform lazy load")]
-internal class StoredTransaction(Guid id, DateTime timestamp, string description) : DbRecord, ITrackableEntity<Guid>
+internal class StoredOperation(Guid id, DateTime timestamp, string description) : DbRecord, ITrackableEntity<Guid>
 {
     [Key]
     public Guid Id { get; [UsedImplicitly] private set; } = id;

@@ -19,5 +19,5 @@ internal class StoredAccount(Guid id, string name, string bank) : DbRecord, ITra
     public string? Version { get; set; } = string.Empty;
 
     public virtual IList<StoredOwner> Owners { get; init; } = new List<StoredOwner>();
-    public virtual IList<StoredTransaction> Transactions { get; init; } = new List<StoredTransaction>();
+    public virtual IList<StoredOperation> Operations { get; init; } = new List<StoredOperation>();
 }

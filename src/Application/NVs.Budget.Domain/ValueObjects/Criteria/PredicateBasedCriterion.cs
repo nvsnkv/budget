@@ -1,22 +1,22 @@
-﻿using NVs.Budget.Domain.Entities.Transactions;
+﻿using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
 public class PredicateBasedCriterion : Criterion
 {
-    private readonly Predicate<Transaction> _predicate;
+    private readonly Predicate<Operation> _predicate;
 
-    public PredicateBasedCriterion(string description, Predicate<Transaction> predicate) : base(description)
+    public PredicateBasedCriterion(string description, Predicate<Operation> predicate) : base(description)
     {
         _predicate = predicate;
     }
 
-    public PredicateBasedCriterion(string description, Predicate<Transaction> predicate, IEnumerable<Criterion> subcriteria) : base(description, subcriteria)
+    public PredicateBasedCriterion(string description, Predicate<Operation> predicate, IEnumerable<Criterion> subcriteria) : base(description, subcriteria)
     {
         _predicate = predicate;
     }
 
-    public override bool Matched(Transaction t)
+    public override bool Matched(Operation t)
     {
         return _predicate(t);
     }

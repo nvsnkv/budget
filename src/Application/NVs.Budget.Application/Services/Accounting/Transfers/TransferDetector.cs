@@ -7,7 +7,7 @@ namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
 internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
 {
-    public Result<TrackedTransfer> Detect(TrackedTransaction source, TrackedTransaction sink)
+    public Result<TrackedTransfer> Detect(TrackedOperation source, TrackedOperation sink)
     {
         if (source.Amount.Amount >= 0) return Result.Fail(new SourceIsNotAWithdrawError(source));
         if (sink.Amount.Amount <= 0) return Result.Fail(new SinkIsNotAnIncomeError(sink));

@@ -12,7 +12,7 @@ using NVs.Budget.Application.Services.Accounting.Reckon;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 
@@ -38,7 +38,7 @@ public class ReckonerShould
         var manager = new AccountManager(_storage.Accounts, user.Object);
 
         _reckoner = new Reckoner(
-            _storage.Transactions,
+            _storage.Operations,
             _storage.Transfers,
             converter,
             new DuplicatesDetector(DuplicatesDetectorSettings.Default),
@@ -46,7 +46,7 @@ public class ReckonerShould
 
         _data = new ReckonerTestData(_currentOwner, 2, 4, 6);
         _storage.Accounts.Append(_data.AllAccounts);
-        _storage.Transactions.Append(_data.AllTransactions);
+        _storage.Operations.Append(_data.AllTransactions);
 
     }
 
@@ -58,7 +58,7 @@ public class ReckonerShould
             .Select(t => t!.Id)
             .ToList();
 
-        var query = new TransactionQuery(t => filterIds.Contains(t.Id));
+        var query = new OperationQuery(t => filterIds.Contains(t.Id));
         var expectedTransactions = _data.OwnedTransactions.Where(query.Conditions!.Compile()).ToList();
 
         var actual = await _reckoner.GetTransactions(query, CancellationToken.None).ToListAsync();
@@ -85,8 +85,8 @@ public class ReckonerShould
         var expectedTransactions = _data.OwnedTransactions.Where(query.Conditions!.Compile()).ToList();
 
         var logbook = await _reckoner.GetLogbook(query, CancellationToken.None);
-        logbook.Transactions.Select(t => t.Id).Should().BeEquivalentTo(expectedTransactions.Select(t => t.Id));
-        logbook.Transactions.Should().AllSatisfy(t => t.Amount.GetCurrency().Should().Be(expectedCurrency));
+        logbook.Operations.Select(t => t.Id).Should().BeEquivalentTo(expectedTransactions.Select(t => t.Id));
+        logbook.Operations.Should().AllSatisfy(t => t.Amount.GetCurrency().Should().Be(expectedCurrency));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class ReckonerShould
             .Select(t => t.Amount.GetCurrency() == expectedCurrency ? t.Amount.Amount : t.Amount.Amount * rate)
             .ToList();
 
-        var actual = await _reckoner.GetTransactions(new TransactionQuery(OutputCurrency: expectedCurrency), CancellationToken.None).ToListAsync();
+        var actual = await _reckoner.GetTransactions(new OperationQuery(OutputCurrency: expectedCurrency), CancellationToken.None).ToListAsync();
         actual.Should().AllSatisfy(t => t.Amount.GetCurrency().Should().Be(expectedCurrency));
         actual.OrderBy(t => t.Id).Select(t => t.Amount.Amount).Should().BeEquivalentTo(expectedAmounts);
     }
@@ -116,7 +116,7 @@ public class ReckonerShould
 
         _storage.Transfers.Append(new[] {accessibleTransferWithFee, inaccessibleTransfer, accessibleTransferWithoutFee});
 
-        var actual = await _reckoner.GetTransactions(new TransactionQuery(ExcludeTransfers: true), CancellationToken.None).ToListAsync();
+        var actual = await _reckoner.GetTransactions(new OperationQuery(ExcludeTransfers: true), CancellationToken.None).ToListAsync();
 
         using var scope = new AssertionScope
         {
@@ -135,9 +135,9 @@ public class ReckonerShould
     [Fact]
     public async Task DetectDuplicates()
     {
-        _storage.Transactions.Append(Enumerable.Repeat(_data.OwnedTransactions[0], 3));
-        _storage.Transactions.Append(Enumerable.Repeat(_data.OwnedTransactions[^1], 2));
-        _storage.Transactions.Append(Enumerable.Repeat(_data.NotOwnedTransactions[^1], 2));
+        _storage.Operations.Append(Enumerable.Repeat(_data.OwnedTransactions[0], 3));
+        _storage.Operations.Append(Enumerable.Repeat(_data.OwnedTransactions[^1], 2));
+        _storage.Operations.Append(Enumerable.Repeat(_data.NotOwnedTransactions[^1], 2));
 
         var duplicates = await _reckoner.GetDuplicates(_ => true, CancellationToken.None);
         duplicates.Should().HaveCount(2);
@@ -157,7 +157,7 @@ public class ReckonerShould
 
     }
 
-    private bool CheckIfTheSameTransactions(Transaction left, Transaction right)
+    private bool CheckIfTheSameTransactions(Operation left, Operation right)
     {
         return left.Amount == right.Amount
                && left.Description == right.Description

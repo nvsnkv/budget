@@ -4,9 +4,9 @@ namespace NVs.Budget.Application.Services.Accounting.Duplicates;
 
 internal class DuplicatesDetector(DuplicatesDetectorSettings settings)
 {
-    public IReadOnlyCollection<IReadOnlyCollection<TrackedTransaction>> DetectDuplicates(IEnumerable<TrackedTransaction> transactions)
+    public IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>> DetectDuplicates(IEnumerable<TrackedOperation> transactions)
     {
-        var buckets = new List<List<TrackedTransaction>>();
+        var buckets = new List<List<TrackedOperation>>();
         foreach (var transaction in transactions)
         {
             var duplicateFound = false;
@@ -18,7 +18,7 @@ internal class DuplicatesDetector(DuplicatesDetectorSettings settings)
 
             if (!duplicateFound)
             {
-                buckets.Add(new List<TrackedTransaction>() { transaction });
+                buckets.Add(new List<TrackedOperation>() { transaction });
             }
         }
 
@@ -28,7 +28,7 @@ internal class DuplicatesDetector(DuplicatesDetectorSettings settings)
             .AsReadOnly();
     }
 
-    private bool CheckIsDuplicate(TrackedTransaction left, TrackedTransaction right) =>
+    private bool CheckIsDuplicate(TrackedOperation left, TrackedOperation right) =>
         left.Account == right.Account
         && left.Amount == right.Amount
         && left.Description == right.Description

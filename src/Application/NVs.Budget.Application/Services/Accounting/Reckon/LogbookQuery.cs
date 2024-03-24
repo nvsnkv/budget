@@ -8,6 +8,6 @@ namespace NVs.Budget.Application.Services.Accounting.Reckon;
 public record LogbookQuery(
     Criterion LogbookCriterion,
     Currency OutputCurrency,
-    Expression<Func<TrackedTransaction, bool>>? Conditions = null,
+    Expression<Func<TrackedOperation, bool>>? Conditions = null,
     bool ExcludeTransfers = true
-    ) : TransactionQuery(Conditions, OutputCurrency, ExcludeTransfers);
+    ) : OperationQuery(Conditions, OutputCurrency, ExcludeTransfers);

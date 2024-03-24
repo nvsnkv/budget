@@ -14,9 +14,9 @@ public class TransferDetectorShould
     public void DetectTransfersUsingCriteriaList()
     {
         using var _ = _fixture.SetCurrency(_fixture.Create<CurrencyIsoCode>());
-        var source = _fixture.CreateWithdraws<TrackedTransaction>(1).Single();
-        var sink = _fixture.CreateIncomes<TrackedTransaction>(1).Single();
-        var maybeSink = _fixture.CreateIncomes<TrackedTransaction>(1).Single();
+        var source = _fixture.CreateWithdraws<TrackedOperation>(1).Single();
+        var sink = _fixture.CreateIncomes<TrackedOperation>(1).Single();
+        var maybeSink = _fixture.CreateIncomes<TrackedOperation>(1).Single();
 
         var criteria = new TransferCriterion[]
         {
@@ -45,7 +45,7 @@ public class TransferDetectorShould
 
     [Theory]
     [MemberData(nameof(GetBadOptions))]
-    public void PreserveDomainInvariants(TrackedTransaction source, TrackedTransaction sink, string error)
+    public void PreserveDomainInvariants(TrackedOperation source, TrackedOperation sink, string error)
     {
         var criteria = new TransferCriterion[] { new(DetectionAccuracy.Exact, "For sure!", (_ , _) => true) };
         var detector = new TransferDetector(criteria);
@@ -58,8 +58,8 @@ public class TransferDetectorShould
         var fixture = new Fixture();
         using (fixture.SetCurrency(fixture.Create<CurrencyIsoCode>()))
         {
-            var withdraws = fixture.CreateWithdraws<TrackedTransaction>(2);
-            var incomes = fixture.CreateIncomes<TrackedTransaction>(2);
+            var withdraws = fixture.CreateWithdraws<TrackedOperation>(2);
+            var incomes = fixture.CreateIncomes<TrackedOperation>(2);
 
             yield return [withdraws[0], withdraws[1], "both are withdraws"];
             yield return [incomes[0], withdraws[1], "reversed params, incomes passed instead of withdraw"];
@@ -67,9 +67,9 @@ public class TransferDetectorShould
         }
 
         fixture.SetCurrency(fixture.Create<CurrencyIsoCode>());
-        var source = fixture.CreateWithdraws<TrackedTransaction>(1).Single();
+        var source = fixture.CreateWithdraws<TrackedOperation>(1).Single();
         fixture.SetCurrency(fixture.Create<CurrencyIsoCode>());
-        var sink = fixture.CreateIncomes<TrackedTransaction>(1).Single();
+        var sink = fixture.CreateIncomes<TrackedOperation>(1).Single();
 
         yield return [source, sink, "currencies are different"];
     }

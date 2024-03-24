@@ -3,13 +3,13 @@ using NMoneys;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Domain.Entities.Transactions;
+namespace NVs.Budget.Domain.Entities.Operations;
 
-public class Transfer : IEnumerable<Transaction>
+public class Transfer : IEnumerable<Operation>
 {
     public static readonly Tag TransferTag = new(nameof(Transfer));
 
-    public Transfer(Transaction source, Transaction sink, string comment)
+    public Transfer(Operation source, Operation sink, string comment)
     {
         if (source.Amount.Amount >= 0)
         {
@@ -38,7 +38,7 @@ public class Transfer : IEnumerable<Transaction>
         Comment = comment;
     }
 
-    public Transfer(Transaction source, Transaction sink, Money fee, string comment)
+    public Transfer(Operation source, Operation sink, Money fee, string comment)
     {
         if (source.Amount.Amount >= 0)
         {
@@ -76,15 +76,15 @@ public class Transfer : IEnumerable<Transaction>
         Comment = comment;
     }
 
-    public Transaction Source { get; }
+    public Operation Source { get; }
 
-    public Transaction Sink { get; }
+    public Operation Sink { get; }
 
     public string Comment { get; }
 
     public Money Fee { get; }
 
-    public Transaction AsTransaction()
+    public Operation AsTransaction()
     {
         var timestamp = Source.Timestamp;
         var amount = Fee;
@@ -104,19 +104,19 @@ public class Transfer : IEnumerable<Transaction>
             { nameof(Sink), Sink.Id }
         };
 
-        return new Transaction(Guid.Empty, timestamp, amount, description, account, tags, attributes);
+        return new Operation(Guid.Empty, timestamp, amount, description, account, tags, attributes);
     }
 
-    public IEnumerator<Transaction> GetEnumerator() => new Enumerator(this);
+    public IEnumerator<Operation> GetEnumerator() => new Enumerator(this);
 
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
 
-    private class Enumerator(Transfer transfer) : IEnumerator<Transaction>
+    private class Enumerator(Transfer transfer) : IEnumerator<Operation>
     {
-        private Transaction? _current;
+        private Operation? _current;
         public void Dispose()
         {
         }
@@ -142,7 +142,7 @@ public class Transfer : IEnumerable<Transaction>
             _current = null;
         }
 
-        public Transaction Current => _current ?? throw new InvalidOperationException("Current should not be used in current state");
+        public Operation Current => _current ?? throw new InvalidOperationException("Current should not be used in current state");
 
         object IEnumerator.Current => Current;
     }

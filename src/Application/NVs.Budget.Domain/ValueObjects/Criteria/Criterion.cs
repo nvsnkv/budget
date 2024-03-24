@@ -1,4 +1,4 @@
-﻿using NVs.Budget.Domain.Entities.Transactions;
+﻿using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
@@ -22,9 +22,9 @@ public abstract class Criterion
 
     public IReadOnlyList<Criterion> Subcriteria { get; }
 
-    public abstract bool Matched(Transaction t);
+    public abstract bool Matched(Operation t);
 
-    public Criterion? GetMatchedSubcriterion(Transaction t)
+    public Criterion? GetMatchedSubcriterion(Operation t)
     {
         return Subcriteria.FirstOrDefault(c => c.Matched(t));
     }

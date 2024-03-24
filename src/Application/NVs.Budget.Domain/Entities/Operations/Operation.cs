@@ -2,11 +2,11 @@
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Domain.Entities.Transactions;
+namespace NVs.Budget.Domain.Entities.Operations;
 
-public class Transaction : EntityBase<Guid>
+public class Operation : EntityBase<Guid>
 {
-    private readonly List<Tag> _tags = new();
+    private readonly List<Tag> _tags;
 
     public DateTime Timestamp { get; }
     public Money Amount { get; }
@@ -17,7 +17,7 @@ public class Transaction : EntityBase<Guid>
 
     public IDictionary<string, object> Attributes { get; } = new Dictionary<string, object>();
 
-    public Transaction(Guid id, DateTime timestamp, Money amount, string description, Account account, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
+    public Operation(Guid id, DateTime timestamp, Money amount, string description, Account account, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
     {
         Timestamp = timestamp;
         Amount = amount;

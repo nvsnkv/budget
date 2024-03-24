@@ -12,34 +12,34 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Storage.Repositories;
 
-internal class TransactionsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator) :
-    RepositoryBase<TrackedTransaction, Guid, StoredTransaction>(mapper, versionGenerator), ITransactionsRepository
+internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator) :
+    RepositoryBase<TrackedOperation, Guid, StoredOperation>(mapper, versionGenerator), IOperationsRepository
 {
     private readonly ExpressionSplitter _splitter = new();
 
-    public override async Task<IReadOnlyCollection<TrackedTransaction>> Get(Expression<Func<TrackedTransaction, bool>> filter, CancellationToken ct)
+    public override async Task<IReadOnlyCollection<TrackedOperation>> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
     {
-        var expression = filter.ConvertTypes<TrackedTransaction, StoredTransaction>(MappingProfile.TypeMappings);
+        var expression = filter.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
-        var query = context.Transactions
+        var query = context.Operations
             .Include(t => t.Account)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
             .Where(queryable);
 
         var items = await query.AsNoTracking().ToListAsync(ct);
         items = items.Where(enumerable).ToList();
-        return Mapper.Map<List<TrackedTransaction>>(items).AsReadOnly();
+        return Mapper.Map<List<TrackedOperation>>(items).AsReadOnly();
     }
 
-    protected override Task<StoredTransaction?> GetTarget(TrackedTransaction item, CancellationToken ct)
+    protected override Task<StoredOperation?> GetTarget(TrackedOperation item, CancellationToken ct)
     {
         var id = item.Id;
-        return context.Transactions.FirstOrDefaultAsync(t => t.Id == id, ct);
+        return context.Operations.FirstOrDefaultAsync(t => t.Id == id, ct);
     }
 
-    protected override async Task<Result<StoredTransaction>> Update(StoredTransaction target, TrackedTransaction updated, CancellationToken ct)
+    protected override async Task<Result<StoredOperation>> Update(StoredOperation target, TrackedOperation updated, CancellationToken ct)
     {
         if (target.Account.Id != updated.Account.Id)
         {
@@ -75,13 +75,13 @@ internal class TransactionsRepository(IMapper mapper, BudgetContext context, Ver
         }
     }
 
-    protected override Task Remove(StoredTransaction target, CancellationToken ct)
+    protected override Task Remove(StoredOperation target, CancellationToken ct)
     {
         target.Deleted = true;
         return context.SaveChangesAsync(ct);
     }
 
-    public async Task<Result<TrackedTransaction>> Register(UnregisteredTransaction transaction, TrackedAccount account, CancellationToken ct)
+    public async Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
     {
         var storedAccount = await context.Accounts.Include(a => a.Owners.Where(o => !o.Deleted))
             .FirstOrDefaultAsync(a => a.Id == account.Id, ct);
@@ -90,21 +90,21 @@ internal class TransactionsRepository(IMapper mapper, BudgetContext context, Ver
             return Result.Fail(new AccountDoesNotExistsError(account));
         }
 
-        var storedTransaction = new StoredTransaction(Guid.Empty, transaction.Timestamp, transaction.Description)
+        var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp, operation.Description)
         {
             Account = storedAccount,
-            Amount = Mapper.Map<StoredMoney>(transaction.Amount),
-            Attributes = new Dictionary<string, object>(transaction.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
+            Amount = Mapper.Map<StoredMoney>(operation.Amount),
+            Attributes = new Dictionary<string, object>(operation.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
         };
 
         BumpVersion(storedTransaction);
-        await context.Transactions.AddAsync(storedTransaction, ct);
+        await context.Operations.AddAsync(storedTransaction, ct);
         await context.SaveChangesAsync(ct);
 
-        return Mapper.Map<TrackedTransaction>(storedTransaction);
+        return Mapper.Map<TrackedOperation>(storedTransaction);
     }
 
-    protected override IQueryable<StoredTransaction> GetData(Expression<Func<StoredTransaction, bool>> expression)
+    protected override IQueryable<StoredOperation> GetData(Expression<Func<StoredOperation, bool>> expression)
     {
         throw new NotImplementedException();
     }

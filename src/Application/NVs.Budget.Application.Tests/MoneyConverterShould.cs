@@ -6,7 +6,7 @@ using NVs.Budget.Application.Entities.Contracts;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.Entities.Transactions;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Utilities.Testing;
 
@@ -31,7 +31,7 @@ public class MoneyConverterShould
     [Fact]
     public async Task NotChangeTransactionIfCurrenciesAreTheSame()
     {
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
 
         var converter = new MoneyConverter(_repository.Object, _provider.Object, _user.Object);
         var notConverted = await converter.Convert(transaction, transaction.Amount.GetCurrency(), CancellationToken.None);
@@ -42,7 +42,7 @@ public class MoneyConverterShould
     public async Task UseStoredExchangeRateFirst()
     {
         _fixture.SetCurrency(CurrencyIsoCode.MYR);
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
         var targetCurrency = Currency.Dkk;
         var rate = 4m;
 
@@ -62,7 +62,7 @@ public class MoneyConverterShould
     public async Task UseExternalProviderWhenNoRatesFound()
     {
         _fixture.SetCurrency(CurrencyIsoCode.MYR);
-        var transaction = _fixture.Create<Transaction>();
+        var transaction = _fixture.Create<Operation>();
         var targetCurrency = Currency.Dkk;
         var rate = 4m;
 
