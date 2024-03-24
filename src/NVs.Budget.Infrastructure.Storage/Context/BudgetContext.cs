@@ -36,8 +36,8 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         tBuilder.Property(t => t.Attributes)
             .HasColumnType("jsonb")
             .HasConversion(
-                v => JsonSerializer.Serialize(v, new JsonSerializerOptions(JsonSerializerDefaults.General)),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, new JsonSerializerOptions(JsonSerializerDefaults.General))!
+                v => v.ToJsonString(),
+                v => v.ToDictionary()
             );
 
         base.OnModelCreating(modelBuilder);

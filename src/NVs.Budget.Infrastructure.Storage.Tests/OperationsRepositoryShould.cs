@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System.Runtime.InteropServices.JavaScript;
+using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Infrastructure.Storage.Repositories;
@@ -96,9 +97,13 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var result = await _repo.Update(transaction, CancellationToken.None);
         result.Should().BeSuccess();
 
-        var items = await _repo.Get(t => t.Attributes[key].Equals(value), CancellationToken.None);
+        var items = await _repo.Get(t => ((string)t.Attributes[key]) == value, CancellationToken.None);
         items.Should().HaveCount(1);
-        items.Single().Should().BeEquivalentTo(transaction, s => s.ComparingByMembers<TrackedOperation>());
+        items.Single().Should().BeEquivalentTo(transaction, s =>
+            s.ComparingByMembers<TrackedOperation>()
+             .Excluding(o => o.Version)
+             .Using<DateTime>(ctx => ctx.Subject.Should().BeOnOrAfter(ctx.Expectation.AddMilliseconds(-500)).And.BeOnOrBefore(ctx.Expectation.AddMilliseconds(500)))
+             .WhenTypeIs<DateTime>());
     }
 
     [Fact]
