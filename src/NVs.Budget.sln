@@ -1,22 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{4D906D63-8704-470A-B3BF-64A314A8B1A3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Application", "1. Application", "{4D906D63-8704-470A-B3BF-64A314A8B1A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain", "Application\NVs.Budget.Domain\NVs.Budget.Domain.csproj", "{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain", "Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj", "{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain.Tests", "Application\NVs.Budget.Domain.Tests\NVs.Budget.Domain.Tests.csproj", "{923B5464-1067-433F-9DD2-38183F146C83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain.Tests", "Domain\NVs.Budget.Domain.Tests\NVs.Budget.Domain.Tests.csproj", "{923B5464-1067-433F-9DD2-38183F146C83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application", "Application\NVs.Budget.Application\NVs.Budget.Application.csproj", "{58BB6059-CF8B-4C15-B763-62B8D77F01C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.Tests", "Application\NVs.Budget.Application.Tests\NVs.Budget.Application.Tests.csproj", "{FB25F31F-C6D4-4A28-94A1-06E859713387}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{52A892E9-EDF9-4297-9447-58C343C4EAF4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. Utilities", "5. Utilities", "{52A892E9-EDF9-4297-9447-58C343C4EAF4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.Testing", "Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj", "{74A76BDE-3BE1-40A8-A8BA-C4CD9716DBBF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.Expressions", "Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj", "{DFAB3D6A-026F-4A5C-B845-CB8CEC6CE9DC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{BBC78D28-4FE0-4044-8540-5E026D8BACB9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Infrastructure", "2. Infrastructure", "{BBC78D28-4FE0-4044-8540-5E026D8BACB9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF", "Infrastructure\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj", "{8BE1189F-A57A-4904-B167-675F3E4EBA3E}"
 EndProject
@@ -26,14 +26,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.Cont
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.Contracts", "Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj", "{8CD10A15-F1DD-40EC-87F4-9983ED589B07}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Domain", "0. Domain", "{DBF42B89-D4A0-4968-8C98-1ED3283B4188}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
-		{923B5464-1067-433F-9DD2-38183F146C83} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{58BB6059-CF8B-4C15-B763-62B8D77F01C7} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{FB25F31F-C6D4-4A28-94A1-06E859713387} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{74A76BDE-3BE1-40A8-A8BA-C4CD9716DBBF} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
@@ -42,6 +42,8 @@ Global
 		{C955D374-83C1-43CC-9778-5A58EFFCF949} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{68893284-DE40-4B39-A8EE-ED851DC5116B} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{8CD10A15-F1DD-40EC-87F4-9983ED589B07} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
+		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C} = {DBF42B89-D4A0-4968-8C98-1ED3283B4188}
+		{923B5464-1067-433F-9DD2-38183F146C83} = {DBF42B89-D4A0-4968-8C98-1ED3283B4188}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
