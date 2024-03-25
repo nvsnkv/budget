@@ -1,8 +1,9 @@
-﻿using NVs.Budget.Application.Entities.Accounting;
+﻿using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Options;
 
 namespace NVs.Budget.Application.Services.Accounting.Duplicates;
 
-internal class DuplicatesDetector(DuplicatesDetectorSettings settings)
+internal class DuplicatesDetector(DuplicatesDetectorOptions options)
 {
     public IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>> DetectDuplicates(IEnumerable<TrackedOperation> transactions)
     {
@@ -32,5 +33,5 @@ internal class DuplicatesDetector(DuplicatesDetectorSettings settings)
         left.Account == right.Account
         && left.Amount == right.Amount
         && left.Description == right.Description
-        && left.Timestamp - right.Timestamp < settings.Offset;
+        && left.Timestamp - right.Timestamp < options.Offset;
 }

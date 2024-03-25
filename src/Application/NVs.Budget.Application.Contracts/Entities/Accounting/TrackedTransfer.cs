@@ -1,8 +1,7 @@
 ﻿using NMoneys;
-using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Domain.Entities.Operations;
 
-namespace NVs.Budget.Application.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public class TrackedTransfer : Transfer
 {

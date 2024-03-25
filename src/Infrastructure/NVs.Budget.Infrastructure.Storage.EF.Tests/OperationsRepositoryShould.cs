@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NVs.Budget.Application.Entities.Accounting;
 using NVs.Budget.Infrastructure.Storage.Repositories;
 using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
 using FluentResults.Extensions.FluentAssertions;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Utilities.Testing;

@@ -1,5 +1,5 @@
 ﻿using NMoneys;
-using NVs.Budget.Application.Entities.Contracts;
+using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
 

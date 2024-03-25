@@ -1,4 +1,5 @@
-﻿using NVs.Budget.Application.Entities.Accounting;
+﻿using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Application.Services.Accounting.Tags;

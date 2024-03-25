@@ -1,6 +1,6 @@
-﻿using NVs.Budget.Application.Entities.Accounting;
+﻿using NVs.Budget.Application.Contracts.Entities.Accounting;
 
-namespace NVs.Budget.Application.Services.Accounting.Transfers;
+namespace NVs.Budget.Application.Contracts.Criteria;
 
 public record TransferCriterion(
     DetectionAccuracy Accuracy,

@@ -3,8 +3,10 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
 using NMoneys;
-using NVs.Budget.Application.Entities.Accounting;
-using NVs.Budget.Application.Entities.Contracts;
+using NVs.Budget.Application.Contracts.Entities;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Options;
+using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
@@ -41,7 +43,7 @@ public class ReckonerShould
             _storage.Operations,
             _storage.Transfers,
             converter,
-            new DuplicatesDetector(DuplicatesDetectorSettings.Default),
+            new DuplicatesDetector(DuplicatesDetectorOptions.Default),
             manager);
 
         _data = new ReckonerTestData(_currentOwner, 2, 4, 6);

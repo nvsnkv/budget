@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
-using NVs.Budget.Application.Entities;
+using NVs.Budget.Application.Contracts.Entities;
 
 namespace NVs.Budget.Infrastructure.Storage.Entities;
 

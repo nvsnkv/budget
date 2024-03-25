@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
-using NVs.Budget.Application.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Storage.Entities;
 using NVs.Budget.Utilities.Expressions;

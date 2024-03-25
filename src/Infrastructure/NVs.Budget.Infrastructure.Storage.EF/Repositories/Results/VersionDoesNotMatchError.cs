@@ -1,4 +1,4 @@
-﻿using NVs.Budget.Application.Entities;
+﻿using NVs.Budget.Application.Contracts.Entities;
 
 namespace NVs.Budget.Infrastructure.Storage.Repositories.Results;
 

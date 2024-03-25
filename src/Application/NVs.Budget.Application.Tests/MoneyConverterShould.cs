@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Moq;
 using NMoneys;
-using NVs.Budget.Application.Entities.Contracts;
+using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;

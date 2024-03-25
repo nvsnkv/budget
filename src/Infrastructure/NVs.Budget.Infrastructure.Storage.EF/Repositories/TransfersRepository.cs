@@ -2,7 +2,7 @@
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.Storage.Context;

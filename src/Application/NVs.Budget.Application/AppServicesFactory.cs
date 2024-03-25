@@ -1,4 +1,6 @@
-﻿using NVs.Budget.Application.Entities.Contracts;
+﻿using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities;
+using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
@@ -20,14 +22,14 @@ public sealed class AppServicesFactory(
     IReadOnlyCollection<TaggingCriterion> taggingCriteria,
     IReadOnlyList<TransferCriterion> transferCriteria)
 {
-    public DuplicatesDetectorSettings DuplicatesDetectorSettings { get; set; } = DuplicatesDetectorSettings.Default;
+    public DuplicatesDetectorOptions DuplicatesDetectorOptions { get; set; } = DuplicatesDetectorOptions.Default;
 
     public IAccountManager CreateAccountManager() => new AccountManager(accountsRepository, user);
     public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
     public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
     private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, user);
-    private DuplicatesDetector CreateDuplicatesDetector() => new(DuplicatesDetectorSettings);
+    private DuplicatesDetector CreateDuplicatesDetector() => new(DuplicatesDetectorOptions);
     private TagsManager CreateTagsManager() => new TagsManager(taggingCriteria);
     private TransfersListBuilder CreateTransferListBuilder() => new(CreateTransfersDetector());
     private TransferDetector CreateTransfersDetector() => new(transferCriteria);

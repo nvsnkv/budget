@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
-using NVs.Budget.Application.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.Storage.Repositories;
 using NVs.Budget.Infrastructure.Storage.Repositories.Results;
 using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;

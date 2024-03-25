@@ -1,6 +1,6 @@
 ﻿using NVs.Budget.Domain.Entities.Accounts;
 
-namespace NVs.Budget.Application.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public class TrackedAccount(Guid id, string name, string bank, IEnumerable<Owner> owners)
     : Account(id, name, bank, owners), ITrackableEntity<Guid>

@@ -1,6 +1,6 @@
 ﻿using NVs.Budget.Domain.Entities.Accounts;
 
-namespace NVs.Budget.Application.Entities.Contracts;
+namespace NVs.Budget.Application.Contracts.Entities;
 
 public interface IUser
 {

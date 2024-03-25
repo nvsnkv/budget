@@ -1,7 +1,9 @@
 ﻿using AutoFixture;
 using Moq;
-using NVs.Budget.Application.Entities.Accounting;
-using NVs.Budget.Application.Entities.Contracts;
+using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Results;
@@ -41,7 +43,7 @@ public class AccountantShould
             _exactTransferCriterion
         });
 
-        var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorSettings.Default);
+        var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorOptions.Default);
 
         _tagMeCriterion = new TaggingCriterion(new("TagMe!"), t => t.Description == "Tag me!");
         var tagsManager = new TagsManager(new[] { _tagMeCriterion });

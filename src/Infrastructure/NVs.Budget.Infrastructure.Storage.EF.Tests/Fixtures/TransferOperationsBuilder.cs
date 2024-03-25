@@ -2,7 +2,7 @@
 using AutoFixture;
 using AutoFixture.Kernel;
 using NMoneys;
-using NVs.Budget.Application.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Utilities.Testing;
 

@@ -3,7 +3,7 @@ using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public class  TrackedOperation(
     Guid id,
