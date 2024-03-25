@@ -4,10 +4,10 @@ using Moq;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Services.Accounting.Exchange;
-using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;

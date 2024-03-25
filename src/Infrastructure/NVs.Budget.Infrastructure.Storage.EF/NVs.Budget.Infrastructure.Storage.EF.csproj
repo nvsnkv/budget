@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
-      <ProjectReference Include="..\..\Application\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
     </ItemGroup>
 
 </Project>

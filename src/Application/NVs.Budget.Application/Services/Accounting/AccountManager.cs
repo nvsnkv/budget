@@ -3,8 +3,8 @@ using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
-using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting;
 

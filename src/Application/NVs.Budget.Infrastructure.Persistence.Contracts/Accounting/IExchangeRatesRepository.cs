@@ -2,7 +2,7 @@
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Services.Storage.Accounting;
+namespace NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 public interface IExchangeRatesRepository
 {

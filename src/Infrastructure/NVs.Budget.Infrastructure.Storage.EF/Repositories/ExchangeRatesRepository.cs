@@ -2,9 +2,9 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using NMoneys;
-using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Storage.Context;
 using NVs.Budget.Infrastructure.Storage.Entities;
 

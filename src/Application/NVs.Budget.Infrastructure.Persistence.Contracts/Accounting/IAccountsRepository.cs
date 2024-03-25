@@ -3,7 +3,7 @@ using FluentResults;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 
-namespace NVs.Budget.Application.Services.Storage.Accounting;
+namespace NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 public interface IAccountsRepository
 {

@@ -11,12 +11,12 @@ using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Accounting.Reckon;
-using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
+using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Tests;
 

@@ -5,9 +5,9 @@ using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
-using NVs.Budget.Application.Services.Storage.Accounting;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting.Reckon;
 
