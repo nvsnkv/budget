@@ -3,6 +3,7 @@ using FluentResults;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Results;
+using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
 using NVs.Budget.Application.Services.Accounting.Results.Successes;

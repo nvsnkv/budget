@@ -2,7 +2,7 @@
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 
-namespace NVs.Budget.Application.Services.Accounting;
+namespace NVs.Budget.Application.Contracts.Services;
 
 public interface IAccountManager
 {

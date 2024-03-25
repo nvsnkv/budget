@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Application.Services.Accounting;

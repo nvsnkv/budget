@@ -3,9 +3,8 @@ using FluentResults;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Results;
-using NVs.Budget.Application.Services.Accounting.Results;
 
-namespace NVs.Budget.Application.Services.Accounting;
+namespace NVs.Budget.Application.Contracts.Services;
 
 public interface IAccountant
 {

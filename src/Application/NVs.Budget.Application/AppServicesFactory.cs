@@ -1,6 +1,7 @@
 ﻿using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Options;
+using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
