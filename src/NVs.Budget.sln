@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.P
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Domain", "0. Domain", "{DBF42B89-D4A0-4968-8C98-1ED3283B4188}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.ExchangeRates.Contracts", "NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj", "{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,7 @@ Global
 		{8CD10A15-F1DD-40EC-87F4-9983ED589B07} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C} = {DBF42B89-D4A0-4968-8C98-1ED3283B4188}
 		{923B5464-1067-433F-9DD2-38183F146C83} = {DBF42B89-D4A0-4968-8C98-1ED3283B4188}
+		{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -86,5 +89,9 @@ Global
 		{8CD10A15-F1DD-40EC-87F4-9983ED589B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CD10A15-F1DD-40EC-87F4-9983ED589B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CD10A15-F1DD-40EC-87F4-9983ED589B07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

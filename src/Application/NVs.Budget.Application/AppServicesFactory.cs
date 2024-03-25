@@ -9,6 +9,7 @@ using NVs.Budget.Application.Services.Accounting.Reckon;
 using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Application.Services.Accounting.Tags;
 using NVs.Budget.Application.Services.Accounting.Transfers;
+using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application;

@@ -1,6 +1,7 @@
 ﻿using NMoneys;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting.Exchange;
