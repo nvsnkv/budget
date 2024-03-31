@@ -21,8 +21,6 @@ public class AccountantShould
     private readonly Storage _storage = new();
 
     private readonly Owner _owner;
-    private readonly TaggingCriterion _tagMeCriterion;
-    private readonly TransferCriterion _exactTransferCriterion;
 
     private readonly Accountant _accountant;
 
@@ -34,19 +32,19 @@ public class AccountantShould
 
         var accountManager = new AccountManager(_storage.Accounts, user.Object);
 
-        _exactTransferCriterion = new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",
+        var exactTransferCriterion = new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",
             (src, snk) => src.Amount == snk.Amount * -1
                           && src.Timestamp.Date == snk.Timestamp.Date
                           && src.Description == snk.Description);
         var transferDetector = new TransferDetector(new[]
         {
-            _exactTransferCriterion
+            exactTransferCriterion
         });
 
         var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorOptions.Default);
 
-        _tagMeCriterion = new TaggingCriterion(new("TagMe!"), t => t.Description == "Tag me!");
-        var tagsManager = new TagsManager(new[] { _tagMeCriterion });
+        var tagMeCriterion = new TaggingCriterion(new("TagMe!"), t => t.Description == "Tag me!");
+        var tagsManager = new TagsManager(new[] { tagMeCriterion });
 
         _accountant = new(
             _storage.Operations,
