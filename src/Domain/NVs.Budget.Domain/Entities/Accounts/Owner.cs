@@ -1,6 +1,6 @@
 ﻿namespace NVs.Budget.Domain.Entities.Accounts;
 
-public sealed class Owner : EntityBase<Guid>
+public class Owner : EntityBase<Guid>
 {
     public string Name { get; }
 

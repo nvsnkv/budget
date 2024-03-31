@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using NMoneys;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Domain.Entities.Operations;
+namespace NVs.Budget.Domain.Entities.Transactions;
 
 public class Transfer : IEnumerable<Operation>
 {

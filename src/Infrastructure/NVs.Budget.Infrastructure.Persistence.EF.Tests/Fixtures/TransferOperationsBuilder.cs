@@ -6,7 +6,7 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Utilities.Testing;
 
-namespace NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
 
 internal class TransferOperationsBuilder : ISpecimenBuilder
 {

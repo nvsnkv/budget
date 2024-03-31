@@ -6,7 +6,7 @@ using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Utilities.Expressions;
 
-namespace NVs.Budget.Infrastructure.Storage.Tests;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
 public class TypeReplacerShould
 {

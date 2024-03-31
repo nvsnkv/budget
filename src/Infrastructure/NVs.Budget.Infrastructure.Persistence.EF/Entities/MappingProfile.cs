@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using NMoneys;
+using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
@@ -14,6 +15,7 @@ internal class MappingProfile : Profile
         { typeof(Money), typeof(StoredMoney) },
         { typeof(Tag), typeof(StoredTag) },
         { typeof(Owner), typeof(StoredOwner) },
+        { typeof(TrackedOwner), typeof(StoredOwner) },
         { typeof(TrackedAccount), typeof(StoredAccount) },
         { typeof(TrackedOperation), typeof(StoredOperation) },
         { typeof(ExchangeRate), typeof(StoredRate) },
@@ -29,6 +31,7 @@ internal class MappingProfile : Profile
         CreateMap<Tag, StoredTag>().ReverseMap();
 
         CreateMap<Owner, StoredOwner>().ReverseMap();
+        CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
         CreateMap<Account, StoredAccount>().ReverseMap();
         CreateMap<TrackedAccount, StoredAccount>().ReverseMap();
         CreateMap<Operation, StoredOperation>().ReverseMap();

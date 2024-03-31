@@ -1,5 +1,6 @@
 ﻿using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Domain.Entities.Transactions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 

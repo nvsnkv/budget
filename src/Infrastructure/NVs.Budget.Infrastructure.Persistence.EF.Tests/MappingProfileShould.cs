@@ -3,14 +3,15 @@ using AutoFixture.Kernel;
 using AutoMapper;
 using FluentAssertions;
 using NMoneys;
+using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
-using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
+using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
 using NVs.Budget.Utilities.Testing;
 
-namespace NVs.Budget.Infrastructure.Storage.Tests;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
 public class MappingProfileShould
 {
@@ -26,6 +27,7 @@ public class MappingProfileShould
 
     [Theory]
     [InlineData(typeof(Owner), typeof(StoredOwner))]
+    [InlineData(typeof(TrackedOwner), typeof(StoredOwner))]
     [InlineData(typeof(Account), typeof(StoredAccount))]
     [InlineData(typeof(TrackedAccount), typeof(StoredAccount))]
     [InlineData(typeof(TrackedOperation), typeof(StoredOperation))]

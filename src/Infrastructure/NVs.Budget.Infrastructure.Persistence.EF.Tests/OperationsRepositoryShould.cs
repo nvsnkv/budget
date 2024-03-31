@@ -1,14 +1,14 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;
+using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
 using NVs.Budget.Utilities.Testing;
 
-namespace NVs.Budget.Infrastructure.Storage.Tests;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
 [Collection(nameof(DatabaseCollectionFixture))]
 public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisposable

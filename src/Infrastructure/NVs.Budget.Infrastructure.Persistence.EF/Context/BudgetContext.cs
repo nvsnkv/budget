@@ -22,9 +22,12 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         modelBuilder.UseIdentityByDefaultColumns();
         modelBuilder.HasPostgresEnum<CurrencyIsoCode>();
 
-        modelBuilder.Entity<StoredOwner>()
+        var ownBuilder = modelBuilder.Entity<StoredOwner>();
+        ownBuilder
             .HasMany(o => o.Accounts)
             .WithMany(a => a.Owners);
+
+        ownBuilder.HasIndex(o => o.UserId);
 
         var rBuilder = modelBuilder.Entity<StoredRate>();
         rBuilder.HasOne(r => r.Owner).WithMany()

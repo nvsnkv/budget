@@ -5,7 +5,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using Testcontainers.PostgreSql;
 
-namespace NVs.Budget.Infrastructure.Storage.Tests.Fixtures;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
 
 
 [CollectionDefinition(nameof(DatabaseCollectionFixture))]

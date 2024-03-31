@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
 
-namespace NVs.Budget.Infrastructure.Storage.Tests;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
 public class JsonConversionExtensionsShould
 {
