@@ -34,7 +34,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Identity.Contracts", "Application\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj", "{6B594AB9-45F8-4FA6-998A-C03C3E099429}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Identity.AspNetCoreIdentity", "Infrastructure\NVs.Budget.Infrastructure.Identity.AspNetCoreIdentity\NVs.Budget.Infrastructure.Identity.AspNetCoreIdentity.csproj", "{B1904CC8-CEC6-491B-8C7D-304E6A6658F9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Controllers", "3. Controllers", "{8FBC3B88-0C56-4282-BBF3-607292E95F91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Identity.Console", "Infrastructure\NVs.Budget.Infrastructure.Identity.Console\NVs.Budget.Infrastructure.Identity.Console.csproj", "{34D1CB73-E049-436A-97AD-E7329DEDF219}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,7 +57,7 @@ Global
 		{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{0DE2237D-B132-4B17-AC5A-CDDF04F5C95E} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{6B594AB9-45F8-4FA6-998A-C03C3E099429} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
-		{B1904CC8-CEC6-491B-8C7D-304E6A6658F9} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
+		{34D1CB73-E049-436A-97AD-E7329DEDF219} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -110,9 +112,9 @@ Global
 		{6B594AB9-45F8-4FA6-998A-C03C3E099429}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B594AB9-45F8-4FA6-998A-C03C3E099429}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B594AB9-45F8-4FA6-998A-C03C3E099429}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1904CC8-CEC6-491B-8C7D-304E6A6658F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1904CC8-CEC6-491B-8C7D-304E6A6658F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1904CC8-CEC6-491B-8C7D-304E6A6658F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1904CC8-CEC6-491B-8C7D-304E6A6658F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34D1CB73-E049-436A-97AD-E7329DEDF219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34D1CB73-E049-436A-97AD-E7329DEDF219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34D1CB73-E049-436A-97AD-E7329DEDF219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34D1CB73-E049-436A-97AD-E7329DEDF219}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
