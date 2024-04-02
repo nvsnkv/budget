@@ -7,11 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <PackageReference Include="CommandLineParser" Version="2.9.1" />
+      <PackageReference Include="MediatR" Version="12.2.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj" />
     </ItemGroup>
 
 </Project>
