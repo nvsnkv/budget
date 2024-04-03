@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Application\NVs.Budget.Application.UseCases\NVs.Budget.Application.UseCases.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
+      <ProjectReference Include="..\..\Controllers\NVs.Budget.Controllers.Console\NVs.Budget.Controllers.Console.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.ExchangeRates.CBRF\NVs.Budget.Infrastructure.ExchangeRates.CBRF.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.Identity.Console\NVs.Budget.Infrastructure.Identity.Console.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj" />
+    </ItemGroup>
+
+</Project>

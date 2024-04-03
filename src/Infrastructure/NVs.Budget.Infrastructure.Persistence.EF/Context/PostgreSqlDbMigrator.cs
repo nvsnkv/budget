@@ -4,7 +4,7 @@ using Npgsql;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Context;
 
-internal class PostgreSqlDbMigrator(BudgetContext context)
+internal class PostgreSqlDbMigrator(BudgetContext context) : IDisposable, IAsyncDisposable, IDbMigrator
 {
     public async Task MigrateAsync(CancellationToken ct)
     {
@@ -26,4 +26,19 @@ internal class PostgreSqlDbMigrator(BudgetContext context)
             }
         }
     }
+
+    public void Dispose()
+    {
+        context.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await context.DisposeAsync();
+    }
+}
+
+public interface IDbMigrator : IAsyncDisposable
+{
+    Task MigrateAsync(CancellationToken ct);
 }

@@ -44,6 +44,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InfrasturctureContracts", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.UseCases", "Application\NVs.Budget.Application.UseCases\NVs.Budget.Application.UseCases.csproj", "{AE89B9CE-525A-4C62-84D7-E546E78BA4E2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Hosts", "4. Hosts", "{ABCBF4A8-F237-4243-9A07-27D6B361CCCB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Hosts.Console", "Hosts\NVs.Budget.Hosts.Console\NVs.Budget.Hosts.Console.csproj", "{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +71,7 @@ Global
 		{6B594AB9-45F8-4FA6-998A-C03C3E099429} = {68B96F7C-5FBE-46BF-B40C-95CDC2DDC72E}
 		{8CD10A15-F1DD-40EC-87F4-9983ED589B07} = {68B96F7C-5FBE-46BF-B40C-95CDC2DDC72E}
 		{AE89B9CE-525A-4C62-84D7-E546E78BA4E2} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
+		{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76} = {ABCBF4A8-F237-4243-9A07-27D6B361CCCB}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -133,5 +138,9 @@ Global
 		{AE89B9CE-525A-4C62-84D7-E546E78BA4E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE89B9CE-525A-4C62-84D7-E546E78BA4E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE89B9CE-525A-4C62-84D7-E546E78BA4E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

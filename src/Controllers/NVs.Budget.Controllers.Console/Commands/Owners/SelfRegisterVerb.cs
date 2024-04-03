@@ -16,6 +16,6 @@ internal class SelfRegisterVerbHandler(IMediator mediator, IIdentityService iden
 
         var result = await mediator.Send(new RegisterOwnerCommand(user), cancellationToken);
 
-        return result.IsSuccess ? (int)ResultCode.Success : (int)ResultCode.Error;
+        return result.ToExitCode();
     }
 }
