@@ -45,6 +45,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.UseCases", "Application\NVs.Budget.Application.UseCases\NVs.Budget.Application.UseCases.csproj", "{AE89B9CE-525A-4C62-84D7-E546E78BA4E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Hosts", "4. Hosts", "{ABCBF4A8-F237-4243-9A07-27D6B361CCCB}"
+	ProjectSection(SolutionItems) = preProject
+		Hosts\docker-compose.yml = Hosts\docker-compose.yml
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Hosts.Console", "Hosts\NVs.Budget.Hosts.Console\NVs.Budget.Hosts.Console.csproj", "{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}"
 EndProject
