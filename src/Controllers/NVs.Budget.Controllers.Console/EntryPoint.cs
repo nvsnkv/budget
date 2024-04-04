@@ -7,7 +7,7 @@ using NVs.Budget.Controllers.Console.IO;
 
 namespace NVs.Budget.Controllers.Console;
 
-internal class EntryPoint(Mediator mediator, Parser parser, OutputStreams streams) : IEntryPoint
+internal class EntryPoint(IMediator mediator, Parser parser, OutputStreams streams) : IEntryPoint
 {
     private static readonly Type[] SuperVerbTypes = typeof(SuperVerb).Assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(SuperVerb))).ToArray();
 

@@ -4,6 +4,7 @@ using FluentResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
 
 namespace NVs.Budget.Controllers.Console;
@@ -41,6 +42,14 @@ public static class ConsoleControllersExtensions
             settings.ParsingCulture = culture;
             settings.EnableDashDash = true;
         });
+
+        var criteriaListReader = new CriteriaListReader(new CriteriaParser());
+
+        var transferCriteria = criteriaListReader.GetTransferCriteria(configuration.GetSection("Transfers"));
+        services.AddSingleton(transferCriteria);
+
+        var taggingCriteria = criteriaListReader.GetTaggingCriteria(configuration.GetSection("Tags"));
+        services.AddSingleton(taggingCriteria);
 
         return services;
     }

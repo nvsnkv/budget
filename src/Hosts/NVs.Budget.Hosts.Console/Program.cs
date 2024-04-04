@@ -18,13 +18,13 @@ var cancellationHandler = new ConsoleCancellationHandler();
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddConsoleIdentity()
-    .AddEfCorePersistence(builder.Configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"));
+    .AddEfCorePersistence(builder.Configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"))
+    .AddTransient<UserCache>();
 
 var provider = builder.Services.BuildServiceProvider();
-await using (var migrator = provider.GetRequiredService<IDbMigrator>())
-{
-    await migrator.MigrateAsync(cancellationHandler.Token);
-}
+
+var migrator = provider.GetRequiredService<IDbMigrator>();
+await migrator.MigrateAsync(cancellationHandler.Token);
 
 var userCache = provider.GetRequiredService<UserCache>();
 
@@ -35,6 +35,8 @@ builder.Services.AddSingleton(userCache)
     .AddTransient<IAccountManager>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountManager())
     .AddTransient<IReckoner>(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
     .AddApplicationUseCases();
+
+
 
 var cbrfFactory = new Factory();
 builder.Services.AddSingleton(cbrfFactory.CreateProvider());
