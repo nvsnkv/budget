@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NVs.Budget.Application;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
@@ -35,8 +36,6 @@ builder.Services.AddSingleton(userCache)
     .AddTransient<IAccountManager>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountManager())
     .AddTransient<IReckoner>(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
     .AddApplicationUseCases();
-
-
 
 var cbrfFactory = new Factory();
 builder.Services.AddSingleton(cbrfFactory.CreateProvider());

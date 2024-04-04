@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using CommandLine;
 using FluentResults;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
+
+[assembly:InternalsVisibleTo("NVs.Budget.Controllers.Console.Tests")]
 
 namespace NVs.Budget.Controllers.Console;
 
