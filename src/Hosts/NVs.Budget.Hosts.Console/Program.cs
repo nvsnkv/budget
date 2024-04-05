@@ -45,5 +45,8 @@ builder.Services.UseConsole(builder.Configuration);
 
 var host = builder.Build();
 
-var entryPoint = host.Services.GetRequiredService<IEntryPoint>();
+var factory = host.Services.GetRequiredService<IServiceScopeFactory>();
+using var scope = factory.CreateScope();
+
+var entryPoint = scope.ServiceProvider.GetRequiredService<IEntryPoint>();
 return await entryPoint.Process(args, cancellationHandler.Token);

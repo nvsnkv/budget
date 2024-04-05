@@ -4,7 +4,7 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 
 namespace NVs.Budget.Controllers.Console.IO;
 
-internal class OwnerResultWriter(OutputStreams outputStreams, IOptionsSnapshot<OutputOptions> options) : ResultWriter<Result<TrackedOwner>>(outputStreams, options)
+internal class OwnerResultWriter(OutputStreams outputStreams, IOptions<OutputOptions> options) : ResultWriter<Result<TrackedOwner>>(outputStreams, options)
 {
     public override async Task Write(Result<TrackedOwner> response, CancellationToken ct)
     {

@@ -3,10 +3,10 @@ using Microsoft.Extensions.Options;
 
 namespace NVs.Budget.Controllers.Console.IO;
 
-abstract class ResultWriter<T>(OutputStreams outputStreams, IOptionsSnapshot<OutputOptions> options) where T : IResultBase
+abstract class ResultWriter<T>(OutputStreams outputStreams, IOptions<OutputOptions> options) where T : IResultBase
 {
     protected readonly OutputStreams OutputStreams = outputStreams;
-    protected readonly IOptionsSnapshot<OutputOptions> Options = options;
+    protected readonly IOptions<OutputOptions> Options = options;
 
     public virtual async Task Write(T response, CancellationToken ct)
     {
@@ -25,7 +25,7 @@ abstract class ResultWriter<T>(OutputStreams outputStreams, IOptionsSnapshot<Out
             foreach (var (key, value) in success.Metadata)
             {
                 ct.ThrowIfCancellationRequested();
-                await OutputStreams.Error.WriteLineAsync($"  [{key}]: {value}");
+                await OutputStreams.Out.WriteLineAsync($"  [{key}]: {value}");
             }
         }
     }

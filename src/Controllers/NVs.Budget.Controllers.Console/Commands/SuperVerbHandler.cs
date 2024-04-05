@@ -3,21 +3,12 @@ using MediatR;
 
 namespace NVs.Budget.Controllers.Console.Commands;
 
-internal class SuperVerbHandler : IRequestHandler<SuperVerb, int>
+internal class SuperVerbHandler<T>(IMediator mediator, Parser parser) : IRequestHandler<T, int> where T : SuperVerb
 {
-    private readonly IMediator _mediator;
-    private readonly Parser _parser;
-
-    public SuperVerbHandler(IMediator mediator, Parser parser)
+    public async Task<int> Handle(T request, CancellationToken cancellationToken)
     {
-        _mediator = mediator;
-        _parser = parser;
-    }
-
-    public async Task<int> Handle(SuperVerb request, CancellationToken cancellationToken)
-    {
-        var parserResult = _parser.ParseArguments(request.Args, request.Verbs);
-        var result = await parserResult.MapResult(o => _mediator.Send(o, cancellationToken), errs => Task.FromResult((object?)-1));
+        var parserResult = parser.ParseArguments(request.Args, request.Verbs);
+        var result = await parserResult.MapResult(o => mediator.Send(o, cancellationToken), errs => Task.FromResult((object?)-1));
 
         if (result is int value)
         {

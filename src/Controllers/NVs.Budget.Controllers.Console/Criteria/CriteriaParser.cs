@@ -6,6 +6,7 @@ using System.Reflection;
 using FluentResults;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Controllers.Console.Errors;
 
 namespace NVs.Budget.Controllers.Console.Criteria;
 
@@ -30,6 +31,24 @@ internal class CriteriaParser
             typeof(bool),
             Expression.Parameter(typeof(TrackedOperation), "o")
         );
+
+    public Result<Expression<Func<T, bool>>> TryParsePredicate<T>(string expression, string paramName)
+    {
+        if (string.IsNullOrWhiteSpace(expression))
+        {
+            return (Expression<Func<T, bool>>)(_ => true);
+        }
+        try
+        {
+            return ParsePredicate<T>(expression, paramName);
+        }
+        catch (Exception e)
+        {
+            return Result.Fail(new ExceptionBasedError(e));
+        }
+    }
+
+    public Expression<Func<T, bool>> ParsePredicate<T>(string expression, string paramName = "arg") => Parse<Func<T, bool>>(expression, typeof(bool), Expression.Parameter(typeof(T), paramName));
 
     private Expression<T> Parse<T>(string expression, Type resultType, params ParameterExpression[] args)
     {
