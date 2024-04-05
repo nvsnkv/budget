@@ -6,6 +6,8 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
+using NVs.Budget.Controllers.Console.IO.Owners;
+using NVs.Budget.Controllers.Console.IO.Results;
 
 namespace NVs.Budget.Controllers.Console.Commands.Owners;
 
@@ -18,7 +20,7 @@ internal class ListOwnersVerb : IRequest<int>
     [Value(0)] public IEnumerable<string> Criteria { get; [UsedImplicitly] set; }
 };
 
-internal class ListOwnersVerbHandler(IMediator mediator, CriteriaParser parser, ResultWriter<Result> resultWriter) : IRequestHandler<ListOwnersVerb, int>
+internal class ListOwnersVerbHandler(IMediator mediator, CriteriaParser parser, GenericResultWriter<Result> resultWriter, OwnersWriter writer) : IRequestHandler<ListOwnersVerb, int>
 {
     public async Task<int> Handle(ListOwnersVerb request, CancellationToken cancellationToken)
     {
@@ -30,8 +32,11 @@ internal class ListOwnersVerbHandler(IMediator mediator, CriteriaParser parser, 
             return (int)ExitCodes.ArgumentsError;
         }
 
-        // CLI output will be handled by ResultWritingBehaviour
-        await mediator.Send(new ListOwnersQuery(criteria.Value), cancellationToken);
+        var owners = await mediator.Send(new ListOwnersQuery(criteria.Value), cancellationToken);
+        foreach (var owner in owners)
+        {
+            await writer.Write(owner);
+        }
 
         return (int)ExitCodes.Success;
     }

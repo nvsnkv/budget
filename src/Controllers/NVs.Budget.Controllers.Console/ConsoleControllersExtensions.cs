@@ -3,12 +3,16 @@ using System.Runtime.CompilerServices;
 using CommandLine;
 using FluentResults;
 using MediatR;
+using MediatR.Pipeline;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Controllers.Console.Behaviors;
 using NVs.Budget.Controllers.Console.Commands;
 using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
+using NVs.Budget.Controllers.Console.IO.Owners;
+using NVs.Budget.Controllers.Console.IO.Results;
 using NVs.Budget.Utilities.MediatR;
 
 [assembly:InternalsVisibleTo("NVs.Budget.Controllers.Console.Tests")]
@@ -21,10 +25,16 @@ public static class ConsoleControllersExtensions
     {
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<EntryPoint>());
         services.AddTransient<IRequestHandler<SuperVerb, int>, SuperVerbHandler<SuperVerb>>();
-        services.EmpowerMediatRHandlersFor(typeof(IRequestHandler<,>));
+        services.AddTransient<IRequestPostProcessor<IRequest<IResultBase>, IResultBase>, ResultWritingBehaviour<IRequest<IResultBase>, IResultBase>>();
 
-        services.AddTransient<ResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
-        services.AddTransient<ResultWriter<Result>, SimpleResultWriter>();
+        services.EmpowerMediatRHandlersFor(typeof(IRequestHandler<,>));
+        services.EmpowerMediatRHandlersFor(typeof(IRequestPostProcessor<,>));
+
+        services.AddTransient<OwnersWriter>();
+
+        services.AddTransient<GenericResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
+        services.AddTransient<GenericResultWriter<IResultBase>, BaseResultWriter>();
+        services.AddTransient<GenericResultWriter<Result>, ResultWriter>();
 
         services.AddTransient<IEntryPoint, EntryPoint>();
         services.AddTransient<Parser>();

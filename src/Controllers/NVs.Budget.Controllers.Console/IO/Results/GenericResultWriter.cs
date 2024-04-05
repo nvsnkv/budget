@@ -1,9 +1,9 @@
 ﻿using FluentResults;
 using Microsoft.Extensions.Options;
 
-namespace NVs.Budget.Controllers.Console.IO;
+namespace NVs.Budget.Controllers.Console.IO.Results;
 
-abstract class ResultWriter<T>(OutputStreams outputStreams, IOptions<OutputOptions> options) where T : IResultBase
+abstract class GenericResultWriter<T>(OutputStreams outputStreams, IOptions<OutputOptions> options) where T : IResultBase
 {
     protected readonly OutputStreams OutputStreams = outputStreams;
     protected readonly IOptions<OutputOptions> Options = options;
