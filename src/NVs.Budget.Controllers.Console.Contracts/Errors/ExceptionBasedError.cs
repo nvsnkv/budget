@@ -2,7 +2,7 @@ using FluentResults;
 
 namespace NVs.Budget.Controllers.Console.Errors;
 
-internal class ExceptionBasedError : IError
+public class ExceptionBasedError : IError
 {
     public ExceptionBasedError(Exception e)
     {

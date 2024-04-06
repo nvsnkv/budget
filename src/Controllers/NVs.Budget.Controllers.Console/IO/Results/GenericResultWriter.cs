@@ -1,11 +1,12 @@
 ﻿using FluentResults;
 using Microsoft.Extensions.Options;
+using NVs.Budget.Controllers.Console.Contracts.IO;
 
 namespace NVs.Budget.Controllers.Console.IO.Results;
 
-abstract class GenericResultWriter<T>(OutputStreams outputStreams, IOptions<OutputOptions> options) where T : IResultBase
+internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptions<OutputOptions> options): IResultWriter<T> where T : IResultBase
 {
-    protected readonly OutputStreams OutputStreams = outputStreams;
+    protected readonly IOutputStreamProvider OutputStreams = streams;
     protected readonly IOptions<OutputOptions> Options = options;
 
     public virtual async Task Write(T response, CancellationToken ct)
@@ -21,36 +22,40 @@ abstract class GenericResultWriter<T>(OutputStreams outputStreams, IOptions<Outp
     {
         foreach (var success in successes)
         {
-            await OutputStreams.Out.WriteLineAsync($"OK: {success.Message}");
+            var outStream = await OutputStreams.GetOutput(Options.Value.OutputStreamName);
+            await using var writer = new StreamWriter(outStream);
+            await writer.WriteLineAsync($"OK: {success.Message}");
             foreach (var (key, value) in success.Metadata)
             {
                 ct.ThrowIfCancellationRequested();
-                await OutputStreams.Out.WriteLineAsync($"  [{key}]: {value}");
+                await writer.WriteLineAsync($"  [{key}]: {value}");
             }
         }
     }
 
     protected async Task WriteErrors(List<IError> errors, CancellationToken ct)
     {
+        var errStream = await OutputStreams.GetError(Options.Value.ErrorStreamName);
+        await using var writer = new StreamWriter(errStream);
         foreach (var error in errors)
         {
-            await WriterError(string.Empty, error, ct);
+            await WriterError(writer, string.Empty, error, ct);
         }
     }
 
-    private async Task WriterError(string prefix, IError error, CancellationToken ct)
+    private async Task WriterError(StreamWriter writer, string prefix, IError error, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        await OutputStreams.Error.WriteLineAsync($"{prefix}E: {error.Message}");
+        await writer.WriteLineAsync($"{prefix}E: {error.Message}");
         foreach (var (key, value) in error.Metadata)
         {
             ct.ThrowIfCancellationRequested();
-            await OutputStreams.Error.WriteLineAsync($"{prefix}  [{key}]: {value}");
+            await writer.WriteLineAsync($"{prefix}  [{key}]: {value}");
         }
 
         foreach (var reason in error.Reasons)
         {
-            await WriterError(prefix + "    ", reason, ct);
+            await WriterError(writer, prefix + "    ", reason, ct);
         }
     }
 }

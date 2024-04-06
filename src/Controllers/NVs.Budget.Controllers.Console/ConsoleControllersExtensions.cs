@@ -7,8 +7,11 @@ using MediatR.Pipeline;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Controllers.Console.Behaviors;
 using NVs.Budget.Controllers.Console.Commands;
+using NVs.Budget.Controllers.Console.Contracts.Commands;
+using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
 using NVs.Budget.Controllers.Console.IO.Owners;
@@ -24,24 +27,20 @@ public static class ConsoleControllersExtensions
     public static IServiceCollection AddConsole(this IServiceCollection services)
     {
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<EntryPoint>());
-        services.AddTransient<IRequestHandler<SuperVerb, int>, SuperVerbHandler<SuperVerb>>();
-        services.AddTransient<IRequestPostProcessor<IRequest<IResultBase>, IResultBase>, ResultWritingBehaviour<IRequest<IResultBase>, IResultBase>>();
-
+        services.AddTransient<IRequestHandler<SuperVerb, ExitCode>, SuperVerbHandler<SuperVerb>>();
         services.EmpowerMediatRHandlersFor(typeof(IRequestHandler<,>));
-        services.EmpowerMediatRHandlersFor(typeof(IRequestPostProcessor<,>));
+        services.AddTransient<IRequestPostProcessor<RegisterOwnerCommand, Result<TrackedOwner>>, ResultWritingPostProcessor<RegisterOwnerCommand, Result<TrackedOwner>>>();
 
         services.AddTransient<OwnersWriter>();
 
-        services.AddTransient<GenericResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
-        services.AddTransient<GenericResultWriter<IResultBase>, BaseResultWriter>();
-        services.AddTransient<GenericResultWriter<Result>, ResultWriter>();
+        services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
+        services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
 
         services.AddTransient<IEntryPoint, EntryPoint>();
         services.AddTransient<Parser>();
         services.AddTransient<CriteriaParser>();
 
-        var streams = new OutputStreams(System.Console.Out, System.Console.Error);
-        services.AddSingleton(streams);
+        services.AddSingleton<IOutputStreamProvider, ConsoleOutputStreams>();
 
         return services;
     }

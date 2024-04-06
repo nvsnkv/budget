@@ -1,11 +1,12 @@
 ﻿using FluentResults;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.IO.Results;
 
 namespace NVs.Budget.Controllers.Console.IO.Owners;
 
-internal class OwnerResultWriter(OutputStreams outputStreams, IOptions<OutputOptions> options, OwnersWriter writer) : GenericResultWriter<Result<TrackedOwner>>(outputStreams, options)
+internal class OwnerResultWriter(IOutputStreamProvider outputStreams, IOptions<OutputOptions> options, OwnersWriter writer) : GenericResultWriter<Result<TrackedOwner>>(outputStreams, options)
 {
     public override async Task Write(Result<TrackedOwner> response, CancellationToken ct)
     {

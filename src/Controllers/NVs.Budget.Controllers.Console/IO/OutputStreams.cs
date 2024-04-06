@@ -1,5 +1,10 @@
 ﻿namespace NVs.Budget.Controllers.Console.IO;
 
-internal record OutputStreams(TextWriter Out, TextWriter Error);
+internal class OutputOptions
+{
+    public bool ShowSuccesses { get; set; }
 
-internal record OutputOptions(bool ShowSuccesses = false);
+    public string? OutputStreamName { get; set; }
+
+    public string? ErrorStreamName { get; set; }
+};

@@ -55,6 +55,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Cons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.MediatR", "Utilities\NVs.Budget.Utilities.MediatR\NVs.Budget.Utilities.MediatR.csproj", "{0BBD98E3-394D-444B-948C-15D883B1C4EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Console.Contracts", "NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj", "{E72B5C99-FD5D-406C-9A19-769428D2E1A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,7 @@ Global
 		{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76} = {ABCBF4A8-F237-4243-9A07-27D6B361CCCB}
 		{0043D746-D5F8-482D-BF68-B969FCB5C544} = {8FBC3B88-0C56-4282-BBF3-607292E95F91}
 		{0BBD98E3-394D-444B-948C-15D883B1C4EC} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
+		{E72B5C99-FD5D-406C-9A19-769428D2E1A2} = {8FBC3B88-0C56-4282-BBF3-607292E95F91}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -159,5 +162,9 @@ Global
 		{0BBD98E3-394D-444B-948C-15D883B1C4EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BBD98E3-394D-444B-948C-15D883B1C4EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BBD98E3-394D-444B-948C-15D883B1C4EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E72B5C99-FD5D-406C-9A19-769428D2E1A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E72B5C99-FD5D-406C-9A19-769428D2E1A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E72B5C99-FD5D-406C-9A19-769428D2E1A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E72B5C99-FD5D-406C-9A19-769428D2E1A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

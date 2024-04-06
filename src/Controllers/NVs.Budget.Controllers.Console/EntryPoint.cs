@@ -1,15 +1,16 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 using MediatR;
-using Microsoft.Extensions.Hosting;
-using NVs.Budget.Controllers.Console.Commands;
+using Microsoft.Extensions.Options;
+using NVs.Budget.Controllers.Console.Contracts.Commands;
+using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.IO;
 
 namespace NVs.Budget.Controllers.Console;
 
-internal class EntryPoint(IMediator mediator, Parser parser, OutputStreams streams) : IEntryPoint
+internal class EntryPoint(IMediator mediator, Parser parser, IOutputStreamProvider streams, IOptions<OutputOptions> options) : IEntryPoint
 {
-    private static readonly Type[] SuperVerbTypes = typeof(SuperVerb).Assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(SuperVerb))).ToArray();
+    private static readonly Type[] SuperVerbTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes().Where(t => t.IsAssignableTo(typeof(SuperVerb)))).ToArray();
 
     public Task<int> Process(IEnumerable<string> args, CancellationToken ct)
     {
@@ -22,17 +23,25 @@ internal class EntryPoint(IMediator mediator, Parser parser, OutputStreams strea
                     return code;
                 }
 
-                return (int)ExitCodes.UnexpectedResult;
+                if (result is ExitCode exitCode)
+                {
+                    return (int)exitCode;
+                }
+
+                return (int)ExitCode.UnexpectedResult;
             },
             async errs =>
             {
                 var helpText = HelpText.AutoBuild(parsedResult);
                 var errors = errs as Error[] ?? errs.ToArray();
                 var isHelp = errors.IsHelp() || errors.IsVersion();
-                var stream = isHelp ? streams.Out : streams.Error;
+                var stream = isHelp
+                    ? await streams.GetOutput(options.Value.OutputStreamName)
+                    : await streams.GetError(options.Value.ErrorStreamName);
 
-                await stream.WriteLineAsync(helpText);
-                return (int)(isHelp ? ExitCodes.Success : ExitCodes.ArgumentsError);
+                await using var writer = new StreamWriter(stream);
+                await writer.WriteLineAsync(helpText);
+                return (int)(isHelp ? ExitCode.Success : ExitCode.ArgumentsError);
             });
     }
 }
