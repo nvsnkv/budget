@@ -6,6 +6,8 @@ using NVs.Budget.Application;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Console;
+using NVs.Budget.Controllers.Console.Handlers;
+using NVs.Budget.Controllers.Console.IO;
 using NVs.Budget.Hosts.Console;
 using NVs.Budget.Hosts.Console.Commands;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
@@ -34,7 +36,9 @@ var collection = new ServiceCollection().AddConsoleIdentity()
     .AddApplicationUseCases()
     .AddSingleton(new Factory().CreateProvider())
     .AddConsole()
-    .UseConsole(configuration);
+    .AddConsoleIO()
+    .UseConsole(configuration)
+    .UseConsoleIO(configuration);
 
 var services = collection
     .BuildServiceProvider();

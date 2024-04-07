@@ -25,7 +25,7 @@ internal class Accountant(
     TransfersListBuilder transfersListBuilder,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportTransactions(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
         transfersListBuilder.Clear();

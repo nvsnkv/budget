@@ -1,5 +1,6 @@
 namespace NVs.Budget.Controllers.Console.Contracts.Commands;
 
+[Flags]
 public enum ExitCode
 {
     Success = 0,

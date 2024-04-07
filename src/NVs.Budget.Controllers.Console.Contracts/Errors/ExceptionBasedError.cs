@@ -24,7 +24,7 @@ public class ExceptionBasedError : IError
 
     private int keyCounter;
 
-    private string GetKey(object? key) => key as string ?? $"{keyCounter} {key}";
+    private string GetKey(object? key) => key as string ?? $"{keyCounter++} {key}";
 
     public string Message { get; }
     public Dictionary<string, object> Metadata { get; }
