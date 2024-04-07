@@ -1,4 +1,4 @@
-﻿namespace NVs.Budget.Controllers.Console.IO;
+﻿namespace NVs.Budget.Controllers.Console.IO.Output;
 
 internal class OutputOptions
 {

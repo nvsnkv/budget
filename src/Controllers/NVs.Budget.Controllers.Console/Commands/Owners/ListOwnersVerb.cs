@@ -8,8 +8,7 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.Criteria;
-using NVs.Budget.Controllers.Console.IO.Owners;
-using NVs.Budget.Controllers.Console.IO.Results;
+using NVs.Budget.Controllers.Console.IO.Output.Owners;
 
 namespace NVs.Budget.Controllers.Console.Commands.Owners;
 

@@ -1,11 +1,10 @@
 ﻿using FluentResults;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
-using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Results;
+using NVs.Budget.Controllers.Console.IO.Output.Results;
 
-namespace NVs.Budget.Controllers.Console.IO.Owners;
+namespace NVs.Budget.Controllers.Console.IO.Output.Owners;
 
 internal class OwnerResultWriter(IOutputStreamProvider outputStreams, IOptions<OutputOptions> options, OwnersWriter writer) : GenericResultWriter<Result<TrackedOwner>>(outputStreams, options)
 {

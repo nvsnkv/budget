@@ -1,10 +1,8 @@
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
-using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Domain.Entities.Accounts;
 
-namespace NVs.Budget.Controllers.Console.IO.Owners;
+namespace NVs.Budget.Controllers.Console.IO.Output.Owners;
 
 internal class OwnersWriter(IOutputStreamProvider streams, IOptions<OutputOptions> options)
 {

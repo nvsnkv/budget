@@ -15,8 +15,9 @@ using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
-using NVs.Budget.Controllers.Console.IO.Owners;
-using NVs.Budget.Controllers.Console.IO.Results;
+using NVs.Budget.Controllers.Console.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Output.Owners;
+using NVs.Budget.Controllers.Console.IO.Output.Results;
 using NVs.Budget.Utilities.MediatR;
 
 [assembly:InternalsVisibleTo("NVs.Budget.Controllers.Console.Tests")]

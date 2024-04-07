@@ -1,9 +1,8 @@
 ﻿using FluentResults;
 using Microsoft.Extensions.Options;
-using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
-namespace NVs.Budget.Controllers.Console.IO.Results;
+namespace NVs.Budget.Controllers.Console.IO.Output.Results;
 
 internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptions<OutputOptions> options): IResultWriter<T> where T : IResultBase
 {
