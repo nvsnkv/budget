@@ -26,10 +26,13 @@ public static class ConsoleControllersExtensions
 {
     public static IServiceCollection AddConsole(this IServiceCollection services)
     {
-        services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<EntryPoint>());
+        services.AddMediatR(c =>
+        {
+            c.RegisterServicesFromAssemblyContaining<EntryPoint>();
+            c.AddOpenRequestPostProcessor(typeof(ResultWritingPostProcessor<,>));
+        });
         services.AddTransient<IRequestHandler<SuperVerb, ExitCode>, SuperVerbHandler<SuperVerb>>();
         services.EmpowerMediatRHandlersFor(typeof(IRequestHandler<,>));
-        services.AddTransient<IRequestPostProcessor<RegisterOwnerCommand, Result<TrackedOwner>>, ResultWritingPostProcessor<RegisterOwnerCommand, Result<TrackedOwner>>>();
 
         services.AddTransient<OwnersWriter>();
 
