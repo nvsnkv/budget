@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace NVs.Budget.Controllers.Console.Contracts.IO;
+namespace NVs.Budget.Controllers.Console.Contracts.IO.Input;
 
 public interface IInputStreamProvider
 {

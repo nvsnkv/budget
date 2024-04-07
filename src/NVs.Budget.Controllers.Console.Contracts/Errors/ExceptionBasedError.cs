@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace NVs.Budget.Controllers.Console.Errors;
+namespace NVs.Budget.Controllers.Console.Contracts.Errors;
 
 public class ExceptionBasedError : IError
 {

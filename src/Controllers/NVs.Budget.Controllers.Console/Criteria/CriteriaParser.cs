@@ -6,7 +6,7 @@ using System.Reflection;
 using FluentResults;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
-using NVs.Budget.Controllers.Console.Errors;
+using NVs.Budget.Controllers.Console.Contracts.Errors;
 
 namespace NVs.Budget.Controllers.Console.Criteria;
 

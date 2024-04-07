@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO;
+using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.IO.Results;
 

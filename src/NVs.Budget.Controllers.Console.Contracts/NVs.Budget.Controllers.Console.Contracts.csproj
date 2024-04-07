@@ -12,4 +12,8 @@
       <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Application\NVs.Budget.Application.Contracts\NVs.Budget.Application.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>

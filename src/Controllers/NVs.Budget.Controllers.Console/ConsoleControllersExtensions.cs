@@ -12,6 +12,7 @@ using NVs.Budget.Controllers.Console.Behaviors;
 using NVs.Budget.Controllers.Console.Commands;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO;
+using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.Criteria;
 using NVs.Budget.Controllers.Console.IO;
 using NVs.Budget.Controllers.Console.IO.Owners;

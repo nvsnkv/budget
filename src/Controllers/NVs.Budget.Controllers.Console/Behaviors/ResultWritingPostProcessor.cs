@@ -2,6 +2,7 @@
 using MediatR;
 using MediatR.Pipeline;
 using NVs.Budget.Controllers.Console.Contracts.IO;
+using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.Behaviors;
 

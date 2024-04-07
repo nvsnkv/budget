@@ -22,4 +22,8 @@
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.MediatR\NVs.Budget.Utilities.MediatR.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="IO\Input\" />
+    </ItemGroup>
+
 </Project>

@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace NVs.Budget.Controllers.Console.Contracts.IO;
+namespace NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 public interface IResultWriter<in T> where T : IResultBase
 {
