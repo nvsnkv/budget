@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.P
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Domain", "0. Domain", "{DBF42B89-D4A0-4968-8C98-1ED3283B4188}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.ExchangeRates.Contracts", "NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj", "{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.ExchangeRates.Contracts", "Application\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj", "{5A6CE7F3-C7E2-4DA4-BDE8-2BBFDE4A9B22}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.ExchangeRates.CBRF", "Infrastructure\NVs.Budget.Infrastructure.ExchangeRates.CBRF\NVs.Budget.Infrastructure.ExchangeRates.CBRF.csproj", "{0DE2237D-B132-4B17-AC5A-CDDF04F5C95E}"
 EndProject
@@ -55,7 +55,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Cons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.MediatR", "Utilities\NVs.Budget.Utilities.MediatR\NVs.Budget.Utilities.MediatR.csproj", "{0BBD98E3-394D-444B-948C-15D883B1C4EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Console.Contracts", "NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj", "{E72B5C99-FD5D-406C-9A19-769428D2E1A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Console.Contracts", "Controllers\NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj", "{E72B5C99-FD5D-406C-9A19-769428D2E1A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Console.IO", "Controllers\NVs.Budget.Controllers.Console.IO\NVs.Budget.Controllers.Console.IO.csproj", "{067B4AB9-DDF7-4F46-A741-19E097722FA4}"
 EndProject
