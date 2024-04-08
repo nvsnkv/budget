@@ -5,6 +5,15 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>budget</PackageId>
+        <Version>0.1.0</Version>
+        <Authors>nvsnkv</Authors>
+        <Copyright>© nvsnkv 2024</Copyright>
+        <PackageProjectUrl>https://github.com/nvsnkv/budget</PackageProjectUrl>
+        <PackageLicenseUrl>https://opensource.org/license/mit</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/nvsnkv/budget</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <AssemblyName>budget</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +38,7 @@
       <None Remove="appsettings.Development.json" />
       <Content Include="appsettings.Development.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
 

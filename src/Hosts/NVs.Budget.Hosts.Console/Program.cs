@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
-using NVs.Budget.Controllers.Console;
 using NVs.Budget.Controllers.Console.Handlers;
 using NVs.Budget.Controllers.Console.IO;
 using NVs.Budget.Hosts.Console;
@@ -16,10 +15,19 @@ using NVs.Budget.Infrastructure.Persistence.EF;
 
 var cancellationHandler = new ConsoleCancellationHandler();
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddJsonFile("tagging_rules.json", true)
-    .AddJsonFile("transfer_rules.json", true)
+var configurationBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
+
+var configurationDirectoryPath = Environment.GetEnvironmentVariable("BUDGET_CONFIGURATION_PATH") ?? "conf.d";
+
+if (Directory.Exists(configurationDirectoryPath))
+{
+    foreach (var file in Directory.EnumerateFiles(configurationDirectoryPath, "*.json"))
+    {
+        configurationBuilder.AddJsonFile(file);
+    }
+}
+
+var configuration = configurationBuilder
     .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? string.Empty}.json", true)
     .AddEnvironmentVariables()
     .AddCommandLine(args)
@@ -40,8 +48,7 @@ var collection = new ServiceCollection().AddConsoleIdentity()
     .UseConsole(configuration)
     .UseConsoleIO(configuration);
 
-var services = collection
-    .BuildServiceProvider();
+var services = collection.BuildServiceProvider();
 
 var factory = services.GetRequiredService<IServiceScopeFactory>();
 using var scope = factory.CreateScope();
