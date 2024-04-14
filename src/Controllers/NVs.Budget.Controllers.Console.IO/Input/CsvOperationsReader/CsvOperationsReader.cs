@@ -5,12 +5,14 @@ using FluentResults;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
-using NVs.Budget.Controllers.Console.IO.Input.Errors;
+using NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader.Errors;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
+using NVs.Budget.Controllers.Console.IO.Models;
+using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 
-internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvReadingOptions> options) : IOperationsReader
+internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvReadingOptions> options, IAccountsRepository accountsRepository) : IOperationsReader
 {
     private readonly CsvReadingOptions _options = options.Value;
     public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUnregisteredOperations(StreamReader input, string name, [EnumeratorCancellation] CancellationToken ct)
@@ -23,7 +25,7 @@ internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvR
         }
 
         var parser = new CsvParser(input, configuration, true);
-        var rowParser = new RowParser(parser, name, fileOptions, ct);
+        var rowParser = new UntrackedRowParser(parser, name, fileOptions, ct);
 
         while (await rowParser.ReadAsync())
         {
@@ -37,6 +39,19 @@ internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvR
             {
                 yield return rowParser.GetRow();
             }
+        }
+    }
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> ReadTrackedOperation(StreamReader input, [EnumeratorCancellation]CancellationToken ct)
+    {
+        var parser = new CsvReader(input, configuration, true);
+        parser.Context.RegisterClassMap<CsvTrackedOperationClassMap>();
+
+        var rowParser = new TrackedRowParser(parser, accountsRepository, ct);
+
+        while (await rowParser.ReadAsync())
+        {
+            yield return await rowParser.GetRecord();
         }
     }
 }

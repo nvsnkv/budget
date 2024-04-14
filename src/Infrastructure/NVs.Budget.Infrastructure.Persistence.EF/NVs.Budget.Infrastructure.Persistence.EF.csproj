@@ -22,6 +22,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
     </ItemGroup>
 
 </Project>

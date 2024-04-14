@@ -16,5 +16,7 @@ internal class OwnersWriter(IOutputStreamProvider streams, IOptions<OutputOption
             ct.ThrowIfCancellationRequested();
             await writer.WriteLineAsync($"[{owner.Id}] {owner.Name} (ver {owner.Version})");
         }
+
+        await writer.FlushAsync(ct);
     }
 }

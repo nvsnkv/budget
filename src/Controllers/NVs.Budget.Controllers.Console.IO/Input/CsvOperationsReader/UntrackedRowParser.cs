@@ -6,13 +6,12 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader.Errors;
-using NVs.Budget.Controllers.Console.IO.Input.Errors;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
 using NVs.Budget.Domain.Extensions;
 
 namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 
-internal partial class RowParser(IParser parser, string fileName, CsvFileReadingOptions fileOptions, CancellationToken ct)
+internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFileReadingOptions fileOptions, CancellationToken ct)
 {
     private static readonly Regex CellsIndexPattern = GenerateCellIndexPattern();
     private volatile int _row = -1;

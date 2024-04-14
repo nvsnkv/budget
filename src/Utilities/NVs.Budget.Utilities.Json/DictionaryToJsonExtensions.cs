@@ -2,9 +2,9 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-namespace NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
+namespace NVs.Budget.Utilities.Json;
 
-internal static class DictionaryToJsonExtensions
+public static class DictionaryToJsonExtensions
 {
     private static readonly JsonSerializerOptions SerializeOptions = new(JsonSerializerDefaults.General);
 
@@ -14,7 +14,7 @@ internal static class DictionaryToJsonExtensions
     };
 
 
-    public static string ToJsonString(this Dictionary<string, object> value) => JsonSerializer.Serialize(value, SerializeOptions);
+    public static string ToJsonString(this IDictionary<string, object> value) => JsonSerializer.Serialize(value, SerializeOptions);
 
     public static Dictionary<string, object> ToDictionary(this string value)
     {

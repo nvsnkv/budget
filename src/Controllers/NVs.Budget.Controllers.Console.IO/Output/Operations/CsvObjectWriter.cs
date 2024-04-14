@@ -30,5 +30,7 @@ internal abstract class CsvObjectWriter<T, TRow, TMap>(
             await func(t, ct);
             ct.ThrowIfCancellationRequested();
         }
+
+        await writer.FlushAsync(ct);
     }
 }

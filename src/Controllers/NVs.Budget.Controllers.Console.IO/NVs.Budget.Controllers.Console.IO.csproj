@@ -7,6 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
       <ProjectReference Include="..\NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj" />
     </ItemGroup>
 

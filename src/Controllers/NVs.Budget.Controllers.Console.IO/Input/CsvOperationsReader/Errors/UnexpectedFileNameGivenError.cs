@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace NVs.Budget.Controllers.Console.IO.Input.Errors;
+namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader.Errors;
 
 internal class UnexpectedFileNameGivenError(string name) : IError
 {

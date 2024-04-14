@@ -12,12 +12,7 @@
     <ItemGroup>
         <PackageReference Include="AutoFixture" Version="4.18.1" />
         <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="FluentResults.Extensions.FluentAssertions" Version="2.1.1" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="System.Linq.Async" Version="6.0.1" />
         <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,17 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj" />
-      <ProjectReference Include="..\NVs.Budget.Controllers.Console.IO\NVs.Budget.Controllers.Console.IO.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="TestData\ValidFile\validFile.csv">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="TestData\ValidFile\validFileConfig.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+      <ProjectReference Include="..\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
     </ItemGroup>
 
 </Project>

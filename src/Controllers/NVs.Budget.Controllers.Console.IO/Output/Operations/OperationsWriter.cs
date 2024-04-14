@@ -2,6 +2,7 @@ using AutoMapper;
 using CsvHelper.Configuration;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Models;
 using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Operations;

@@ -22,6 +22,7 @@ public static class ConsoleIOExtensions
 {
     public static IServiceCollection AddConsoleIO(this IServiceCollection services)
     {
+        services.AddAutoMapper(c => c.AddProfile(new CsvMappingProfile()));
         services.AddTransient<IObjectWriter<TrackedOwner>, OwnersWriter>();
         services.AddTransient<IObjectWriter<TrackedOperation>, TrackedOperationsWriter>();
         services.AddTransient<IObjectWriter<TrackedTransfer>, TransfersWriter>();

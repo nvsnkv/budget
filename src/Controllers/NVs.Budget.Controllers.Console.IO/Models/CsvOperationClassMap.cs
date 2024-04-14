@@ -1,6 +1,6 @@
 using CsvHelper.Configuration;
 
-namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
+namespace NVs.Budget.Controllers.Console.IO.Models;
 
 internal sealed class CsvOperationClassMap : ClassMap<CsvOperation>
 {

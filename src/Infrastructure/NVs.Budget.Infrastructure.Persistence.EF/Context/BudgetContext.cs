@@ -2,6 +2,7 @@
 using NMoneys;
 using NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
+using NVs.Budget.Utilities.Json;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Context;
 
