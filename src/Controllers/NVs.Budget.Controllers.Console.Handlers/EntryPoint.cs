@@ -35,11 +35,10 @@ internal class EntryPoint(IMediator mediator, Parser parser, IOutputStreamProvid
                 var helpText = HelpText.AutoBuild(parsedResult);
                 var errors = errs as Error[] ?? errs.ToArray();
                 var isHelp = errors.IsHelp() || errors.IsVersion();
-                var stream = isHelp
+                var writer = isHelp
                     ? await streams.GetOutput(options.Value.OutputStreamName)
                     : await streams.GetError(options.Value.ErrorStreamName);
 
-                await using var writer = new StreamWriter(stream);
                 await writer.WriteLineAsync(helpText);
                 return (int)(isHelp ? ExitCode.Success : ExitCode.ArgumentsError);
             });

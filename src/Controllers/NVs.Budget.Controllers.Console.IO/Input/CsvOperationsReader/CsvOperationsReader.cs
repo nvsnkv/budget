@@ -13,7 +13,7 @@ namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvReadingOptions> options) : IOperationsReader
 {
     private readonly CsvReadingOptions _options = options.Value;
-    public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUnregisteredOperations(Stream input, string name, [EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUnregisteredOperations(StreamReader input, string name, [EnumeratorCancellation] CancellationToken ct)
     {
         var fileOptions = _options.GetFileOptionsFor(name);
         if (fileOptions is null)
@@ -22,8 +22,7 @@ internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvR
             yield break;
         }
 
-        using var reader = new StreamReader(input);
-        var parser = new CsvParser(reader, configuration);
+        var parser = new CsvParser(input, configuration, true);
         var rowParser = new RowParser(parser, name, fileOptions, ct);
 
         while (await rowParser.ReadAsync())

@@ -6,10 +6,15 @@ namespace NVs.Budget.Controllers.Console.IO.Output.Owners;
 
 internal class OwnersWriter(IOutputStreamProvider streams, IOptions<OutputOptions> options) : IObjectWriter<TrackedOwner>
 {
-    public async Task Write(TrackedOwner owner, CancellationToken ct)
+    public Task Write(TrackedOwner owner, CancellationToken ct) => Write([owner], ct);
+
+    public async Task Write(IEnumerable<TrackedOwner> collection, CancellationToken ct)
     {
-        var stream = await streams.GetOutput(options.Value.OutputStreamName);
-        await using var writer = new StreamWriter(stream);
-        await writer.WriteLineAsync($"[{owner.Id}] {owner.Name} (ver {owner.Version})");
+        var writer = await streams.GetOutput(options.Value.OutputStreamName);
+        foreach (var owner in collection)
+        {
+            ct.ThrowIfCancellationRequested();
+            await writer.WriteLineAsync($"[{owner.Id}] {owner.Name} (ver {owner.Version})");
+        }
     }
 }

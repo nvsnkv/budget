@@ -22,8 +22,8 @@ internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptions<Ou
     {
         foreach (var success in successes)
         {
-            var outStream = await OutputStreams.GetOutput(Options.Value.OutputStreamName);
-            await using var writer = new StreamWriter(outStream);
+            var writer = await OutputStreams.GetOutput(Options.Value.OutputStreamName);
+
             await writer.WriteLineAsync($"OK: {success.Message}");
             foreach (var (key, value) in success.Metadata)
             {
@@ -35,8 +35,8 @@ internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptions<Ou
 
     protected async Task WriteErrors(List<IError> errors, CancellationToken ct)
     {
-        var errStream = await OutputStreams.GetError(Options.Value.ErrorStreamName);
-        await using var writer = new StreamWriter(errStream);
+        var writer = await OutputStreams.GetError(Options.Value.ErrorStreamName);
+
         foreach (var error in errors)
         {
             await WriterError(writer, string.Empty, error, ct);
