@@ -79,5 +79,55 @@ The `Attributes` field define which attributes will be populated and what would 
 
 #### Configuration: Transfers detection
 
-TBD
+One of goals of `budget` is to give you an answer to the question "how much money did I _actually_ spend?". To do so, it detect cross-account transfers so you can exclude them from calculations.
+
+List of trasfer criteria looks similar to input file parsing options - it consists of list of name - configuration pairs. Each configuration consist of two fields: `Accuracy` tells how likely given pair of operations is a transfer, and `Criterion` provides the rule itself.
+
+The rules are highly-configurable. They use [Dynamic LINQ](https://dynamic-linq.net/) under the hood, so it's better to think that each criterion is an C# boolean statement that can use variables `l` and `r` for the pair of operation beign tested.
+
+The example below demonstate a rule [bundled with this app](./src/Hosts/NVs.Budget.Hosts.Console/appsettings.json#L18):
+```
+"Transfers": {
+    "Instant transfer": {
+      "Accuracy": "Exact", "Criterion": "l.Amount.IsNegative() && r.Amount.IsPositive() && l.Amount.Abs() == r.Amount.Abs() && l.Description == r.Description && l.Account != r.Account && (l.Timestamp - r.Timestamp).Duration() < TimeSpan.FromMinutes(2)"
+    }
+  },
+```
+The rule "Instant transfer" ensures that:
+* the left operation (`l`) is a withdraw (`l.Amount.IsNegative()`),
+* right one (`r`) is an income (`r.Amount.IsPositive()`),
+* amounts, excepting the sign, are equal (`l.Amount.Abs() == r.Amount.Abs()`)
+* descriptions are the same (`l.Description == r.Description`), 
+* accounts are different (`l.Account != r.Account`) 
+* and operations happened within 2 minutes (`(l.Timestamp - r.Timestamp).Duration() < TimeSpan.FromMinutes(2)`).
+
+When creating your own rules, you can use all properties from [TrackedOperation](./src/Application/NVs.Budget.Application.Contracts/Entities/Accounting/TrackedOperation.cs) class for both left and right optations.
+
+#### Configuration: Tagging rules
+
+Last, but not least - you can provide tagging rules.
+Collection of rules consist of tag name - criterion pairs, where criterion is a [Dynamic LINQ](https://dynamic-linq.net/) expression similar to transfers criterion. The only difference that it accepts only one variable `o` for the operations beign tagged.
+
+[Example bundled with an app](./src/Hosts/NVs.Budget.Hosts.Console/appsettings.json#L24) will tag all incomes:
+```
+```
+
+### First steps (console app)
+
+#### Updating the database
+
+Run `bugdet admin migrate-db` command - it will apply all migrations to the database and you would be good to go! Running this command after updating `budget` to a new version is important, don't forget to do it!
+
+#### Creating an owner
+
+`budget` distinguishes _users_ from _owners_ . Owner is someone who owns one or more _Accounts_ and can manage operations, rename or even delete an account, while the user is just someone who runs the commands in command line.
+
+That's why you need to create an association between your user (identified as an OS user) and owner record.
+
+Run `budget owners self-register` to create such association. After that, you will be able to perform import.
+
+#### Running import
+
+After you wrote the congiration, applied database migration and created an owner record you're ready to import operation from as many accounts as you have!
+Place all CSV files with operations you want to import to a single folder, and run `budget ops import -d %PATH_TO_THE_FOLDER%`. Application will iterate through the files, find appropriate configuration for each of them, creates new accounts (only if you provide `--register-accs` flag), detect the transfers and save transfers with confidence level greater or equal to `Exact` (you can lower this threshold by providing `--transfers-confidence` parameter. Valid options are `Exact`, `Likely`).
 
