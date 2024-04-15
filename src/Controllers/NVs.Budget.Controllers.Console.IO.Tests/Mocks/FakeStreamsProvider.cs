@@ -8,7 +8,7 @@ public class FakeStreamsProvider : IOutputStreamProvider, IDisposable, IAsyncDis
 
     public Task<StreamWriter> GetOutput(string name = "") => Task.FromResult(new StreamWriter(_stream));
 
-    public byte[] GetData() => _stream.ToArray();
+    public byte[] GetOutputBytes() => _stream.ToArray();
 
     public Task<StreamWriter> GetError(string name = "")
     {

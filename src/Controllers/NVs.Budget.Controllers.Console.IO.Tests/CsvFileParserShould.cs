@@ -48,7 +48,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
         var writer = testBed.GetServiceProvider("TestData\\ValidFile\\validFileConfig.json").GetRequiredService<IObjectWriter<TrackedOperation>>();
 
         await writer.Write(operations, CancellationToken.None);
-        var data = streams.GetData();
+        var data = streams.GetOutputBytes();
 
         await using var stream = new MemoryStream(data);
         using var reader = new StreamReader(stream);

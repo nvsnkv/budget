@@ -48,7 +48,8 @@ public static class ConsoleIOExtensions
         services.AddSingleton(new CsvConfiguration(culture)
         {
             IgnoreBlankLines = true,
-            HeaderValidated = null
+            HeaderValidated = null,
+            HasHeaderRecord = true
         });
         return services;
     }

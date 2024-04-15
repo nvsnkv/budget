@@ -24,6 +24,9 @@ internal abstract class CsvObjectWriter<T, TRow, TMap>(
         var csvWriter = new CsvWriter(writer, config, true);
         csvWriter.Context.RegisterClassMap<TMap>();
 
+        csvWriter.WriteHeader<TRow>();
+        await csvWriter.NextRecordAsync();
+
         foreach (var (t, row) in collection.Select(o => (o, mapper.Map<TRow>(o))))
         {
             csvWriter.WriteRecord(row);
