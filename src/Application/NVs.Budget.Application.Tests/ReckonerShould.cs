@@ -126,10 +126,10 @@ public class ReckonerShould
             FormattingOptions = { MaxLines = 10000 }
         };
 
-        actual.Should().NotContain(accessibleTransferWithFee);
-        actual.Should().NotContain(accessibleTransferWithoutFee);
-        actual.Should().Contain(inaccessibleTransfer.Where(t => t.Account.Owners.Contains(_currentOwner)));
-        actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Account.Owners.Contains(_currentOwner)));
+        actual.Should().NotContain(accessibleTransferWithFee.Cast<TrackedOperation>());
+        actual.Should().NotContain(accessibleTransferWithoutFee.Cast<TrackedOperation>());
+        actual.Should().Contain(inaccessibleTransfer.Where(t => t.Account.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
+        actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Account.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
         actual.Any(a =>CheckIfTheSameTransactions(a, accessibleTransferWithFee.AsTransaction())).Should().BeTrue();
         actual.Any(a => CheckIfTheSameTransactions(a, inaccessibleTransfer.AsTransaction())).Should().BeFalse();
         actual.Any(a => CheckIfTheSameTransactions(a, accessibleTransferWithoutFee.AsTransaction())).Should().BeFalse();

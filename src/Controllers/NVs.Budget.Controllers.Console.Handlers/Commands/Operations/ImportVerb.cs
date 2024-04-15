@@ -8,6 +8,7 @@ using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
@@ -20,7 +21,7 @@ internal class ImportVerb : IRequest<ExitCode>
     [Option("register-accs", Required = false, HelpText = "Create new accounts if no existing accounts matches imported data")]
     public bool RegisterAccounts { get; [UsedImplicitly] set; }
 
-    [Option("transfers-confidence", Required = false, Default = DetectionAccuracy.Exact, HelpText = "Transfers detection accuracy. (Exact or Likely)")]
+    [Option("transfers-confidence", Required = false, Default = DetectionAccuracy.Exact, HelpText = "Transfers detection accuracy (Exact or Likely)")]
     public DetectionAccuracy DetectionAccuracy { get; [UsedImplicitly] set; }
 }
 

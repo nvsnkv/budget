@@ -6,6 +6,7 @@ using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Domain.Aggregates;
+using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
@@ -23,7 +24,7 @@ internal class Reckoner(
 {
     private static readonly TrackedTransfer[] Empty = [];
 
-    public async IAsyncEnumerable<Operation> GetTransactions(OperationQuery query, [EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<TrackedOperation> GetTransactions(OperationQuery query, [EnumeratorCancellation] CancellationToken ct)
     {
         var criteria = await ExtendCriteria(query.Conditions, ct);
 
@@ -46,7 +47,7 @@ internal class Reckoner(
         {
             if (query.OutputCurrency is not null && query.OutputCurrency != transaction.Amount.GetCurrency())
             {
-                yield return await converter.Convert(transaction, query.OutputCurrency!, ct);
+                yield return AsTrackedOperation(await converter.Convert(transaction, query.OutputCurrency!, ct));
             }
             else
             {
@@ -56,10 +57,9 @@ internal class Reckoner(
 
         foreach (var transfer in transfers.Where(t => !t.Fee.IsZero()))
         {
-            yield return transfer.AsTransaction();
+            yield return AsTrackedOperation(transfer.AsTransaction());
         }
     }
-
 
     public async Task<CriteriaBasedLogbook> GetLogbook(LogbookQuery query, CancellationToken ct)
     {
@@ -78,4 +78,9 @@ internal class Reckoner(
         var transactions = await operationsRepo.Get(criteria, ct);
         return detector.DetectDuplicates(transactions);
     }
+
+    private TrackedOperation AsTrackedOperation(Operation operation) => new(operation.Id, operation.Timestamp, operation.Amount, operation.Description, AsTrackedAccount(operation.Account), operation.Tags, operation.Attributes.AsReadOnly());
+
+    private TrackedAccount AsTrackedAccount(Account account) => account is TrackedAccount ta ? ta : new TrackedAccount(account.Id, account.Name, account.Bank, account.Owners);
+
 }

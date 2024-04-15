@@ -6,9 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
+using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
+using NVs.Budget.Controllers.Console.IO.Options;
 using NVs.Budget.Controllers.Console.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Output.Operations;
 using NVs.Budget.Controllers.Console.IO.Output.Owners;
@@ -33,6 +35,7 @@ public static class ConsoleIOExtensions
 
         services.AddSingleton<IOutputStreamProvider, ConsoleOutputStreams>();
         services.AddTransient<IOperationsReader, CsvOperationsReader>();
+        services.AddTransient<IOutputOptionsChanger, OutputOptionsChanger>();
 
         return services;
     }
