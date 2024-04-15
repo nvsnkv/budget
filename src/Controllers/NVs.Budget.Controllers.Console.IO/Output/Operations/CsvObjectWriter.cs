@@ -16,9 +16,9 @@ internal abstract class CsvObjectWriter<T, TRow, TMap>(
 
     public Task Write(T obj, CancellationToken ct) => Write([obj], ct);
 
-    public virtual Task Write(IEnumerable<T> collection, CancellationToken ct) => DoWrite(collection, (_, _) => Task.CompletedTask, ct);
+    public virtual Task Write(IEnumerable<T> collection, CancellationToken ct) => DoWrite(collection, (_, _) => Task.FromResult(false), ct);
 
-    protected async Task DoWrite(IEnumerable<T> collection, Func<T, CancellationToken, Task> func, CancellationToken ct)
+    protected async Task DoWrite(IEnumerable<T> collection, Func<T, CancellationToken, Task<bool>> func, CancellationToken ct)
     {
         var writer = await streams.GetOutput(options.Value.OutputStreamName);
         var csvWriter = new CsvWriter(writer, config, true);
@@ -27,10 +27,17 @@ internal abstract class CsvObjectWriter<T, TRow, TMap>(
         foreach (var (t, row) in collection.Select(o => (o, mapper.Map<TRow>(o))))
         {
             csvWriter.WriteRecord(row);
-            await func(t, ct);
+            await csvWriter.NextRecordAsync();
+
+            var newLineNeeded = await func(t, ct);
+            if (newLineNeeded)
+            {
+                await writer.WriteLineAsync();
+            }
+
             ct.ThrowIfCancellationRequested();
         }
 
-        await writer.FlushAsync(ct);
+        await csvWriter.FlushAsync();
     }
 }

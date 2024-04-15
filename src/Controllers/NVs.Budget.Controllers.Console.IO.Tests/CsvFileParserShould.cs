@@ -56,6 +56,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
 
         var actual = await parser.ReadTrackedOperation(reader, CancellationToken.None).ToListAsync();
         actual.Should().AllSatisfy(r => r.Should().BeSuccess());
+        actual.Count.Should().Be(operations.Count);
         actual.Select(r => r.Value).Should().BeEquivalentTo(operations);
     }
 }

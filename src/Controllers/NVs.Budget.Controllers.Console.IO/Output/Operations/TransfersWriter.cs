@@ -13,9 +13,11 @@ internal class TransfersWriter(IOutputStreamProvider streams, IOptions<OutputOpt
 {
     public override Task Write(IEnumerable<TrackedTransfer> collection, CancellationToken ct) => DoWrite(collection, WriteOperations, ct);
 
-    private async Task WriteOperations(TrackedTransfer transfer, CancellationToken ct)
+    private async Task<bool> WriteOperations(TrackedTransfer transfer, CancellationToken ct)
     {
         await opWriter.Write(transfer.Source, ct);
         await opWriter.Write(transfer.Sink, ct);
+
+        return true;
     }
 }

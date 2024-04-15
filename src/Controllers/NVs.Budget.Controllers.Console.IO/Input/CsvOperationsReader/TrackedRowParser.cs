@@ -36,6 +36,10 @@ internal class TrackedRowParser(IReader parser, IAccountsRepository accountsRepo
         try
         {
             csvRow = parser.GetRecord<CsvTrackedOperation>();
+            if (csvRow is null)
+            {
+                return Result.Fail(new RowNotParsedError(_row, []));
+            }
         }
         catch (Exception e)
         {
