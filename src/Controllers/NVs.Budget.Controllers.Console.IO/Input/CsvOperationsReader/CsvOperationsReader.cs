@@ -12,7 +12,7 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 
-internal class CsvOperationsReader(CsvConfiguration configuration, IOptions<CsvReadingOptions> options, IAccountsRepository accountsRepository) : IOperationsReader
+internal class CsvOperationsReader(CsvConfiguration configuration, IOptionsSnapshot<CsvReadingOptions> options, IAccountsRepository accountsRepository) : IOperationsReader
 {
     private readonly CsvReadingOptions _options = options.Value;
     public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUnregisteredOperations(StreamReader input, string name, [EnumeratorCancellation] CancellationToken ct)

@@ -7,5 +7,5 @@ using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
 
-internal class OperationsWriter(IOutputStreamProvider streams, IOptions<OutputOptions> options, IMapper mapper, CsvConfiguration config)
+internal class OperationsWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options, IMapper mapper, CsvConfiguration config)
     : CsvObjectWriter<Operation, CsvOperation, CsvOperationClassMap>(streams, options, mapper, config);

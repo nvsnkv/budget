@@ -8,7 +8,7 @@ namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
 
 internal class ImportResultWriter(
     IOutputStreamProvider streams,
-    IOptions<OutputOptions> options,
+    IOptionsSnapshot<OutputOptions> options,
     IObjectWriter<TrackedOperation> opWriter,
     IObjectWriter<TrackedTransfer> xferWriter) : GenericResultWriter<ImportResult>(streams, options)
 {

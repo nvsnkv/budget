@@ -7,5 +7,5 @@ using NVs.Budget.Controllers.Console.IO.Models;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
 
-internal class TrackedOperationsWriter(IOutputStreamProvider streams, IOptions<OutputOptions> options, IMapper mapper, CsvConfiguration config)
+internal class TrackedOperationsWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options, IMapper mapper, CsvConfiguration config)
     : CsvObjectWriter<TrackedOperation, CsvTrackedOperation, CsvTrackedOperationClassMap>(streams, options, mapper, config);

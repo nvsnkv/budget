@@ -45,6 +45,8 @@ public static class ConsoleIOExtensions
         services.Configure<OutputOptions>(configuration.GetSection(nameof(OutputOptions)).Bind);
         services.Configure<CsvReadingOptions>(c => c.UpdateFromConfiguration(configuration));
 
+        services.AddSingleton(configuration);
+
         var cultureCode = configuration.GetValue<string>("CultureCode");
         var culture = cultureCode is null ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(cultureCode);
 

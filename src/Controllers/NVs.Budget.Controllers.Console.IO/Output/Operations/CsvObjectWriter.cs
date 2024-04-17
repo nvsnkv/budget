@@ -8,7 +8,7 @@ namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
 
 internal abstract class CsvObjectWriter<T, TRow, TMap>(
     IOutputStreamProvider streams,
-    IOptions<OutputOptions> options,
+    IOptionsSnapshot<OutputOptions> options,
     IMapper mapper,
     CsvConfiguration config
 ) : IObjectWriter<T> where TMap : ClassMap

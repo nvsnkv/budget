@@ -14,7 +14,8 @@ internal class AccountManager(IAccountsRepository repository, IUser currentUser)
 
     public Task<IReadOnlyCollection<TrackedAccount>> GetOwnedAccounts(CancellationToken ct)
     {
-        return repository.Get(a => a.Owners.Contains(_currentOwner), ct);
+        var id = _currentOwner.Id;
+        return repository.Get(a => a.Owners.Any(o => o.Id == id), ct);
     }
 
     public async Task<Result<TrackedAccount>> Register(UnregisteredAccount newAccount, CancellationToken ct)

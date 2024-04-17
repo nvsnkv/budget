@@ -6,7 +6,7 @@ using NVs.Budget.Controllers.Console.IO.Output.Results;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Owners;
 
-internal class OwnerResultWriter(IOutputStreamProvider outputStreams, IOptions<OutputOptions> options, IObjectWriter<TrackedOwner> writer) : GenericResultWriter<Result<TrackedOwner>>(outputStreams, options)
+internal class OwnerResultWriter(IOutputStreamProvider outputStreams, IOptionsSnapshot<OutputOptions> options, IObjectWriter<TrackedOwner> writer) : GenericResultWriter<Result<TrackedOwner>>(outputStreams, options)
 {
     public override async Task Write(Result<TrackedOwner> response, CancellationToken ct)
     {

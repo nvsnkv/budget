@@ -8,7 +8,7 @@ using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
 
-internal class TransfersWriter(IOutputStreamProvider streams, IOptions<OutputOptions> options, IMapper mapper, CsvConfiguration config, IObjectWriter<Operation> opWriter)
+internal class TransfersWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options, IMapper mapper, CsvConfiguration config, IObjectWriter<Operation> opWriter)
     : CsvObjectWriter<TrackedTransfer, CsvTransfer, CsvTrackedOperationClassMap>(streams, options, mapper, config)
 {
     public override Task Write(IEnumerable<TrackedTransfer> collection, CancellationToken ct) => DoWrite(collection, WriteOperations, ct);

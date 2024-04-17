@@ -8,7 +8,7 @@ using NVs.Budget.Controllers.Console.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers;
 
-internal class EntryPoint(IMediator mediator, Parser parser, IOutputStreamProvider streams, IOptions<OutputOptions> options) : IEntryPoint
+internal class EntryPoint(IMediator mediator, Parser parser, IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options) : IEntryPoint
 {
     private static readonly Type[] SuperVerbTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes().Where(t => t.IsAssignableTo(typeof(SuperVerb)))).ToArray();
 

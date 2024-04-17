@@ -4,10 +4,10 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Results;
 
-internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptions<OutputOptions> options): IResultWriter<T> where T : IResultBase
+internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options): IResultWriter<T> where T : IResultBase
 {
     protected readonly IOutputStreamProvider OutputStreams = streams;
-    protected readonly IOptions<OutputOptions> Options = options;
+    protected readonly IOptionsSnapshot<OutputOptions> Options = options;
 
     public virtual async Task Write(T response, CancellationToken ct)
     {

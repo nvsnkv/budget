@@ -4,7 +4,7 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.IO.Output.Owners;
 
-internal class OwnersWriter(IOutputStreamProvider streams, IOptions<OutputOptions> options) : IObjectWriter<TrackedOwner>
+internal class OwnersWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options) : IObjectWriter<TrackedOwner>
 {
     public Task Write(TrackedOwner owner, CancellationToken ct) => Write([owner], ct);
 
