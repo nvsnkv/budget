@@ -76,20 +76,22 @@ internal class ReplaceTypeVisitor : ExpressionVisitor
 
     protected override Expression VisitMember(MemberExpression node)
     {
+        var visited = VisitAndConvert(node.Expression, nameof(VisitMember));
+
+        var memberInfo = node.Member;
         foreach (var (source, dest)in _mapping)
         {
-            if (node.Expression is ParameterExpression p && p.Type == source)
+            if (visited?.Type == dest)
             {
-                var memberInfo = dest.GetProperty(node.Member.Name);
+                memberInfo = dest.GetProperty(node.Member.Name);
                 if (memberInfo is null)
                 {
                     throw new InvalidOperationException($"Cannot find {node.Member.Name} in {dest.Name}!");
                 }
-
-                return Expression.MakeMemberAccess(Visit(node.Expression), memberInfo);
             }
         }
-        return base.VisitMember(node);
+
+        return Expression.MakeMemberAccess(visited, memberInfo);
     }
 
     private ParameterExpression? TryReplaceTypes(ParameterExpression node)
