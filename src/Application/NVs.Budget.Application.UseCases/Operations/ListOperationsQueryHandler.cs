@@ -7,5 +7,5 @@ namespace NVs.Budget.Application.UseCases.Operations;
 
 internal class ListOperationsQueryHandler(IReckoner reckoner) : IStreamRequestHandler<ListOperationsQuery, TrackedOperation>
 {
-    public IAsyncEnumerable<TrackedOperation> Handle(ListOperationsQuery request, CancellationToken cancellationToken) => reckoner.GetTransactions(request.Query, cancellationToken);
+    public IAsyncEnumerable<TrackedOperation> Handle(ListOperationsQuery request, CancellationToken ct) => reckoner.GetTransactions(request.Query, ct);
 }
