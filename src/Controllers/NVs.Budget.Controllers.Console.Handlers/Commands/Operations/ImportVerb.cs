@@ -8,7 +8,6 @@ using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 

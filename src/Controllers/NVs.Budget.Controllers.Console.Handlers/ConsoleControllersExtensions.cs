@@ -48,12 +48,12 @@ public static class ConsoleControllersExtensions
             settings.EnableDashDash = true;
         });
 
-        var criteriaListReader = new CriteriaListReader(new CriteriaParser());
+        var criteriaListReader = new CriteriaListReader(new CriteriaParser(), configuration);
 
-        var transferCriteria = criteriaListReader.GetTransferCriteria(configuration.GetSection("Transfers"));
+        var transferCriteria = criteriaListReader.GetTransferCriteria();
         services.AddSingleton(transferCriteria);
 
-        var taggingCriteria = criteriaListReader.GetTaggingCriteria(configuration.GetSection("Tags"));
+        var taggingCriteria = criteriaListReader.GetTaggingCriteria();
         services.AddSingleton(taggingCriteria);
 
         return services;

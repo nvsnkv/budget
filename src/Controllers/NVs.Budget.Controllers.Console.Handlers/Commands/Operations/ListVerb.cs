@@ -13,37 +13,26 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("list", isDefault:true, HelpText = "List operations that match given criteria")]
-internal class ListVerb : IRequest<ExitCode>
+internal class ListVerb : CriteriaBasedOperationsVerb
 {
     [Option("currency", HelpText = "Output currency code. If none set, original currencies will be used")]
     public CurrencyIsoCode? CurrencyIsoCode { get; set; }
 
     [Option("exclude-transfers", HelpText = "Exclude transfers from the list")]
     public bool ExcludeTransfers { get; set; }
-
-    [Value(0, MetaName = "Criteria")]
-    public IEnumerable<string>? Criteria { get; set; }
 }
 
 internal class ListOperationsVerbHandler(
     IMediator mediator,
     IObjectWriter<TrackedOperation> objectWriter,
     CriteriaParser criteriaParser,
-    IResultWriter<Result<Expression<Func<TrackedOperation, bool>>>> resultWriter
-) : IRequestHandler<ListVerb, ExitCode>
+    IResultWriter<Result> resultWriter
+) : CriteriaBasedOperationsVerbHandler<ListVerb>(criteriaParser, resultWriter)
 {
-    public async Task<ExitCode> Handle(ListVerb request, CancellationToken cancellationToken)
+    protected override async Task<ExitCode> HandleInternal(ListVerb request, Expression<Func<TrackedOperation, bool>> criteriaResultValue, CancellationToken cancellationToken)
     {
-        var criteria = string.Join(' ', request.Criteria ?? Enumerable.Empty<string>());
-        var criteriaResult = criteriaParser.TryParsePredicate<TrackedOperation>(criteria, "o");
-        if (!criteriaResult.IsSuccess)
-        {
-            await resultWriter.Write(criteriaResult, cancellationToken);
-            return ExitCode.ArgumentsError;
-        }
-
         var query = new OperationQuery(
-            criteriaResult.Value,
+            criteriaResultValue,
             request.CurrencyIsoCode is not null ? Currency.Get(request.CurrencyIsoCode.Value) : null,
             request.ExcludeTransfers
         );

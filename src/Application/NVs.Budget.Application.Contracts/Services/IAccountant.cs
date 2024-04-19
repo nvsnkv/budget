@@ -9,7 +9,7 @@ namespace NVs.Budget.Application.Contracts.Services;
 public interface IAccountant
 {
     Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct);
-    Task<Result> Update(IAsyncEnumerable<TrackedOperation> transactions, CancellationToken ct);
-    Task<Result> Delete(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct);
+    Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct);
+    Task<Result> Remove(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct);
     Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct);
 }

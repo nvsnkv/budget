@@ -10,29 +10,18 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
-[Verb("list-duplicates", isDefault:false, HelpText = "List duplicated operations that matches criteria")]
-internal class ListDuplicatesVerb : IRequest<ExitCode>
-{
-    [Value(0, MetaName = "Criteria")]
-    public IEnumerable<string>? Criteria { get; set; }
-}
+[Verb("list-duplicates", isDefault: false, HelpText = "List duplicated operations that matches criteria")]
+internal class ListDuplicatesVerb : CriteriaBasedOperationsVerb;
 
 internal class ListDuplicatesVerbHandler(IMediator mediator,
     IObjectWriter<TrackedOperation> objectWriter,
     CriteriaParser criteriaParser,
-    IResultWriter<Result<Expression<Func<TrackedOperation, bool>>>> resultWriter) : IRequestHandler<ListDuplicatesVerb, ExitCode>
+    IResultWriter<Result> resultWriter
+) : CriteriaBasedOperationsVerbHandler<ListDuplicatesVerb>(criteriaParser, resultWriter)
 {
-    public async Task<ExitCode> Handle(ListDuplicatesVerb request, CancellationToken cancellationToken)
+    protected override async Task<ExitCode> HandleInternal(ListDuplicatesVerb request, Expression<Func<TrackedOperation, bool>> criteria, CancellationToken cancellationToken)
     {
-        var criteria = string.Join(' ', request.Criteria ?? Enumerable.Empty<string>());
-        var criteriaResult = criteriaParser.TryParsePredicate<TrackedOperation>(criteria, "o");
-        if (!criteriaResult.IsSuccess)
-        {
-            await resultWriter.Write(criteriaResult, cancellationToken);
-            return ExitCode.ArgumentsError;
-        }
-
-        var result = await mediator.Send(new ListDuplicatedOperationsQuery(criteriaResult.Value), cancellationToken);
+        var result = await mediator.Send(new ListDuplicatedOperationsQuery(criteria), cancellationToken);
         await objectWriter.Write(result.SelectMany(r => r), cancellationToken);
 
         return ExitCode.Success;

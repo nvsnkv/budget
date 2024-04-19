@@ -5,11 +5,11 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Criteria;
 
-internal class CriteriaListReader(CriteriaParser parser)
+internal class CriteriaListReader(CriteriaParser parser, IConfiguration config)
 {
-    public IReadOnlyList<TransferCriterion> GetTransferCriteria(IConfigurationSection config) => config.GetChildren().Select(GetTransferCriterion).ToList().AsReadOnly();
+    public IReadOnlyList<TransferCriterion> GetTransferCriteria() => config.GetSection("Transfers").GetChildren().Select(GetTransferCriterion).ToList().AsReadOnly();
 
-    public IReadOnlyCollection<TaggingCriterion> GetTaggingCriteria(IConfigurationSection config) => config.GetChildren().Select(GetTaggingCriterion).ToList().AsReadOnly();
+    public IReadOnlyCollection<TaggingCriterion> GetTaggingCriteria() => config.GetSection("Tags").GetChildren().Select(GetTaggingCriterion).ToList().AsReadOnly();
 
     private TaggingCriterion GetTaggingCriterion(IConfigurationSection section)
     {
