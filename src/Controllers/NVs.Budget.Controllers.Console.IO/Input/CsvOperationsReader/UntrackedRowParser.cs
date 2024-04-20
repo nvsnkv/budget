@@ -6,6 +6,7 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader.Errors;
+using NVs.Budget.Controllers.Console.IO.Input.Errors;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
 using NVs.Budget.Domain.Extensions;
 

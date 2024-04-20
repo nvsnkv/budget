@@ -1,6 +1,6 @@
 using FluentResults;
 
-namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader.Errors;
+namespace NVs.Budget.Controllers.Console.IO.Input.Errors;
 
 internal class AttributeParsingError(string attributeName) : IError
 {
