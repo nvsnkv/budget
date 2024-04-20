@@ -9,6 +9,10 @@
 
     <ItemGroup>
       <PackageReference Include="FluentResults" Version="3.15.2" />
+      <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="NMoneys" Version="7.2.0" />
     </ItemGroup>
 
