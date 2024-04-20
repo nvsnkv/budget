@@ -9,13 +9,16 @@ public static class NediatR
     public static IServiceCollection EmpowerMediatRHandlersFor(this IServiceCollection collection, Type openType)
     {
         var knownRequestTypes = GetDeclaredTypes();
+        var isContravariant = openType.GetGenericArguments()
+            .Select(t => (t.GenericParameterAttributes & GenericParameterAttributes.Contravariant) == GenericParameterAttributes.Contravariant)
+            .ToArray();
 
         var matchedDescriptors = collection
             .Where(d => CheckInterfaceMatch(openType, d))
             .ToList();
         foreach (var descriptor in matchedDescriptors)
         {
-            var superInterfaces = BuildSuperInterfaces(descriptor.ServiceType, knownRequestTypes);
+            var superInterfaces = BuildSuperInterfaces(descriptor.ServiceType, isContravariant, knownRequestTypes);
             foreach (var superInterface in superInterfaces)
             {
                 var newDescriptor = RecreateDescriptor(descriptor, superInterface);
@@ -49,17 +52,17 @@ public static class NediatR
             .ToList();
     }
 
-    private static IEnumerable<Type> BuildSuperInterfaces(Type serviceType, List<TypeInfo> knownRequestTypes)
+    private static IEnumerable<Type> BuildSuperInterfaces(Type serviceType, bool[] isContravariant, List<TypeInfo> knownRequestTypes)
     {
         var genericType = serviceType.GetGenericTypeDefinition();
-        var arguments = serviceType.GetGenericArguments();
+        var arguments = serviceType.GetGenericArguments().Select((type,i) => new TypeWrapper(type, isContravariant[i])).ToArray();
         foreach (var parameters in BuildParams(arguments, knownRequestTypes))
         {
             yield return genericType.MakeGenericType(parameters.ToArray());
         }
     }
 
-    private static IEnumerable<IEnumerable<Type>> BuildParams(IEnumerable<Type> args, List<TypeInfo> knownRequestTypes)
+    private static IEnumerable<IEnumerable<Type>> BuildParams(IEnumerable<TypeWrapper> args, List<TypeInfo> knownRequestTypes)
     {
         var variable = args.FirstOrDefault();
         if (variable == null)
@@ -79,13 +82,18 @@ public static class NediatR
         }
     }
 
-    private static IEnumerable<Type> GenerateOptions(Type variable, List<TypeInfo> knownRequestTypes)
+    private static IEnumerable<Type> GenerateOptions(TypeWrapper variable, List<TypeInfo> knownRequestTypes)
     {
-        foreach (var type in knownRequestTypes.Where(t => t.IsAssignableTo(variable)))
+        if (variable.IsContravariant)
         {
-            yield return type;
+            foreach (var type in knownRequestTypes.Where(t => t.IsAssignableTo(variable.Type)))
+            {
+                yield return type;
+            }
         }
 
-        yield return variable;
+        yield return variable.Type;
     }
+
+    private record TypeWrapper(Type Type, bool IsContravariant);
 }

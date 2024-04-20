@@ -40,6 +40,7 @@ internal class EntryPoint(IMediator mediator, Parser parser, IOutputStreamProvid
                     : await streams.GetError(options.Value.ErrorStreamName);
 
                 await writer.WriteLineAsync(helpText);
+                await writer.FlushAsync(ct);
                 return (int)(isHelp ? ExitCode.Success : ExitCode.ArgumentsError);
             });
     }
