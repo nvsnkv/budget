@@ -9,7 +9,7 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
-internal class CriteriaBasedOperationsVerb : IRequest<ExitCode>
+internal class CriteriaBasedOperationsVerb : AbstractVerb
 {
     [Value(0, MetaName = "Criteria")]
     public IEnumerable<string>? Criteria { get; set; }

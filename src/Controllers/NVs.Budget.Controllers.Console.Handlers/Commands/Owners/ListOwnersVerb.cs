@@ -11,7 +11,7 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Owners;
 
 [Verb("list", isDefault: true, HelpText = "Produces list of owners, tracked by system")]
-internal class ListOwnersVerb : IRequest<ExitCode>
+internal class ListOwnersVerb : AbstractVerb
 {
     [Option('p', "param-name", HelpText = "Criteria parameter name", Default = "o")]
     public string ParamName { get; [UsedImplicitly] set; } = "o";

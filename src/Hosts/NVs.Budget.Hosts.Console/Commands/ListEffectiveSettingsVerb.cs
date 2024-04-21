@@ -11,7 +11,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Context;
 namespace NVs.Budget.Hosts.Console.Commands;
 
 [Verb("settings", HelpText = "Prints out effective settings")]
-internal class ListEffectiveSettingsVerb : IRequest<ExitCode>;
+internal class ListEffectiveSettingsVerb : AbstractVerb;
 
 internal class ListEffectiveSettingsVerbHandler(
     IOutputStreamProvider streams,

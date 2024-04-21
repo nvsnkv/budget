@@ -12,7 +12,7 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("import", HelpText = "Import operations from files")]
-internal class ImportVerb : IRequest<ExitCode>
+internal class ImportVerb : AbstractVerb
 {
     [Option('d', "dir", Required = true, HelpText = "Directory with files to import")]
     public string? DirectoryPath { get; [UsedImplicitly] set; }

@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,8 @@ using NVs.Budget.Hosts.Console.Commands;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
 using NVs.Budget.Infrastructure.Identity.Console;
 using NVs.Budget.Infrastructure.Persistence.EF;
+
+Console.OutputEncoding = Encoding.UTF8;
 
 var cancellationHandler = new ConsoleCancellationHandler();
 

@@ -1,18 +1,20 @@
 using CommandLine;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Output;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Test;
 
 [Verb("import", HelpText = "Test CsvReadingOptions for particular file")]
-internal class TestImportVerb : IRequest<ExitCode>
+internal class TestImportVerb : AbstractVerb
 {
     [Option('f', "file", Required = true, HelpText = "Incoming file to test")]
     public string? FilePath { get; set; }
@@ -21,6 +23,8 @@ internal class TestImportVerb : IRequest<ExitCode>
 internal class TestImportVerbHandler(
     IInputStreamProvider input,
     IOperationsReader reader,
+    IOutputStreamProvider output,
+    IOptionsSnapshot<OutputOptions> outputOptions,
     IResultWriter<Result> resultWriter,
     IObjectWriter<Operation> objectWriter,
     IUser user) : IRequestHandler<TestImportVerb, ExitCode>
@@ -35,25 +39,34 @@ internal class TestImportVerbHandler(
             return ExitCode.ArgumentsError;
         }
 
-        var ops = reader.ReadUnregisteredOperations(streamResult.Value, filePath, cancellationToken)
-            .GroupBy(r => r.IsSuccess)
-            .OrderBy(g => g.Key);
+        var successes = new List<Operation>();
+        var errors = new List<Result>();
 
-        await foreach (var group in ops.WithCancellation(cancellationToken))
+        var ops = reader.ReadUnregisteredOperations(streamResult.Value, filePath, cancellationToken);
+
+        await foreach (var result in ops.WithCancellation(cancellationToken))
         {
-            if (group.Key == false)
+            if (result.IsSuccess)
             {
-                await foreach (var result in group.WithCancellation(cancellationToken))
-                {
-                    await resultWriter.Write(result.ToResult(), cancellationToken);
-                }
+                successes.Add(CreateOperationFrom(result.Value));
             }
             else
             {
-                var validRecords = await group.Select(r => CreateOperationFrom(r.Value)).ToListAsync(cancellationToken);
-                await objectWriter.Write(validRecords, cancellationToken);
+                errors.Add(result.ToResult());
             }
         }
+
+        foreach (var error in errors)
+        {
+            await resultWriter.Write(error, cancellationToken);
+        }
+
+        await objectWriter.Write(successes, cancellationToken);
+
+        var writer = await output.GetOutput(outputOptions.Value.OutputStreamName);
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync($"Total; {successes.Count + errors.Count}; Successes; {successes.Count}; Errors; {errors.Count}");
+        await writer.FlushAsync(cancellationToken);
 
         return ExitCode.Success;
     }

@@ -9,7 +9,7 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Transfers;
 
 [Verb("register", HelpText = "Register transfers manually")]
-internal class RegisterVerb : IRequest<ExitCode>
+internal class RegisterVerb : AbstractVerb
 {
     [Option('f', "file", HelpText = "Path to file with transfers to register. If value is not specified, app will use standard input")]
     public string? FilePath { get; set; }
