@@ -110,7 +110,7 @@ Collection of rules consist of tag name - criterion pairs, where criterion is a 
 
 [Example bundled with an app](./src/Hosts/NVs.Budget.Hosts.Console/appsettings.json#L24) will tag all incomes:
 ```
-l.Amount.IsNegative() && r.Amount.IsPositive() && l.Amount.Abs() == r.Amount.Abs() && l.Description == r.Description && l.Account != r.Account && (l.Timestamp - r.Timestamp).Duration() < TimeSpan.FromMinutes(2)
+o.Amount.Amount > 0
 ```
 
 ### First steps (console app)
