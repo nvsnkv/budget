@@ -20,6 +20,8 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("budget");
+
         modelBuilder.UseIdentityByDefaultColumns();
         modelBuilder.HasPostgresEnum<CurrencyIsoCode>();
 
