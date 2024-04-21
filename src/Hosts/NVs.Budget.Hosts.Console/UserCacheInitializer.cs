@@ -1,22 +1,25 @@
-using FluentResults;
+using Microsoft.Extensions.Logging;
 using NVs.Budget.Application;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 namespace NVs.Budget.Hosts.Console;
 
-internal class UserCacheInitializer(UserCache cache, IResultWriter<Result> writer)
+internal class UserCacheInitializer(UserCache cache, ILogger<UserCacheInitializer> logger)
 {
     public async Task TryInitializeCache(CancellationToken ct)
     {
+        using var _ = logger.BeginScope("[User cache init]");
+        {
+
+        }
+        logger.LogDebug("Initializing user cache...");
         try
         {
             await cache.EnsureInitialized(ct);
+            logger.LogDebug("Cache initialized");
         }
         catch (Exception e)
         {
-            var result = Result.Fail(new ExceptionBasedError(e));
-            await writer.Write(result, ct);
+            logger.LogWarning(e, "Failed to initialize cache! Most of the operations would not work properly!");
         }
     }
 }
