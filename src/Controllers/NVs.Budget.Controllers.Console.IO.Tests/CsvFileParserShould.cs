@@ -6,6 +6,7 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Tests.Mocks;
 using NVs.Budget.Controllers.Console.IO.Tests.TestData;
+using NVs.Budget.Controllers.Console.IO.Tests.TestData.FileWithDotsInNumbersAndCyrillicAttributes;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Controllers.Console.IO.Tests;
@@ -24,6 +25,18 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
         var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), "validFile.csv", CancellationToken.None).ToListAsync();
         operations.Should().AllSatisfy(r => r.Should().BeSuccess());
         operations.Select(o => o.Value).Should().BeEquivalentTo(ValidFile.Operations);
+    }
+
+    [Fact]
+    public async Task ParseFileWithDotsInNumbersAndCyrillicComments()
+    {
+        testBed.AccountsRepository = new FakeReadOnlyAccountsRepository([]);
+        var parser = testBed.GetCsvParser("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.yml");
+        var stream = File.OpenRead("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.csv");
+
+        var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), "file.csv", CancellationToken.None).ToListAsync();
+        operations.Should().AllSatisfy(r => r.Should().BeSuccess());
+        operations.Select(o => o.Value).Should().BeEquivalentTo(FileWithDotsInNumbersAndCyrillicAttributes.Operations);
     }
 
     [Fact]

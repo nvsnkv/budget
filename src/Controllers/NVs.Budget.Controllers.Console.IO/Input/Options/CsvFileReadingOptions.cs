@@ -1,9 +1,11 @@
 using System.Collections;
+using System.Globalization;
 
 namespace NVs.Budget.Controllers.Console.IO.Input.Options;
 
 internal class CsvFileReadingOptions(
     IDictionary<string, FieldConfiguration> configurations,
+    CultureInfo culture,
     IReadOnlyDictionary<string, FieldConfiguration>? attributesConfiguration = null,
     IReadOnlyDictionary<string, ValidationRule>? validationRules = null
 ) : IReadOnlyDictionary<string, FieldConfiguration>
@@ -29,4 +31,6 @@ internal class CsvFileReadingOptions(
     public IReadOnlyDictionary<string, ValidationRule>? ValidationRules => validationRules;
     public IEnumerator<KeyValuePair<string, FieldConfiguration>> GetEnumerator() => configurations.GetEnumerator();
     public int Count => configurations.Count;
+
+    public CultureInfo CultureInfo { get; } = culture;
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
@@ -7,10 +8,10 @@ internal class CsvReadingOptions
 {
     private Dictionary<Regex, CsvFileReadingOptions> _options = new ();
 
-    public void UpdateFromConfiguration(IConfiguration configuration)
+    public void UpdateFromConfiguration(IConfiguration configuration, CultureInfo culture)
     {
         var fileConfigs = configuration.GetSection(nameof(CsvReadingOptions)).GetChildren();
-        _options = fileConfigs.ToDictionary(c => new Regex(c.Key), CreateFileReadingOptions);
+        _options = fileConfigs.ToDictionary(c => new Regex(c.Key), section => CreateFileReadingOptions(section, culture));
     }
     public CsvFileReadingOptions? GetFileOptionsFor(string name)
     {
@@ -18,7 +19,7 @@ internal class CsvReadingOptions
         return key is null ? null : _options[key];
     }
 
-    private CsvFileReadingOptions CreateFileReadingOptions(IConfigurationSection section)
+    private CsvFileReadingOptions CreateFileReadingOptions(IConfigurationSection section, CultureInfo culture)
     {
         var fields = section.GetChildren().ToDictionary(
             c => c.Key,
@@ -35,7 +36,13 @@ internal class CsvReadingOptions
             CreateValidationRule
         );
 
-        return new CsvFileReadingOptions(fields, attributes, validationRules);
+        var cultureCode = section.GetValue<string>("CultureCode");
+        if (!string.IsNullOrEmpty(cultureCode))
+        {
+            culture = CultureInfo.GetCultureInfo(cultureCode);
+        }
+
+        return new CsvFileReadingOptions(fields, culture, attributes, validationRules);
     }
 
     private ValidationRule CreateValidationRule(IConfigurationSection section)

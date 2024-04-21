@@ -2,7 +2,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 using NVs.Budget.Controllers.Console.IO.Tests.Mocks;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
@@ -12,7 +11,9 @@ public class TestBed
 {
     public IServiceProvider GetServiceProvider(string configurationFile)
     {
-        var configuration = new ConfigurationBuilder().AddJsonFile(configurationFile).Build();
+        var configuration = configurationFile.EndsWith(".json")
+            ? new ConfigurationBuilder().AddJsonFile(configurationFile).Build()
+            : new ConfigurationBuilder().AddYamlFile(configurationFile).Build();
 
         var collection = new ServiceCollection().AddConsoleIO().UseConsoleIO(configuration);
         if (AccountsRepository is not null)

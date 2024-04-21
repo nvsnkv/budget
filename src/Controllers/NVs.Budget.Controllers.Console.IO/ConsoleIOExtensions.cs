@@ -47,13 +47,15 @@ public static class ConsoleIOExtensions
 
     public static IServiceCollection UseConsoleIO(this IServiceCollection services, IConfiguration configuration)
     {
+        var cultureCode = configuration.GetValue<string>("CultureCode");
+        var culture = cultureCode is null ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(cultureCode);
+
+
         services.Configure<OutputOptions>(configuration.GetSection(nameof(OutputOptions)).Bind);
-        services.Configure<CsvReadingOptions>(c => c.UpdateFromConfiguration(configuration));
+        services.Configure<CsvReadingOptions>(c => c.UpdateFromConfiguration(configuration, culture));
 
         services.AddSingleton(configuration);
 
-        var cultureCode = configuration.GetValue<string>("CultureCode");
-        var culture = cultureCode is null ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(cultureCode);
 
         services.AddSingleton(new CsvConfiguration(culture)
         {
