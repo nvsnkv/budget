@@ -59,7 +59,8 @@ public static class ConsoleIOExtensions
         {
             IgnoreBlankLines = true,
             HeaderValidated = null,
-            HasHeaderRecord = true
+            HasHeaderRecord = true,
+            DetectDelimiter = true
         });
         return services;
     }
