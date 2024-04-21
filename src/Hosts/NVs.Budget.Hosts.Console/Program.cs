@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NVs.Budget.Application;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
@@ -45,6 +46,7 @@ var configuration = configurationBuilder
     .Build();
 
 var collection = new ServiceCollection().AddConsoleIdentity()
+    .AddLogging(builder => builder.AddSimpleConsole())
     .AddMediatR(c => c.RegisterServicesFromAssembly(typeof(AdminVerb).Assembly))
     .AddEfCorePersistence(configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"))
     .AddScoped<UserCache>()
