@@ -30,6 +30,8 @@ internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptionsSna
                 ct.ThrowIfCancellationRequested();
                 await writer.WriteLineAsync($"  [{key}]: {value}");
             }
+
+            await writer.FlushAsync(ct);
         }
     }
 
@@ -41,6 +43,8 @@ internal class GenericResultWriter<T>(IOutputStreamProvider streams, IOptionsSna
         {
             await WriterError(writer, string.Empty, error, ct);
         }
+
+        await writer.FlushAsync(ct);
     }
 
     private async Task WriterError(StreamWriter writer, string prefix, IError error, CancellationToken ct)
