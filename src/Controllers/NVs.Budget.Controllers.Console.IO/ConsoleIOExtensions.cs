@@ -8,6 +8,7 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Input;
 using NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 using NVs.Budget.Controllers.Console.IO.Input.CsvTransfersReader;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
@@ -38,6 +39,8 @@ public static class ConsoleIOExtensions
         services.AddTransient<IOperationsReader, CsvOperationsReader>();
         services.AddTransient<ITransfersReader, CsvTransfersReader>();
         services.AddTransient<IOutputOptionsChanger, OutputOptionsChanger>();
+
+        services.AddTransient<IInputStreamProvider, ConsoleInputStream>();
 
         return services;
     }
