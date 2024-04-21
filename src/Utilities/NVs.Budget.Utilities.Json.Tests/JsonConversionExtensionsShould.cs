@@ -21,8 +21,19 @@ public class JsonConversionExtensionsShould
         };
 
         var str = expected.ToJsonString();
+
         var actual = str.ToDictionary();
 
         actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void NotEncodeUnicodeSymbols()
+    {
+        var expected = new Dictionary<string, object>();
+        expected[_fixture.Create<string>()] = "Строка кирилицей";
+
+        var str = expected.ToJsonString();
+        str.Should().Contain("Строка кирилицей");
     }
 }

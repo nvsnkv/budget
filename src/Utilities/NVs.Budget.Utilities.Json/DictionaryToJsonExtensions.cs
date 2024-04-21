@@ -1,17 +1,29 @@
-﻿using System.Text.Json;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
 
 namespace NVs.Budget.Utilities.Json;
 
 public static class DictionaryToJsonExtensions
 {
-    private static readonly JsonSerializerOptions SerializeOptions = new(JsonSerializerDefaults.General);
-
-    private static readonly JsonSerializerOptions DeserializeOptions = new(JsonSerializerDefaults.General)
+    static DictionaryToJsonExtensions()
     {
-        UnknownTypeHandling = JsonUnknownTypeHandling.JsonNode
-    };
+        SerializeOptions = new(JsonSerializerDefaults.General)
+        {
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+        };
+
+        DeserializeOptions = new(JsonSerializerDefaults.General)
+        {
+            UnknownTypeHandling = JsonUnknownTypeHandling.JsonNode
+        };
+    }
+
+    private static readonly JsonSerializerOptions SerializeOptions;
+
+    private static readonly JsonSerializerOptions DeserializeOptions;
 
 
     public static string ToJsonString(this IDictionary<string, object> value) => JsonSerializer.Serialize(value, SerializeOptions);
