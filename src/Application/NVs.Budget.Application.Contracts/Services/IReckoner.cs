@@ -8,7 +8,7 @@ namespace NVs.Budget.Application.Contracts.Services;
 
 public interface IReckoner
 {
-    IAsyncEnumerable<Operation> GetTransactions(OperationQuery query, CancellationToken ct);
+    IAsyncEnumerable<TrackedOperation> GetTransactions(OperationQuery query, CancellationToken ct);
     Task<CriteriaBasedLogbook> GetLogbook(LogbookQuery query, CancellationToken ct);
     Task<IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>>> GetDuplicates(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct);
 }

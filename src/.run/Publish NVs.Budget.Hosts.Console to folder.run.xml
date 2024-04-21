@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish NVs.Budget.Hosts.Console to folder" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" runtime="Portable" target_folder="../../../dist/console" target_framework="net8.0" uuid_high="2150041189577870518" uuid_low="-8027951445326050442" />
+    <method v="2" />
+  </configuration>
+</component>

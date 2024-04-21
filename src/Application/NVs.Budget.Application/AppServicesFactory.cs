@@ -10,6 +10,7 @@ using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Application.Services.Accounting.Tags;
 using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
+using NVs.Budget.Infrastructure.Identity.Contracts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application;
@@ -20,19 +21,32 @@ public sealed class AppServicesFactory(
     ITransfersRepository transfersRepository,
     IExchangeRatesRepository ratesRepository,
     IExchangeRatesProvider ratesProvider,
-    IUser user,
+    UserCache userCache,
     IReadOnlyCollection<TaggingCriterion> taggingCriteria,
     IReadOnlyList<TransferCriterion> transferCriteria)
 {
     public DuplicatesDetectorOptions DuplicatesDetectorOptions { get; set; } = DuplicatesDetectorOptions.Default;
 
-    public IAccountManager CreateAccountManager() => new AccountManager(accountsRepository, user);
+    public IAccountManager CreateAccountManager() => new AccountManager(accountsRepository, userCache.CachedUser);
     public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
     public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
-    private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, user);
+    private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, userCache.CachedUser);
     private DuplicatesDetector CreateDuplicatesDetector() => new(DuplicatesDetectorOptions);
     private TagsManager CreateTagsManager() => new TagsManager(taggingCriteria);
     private TransfersListBuilder CreateTransferListBuilder() => new(CreateTransfersDetector());
     private TransferDetector CreateTransfersDetector() => new(transferCriteria);
+}
+
+public sealed class UserCache(IIdentityService service)
+{
+    private IUser? _user;
+    public IUser CachedUser => _user ?? throw new InvalidOperationException("Cache is not initialized yet!");
+
+    public async Task EnsureInitialized(CancellationToken ct)
+    {
+        if (_user is not null) return;
+
+        _user = await service.GetCurrentUser(ct);
+    }
 }

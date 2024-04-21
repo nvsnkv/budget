@@ -7,7 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
 </Project>

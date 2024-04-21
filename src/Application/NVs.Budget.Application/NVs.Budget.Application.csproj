@@ -7,13 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj" />
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
       <ProjectReference Include="..\NVs.Budget.Application.Contracts\NVs.Budget.Application.Contracts.csproj" />
+      <ProjectReference Include="..\NVs.Budget.Infrastructure.ExchangeRates.Contracts\NVs.Budget.Infrastructure.ExchangeRates.Contracts.csproj" />
+      <ProjectReference Include="..\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj" />
       <ProjectReference Include="..\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 

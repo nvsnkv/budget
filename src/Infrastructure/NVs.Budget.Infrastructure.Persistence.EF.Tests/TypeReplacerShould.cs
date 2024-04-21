@@ -59,4 +59,14 @@ public class TypeReplacerShould
         var action = () => forOwners.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
+
+    [Fact]
+    public void ReplaceTypesInMembers()
+    {
+        var id = _fixture.Create<Guid>();
+
+        Expression<Func<TrackedOperation, bool>> availableAccounts = o => o.Account.Id == id;
+        var action = () => availableAccounts.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
+        action.Should().NotThrow();
+    }
 }

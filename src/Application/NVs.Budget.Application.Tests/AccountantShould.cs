@@ -66,7 +66,7 @@ public class AccountantShould
 
         var data = new ImportTestData(_fixture, [account], _owner);
 
-        var result = await _accountant.ImportTransactions(data.Operations, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
+        var result = await _accountant.ImportOperations(data.Operations, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
 
         data.VerifyResult(result);
     }

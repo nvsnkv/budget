@@ -10,10 +10,10 @@ namespace NVs.Budget.Infrastructure.Persistence.EF;
 
 public static class EfCorePersistenceExtensions
 {
-    public static IServiceCollection AddEfCorePersistence(this IServiceCollection services, Action<NpgsqlDbContextOptionsBuilder>? configureOpts = null)
+    public static IServiceCollection AddEfCorePersistence(this IServiceCollection services, string connectionString)
     {
         services.AddAutoMapper(c => c.AddProfile(new MappingProfile()));
-        services.AddDbContext<BudgetContext>(o => o.UseNpgsql(configureOpts));
+        services.AddDbContext<BudgetContext>(o => o.UseNpgsql(connectionString));
         services.AddSingleton<VersionGenerator>();
 
         services.AddTransient<IAccountsRepository, AccountsRepository>();
@@ -21,6 +21,7 @@ public static class EfCorePersistenceExtensions
         services.AddTransient<IOperationsRepository, OperationsRepository>();
         services.AddTransient<IOwnersRepository, OwnersRepository>();
         services.AddTransient<ITransfersRepository, TransfersRepository>();
+        services.AddTransient<IDbMigrator, PostgreSqlDbMigrator>();
 
         return services;
     }

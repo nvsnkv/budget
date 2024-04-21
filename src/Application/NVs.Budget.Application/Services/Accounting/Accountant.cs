@@ -25,7 +25,7 @@ internal class Accountant(
     TransfersListBuilder transfersListBuilder,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportTransactions(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
         transfersListBuilder.Clear();
@@ -95,11 +95,11 @@ internal class Accountant(
         return new ImportResult(result.Operations, result.Transfers, result.Duplicates, result.Reasons);
     }
 
-    public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> transactions, CancellationToken ct)
+    public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
     {
         var accounts = await Manager.GetOwnedAccounts(ct);
         var result = new Result();
-        await foreach (var transaction in transactions.WithCancellation(ct))
+        await foreach (var transaction in operations.WithCancellation(ct))
         {
             var updateResult = await Update(transaction, accounts, ct);
             result.Reasons.AddRange(updateResult.Reasons);
@@ -108,7 +108,7 @@ internal class Accountant(
         return result;
     }
 
-    public async Task<Result> Delete(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
+    public async Task<Result> Remove(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
         var targets = await operationsRepository.Get(criteria, ct);
