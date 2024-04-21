@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    [Migration("20240421084603_rename_schema")]
-    partial class rename_schema
+    [Migration("20240421103128_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

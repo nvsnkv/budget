@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace NVs.Budget.Infrastructure.Storage.Migrations
+namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(BudgetContext))]
     partial class BudgetContextModelSnapshot : ModelSnapshot
