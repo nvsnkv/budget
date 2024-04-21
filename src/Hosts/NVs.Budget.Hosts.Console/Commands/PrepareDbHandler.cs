@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using MediatR;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
-using NVs.Budget.Controllers.Console.Contracts.IO;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 

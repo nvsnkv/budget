@@ -22,6 +22,7 @@ public static class EfCorePersistenceExtensions
         services.AddTransient<IOwnersRepository, OwnersRepository>();
         services.AddTransient<ITransfersRepository, TransfersRepository>();
         services.AddTransient<IDbMigrator, PostgreSqlDbMigrator>();
+        services.AddTransient<IDbConnectionInfo, DbConnectionInfo>();
 
         return services;
     }

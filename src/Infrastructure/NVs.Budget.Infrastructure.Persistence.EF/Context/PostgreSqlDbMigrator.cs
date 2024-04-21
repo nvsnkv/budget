@@ -27,7 +27,3 @@ internal class PostgreSqlDbMigrator(BudgetContext context) : IDbMigrator
         }
     }
 }
-
-public interface IDbMigrator {
-    Task MigrateAsync(CancellationToken ct);
-}

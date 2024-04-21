@@ -47,6 +47,7 @@ var configuration = configurationBuilder
 
 var collection = new ServiceCollection().AddConsoleIdentity()
     .AddLogging(builder => builder.AddSimpleConsole())
+    .AddSingleton(configuration)
     .AddMediatR(c => c.RegisterServicesFromAssembly(typeof(AdminVerb).Assembly))
     .AddEfCorePersistence(configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"))
     .AddScoped<UserCache>()
