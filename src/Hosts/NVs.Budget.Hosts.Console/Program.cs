@@ -65,8 +65,8 @@ var services = collection.BuildServiceProvider();
 var factory = services.GetRequiredService<IServiceScopeFactory>();
 using var scope = factory.CreateScope();
 
-var userCache = scope.ServiceProvider.GetRequiredService<UserCache>();
-await userCache.EnsureInitialized(cancellationHandler.Token);
+var initializer = scope.ServiceProvider.GetRequiredService<UserCacheInitializer>();
+await initializer.TryInitializeCache(cancellationHandler.Token);
 
 var entryPoint = scope.ServiceProvider.GetRequiredService<IEntryPoint>();
 return await entryPoint.Process(args, cancellationHandler.Token);
