@@ -20,7 +20,7 @@ At some point I'll start publishing releases to github, but for now you'll need 
 
 ### Configuration
 
-Application uses [.NET Configuration](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration) with JSON files, command line and environment variables providers. Configuration is quite bulky, so I recommend the following way:
+Application uses [.NET Configuration](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration) with JSON files, [YAML files](https://github.com/andrewlock/NetEscapades.Configuration?tab=readme-ov-file#yaml-configuration-provider), command line and environment variables providers. Configuration is quite bulky, so I recommend the following way:
 1. Define environment variable `BUDGET_CONFIGURATION_PATH` with the path to the folder where you will store all configuration specific to _your_ installation. That should be: 
     * Connection strings
     * Input file parsing configuration

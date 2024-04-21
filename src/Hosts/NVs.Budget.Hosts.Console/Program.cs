@@ -21,9 +21,20 @@ var configurationDirectoryPath = Environment.GetEnvironmentVariable("BUDGET_CONF
 
 if (Directory.Exists(configurationDirectoryPath))
 {
-    foreach (var file in Directory.EnumerateFiles(configurationDirectoryPath, "*.json"))
+    var configs = ((string[]) ["*.json", "*.yml", "*.yaml"])
+        .SelectMany(p => Directory.EnumerateFiles(configurationDirectoryPath, p))
+        .Order();
+
+    foreach (var file in configs)
     {
-        configurationBuilder.AddJsonFile(file);
+        if (file.EndsWith(".json"))
+        {
+            configurationBuilder.AddJsonFile(file);
+        }
+        else if (file.EndsWith(".yml") || file.EndsWith(".yaml"))
+        {
+            configurationBuilder.AddYamlFile(file);
+        }
     }
 }
 
@@ -37,6 +48,7 @@ var collection = new ServiceCollection().AddConsoleIdentity()
     .AddMediatR(c => c.RegisterServicesFromAssembly(typeof(AdminVerb).Assembly))
     .AddEfCorePersistence(configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"))
     .AddScoped<UserCache>()
+    .AddScoped<UserCacheInitializer>()
     .AddTransient<AppServicesFactory>()
     .AddTransient<IAccountant>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountant())
     .AddTransient<IAccountManager>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountManager())
