@@ -2,5 +2,5 @@
 
 public interface IEntryPoint
 {
-    Task<int> Process(IEnumerable<string> args, CancellationToken ct);
+    Task<int> Process(string[] args, CancellationToken ct);
 }

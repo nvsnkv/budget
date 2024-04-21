@@ -1,21 +1,43 @@
 ﻿using CommandLine;
 using CommandLine.Text;
+using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
+using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Output;
+using Error = CommandLine.Error;
 
 namespace NVs.Budget.Controllers.Console.Handlers;
 
-internal class EntryPoint(IMediator mediator, Parser parser, IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options) : IEntryPoint
+internal class EntryPoint(
+    IMediator mediator,
+    Parser parser,
+    IOutputStreamProvider streams,
+    IOptionsSnapshot<OutputOptions> options,
+    IInputStreamProvider inputs,
+    IResultWriter<Result> resultWriter) : IEntryPoint
 {
     private static readonly Type[] SuperVerbTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes().Where(t => t.IsAssignableTo(typeof(SuperVerb)))).ToArray();
 
-    public Task<int> Process(IEnumerable<string> args, CancellationToken ct)
+    public async Task<int> Process(string[] args, CancellationToken ct)
     {
+        if (args.Length == 0)
+        {
+            var reader = await inputs.GetInput();
+            if (reader.IsFailed)
+            {
+                await resultWriter.Write(reader.ToResult(), ct);
+                return (int)ExitCode.ArgumentsError;
+            }
+
+            var line = await reader.Value.ReadLineAsync(ct);
+            args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+        }
+
         var parsedResult = parser.ParseArguments(args, SuperVerbTypes);
-        return parsedResult.MapResult(async obj =>
+        return await parsedResult.MapResult(async obj =>
             {
                 var result = await mediator.Send(obj, ct);
                 if (result is int code)
