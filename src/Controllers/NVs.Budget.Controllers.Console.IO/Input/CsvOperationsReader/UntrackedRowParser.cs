@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using CsvHelper;
@@ -71,7 +72,7 @@ internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFi
             return BuildParseError(currencyResult.Errors);
         }
 
-        var moneyResult = ReadField(nameof(UnregisteredOperation.Amount), m => Money.Parse(m, currencyResult.Value));
+        var moneyResult = ReadField(nameof(UnregisteredOperation.Amount), m => Money.Parse(m, NumberStyles.Any, currencyResult.Value));
         if (moneyResult.IsFailed)
         {
             return BuildParseError(moneyResult.Errors);

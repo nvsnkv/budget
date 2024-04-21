@@ -39,6 +39,12 @@ internal class EntryPoint(
         var parsedResult = parser.ParseArguments(args, SuperVerbTypes);
         return await parsedResult.MapResult(async obj =>
             {
+                //workaround to preserve options for subverbs
+                if (obj is SuperVerb request)
+                {
+                    request.Args = args.Skip(1);
+                }
+
                 var result = await mediator.Send(obj, ct);
                 if (result is int code)
                 {
