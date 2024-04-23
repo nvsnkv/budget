@@ -6,6 +6,7 @@ namespace NVs.Budget.Controllers.Console.IO.Input.Options;
 internal class CsvFileReadingOptions(
     IDictionary<string, FieldConfiguration> configurations,
     CultureInfo culture,
+    DateTimeKind dateTimeKind = DateTimeKind.Local,
     IReadOnlyDictionary<string, FieldConfiguration>? attributesConfiguration = null,
     IReadOnlyDictionary<string, ValidationRule>? validationRules = null
 ) : IReadOnlyDictionary<string, FieldConfiguration>
@@ -33,4 +34,6 @@ internal class CsvFileReadingOptions(
     public int Count => configurations.Count;
 
     public CultureInfo CultureInfo { get; } = culture;
+
+    public DateTimeKind DateTimeKind { get; } = dateTimeKind;
 }

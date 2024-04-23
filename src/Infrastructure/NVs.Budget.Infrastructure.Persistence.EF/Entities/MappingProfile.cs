@@ -35,9 +35,33 @@ internal class MappingProfile : Profile
         CreateMap<Account, StoredAccount>().ReverseMap();
         CreateMap<TrackedAccount, StoredAccount>().ReverseMap();
         CreateMap<Operation, StoredOperation>().ReverseMap();
-        CreateMap<TrackedOperation, StoredOperation>().ReverseMap();
+
+        CreateMap<TrackedOperation, StoredOperation>()
+            .ForMember(
+                s => s.Timestamp,
+                c => c.ConvertUsing(ToUniversalTimeConverter.Instance)
+            );
+        CreateMap<StoredOperation, TrackedOperation>()
+            .ForMember(
+                s => s.Timestamp,
+                c => c.ConvertUsing(FromUniversalTimeConverter.Instance)
+            );
+
+
         CreateMap<TrackedTransfer, StoredTransfer>().ReverseMap();
 
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
+    }
+
+    private class ToUniversalTimeConverter : IValueConverter<DateTime, DateTime>
+    {
+        public static readonly ToUniversalTimeConverter Instance = new();
+        public DateTime Convert(DateTime sourceMember, ResolutionContext context) => sourceMember.ToUniversalTime();
+    }
+
+    private class FromUniversalTimeConverter : IValueConverter<DateTime, DateTime>
+    {
+        public static readonly FromUniversalTimeConverter Instance = new();
+        public DateTime Convert(DateTime sourceMember, ResolutionContext context) => sourceMember.ToLocalTime();
     }
 }

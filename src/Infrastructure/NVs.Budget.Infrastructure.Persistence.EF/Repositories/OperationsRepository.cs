@@ -91,7 +91,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             return Result.Fail(new AccountDoesNotExistsError(account));
         }
 
-        var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp, operation.Description)
+        var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp.ToUniversalTime(), operation.Description)
         {
             Account = storedAccount,
             Amount = Mapper.Map<StoredMoney>(operation.Amount),

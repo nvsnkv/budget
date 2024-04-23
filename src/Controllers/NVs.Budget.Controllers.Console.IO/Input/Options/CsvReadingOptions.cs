@@ -42,7 +42,9 @@ internal class CsvReadingOptions
             culture = CultureInfo.GetCultureInfo(cultureCode);
         }
 
-        return new CsvFileReadingOptions(fields, culture, attributes, validationRules);
+        DateTimeKind kind = Enum.TryParse(section.GetValue<string>("DateTimeKind"), out DateTimeKind k) ? k : DateTimeKind.Local;
+
+        return new CsvFileReadingOptions(fields, culture, kind, attributes, validationRules);
     }
 
     private ValidationRule CreateValidationRule(IConfigurationSection section)

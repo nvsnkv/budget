@@ -60,7 +60,7 @@ internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFi
 
     public Result<UnregisteredOperation> GetRow()
     {
-        var timestampResult = ReadField(nameof(UnregisteredOperation.Timestamp), DateTime.Parse);
+        var timestampResult = ReadField(nameof(UnregisteredOperation.Timestamp), s => DateTime.SpecifyKind(DateTime.Parse(s), fileOptions.DateTimeKind));
         if (timestampResult.IsFailed)
         {
             return BuildParseError(timestampResult.Errors);
