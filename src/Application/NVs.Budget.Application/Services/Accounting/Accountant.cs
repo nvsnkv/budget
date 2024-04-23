@@ -220,6 +220,6 @@ internal class Accountant(
         registeredAccount = result.Value;
         accounts.Add(registeredAccount);
 
-        return Result.Ok(registeredAccount);
+        return Result.Ok(registeredAccount).WithReason(new AccountAdded(registeredAccount));
     }
 }

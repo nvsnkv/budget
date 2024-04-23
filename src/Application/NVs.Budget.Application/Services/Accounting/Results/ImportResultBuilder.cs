@@ -51,15 +51,5 @@ internal class ImportResultBuilder(DuplicatesDetector detector)
         return new ImportResult(_transactions, _transfers, duplicates, _reasons);
     }
 
-    public void Append(Result<TrackedAccount> result)
-    {
-        if (result.IsSuccess)
-        {
-            _reasons.Add(new AccountAdded(result.Value));
-        }
-        else
-        {
-            _reasons.AddRange(result.Reasons);
-        }
-    }
+    public void Append(Result<TrackedAccount> result) => _reasons.AddRange(result.Reasons);
 }
