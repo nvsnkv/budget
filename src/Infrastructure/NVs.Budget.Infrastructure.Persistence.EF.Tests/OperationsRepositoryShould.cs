@@ -26,8 +26,9 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
             _fixture.Customizations.Add(new UtcRandomDateTimeSequenceGenerator());
         }
 
-        _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
-        _accountsRepo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
+        var context = manager.GetDbBudgetContext();
+        _repo = new(manager.Mapper, context, new VersionGenerator(), new AccountsFinder(context));
+        _accountsRepo = new(manager.Mapper, context, new VersionGenerator());
         _testData = manager.TestData;
     }
 

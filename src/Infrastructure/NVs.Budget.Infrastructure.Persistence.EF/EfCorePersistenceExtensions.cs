@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -12,17 +11,18 @@ public static class EfCorePersistenceExtensions
 {
     public static IServiceCollection AddEfCorePersistence(this IServiceCollection services, string connectionString)
     {
-        services.AddAutoMapper(c => c.AddProfile(new MappingProfile()));
-        services.AddDbContext<BudgetContext>(o => o.UseNpgsql(connectionString));
-        services.AddSingleton<VersionGenerator>();
+        services.AddAutoMapper(c => c.AddProfile(new MappingProfile()))
+            .AddDbContext<BudgetContext>(o => o.UseNpgsql(connectionString))
+            .AddTransient<AccountsFinder>()
+            .AddSingleton<VersionGenerator>();
 
-        services.AddTransient<IAccountsRepository, AccountsRepository>();
-        services.AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>();
-        services.AddTransient<IOperationsRepository, OperationsRepository>();
-        services.AddTransient<IOwnersRepository, OwnersRepository>();
-        services.AddTransient<ITransfersRepository, TransfersRepository>();
-        services.AddTransient<IDbMigrator, PostgreSqlDbMigrator>();
-        services.AddTransient<IDbConnectionInfo, DbConnectionInfo>();
+        services.AddTransient<IAccountsRepository, AccountsRepository>()
+            .AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>()
+            .AddTransient<IOperationsRepository, OperationsRepository>()
+            .AddTransient<IOwnersRepository, OwnersRepository>()
+            .AddTransient<ITransfersRepository, TransfersRepository>()
+            .AddTransient<IDbMigrator, PostgreSqlDbMigrator>()
+            .AddTransient<IDbConnectionInfo, DbConnectionInfo>();
 
         return services;
     }

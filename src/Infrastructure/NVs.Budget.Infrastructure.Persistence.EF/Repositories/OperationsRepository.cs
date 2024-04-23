@@ -13,7 +13,7 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator) :
+internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator, AccountsFinder finder) :
     RepositoryBase<TrackedOperation, Guid, StoredOperation>(mapper, versionGenerator), IOperationsRepository
 {
     private readonly ExpressionSplitter _splitter = new();
@@ -84,8 +84,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
     public async Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
     {
-        var storedAccount = await context.Accounts.Include(a => a.Owners.Where(o => !o.Deleted))
-            .FirstOrDefaultAsync(a => a.Id == account.Id, ct);
+        var storedAccount = await finder.FindById(account.Id, ct);
         if (storedAccount is null)
         {
             return Result.Fail(new AccountDoesNotExistsError(account));
