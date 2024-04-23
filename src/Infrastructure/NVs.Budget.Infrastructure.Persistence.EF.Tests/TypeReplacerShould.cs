@@ -69,4 +69,15 @@ public class TypeReplacerShould
         var action = () => availableAccounts.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
+
+    [Fact]
+    public void ReplaceNestedTypesWithinExtensionMethods()
+    {
+        var owner = _fixture.Create<Owner>();
+        var newAccount = _fixture.Create<UnregisteredAccount>();
+        Expression<Func<TrackedAccount, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newAccount.Name && a.Bank == newAccount.Bank;
+
+        var action = () => expression.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
+        action.Should().NotThrow();
+    }
 }

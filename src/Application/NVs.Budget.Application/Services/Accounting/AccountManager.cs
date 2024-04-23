@@ -21,7 +21,7 @@ internal class AccountManager(IAccountsRepository repository, IUser currentUser)
     public async Task<Result<TrackedAccount>> Register(UnregisteredAccount newAccount, CancellationToken ct)
     {
         var existing = await repository.Get(
-            a => a.Owners.Contains(_currentOwner) && a.Name == newAccount.Name && a.Bank == newAccount.Bank,
+            a => a.Owners.Any(o => o.Id == _currentOwner.Id) && a.Name == newAccount.Name && a.Bank == newAccount.Bank,
             ct);
         if (existing.Count != 0) return Result.Fail<TrackedAccount>(new AccountAlreadyExistsError());
 
