@@ -29,7 +29,7 @@ internal class TransfersListBuilder(TransferDetector detector)
             if (detectionResult.IsSuccess)
             {
                 _transfers.Add(detectionResult.Value);
-                _parts.Remove(source);
+                _parts.Remove(part);
                 transferDetected = true;
 
                 source.Tag(TransferTags.Transfer);
