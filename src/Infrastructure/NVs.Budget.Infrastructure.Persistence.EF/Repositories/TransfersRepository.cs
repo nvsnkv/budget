@@ -63,4 +63,19 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
         await context.SaveChangesAsync(ct);
         return Result.Ok();
     }
+
+    public async Task<Result> Remove(TrackedTransfer transfer, CancellationToken ct)
+    {
+        var target = await context.Transfers.FirstOrDefaultAsync(t =>
+            t.Source.Id == transfer.Source.Id
+            && t.Sink.Id == transfer.Sink.Id
+            && t.Deleted == false, ct);
+
+        if (target is null) return Result.Fail(new EntityDoesNotExistError<TrackedTransfer>(transfer));
+
+        context.Transfers.Remove(target);
+        await context.SaveChangesAsync(ct);
+
+        return Result.Ok();
+    }
 }
