@@ -12,13 +12,13 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("update", HelpText = "Updates tracked operations from the given input")]
-internal class UpdateVerb : CriteriaBasedOperationsVerb
+internal class UpdateVerb : CriteriaBasedVerb
 {
     [Option('f', "file", HelpText = "Path to file with update content. If value is not specified, app will use standard input")]
     public string? FilePath { get; set; }
 }
 
-internal class UpdateVerbHandler(IMediator mediator, IInputStreamProvider streams, IOperationsReader reader, CriteriaParser parser, IResultWriter<Result> writer) : CriteriaBasedOperationsVerbHandler<UpdateVerb>(parser, writer)
+internal class UpdateVerbHandler(IMediator mediator, IInputStreamProvider streams, IOperationsReader reader, CriteriaParser parser, IResultWriter<Result> writer) : CriteriaBasedVerbHandler<UpdateVerb, TrackedOperation>(parser, writer)
 {
     protected override async Task<ExitCode> HandleInternal(UpdateVerb request, Expression<Func<TrackedOperation, bool>> criteriaResultValue, CancellationToken cancellationToken)
     {

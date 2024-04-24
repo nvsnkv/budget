@@ -11,9 +11,9 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("remove", HelpText = "Removes operations that matches criteria")]
-internal class RemoveVerb : CriteriaBasedOperationsVerb;
+internal class RemoveVerb : CriteriaBasedVerb;
 
-internal class RemoveVerbHandler(IMediator mediator, CriteriaParser parser, IResultWriter<Result> writer) : CriteriaBasedOperationsVerbHandler<RemoveVerb>(parser, writer)
+internal class RemoveVerbHandler(IMediator mediator, CriteriaParser parser, IResultWriter<Result> writer) : CriteriaBasedVerbHandler<RemoveVerb, TrackedOperation>(parser, writer)
 {
     protected override  async Task<ExitCode> HandleInternal(RemoveVerb request, Expression<Func<TrackedOperation, bool>> criteriaResultValue, CancellationToken cancellationToken)
     {

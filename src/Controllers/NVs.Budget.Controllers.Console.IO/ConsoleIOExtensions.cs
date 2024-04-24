@@ -34,6 +34,7 @@ public static class ConsoleIOExtensions
 
         services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
         services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
+        services.AddTransient<ILogbookWriter, LogbookWriter>();
 
         services.AddSingleton<IOutputStreamProvider, ConsoleOutputStreams>();
         services.AddTransient<IOperationsReader, CsvOperationsReader>();

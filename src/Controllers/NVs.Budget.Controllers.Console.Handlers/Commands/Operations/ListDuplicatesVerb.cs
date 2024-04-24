@@ -11,13 +11,13 @@ using NVs.Budget.Controllers.Console.Handlers.Criteria;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("list-duplicates", isDefault: false, HelpText = "List duplicated operations that matches criteria")]
-internal class ListDuplicatesVerb : CriteriaBasedOperationsVerb;
+internal class ListDuplicatesVerb : CriteriaBasedVerb;
 
 internal class ListDuplicatesVerbHandler(IMediator mediator,
     IObjectWriter<TrackedOperation> objectWriter,
     CriteriaParser criteriaParser,
     IResultWriter<Result> resultWriter
-) : CriteriaBasedOperationsVerbHandler<ListDuplicatesVerb>(criteriaParser, resultWriter)
+) : CriteriaBasedVerbHandler<ListDuplicatesVerb, TrackedOperation>(criteriaParser, resultWriter)
 {
     protected override async Task<ExitCode> HandleInternal(ListDuplicatesVerb request, Expression<Func<TrackedOperation, bool>> criteria, CancellationToken cancellationToken)
     {
