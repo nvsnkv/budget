@@ -16,7 +16,7 @@ internal class GetAccountStatisticsQueryHandler(IAccountManager manager, IReckon
         var accounts = await manager.GetOwnedAccounts(cancellationToken);
         var filtered = accounts.Where(request.AccountsFilter.Compile()).ToArray();
 
-        var ids = filtered.Select(a => a.Id).ToArray();
+        var ids = filtered.Select(a => a.Id).ToList();
 
         var operationsFilter = request.OperationsFilter.CombineWith(o => ids.Contains(o.Account.Id));
         var operations = reckoner.GetTransactions(new OperationQuery(operationsFilter), cancellationToken);
