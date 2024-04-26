@@ -16,7 +16,8 @@ internal class LogbookWriter(IOutputStreamProvider streams) : ILogbookWriter
         var streamWriter = await streams.GetOutput(options.Path);
         var stream = streamWriter.BaseStream;
 
-        var workbook = new CriteriaBasedXLLogbook(logbook, stream, options);
-        workbook.Save();
+        var workbook = new CriteriaBasedXLLogbook(logbook, options);
+        workbook.SaveTo(stream);
+        await stream.FlushAsync(ct);
     }
 }

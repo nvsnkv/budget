@@ -15,11 +15,11 @@ internal class CriteriaBasedXLLogbook
     private readonly WorksheetWriter? _countSheet;
 
 
-    public CriteriaBasedXLLogbook(CriteriaBasedLogbook logbook, Stream stream, LogbookWritingOptions options)
+    public CriteriaBasedXLLogbook(CriteriaBasedLogbook logbook, LogbookWritingOptions options)
     {
         _source = logbook;
         _ranges = options.Ranges;
-        _workbook = new XLWorkbook(stream);
+        _workbook = new XLWorkbook();
 
         if (options.WriteCounts)
         {
@@ -27,7 +27,7 @@ internal class CriteriaBasedXLLogbook
         }
     }
 
-    public void Save()
+    public void SaveTo(Stream stream)
     {
         _countSheet?.ResetPosition();
         _countSheet?.WriteCriteriaNames(_source.Children);
@@ -42,6 +42,8 @@ internal class CriteriaBasedXLLogbook
 
             _countSheet?.NextCol();
         }
+
+        _workbook.SaveAs(stream);
     }
 }
 
@@ -55,15 +57,20 @@ internal class WorksheetWriter (IXLWorksheet worksheet)
 
     public void ResetPosition()
     {
-        _rowNum = _colNum = 0;
+        _rowNum = 2; _colNum = 1;
     }
 
-    public void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children, int offset = 0)
+    public void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children, int offset = 1)
     {
-        _colNum = offset;
-        _criteriaDepth = offset + 1 > _criteriaDepth ? offset + 1 : _criteriaDepth;
+        if (!children.Any())
+        {
+            return;
+        }
+
+        _criteriaDepth = offset > _criteriaDepth ? offset : _criteriaDepth;
         foreach (var (criterion, logbook) in children)
         {
+            _colNum = offset;
             WriteCriterion(criterion);
             WriteCriteriaNames(logbook.Children, offset + 1);
         }
@@ -71,14 +78,16 @@ internal class WorksheetWriter (IXLWorksheet worksheet)
 
     private void WriteCriterion(Criterion criterion)
     {
-        worksheet.Cell(_rowNum, _colNum).SetValue(criterion.Description);
+        var xlCell = worksheet.Cell(_rowNum, _colNum);
+        xlCell.SetValue(criterion.Description);
+
         _criterionPositions.Add(criterion, _rowNum);
         _rowNum++;
     }
 
     public void WriteRangeName(NamedRange range)
     {
-        var xlCell = worksheet.Cell(0, _colNum);
+        var xlCell = worksheet.Cell(1, _colNum);
         xlCell.SetValue(range.Name);
         xlCell.Style.Alignment.SetTextRotation(90);
     }
@@ -90,6 +99,8 @@ internal class WorksheetWriter (IXLWorksheet worksheet)
 
         var xlCell = worksheet.Cell(rowNum, _colNum);
         xlCell.SetValue(value);
+        xlCell.Style.NumberFormat.SetNumberFormatId(1);
+
         foreach (var (_, child) in logbook.Children)
         {
             WriteValue(child, range);
