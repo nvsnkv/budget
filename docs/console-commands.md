@@ -1,4 +1,6 @@
 * budget
+    * acc - accounts
+        * stats - accounts-based statistics
     * ops (o) - operations
         * list - list operations
         * list-duplicates - get list of duplicated operations
