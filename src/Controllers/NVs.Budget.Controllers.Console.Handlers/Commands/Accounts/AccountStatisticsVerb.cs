@@ -43,7 +43,7 @@ internal class AccountStatisticsVerbHandler(
 {
     protected override async Task<ExitCode> HandleInternal(AccountStatisticsVerb request, Expression<Func<TrackedAccount, bool>> criteriaResultValue, CancellationToken cancellationToken)
     {
-        var query = new CalcAccountStatisticsQuery(criteriaResultValue, o => o.Timestamp <= request.From && o.Timestamp < request.Till);
+        var query = new CalcAccountStatisticsQuery(criteriaResultValue, o => o.Timestamp  >= request.From && o.Timestamp < request.Till);
         var result = await mediator.Send(query, cancellationToken);
 
         var range = new NamedRange(string.Empty, request.From, request.Till);
