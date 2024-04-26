@@ -5,5 +5,5 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Accounts;
 
-[Verb("accs", HelpText = "Accounts handling")]
+[Verb("acc", HelpText = "Accounts handling")]
 internal class AccountsVerb() : SuperVerb([typeof(AccountStatisticsVerb)]);

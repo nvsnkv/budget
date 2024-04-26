@@ -14,6 +14,7 @@ using NVs.Budget.Controllers.Console.IO.Input.CsvTransfersReader;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
 using NVs.Budget.Controllers.Console.IO.Options;
 using NVs.Budget.Controllers.Console.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Output.Logbook;
 using NVs.Budget.Controllers.Console.IO.Output.Operations;
 using NVs.Budget.Controllers.Console.IO.Output.Owners;
 using NVs.Budget.Controllers.Console.IO.Output.Results;
