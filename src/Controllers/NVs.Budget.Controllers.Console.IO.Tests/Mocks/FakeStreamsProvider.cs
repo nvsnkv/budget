@@ -16,14 +16,6 @@ public class FakeStreamsProvider : IOutputStreamProvider, IDisposable, IAsyncDis
         throw new NotImplementedException();
     }
 
-
-    public void Dispose()
-    {
-        _stream.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await _stream.DisposeAsync();
-    }
+    public void Dispose() => _stream.Dispose();
+    public ValueTask DisposeAsync() => _stream.DisposeAsync();
 }
