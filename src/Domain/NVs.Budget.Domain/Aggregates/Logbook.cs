@@ -61,7 +61,7 @@ public class Logbook
 
         if (currency != _currency)
         {
-            return Result.Fail(new UnexpectedCurrencyError());
+            return Result.Fail(new UnexpectedCurrencyError(_currency, currency));
         }
 
         var idx = _timestamps.BinarySearch(t.Timestamp);
