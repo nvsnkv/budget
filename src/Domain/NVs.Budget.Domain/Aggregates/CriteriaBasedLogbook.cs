@@ -20,27 +20,27 @@ public class CriteriaBasedLogbook : Logbook
 
     public IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> Children { get; }
 
-    public override Result Register(Operation t)
+    public override Result Register(Operation o)
     {
-        if (!Criterion.Matched(t))
+        if (!Criterion.Matched(o))
             return Result.Fail(new OperationDidNotMatchCriteriaError()
-                .WithTransactionId(t)
+                .WithTransactionId(o)
                 .WithMetadata(nameof(Criterion), Criterion)
             );
 
         var childResult = Result.Ok();
         if (Criterion.Subcriteria.Any())
         {
-            var subcriterion = Criterion.GetMatchedSubcriterion(t);
+            var subcriterion = Criterion.GetMatchedSubcriterion(o);
             if (subcriterion is null)
-                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithTransactionId(t)
+                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithTransactionId(o)
                     .WithMetadata(nameof(Criterion), Criterion)
                 );
 
-            childResult = Children[subcriterion].Register(t);
+            childResult = Children[subcriterion].Register(o);
         }
 
-        return childResult.IsSuccess ? base.Register(t) : childResult;
+        return childResult.IsSuccess ? base.Register(o) : childResult;
     }
 
     protected override Logbook CreateSubRangedLogbook() => new CriteriaBasedLogbook(Criterion);

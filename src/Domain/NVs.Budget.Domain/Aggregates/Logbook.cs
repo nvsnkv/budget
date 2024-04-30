@@ -47,28 +47,28 @@ public class Logbook
         }
     }
 
-    public virtual Result Register(Operation t)
+    public virtual Result Register(Operation o)
     {
-        var currency = t.Amount.GetCurrency();
+        var currency = o.Amount.GetCurrency();
 
         if (!_operations.Any())
         {
             _currency = currency;
-            _timestamps.Add(t.Timestamp);
-            _operations.Add(t);
+            _timestamps.Add(o.Timestamp);
+            _operations.Add(o);
             return Result.Ok();
         }
 
         if (currency != _currency)
         {
-            return Result.Fail(new UnexpectedCurrencyError(_currency, t));
+            return Result.Fail(new UnexpectedCurrencyError(_currency, o));
         }
 
-        var idx = _timestamps.BinarySearch(t.Timestamp);
+        var idx = _timestamps.BinarySearch(o.Timestamp);
         if (idx < 0) { idx = ~idx; }
 
-        _timestamps.Insert(idx, t.Timestamp);
-        _operations.Insert(idx, t);
+        _timestamps.Insert(idx, o.Timestamp);
+        _operations.Insert(idx, o);
 
         return Result.Ok();
     }
