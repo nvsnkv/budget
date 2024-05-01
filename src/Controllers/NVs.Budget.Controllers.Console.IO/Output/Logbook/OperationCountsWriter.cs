@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Domain.ValueObjects.Criteria;
@@ -18,13 +19,20 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
         _rowNum = 2; _colNum = 1;
     }
 
-    public void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children, int offset = 1)
+    public void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children)
     {
         if (!children.Any())
         {
             return;
         }
 
+        WriteCriteriaNames(children, 1);
+
+        _colNum = _criteriaDepth + 1;
+    }
+
+    private void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children, int offset)
+    {
         _criteriaDepth = offset > _criteriaDepth ? offset : _criteriaDepth;
         foreach (var (criterion, logbook) in children)
         {
@@ -68,11 +76,6 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
         var value = logbook.Operations.Count();
         xlCell.SetValue(value);
         xlCell.Style.NumberFormat.SetNumberFormatId(1);
-    }
-
-    public void ShiftCol()
-    {
-        _colNum = _criteriaDepth + 1;
     }
 
     public void NextCol()

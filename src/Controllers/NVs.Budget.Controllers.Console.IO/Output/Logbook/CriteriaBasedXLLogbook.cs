@@ -1,5 +1,5 @@
+using AutoMapper;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Domain.Aggregates;
 
@@ -13,9 +13,10 @@ internal class CriteriaBasedXLLogbook
     private readonly IEnumerable<NamedRange> _ranges;
     private readonly OperationCountsWriter? _countSheet;
     private readonly AmountsWriter? _amountsSheet;
+    private readonly LogbookOperationsWriter? _operationsSheet;
 
 
-    public CriteriaBasedXLLogbook(CriteriaBasedLogbook logbook, LogbookWritingOptions options)
+    public CriteriaBasedXLLogbook(CriteriaBasedLogbook logbook, LogbookWritingOptions options, IMapper mapper)
     {
         _source = logbook;
         _ranges = options.Ranges;
@@ -30,6 +31,11 @@ internal class CriteriaBasedXLLogbook
         {
             _amountsSheet = new AmountsWriter(_workbook.AddWorksheet("Amounts"));
         }
+
+        if (options.WriteOperations)
+        {
+            _operationsSheet = new LogbookOperationsWriter(_workbook.AddWorksheet("Operations"), mapper);
+        }
     }
 
     public void SaveTo(Stream stream)
@@ -38,8 +44,6 @@ internal class CriteriaBasedXLLogbook
         _amountsSheet?.ResetPosition();
         _countSheet?.WriteCriteriaNames(_source.Children);
         _amountsSheet?.WriteCriteriaNames(_source.Children);
-        _countSheet?.ShiftCol();
-        _amountsSheet?.ShiftCol();
 
         foreach (var range in _ranges)
         {
@@ -49,6 +53,7 @@ internal class CriteriaBasedXLLogbook
             {
                 _countSheet?.WriteValue(logbook, range);
                 _amountsSheet?.WriteValue(logbook, range);
+                _operationsSheet?.WriteValue(logbook, range);
             }
 
             _countSheet?.NextCol();
