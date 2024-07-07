@@ -64,7 +64,7 @@ public class ReckonerShould
         var query = new OperationQuery(t => filterIds.Contains(t.Id));
         var expectedTransactions = _data.OwnedTransactions.Where(query.Conditions!.Compile()).ToList();
 
-        var actual = await _reckoner.GetTransactions(query, CancellationToken.None).ToListAsync();
+        var actual = await _reckoner.GetOperations(query, CancellationToken.None).ToListAsync();
 
         actual.Should().BeEquivalentTo(expectedTransactions);
         actual.Select(a => a.Account).Should().AllSatisfy(a => a.Owners.Contains(_currentOwner).Should().BeTrue());
@@ -105,7 +105,7 @@ public class ReckonerShould
             .Select(t => t.Amount.GetCurrency() == expectedCurrency ? t.Amount.Amount : t.Amount.Amount * rate)
             .ToList();
 
-        var actual = await _reckoner.GetTransactions(new OperationQuery(OutputCurrency: expectedCurrency), CancellationToken.None).ToListAsync();
+        var actual = await _reckoner.GetOperations(new OperationQuery(OutputCurrency: expectedCurrency), CancellationToken.None).ToListAsync();
         actual.Should().AllSatisfy(t => t.Amount.GetCurrency().Should().Be(expectedCurrency));
         actual.OrderBy(t => t.Id).Select(t => t.Amount.Amount).Should().BeEquivalentTo(expectedAmounts);
     }
@@ -119,7 +119,7 @@ public class ReckonerShould
 
         _storage.Transfers.Append(new[] {accessibleTransferWithFee, inaccessibleTransfer, accessibleTransferWithoutFee});
 
-        var actual = await _reckoner.GetTransactions(new OperationQuery(ExcludeTransfers: true), CancellationToken.None).ToListAsync();
+        var actual = await _reckoner.GetOperations(new OperationQuery(ExcludeTransfers: true), CancellationToken.None).ToListAsync();
 
         using var scope = new AssertionScope
         {

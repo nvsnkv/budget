@@ -24,7 +24,7 @@ internal class Reckoner(
 {
     private static readonly TrackedTransfer[] Empty = [];
 
-    public async IAsyncEnumerable<TrackedOperation> GetTransactions(OperationQuery query, [EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<TrackedOperation> GetOperations(OperationQuery query, [EnumeratorCancellation] CancellationToken ct)
     {
         var criteria = await ExtendCriteria(query.Conditions, ct);
 
@@ -64,7 +64,7 @@ internal class Reckoner(
     public async Task<CriteriaBasedLogbook> GetLogbook(LogbookQuery query, CancellationToken ct)
     {
         var logbook = new CriteriaBasedLogbook(query.LogbookCriterion);
-        await foreach (var transaction in GetTransactions(query, ct))
+        await foreach (var transaction in GetOperations(query, ct))
         {
             logbook.Register(transaction);
         }
