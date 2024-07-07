@@ -44,7 +44,13 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
     {
         if (target.Account.Id != updated.Account.Id)
         {
-            return Result.Fail(new CannotChangeAccountError(updated));
+            var changed = await finder.FindById(updated.Account.Id, ct);
+            if (changed is null)
+            {
+                return Result.Fail(new AccountDoesNotExistsError(updated.Account));
+            }
+
+            target.Account = changed;
         }
 
         target.Amount = Mapper.Map<StoredMoney>(updated.Amount);

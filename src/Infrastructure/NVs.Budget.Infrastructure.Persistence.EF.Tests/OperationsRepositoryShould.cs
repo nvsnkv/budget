@@ -54,10 +54,11 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task UpdateTransactionSuccessfully()
     {
         var target = await AddTransaction();
+        var newAccount = _testData.Accounts.First(a => a.Id != target.Account.Id);
 
         TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
-        using (_fixture.SetNamedParameter(nameof(target.Account).ToLower(), target.Account))
+        using (_fixture.SetNamedParameter(nameof(target.Account).ToLower(), (Account)newAccount))
         using (_fixture.SetNamedParameter(nameof(target.Tags).ToLower(), _fixture.Create<Generator<Tag>>().Take(3)))
         {
             updated = _fixture.Create<TrackedOperation>();
