@@ -14,6 +14,7 @@ using NVs.Budget.Controllers.Console.IO.Input.CsvTransfersReader;
 using NVs.Budget.Controllers.Console.IO.Input.Options;
 using NVs.Budget.Controllers.Console.IO.Options;
 using NVs.Budget.Controllers.Console.IO.Output;
+using NVs.Budget.Controllers.Console.IO.Output.Accounts;
 using NVs.Budget.Controllers.Console.IO.Output.Logbook;
 using NVs.Budget.Controllers.Console.IO.Output.Operations;
 using NVs.Budget.Controllers.Console.IO.Output.Owners;
@@ -32,6 +33,7 @@ public static class ConsoleIOExtensions
         services.AddTransient<IObjectWriter<TrackedOperation>, TrackedOperationsWriter>();
         services.AddTransient<IObjectWriter<TrackedTransfer>, TransfersWriter>();
         services.AddTransient<IObjectWriter<Operation>, OperationsWriter>();
+        services.AddTransient<IObjectWriter<TrackedAccount>, TrackedAccountsWriter>();
 
         services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
         services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();

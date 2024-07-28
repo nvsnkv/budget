@@ -4,7 +4,7 @@ using CsvHelper.Configuration;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
-namespace NVs.Budget.Controllers.Console.IO.Output.Operations;
+namespace NVs.Budget.Controllers.Console.IO.Output;
 
 internal abstract class CsvObjectWriter<T, TRow, TMap>(
     IOutputStreamProvider streams,

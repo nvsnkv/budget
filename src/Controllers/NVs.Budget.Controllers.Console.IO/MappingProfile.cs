@@ -3,6 +3,7 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.IO.Converters;
 using NVs.Budget.Controllers.Console.IO.Models;
+using NVs.Budget.Controllers.Console.IO.Output.Accounts;
 using NVs.Budget.Controllers.Console.IO.Output.Operations;
 using NVs.Budget.Domain.Entities.Operations;
 
@@ -32,5 +33,7 @@ internal class CsvMappingProfile : Profile
             .ForMember(c => c.SinkId, o => o.MapFrom(t => t.Sink.Id))
             .ForMember(c => c.Fee, o => o.ConvertUsing<Money>(MoneyConverter.Instance));
 
+        CreateMap<TrackedAccount, CsvAccount>()
+            .ForMember(c => c.Owners, o => o.ConvertUsing(OwnersConverter.Instance));
     }
 }
