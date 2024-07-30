@@ -23,9 +23,9 @@ public class TagsManagerShould
 
         var criteria = new TaggingCriterion[]
         {
-            new(universeTag, _ => true),
-            new(uniqueTag, t => t == transaction),
-            new(exceptTag, t => t != transaction)
+            new(_ => universeTag, _ => true),
+            new(_ => uniqueTag, t => t == transaction),
+            new(_ => exceptTag, t => t != transaction)
         };
 
         var manager = new TagsManager(criteria);

@@ -43,7 +43,7 @@ public class AccountantShould
 
         var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorOptions.Default);
 
-        var tagMeCriterion = new TaggingCriterion(new("TagMe!"), t => t.Description == "Tag me!");
+        var tagMeCriterion = new TaggingCriterion(_ => new("TagMe!"), t => t.Description == "Tag me!");
         var tagsManager = new TagsManager(new[] { tagMeCriterion });
 
         _accountant = new(

@@ -4,7 +4,9 @@ namespace NVs.Budget.Utilities.Expressions;
 
 public static class ExpressionsExtensions
 {
-    public static Expression<Func<T, bool>> CombineWith<T>(this Expression<Func<T, bool>> expression, Expression<Func<T, bool>> another)
+    public static Expression<Func<T, TResult>> CombineWith<T, TResult>(this Expression<Func<T, TResult>> expression, Expression<Func<T, TResult>> another) => expression.CombineWith(another, Expression.AndAlso);
+
+    public static Expression<Func<T, TResult>> CombineWith<T, TResult>(this Expression<Func<T, TResult>> expression, Expression<Func<T, TResult>> another, Func<Expression, Expression, BinaryExpression> combineFn)
     {
         var parameter = Expression.Parameter(typeof (T));
 
@@ -14,8 +16,8 @@ public static class ExpressionsExtensions
         var rightVisitor = new ReplaceExpressionVisitor(another.Parameters[0], parameter);
         var right = rightVisitor.Visit(another.Body)?? throw new NullReferenceException("Null node received while visiting another!");;
 
-        return Expression.Lambda<Func<T, bool>>(
-            Expression.AndAlso(left, right), parameter);
+        return Expression.Lambda<Func<T, TResult>>(
+            combineFn(left, right), parameter);
     }
 
     public static Expression<Func<TTo, bool>> ConvertTypes<TFrom, TTo>(this Expression<Func<TFrom, bool>> expression, IReadOnlyDictionary<Type, Type> mappings)

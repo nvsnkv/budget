@@ -2,10 +2,14 @@ using CommandLine;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Output;
+using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 namespace NVs.Budget.Hosts.Console.Commands;
@@ -56,10 +60,23 @@ internal class ListEffectiveSettingsVerbHandler(
 
         await writer.WriteLineAsync();
 
-        await writer.WriteLineAsync("5. Tagging criteria");
+        await writer.WriteLineAsync("5. Tagging criteria ($ sign and zeroes indicate substitution)");
+        var testOperation = new TrackedOperation(
+            Guid.Empty,
+            DateTime.UtcNow,
+            Money.Zero(),
+            "$Description",
+            new(Guid.Empty, "$Account.Name", "$Account.Bank",[new(Guid.Empty, "$Account.Owner")]),
+            [new Tag("$Tag")],
+            new Dictionary<string, object>()
+            {
+                {"Category", "$Attrbutes[\"Category\"]" },
+                {"Comment", "$Attrbutes[\"Comment\"]" },
+            }
+            );
         foreach (var criterion in taggingCriteria)
         {
-            await writer.WriteLineAsync(criterion.Tag.ToString());
+            await writer.WriteLineAsync(criterion.Tag(testOperation).ToString());
         }
 
         await writer.WriteLineAsync();

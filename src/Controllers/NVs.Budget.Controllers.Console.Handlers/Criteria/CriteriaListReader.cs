@@ -5,27 +5,28 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Criteria;
 
-internal class CriteriaListReader(CriteriaParser parser, IConfiguration config)
+internal class CriteriaListReader(CriteriaParser criteriaParser, SubstitutionsParser substitutionsParser, IConfiguration config)
 {
     public IReadOnlyList<TransferCriterion> GetTransferCriteria() => config.GetSection("Transfers").GetChildren().Select(GetTransferCriterion).ToList().AsReadOnly();
 
-    public IReadOnlyCollection<TaggingCriterion> GetTaggingCriteria() => config.GetSection("Tags").GetChildren().Select(GetTaggingCriterion).ToList().AsReadOnly();
+    public IReadOnlyCollection<TaggingCriterion> GetTaggingCriteria() => config.GetSection("Tags").GetChildren().SelectMany(GetTaggingCriterion).ToList().AsReadOnly();
 
-    private TaggingCriterion GetTaggingCriterion(IConfigurationSection section)
+    private IEnumerable<TaggingCriterion> GetTaggingCriterion(IConfigurationSection section)
     {
-        return new TaggingCriterion(
-            new Tag(section.GetValue<string>(nameof(TaggingCriterion.Tag)) ?? throw new InvalidOperationException("Missing tag field!")),
-            parser.ParseTaggingCriteria(
-                section.GetValue<string>(nameof(TaggingCriterion.Criterion)) ?? throw new InvalidOperationException("Missing criterion field!")
-            ).Compile()
-        );
+        var tagFn = substitutionsParser.GetSubstitutions<TrackedOperation>(section.Key, "o");
+
+        var criteria = section.Get<string[]>() ?? [];
+        foreach (var criterion in criteria)
+        {
+            yield return new TaggingCriterion(o => new Tag(tagFn(o)), criteriaParser.ParseTaggingCriteria(criterion).Compile());
+        }
     }
 
     private TransferCriterion GetTransferCriterion(IConfigurationSection section) =>
         new(
             section.GetValue<DetectionAccuracy>(nameof(TransferCriterion.Accuracy)),
             section.Key,
-            parser.ParseTransferCriteria(
+            criteriaParser.ParseTransferCriteria(
                 section.GetValue<string>(nameof(TransferCriterion.Criterion)) ?? throw new InvalidOperationException("Missing criterion field!")
             ).Compile()
         );

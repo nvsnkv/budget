@@ -48,7 +48,9 @@ internal class CriteriaParser
         }
     }
 
-    public Expression<Func<T, bool>> ParsePredicate<T>(string expression, string paramName = "arg") => Parse<Func<T, bool>>(expression, typeof(bool), Expression.Parameter(typeof(T), paramName));
+    public Expression<Func<T, bool>> ParsePredicate<T>(string expression, string paramName = "arg") => ParseConversion<T, bool>(expression, paramName);
+
+    public Expression<Func<T, TResult>> ParseConversion<T, TResult>(string expression, string paramName = "arg") => Parse<Func<T, TResult>>(expression, typeof(TResult), Expression.Parameter(typeof(T), paramName));
 
     private Expression<T> Parse<T>(string expression, Type resultType, params ParameterExpression[] args)
     {
@@ -59,7 +61,7 @@ internal class CriteriaParser
     private class TypesProvider : IDynamicLinkCustomTypeProvider
     {
         private readonly Dictionary<Type, List<MethodInfo>> _extensionMethods = new();
-        private readonly HashSet<Type> _customTypes = new HashSet<Type>() { typeof(Money) };
+        private readonly HashSet<Type> _customTypes = [typeof(Money)];
 
         public HashSet<Type> GetCustomTypes() => _customTypes;
 

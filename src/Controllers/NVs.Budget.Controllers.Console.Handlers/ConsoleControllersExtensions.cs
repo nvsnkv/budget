@@ -48,7 +48,8 @@ public static class ConsoleControllersExtensions
             settings.EnableDashDash = true;
         });
 
-        var criteriaListReader = new CriteriaListReader(new CriteriaParser(), configuration);
+        var criteriaParser = new CriteriaParser();
+        var criteriaListReader = new CriteriaListReader(criteriaParser, new SubstitutionsParser(criteriaParser), configuration);
 
         var transferCriteria = criteriaListReader.GetTransferCriteria();
         services.AddSingleton(transferCriteria);
