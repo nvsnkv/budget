@@ -108,6 +108,30 @@ internal class Accountant(
         return result;
     }
 
+    public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, bool fromScratch, CancellationToken ct)
+    {
+        var updated = operations.Select(operation =>
+        {
+            if (fromScratch)
+            {
+                foreach (var tag in operation.Tags)
+                {
+                    operation.Untag(tag);
+                }
+            }
+
+            var tags = tagsManager.GetTags(operation);
+            foreach (var tag in tags.Except(operation.Tags))
+            {
+                operation.Tag(tag);
+            }
+
+            return operation;
+        });
+
+        return Update(updated, ct);
+    }
+
     public async Task<Result> Remove(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);

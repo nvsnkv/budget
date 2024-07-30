@@ -7,6 +7,7 @@
         * list-duplicates - get list of duplicated operations
         * import - perform import
         * update - update operations from file
+        * retag - update the list of tags
         * remove - remove operations
     * owners - owners
         * list - list owners
