@@ -48,15 +48,15 @@ internal class AccountStatisticsVerbHandler(
 {
     protected override async Task<ExitCode> HandleInternal(AccountStatisticsVerb request, Expression<Func<TrackedAccount, bool>> criteriaResultValue, CancellationToken cancellationToken)
     {
-        var query = new CalcAccountStatisticsQuery(criteriaResultValue, o => o.Timestamp  >= request.From.ToUniversalTime() && o.Timestamp < request.Till.ToUniversalTime());
-        var result = await mediator.Send(query, cancellationToken);
-
         var ranges = GetRanges(request.From, request.Till, request.Schedule);
         await Writer.Write(ranges.ToResult(), cancellationToken);
         if (!ranges.IsSuccess)
         {
             return ranges.ToExitCode();
         }
+
+        var query = new CalcAccountStatisticsQuery(criteriaResultValue, o => o.Timestamp  >= request.From.ToUniversalTime() && o.Timestamp < request.Till.ToUniversalTime());
+        var result = await mediator.Send(query, cancellationToken);
 
         await logbookWriter.Write(result.ValueOrDefault,
             new LogbookWritingOptions(
