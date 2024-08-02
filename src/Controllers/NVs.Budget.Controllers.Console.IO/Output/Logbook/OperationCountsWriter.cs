@@ -74,6 +74,11 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
     protected virtual void SetValue(IXLCell xlCell, Domain.Aggregates.Logbook logbook)
     {
         var value = logbook.Operations.Count();
+        if (value == 0)
+        {
+            return;
+        }
+
         xlCell.SetValue(value);
         xlCell.Style.NumberFormat.SetNumberFormatId(1);
     }
