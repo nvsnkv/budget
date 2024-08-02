@@ -9,6 +9,7 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Controllers.Console.Handlers.Utils;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Accounts;
 
@@ -24,6 +25,9 @@ internal class AccountStatisticsVerb : CriteriaBasedVerb
     [Option('t', "till", HelpText = "Date till")]
     public DateTime Till { get; set; } = DateTime.MaxValue;
 
+    [Option('s', "schedule", HelpText = "Cron expression to generate time ranges. If not set, all values will be accumulated in a single time range between From and Till")]
+    public string? Schedule { get; set; }
+
     [Option("with-counts", Default = true, HelpText = "Write operations count for each account")]
     public bool WithCounts { get; set; }
 
@@ -38,7 +42,8 @@ internal class AccountStatisticsVerbHandler(
     IMediator mediator,
     CriteriaParser parser,
     IResultWriter<Result> writer,
-    ILogbookWriter logbookWriter
+    ILogbookWriter logbookWriter,
+    CronBasedNamedRangeSeriesBuilder seriesBuilder
 ) : CriteriaBasedVerbHandler<AccountStatisticsVerb, TrackedAccount>(parser, writer)
 {
     protected override async Task<ExitCode> HandleInternal(AccountStatisticsVerb request, Expression<Func<TrackedAccount, bool>> criteriaResultValue, CancellationToken cancellationToken)
@@ -46,17 +51,30 @@ internal class AccountStatisticsVerbHandler(
         var query = new CalcAccountStatisticsQuery(criteriaResultValue, o => o.Timestamp  >= request.From && o.Timestamp < request.Till);
         var result = await mediator.Send(query, cancellationToken);
 
-        var range = new NamedRange(string.Empty, request.From, request.Till);
+        var ranges = GetRanges(request.From, request.Till, request.Schedule);
+        await Writer.Write(ranges.ToResult(), cancellationToken);
+        if (!ranges.IsSuccess)
+        {
+            return ranges.ToExitCode();
+        }
+
         await logbookWriter.Write(result.ValueOrDefault,
             new LogbookWritingOptions(
                 request.LogbookPath,
                 request.WithCounts,
                 request.WithAmounts,
                 request.WithOperations,
-                Enumerable.Repeat(range, 1)),
+                ranges.Value),
             cancellationToken
             );
 
         return result.ToExitCode();
+    }
+
+    private Result<IEnumerable<NamedRange>> GetRanges(DateTime from, DateTime till, string? schedule)
+    {
+        return string.IsNullOrEmpty(schedule)
+            ? new NamedRange[]{ new (string.Empty, from, till) }
+            : seriesBuilder.GetRanges(from, till, schedule);
     }
 }

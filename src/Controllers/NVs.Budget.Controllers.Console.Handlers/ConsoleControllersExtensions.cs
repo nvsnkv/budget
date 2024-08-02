@@ -8,6 +8,7 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Behaviors;
 using NVs.Budget.Controllers.Console.Handlers.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Utilities.MediatR;
 
 [assembly:InternalsVisibleTo("NVs.Budget.Controllers.Console.Handlers.Tests")]
@@ -29,6 +30,7 @@ public static class ConsoleControllersExtensions
         services.AddTransient<IEntryPoint, EntryPoint>();
         services.AddTransient<Parser>();
         services.AddTransient<CriteriaParser>();
+        services.AddTransient<CronBasedNamedRangeSeriesBuilder>();
 
         return services;
     }
