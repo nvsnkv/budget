@@ -7,7 +7,6 @@ using NVs.Budget.Application.Contracts.UseCases.Accounts;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 
