@@ -44,7 +44,7 @@ internal class AccountStatisticsVerbHandler(
     IResultWriter<Result> writer,
     ILogbookWriter logbookWriter,
     CronBasedNamedRangeSeriesBuilder seriesBuilder
-) : CriteriaBasedVerbHandler<AccountStatisticsVerb, TrackedAccount>(parser, writer)
+) : CriteriaBasedVerbHandler<AccountStatisticsVerb, TrackedAccount>(parser, writer, "a")
 {
     protected override async Task<ExitCode> HandleInternal(AccountStatisticsVerb request, Expression<Func<TrackedAccount, bool>> criteriaResultValue, CancellationToken cancellationToken)
     {
