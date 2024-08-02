@@ -14,6 +14,11 @@ internal class LogbookWriter(IOutputStreamProvider streams, IMapper mapper) : IL
             return;
         }
 
+        if (File.Exists(options.Path))
+        {
+            File.Delete(options.Path);
+        }
+
         var streamWriter = await streams.GetOutput(options.Path);
         var stream = streamWriter.BaseStream;
 
