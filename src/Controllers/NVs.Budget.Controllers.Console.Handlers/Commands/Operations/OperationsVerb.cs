@@ -4,4 +4,12 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("ops", false, ["o"], HelpText = "Operations handling")]
-internal class OperationsVerb() : SuperVerb([typeof(ImportVerb), typeof(ListVerb), typeof(ListDuplicatesVerb), typeof(UpdateVerb), typeof(RetagVerb), typeof(RemoveVerb)]);
+internal class OperationsVerb() : SuperVerb([
+    typeof(ImportVerb),
+    typeof(ListVerb),
+    typeof(ListDuplicatesVerb),
+    typeof(OperationsStatisticsVerb),
+    typeof(UpdateVerb),
+    typeof(RetagVerb),
+    typeof(RemoveVerb)
+]);

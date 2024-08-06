@@ -12,7 +12,7 @@ public class PredicateBasedCriterionShould : CriterionShould
     {
         var fixture = new Fixture();
         var transaction = fixture.Create<Operation>();
-        Predicate<Operation> predicate = t => t == transaction;
+        Func<Operation, bool> predicate = t => t == transaction;
 
         var criterion = new PredicateBasedCriterion(fixture.Create<string>(), predicate);
         criterion.Matched(transaction).Should().Be(true);
@@ -23,7 +23,7 @@ public class PredicateBasedCriterionShould : CriterionShould
     {
         var fixture = new Fixture();
         var transaction = fixture.Create<Operation>();
-        Predicate<Operation> predicate = t => t != transaction;
+        Func<Operation, bool> predicate = t => t != transaction;
 
         var criterion = new PredicateBasedCriterion(fixture.Create<string>(), predicate);
         criterion.Matched(transaction).Should().Be(false);

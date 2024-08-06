@@ -4,14 +4,14 @@ namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
 public class PredicateBasedCriterion : Criterion
 {
-    private readonly Predicate<Operation> _predicate;
+    private readonly Func<Operation, bool> _predicate;
 
-    public PredicateBasedCriterion(string description, Predicate<Operation> predicate) : base(description)
+    public PredicateBasedCriterion(string description, Func<Operation, bool> predicate) : base(description)
     {
         _predicate = predicate;
     }
 
-    public PredicateBasedCriterion(string description, Predicate<Operation> predicate, IEnumerable<Criterion> subcriteria) : base(description, subcriteria)
+    public PredicateBasedCriterion(string description, Func<Operation, bool> predicate, IEnumerable<Criterion> subcriteria) : base(description, subcriteria)
     {
         _predicate = predicate;
     }

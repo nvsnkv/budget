@@ -9,7 +9,7 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Application.UseCases.Accounts;
 
-internal class GetAccountStatisticsQueryHandler(IAccountManager manager, IReckoner reckoner) :IRequestHandler<CalcAccountStatisticsQuery, Result<CriteriaBasedLogbook>>
+internal class CalcAccountStatisticsQueryHandler(IAccountManager manager, IReckoner reckoner) :IRequestHandler<CalcAccountStatisticsQuery, Result<CriteriaBasedLogbook>>
 {
     public async Task<Result<CriteriaBasedLogbook>> Handle(CalcAccountStatisticsQuery request, CancellationToken cancellationToken)
     {
