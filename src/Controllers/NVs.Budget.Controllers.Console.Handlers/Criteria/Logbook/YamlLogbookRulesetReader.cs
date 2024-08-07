@@ -4,19 +4,19 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects.Criteria;
-using YamlDotNet.Core.Tokens;
 using YamlDotNet.RepresentationModel;
 using Tag = NVs.Budget.Domain.ValueObjects.Tag;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
 
-internal class YamlLogbookRulesetReader(CriteriaParser parser) : ILogbookCriteriaReader
+internal class YamlLogbookRulesetReader(CriteriaParser criteriaParser, SubstitutionsParser substitutionsParser) : ILogbookCriteriaReader
 {
     private static readonly string[] EmptyPath = [];
     private static readonly YamlScalarNode PredicateKey = new("predicate");
     private static readonly YamlScalarNode TagsKey = new("tags");
     private static readonly YamlScalarNode TagsModeKey = new("mode");
     private static readonly YamlScalarNode SubcriteriaKey = new("subcriteria");
+    private static readonly YamlScalarNode SubstitutionKey = new("substitution");
 
     public Task<Result<Criterion>> ReadFrom(StreamReader reader, CancellationToken ct)
     {
@@ -99,6 +99,8 @@ internal class YamlLogbookRulesetReader(CriteriaParser parser) : ILogbookCriteri
             subcriteria = ParseSubcriteria(subcriteriaNode, nodePath);
         }
 
+
+
         var errors = new List<IError>();
         var validCriteria = new List<Criterion>();
         foreach (var res in subcriteria)
@@ -122,6 +124,10 @@ internal class YamlLogbookRulesetReader(CriteriaParser parser) : ILogbookCriteri
         {
             result = ParseTags(description, mapping, validCriteria, path);
         }
+        else if (mapping.Children.ContainsKey(SubstitutionKey))
+        {
+            result = ParseSubstitution(description, mapping, validCriteria, path);
+        }
         else
         {
             result = Result.Ok((Criterion)new UniversalCriterion(description, validCriteria));
@@ -129,6 +135,35 @@ internal class YamlLogbookRulesetReader(CriteriaParser parser) : ILogbookCriteri
 
         result.WithErrors(errors);
         return result;
+    }
+
+    private Result<Criterion> ParseSubstitution(string description, YamlMappingNode mapping, List<Criterion> validCriteria, ICollection<string> path)
+    {
+        if (validCriteria.Any())
+        {
+            return Result.Fail(new YamlParsingError("Substitution node cannot have subcriteria", path.Append(description)));
+        }
+
+        var substitutionNodePath = path.Append(description).Append(SubstitutionKey.Value!).ToList();
+
+        if (mapping.Children[SubstitutionKey] is not YamlScalarNode scalarNode)
+        {
+            return Result.Fail(new UnexpectedNodeTypeError(mapping.Children[SubstitutionKey].GetType(), typeof(YamlScalarNode), substitutionNodePath));
+        }
+
+        Func<Operation, string> substitution;
+        try
+        {
+            substitution = substitutionsParser.GetSubstitutions<Operation>(scalarNode.Value!, "o");
+        }
+        catch (Exception e)
+        {
+            var error = new YamlParsingError("Failed to parse substitution", substitutionNodePath);
+            error.Reasons.Add(new ExceptionBasedError(e));
+            return Result.Fail(error);
+        }
+
+        return new SubstitutionBasedCriterion(description, substitution);
     }
 
     private Result<Criterion> ParseTags(string description, YamlMappingNode mapping, List<Criterion> validCriteria, ICollection<string> path)
@@ -211,7 +246,7 @@ internal class YamlLogbookRulesetReader(CriteriaParser parser) : ILogbookCriteri
         {
             return Result.Fail(new YamlParsingError("No predicate value given", predicateNodePath));
         }
-        var parseResult = parser.TryParsePredicate<Operation>(value, "o");
+        var parseResult = criteriaParser.TryParsePredicate<Operation>(value, "o");
         if (parseResult.IsFailed)
         {
             return Result.Fail(new YamlParsingError("Failed to parse predicate value", predicateNodePath)).WithReasons(parseResult.Errors);
