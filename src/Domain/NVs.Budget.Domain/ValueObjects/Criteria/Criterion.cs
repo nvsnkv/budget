@@ -20,11 +20,11 @@ public abstract class Criterion
 
     public string Description { get; }
 
-    public IReadOnlyList<Criterion> Subcriteria { get; }
+    public virtual IReadOnlyList<Criterion> Subcriteria { get; }
 
     public abstract bool Matched(Operation t);
 
-    public Criterion? GetMatchedSubcriterion(Operation t)
+    public virtual Criterion?  GetMatchedSubcriterion(Operation t)
     {
         return Subcriteria.FirstOrDefault(c => c.Matched(t));
     }
