@@ -8,6 +8,7 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Behaviors;
 using NVs.Budget.Controllers.Console.Handlers.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Utilities.MediatR;
 
@@ -51,13 +52,17 @@ public static class ConsoleControllersExtensions
         });
 
         var criteriaParser = new CriteriaParser();
-        var criteriaListReader = new CriteriaListReader(criteriaParser, new SubstitutionsParser(criteriaParser), configuration);
+        var substitutionsParser = new SubstitutionsParser(criteriaParser);
+        var criteriaListReader = new CriteriaListReader(criteriaParser, substitutionsParser, configuration);
 
         var transferCriteria = criteriaListReader.GetTransferCriteria();
         services.AddSingleton(transferCriteria);
 
         var taggingCriteria = criteriaListReader.GetTaggingCriteria();
         services.AddSingleton(taggingCriteria);
+
+        var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
+        services.AddSingleton(logbookCriteriaReader);
 
         return services;
     }
