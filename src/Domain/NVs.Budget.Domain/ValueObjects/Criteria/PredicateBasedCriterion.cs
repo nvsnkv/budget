@@ -20,4 +20,22 @@ public class PredicateBasedCriterion : Criterion
     {
         return _predicate(t);
     }
+
+    protected bool Equals(PredicateBasedCriterion other)
+    {
+        return _predicate.Equals(other._predicate) && Description.Equals(other.Description);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((PredicateBasedCriterion)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(_predicate.GetHashCode(), Description.GetHashCode());
+    }
 }

@@ -4,7 +4,9 @@ namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
 public class SubstitutionBasedCriterion : Criterion
 {
-    private readonly List<PredicateBasedCriterion> _subcriteria = new();
+    private static readonly UniversalCriterion Dummy = new(string.Empty);
+
+    private readonly List<PredicateBasedCriterion> _subcriteria = [Dummy];
     private readonly Func<Operation, string> _substitution;
 
     public SubstitutionBasedCriterion(string description, Func<Operation, string> substitution) : base(description)
@@ -19,7 +21,12 @@ public class SubstitutionBasedCriterion : Criterion
     public override Criterion? GetMatchedSubcriterion(Operation t)
     {
         var found = base.GetMatchedSubcriterion(t);
-        if (found is not null) return found;
+        if (found is not null && !ReferenceEquals(found, Dummy)) return found;
+
+        if (_subcriteria.All(c => ReferenceEquals(c, Dummy)))
+        {
+            _subcriteria.Clear();
+        }
 
         var description = _substitution(t);
         var criterion = new PredicateBasedCriterion(description, o => _substitution(o) == description);

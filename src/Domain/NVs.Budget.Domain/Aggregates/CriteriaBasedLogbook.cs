@@ -8,17 +8,18 @@ namespace NVs.Budget.Domain.Aggregates;
 
 public class CriteriaBasedLogbook : Logbook
 {
+    private readonly Dictionary<Criterion, CriteriaBasedLogbook> _children;
+
     public CriteriaBasedLogbook(Criterion criterion)
     {
         Criterion = criterion;
-        Children = criterion.Subcriteria
-            .ToDictionary(c => c, c => new CriteriaBasedLogbook(c))
-            .AsReadOnly();
+        _children = criterion.Subcriteria
+            .ToDictionary(c => c, c => new CriteriaBasedLogbook(c));
     }
 
     public Criterion Criterion { get; }
 
-    public IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> Children { get; }
+    public IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> Children => _children.AsReadOnly();
 
     public override Result Register(Operation o)
     {
@@ -37,7 +38,12 @@ public class CriteriaBasedLogbook : Logbook
                     .WithMetadata(nameof(Criterion), Criterion)
                 );
 
-            childResult = Children[subcriterion].Register(o);
+            if (!_children.ContainsKey(subcriterion))
+            {
+                _children.Add(subcriterion, new CriteriaBasedLogbook(subcriterion));
+            }
+
+            childResult = _children[subcriterion].Register(o);
         }
 
         return childResult.IsSuccess ? base.Register(o) : childResult;
