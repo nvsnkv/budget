@@ -44,7 +44,7 @@ internal class TestImportVerbHandler(
 
         var ops = reader.ReadUnregisteredOperations(streamResult.Value, filePath, cancellationToken);
 
-        await foreach (var result in ops.WithCancellation(cancellationToken))
+        await foreach (var result in ops)
         {
             if (result.IsSuccess)
             {
