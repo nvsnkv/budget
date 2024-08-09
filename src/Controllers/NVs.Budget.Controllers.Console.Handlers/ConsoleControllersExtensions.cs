@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
+using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Handlers.Behaviors;
 using NVs.Budget.Controllers.Console.Handlers.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
@@ -62,7 +63,7 @@ public static class ConsoleControllersExtensions
         services.AddSingleton(taggingCriteria);
 
         var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
-        services.AddSingleton(logbookCriteriaReader);
+        services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);
 
         return services;
     }
