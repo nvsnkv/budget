@@ -5,12 +5,12 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Handlers.Behaviors;
 using NVs.Budget.Controllers.Console.Handlers.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
 using NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
+using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Utilities.MediatR;
 
 [assembly:InternalsVisibleTo("NVs.Budget.Controllers.Console.Handlers.Tests")]

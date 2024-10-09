@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
       <ProjectReference Include="..\NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj" />
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.MediatR\NVs.Budget.Utilities.MediatR.csproj" />

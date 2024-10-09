@@ -6,9 +6,9 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Output;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 namespace NVs.Budget.Hosts.Console.Commands;

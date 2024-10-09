@@ -3,8 +3,8 @@ using CommandLine;
 using FluentResults;
 using MediatR;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands;
 

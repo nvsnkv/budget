@@ -9,11 +9,11 @@ using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Console.Handlers;
-using NVs.Budget.Controllers.Console.IO;
 using NVs.Budget.Hosts.Console;
 using NVs.Budget.Hosts.Console.Commands;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
 using NVs.Budget.Infrastructure.Identity.Console;
+using NVs.Budget.Infrastructure.IO.Console;
 using NVs.Budget.Infrastructure.Persistence.EF;
 
 Console.OutputEncoding = Encoding.UTF8;
