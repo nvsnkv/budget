@@ -35,4 +35,19 @@
       <ProjectReference Include="..\NVs.Budget.Infrastructure.IO.Console\NVs.Budget.Infrastructure.IO.Console.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="TestData\FileWithDotsInNumbersAndCyrillicAttributes\file.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\FileWithDotsInNumbersAndCyrillicAttributes\file.yml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\ValidFile\validFile.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="TestData\ValidFile\validFileConfig.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
