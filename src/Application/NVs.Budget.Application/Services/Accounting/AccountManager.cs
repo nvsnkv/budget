@@ -12,30 +12,30 @@ internal class AccountManager(IAccountsRepository repository, IUser currentUser)
 {
     private readonly Owner _currentOwner = currentUser.AsOwner();
 
-    public Task<IReadOnlyCollection<TrackedAccount>> GetOwnedAccounts(CancellationToken ct)
+    public Task<IReadOnlyCollection<TrackedBudget>> GetOwnedAccounts(CancellationToken ct)
     {
         var id = _currentOwner.Id;
         return repository.Get(a => a.Owners.Any(o => o.Id == id), ct);
     }
 
-    public async Task<Result<TrackedAccount>> Register(UnregisteredAccount newAccount, CancellationToken ct)
+    public async Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, CancellationToken ct)
     {
         var existing = await repository.Get(
-            a => a.Owners.Any(o => o.Id == _currentOwner.Id) && a.Name == newAccount.Name && a.Bank == newAccount.Bank,
+            a => a.Owners.Any(o => o.Id == _currentOwner.Id) && a.Name == newAccount.Name,
             ct);
-        if (existing.Count != 0) return Result.Fail<TrackedAccount>(new AccountAlreadyExistsError());
+        if (existing.Count != 0) return Result.Fail<TrackedBudget>(new AccountAlreadyExistsError());
 
         return await repository.Register(newAccount, _currentOwner, ct);
     }
 
-    public async Task<Result> ChangeOwners(TrackedAccount account, IReadOnlyCollection<Owner> owners, CancellationToken ct)
+    public async Task<Result> ChangeOwners(TrackedBudget budget, IReadOnlyCollection<Owner> owners, CancellationToken ct)
     {
-        if (!account.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
+        if (!budget.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
 
         if (!owners.Contains(_currentOwner)) return Result.Fail(new CurrentOwnerLosesAccessToAccountError());
 
-        var found = (await repository.Get(a => a.Id == account.Id, ct)).FirstOrDefault();
-        if (found is null) return Result.Fail(new AccountDoesNotExistError(account.Id));
+        var found = (await repository.Get(a => a.Id == budget.Id, ct)).FirstOrDefault();
+        if (found is null) return Result.Fail(new AccountDoesNotExistError(budget.Id));
 
         foreach (var exOwner in found.Owners.Except(owners).ToList())
         {
@@ -51,23 +51,23 @@ internal class AccountManager(IAccountsRepository repository, IUser currentUser)
         return result.ToResult();
     }
 
-    public async Task<Result> Update(TrackedAccount account, CancellationToken ct)
+    public async Task<Result> Update(TrackedBudget budget, CancellationToken ct)
     {
-        var found = (await repository.Get(a => a.Id == account.Id, ct)).FirstOrDefault();
-        if (found is null) return Result.Fail(new AccountDoesNotExistError(account.Id));
+        var found = (await repository.Get(a => a.Id == budget.Id, ct)).FirstOrDefault();
+        if (found is null) return Result.Fail(new AccountDoesNotExistError(budget.Id));
         if (!found.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
 
-        found.Rename(account.Name, account.Bank);
+        found.Rename(budget.Name);
         var result = await repository.Update(found, ct);
         return result.ToResult();
     }
 
-    public async Task<Result> Remove(TrackedAccount account, CancellationToken ct)
+    public async Task<Result> Remove(TrackedBudget budget, CancellationToken ct)
     {
-        if (!account.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
-        if (account.Owners.Count > 1) return Result.Fail(new AccountBelongsToMultipleOwnersError());
+        if (!budget.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
+        if (budget.Owners.Count > 1) return Result.Fail(new AccountBelongsToMultipleOwnersError());
 
-        await repository.Remove(account, ct);
+        await repository.Remove(budget, ct);
 
         return Result.Ok();
     }

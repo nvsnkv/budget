@@ -10,10 +10,10 @@ public class  TrackedOperation(
     DateTime timestamp,
     Money amount,
     string description,
-    Account account,
+    Domain.Entities.Accounts.Budget budget,
     IEnumerable<Tag> tags,
     IReadOnlyDictionary<string, object>? attributes)
-    : Operation(id, timestamp, amount, description, account, tags, attributes), ITrackableEntity<Guid>
+    : Operation(id, timestamp, amount, description, budget, tags, attributes), ITrackableEntity<Guid>
 {
     public string? Version { get; set; }
 }

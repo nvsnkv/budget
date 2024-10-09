@@ -5,12 +5,12 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Tests.Fakes;
 
-internal sealed class FakeAccountsRepository : FakeRepository<TrackedAccount>, IAccountsRepository
+internal sealed class FakeAccountsRepository : FakeRepository<TrackedBudget>, IAccountsRepository
 {
-    public Task<Result<TrackedAccount>> Register(UnregisteredAccount newAccount, Owner owner, CancellationToken ct)
+    public Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, Owner owner, CancellationToken ct)
     {
         var id = Guid.NewGuid();
-        var result = new TrackedAccount(id, newAccount.Name, newAccount.Bank, new[] { owner })
+        var result = new TrackedBudget(id, newAccount.Name, new[] { owner })
         {
             Version = Guid.NewGuid().ToString()
         };

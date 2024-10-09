@@ -1,15 +1,13 @@
 ﻿namespace NVs.Budget.Domain.Entities.Accounts;
 
-public class Account : EntityBase<Guid>
+public class Budget : EntityBase<Guid>
 {
     private readonly List<Owner> _owners = new();
     public string Name { get; private set; }
-    public string Bank { get; private set; }
 
-    public Account(Guid id, string name, string bank, IEnumerable<Owner> owners) : base(id)
+    public Budget(Guid id, string name, IEnumerable<Owner> owners) : base(id)
     {
         Name = name;
-        Bank = bank;
 
         _owners.AddRange(owners.DistinctBy(o => o.Id));
         if (_owners.Count == 0)
@@ -18,10 +16,9 @@ public class Account : EntityBase<Guid>
         }
     }
 
-    public void Rename(string name, string bank)
+    public void Rename(string name)
     {
         Name = name;
-        Bank = bank;
     }
 
     public IReadOnlyCollection<Owner> Owners => _owners.AsReadOnly();

@@ -9,13 +9,13 @@ internal class ReckonerTestData
 {
     public IReadOnlyList<TrackedOperation> OwnedTransactions { get; }
 
-    public IReadOnlyList<TrackedAccount> OwnedAccounts { get; }
+    public IReadOnlyList<TrackedBudget> OwnedAccounts { get; }
 
     public IReadOnlyList<TrackedOperation> NotOwnedTransactions { get; }
 
-    public IEnumerable<TrackedAccount> AllAccounts => OwnedAccounts
-        .Concat(OwnedTransactions.Select(t => t.Account as TrackedAccount))
-        .Concat(NotOwnedTransactions.Select(t => t.Account as TrackedAccount))
+    public IEnumerable<TrackedBudget> AllAccounts => OwnedAccounts
+        .Concat(OwnedTransactions.Select(t => t.Budget as TrackedBudget))
+        .Concat(NotOwnedTransactions.Select(t => t.Budget as TrackedBudget))
         .Where(a => a is not null)
         .Distinct()!;
 
@@ -25,7 +25,7 @@ internal class ReckonerTestData
     {
         var fixture = new Fixture();
         OwnedAccounts = fixture
-            .CreateMany<TrackedAccount>()
+            .CreateMany<TrackedBudget>()
             .Take(ownedAccountsCount)
             .ToList();
         foreach (var account in OwnedAccounts)

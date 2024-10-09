@@ -5,7 +5,7 @@ using NVs.Budget.Application.Contracts.UseCases.Accounts;
 
 namespace NVs.Budget.Application.UseCases.Accounts;
 
-internal class ListOwnedAccountsQueryHandler(IAccountManager manager) : IRequestHandler<ListOwnedAccountsQuery, IReadOnlyCollection<TrackedAccount>>
+internal class ListOwnedAccountsQueryHandler(IAccountManager manager) : IRequestHandler<ListOwnedAccountsQuery, IReadOnlyCollection<TrackedBudget>>
 {
-    public Task<IReadOnlyCollection<TrackedAccount>> Handle(ListOwnedAccountsQuery request, CancellationToken cancellationToken) => manager.GetOwnedAccounts(cancellationToken);
+    public Task<IReadOnlyCollection<TrackedBudget>> Handle(ListOwnedAccountsQuery request, CancellationToken cancellationToken) => manager.GetOwnedAccounts(cancellationToken);
 }

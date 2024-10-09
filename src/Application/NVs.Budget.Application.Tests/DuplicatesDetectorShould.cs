@@ -34,7 +34,7 @@ public class DuplicatesDetectorShould
             operation.Timestamp + offset,
             operation.Amount,
             operation.Description,
-            operation.Account,
+            operation.Budget,
             operation.Tags,
             operation.Attributes.AsReadOnly()
         )).ToList();

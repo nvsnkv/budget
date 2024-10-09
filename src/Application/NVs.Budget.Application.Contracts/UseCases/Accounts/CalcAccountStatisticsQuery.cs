@@ -6,4 +6,4 @@ using NVs.Budget.Domain.Aggregates;
 
 namespace NVs.Budget.Application.Contracts.UseCases.Accounts;
 
-public record CalcAccountStatisticsQuery(Expression<Func<TrackedAccount, bool>> AccountsFilter, Expression<Func<TrackedOperation, bool>> OperationsFilter) : IRequest<Result<CriteriaBasedLogbook>>;
+public record CalcAccountStatisticsQuery(Expression<Func<TrackedBudget, bool>> AccountsFilter, Expression<Func<TrackedOperation, bool>> OperationsFilter) : IRequest<Result<CriteriaBasedLogbook>>;

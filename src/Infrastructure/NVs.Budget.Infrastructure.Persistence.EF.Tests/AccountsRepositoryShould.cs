@@ -40,7 +40,7 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
         var expected = manager.TestData.Accounts.Last();
         var collection = await _repo.Get(a => a.Id == expected.Id, CancellationToken.None);
         collection.Should().HaveCount(1);
-        collection.Single().Should().BeEquivalentTo(expected, c => c.ComparingByMembers<TrackedAccount>());
+        collection.Single().Should().BeEquivalentTo(expected, c => c.ComparingByMembers<TrackedBudget>());
     }
 
     [Fact]
@@ -51,11 +51,11 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
         var target = targets.Single();
 
         var fixture = manager.TestData.Fixture;
-        TrackedAccount updated;
+        TrackedBudget updated;
         using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
         using (fixture.SetNamedParameter(nameof(target.Owners).ToLower(), manager.TestData.Owners.AsEnumerable()))
         {
-            updated = fixture.Create<TrackedAccount>();
+            updated = fixture.Create<TrackedBudget>();
         }
 
         updated.Version = target.Version;
@@ -64,7 +64,7 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
         result.Should().BeSuccess();
         result.Value.Should().BeEquivalentTo(
             updated,
-            c => c.ComparingByMembers<TrackedAccount>()
+            c => c.ComparingByMembers<TrackedBudget>()
                 .Excluding(a => a.Version)
         );
         result.Value.Version.Should().NotBeNull().And.NotBe(target.Version);
@@ -75,18 +75,18 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
     {
         var target = manager.TestData.Accounts.First();
         var fixture = manager.TestData.Fixture;
-        TrackedAccount updated;
+        TrackedBudget updated;
         using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
         using (fixture.SetNamedParameter(nameof(target.Owners).ToLower(), manager.TestData.Owners.AsEnumerable()))
         {
-            updated = fixture.Create<TrackedAccount>();
+            updated = fixture.Create<TrackedBudget>();
         }
 
         updated.Version = fixture.Create<string>();
 
         var result = await _repo.Update(updated, CancellationToken.None);
         result.Should().BeFailure();
-        result.Should().HaveReason<VersionDoesNotMatchError<TrackedAccount, Guid>>("Version of entity differs from recorded entity!");
+        result.Should().HaveReason<VersionDoesNotMatchError<TrackedBudget, Guid>>("Version of entity differs from recorded entity!");
     }
 
 }

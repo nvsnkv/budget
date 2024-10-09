@@ -17,31 +17,31 @@ internal class ImportTestData
     private readonly UnregisteredOperation[] _transfer;
     private readonly UnregisteredOperation[] _duplicates;
 
-    public ImportTestData(Fixture fixture, IEnumerable<TrackedAccount> knownAccounts, Owner owner)
+    public ImportTestData(Fixture fixture, IEnumerable<TrackedBudget> knownAccounts, Owner owner)
     {
         _owner = owner;
         _accounts = fixture.CreateMany<UnregisteredAccount>().Take(2)
-            .Concat(knownAccounts.Select(a => new UnregisteredAccount(a.Name, a.Bank)))
+            .Concat(knownAccounts.Select(a => new UnregisteredAccount(a.Name)))
             .ToArray();
 
         _justTransactions = _accounts.SelectMany(a =>
         {
-            using (fixture.SetNamedParameter(nameof(UnregisteredOperation.Account), a))
+            using (fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), a))
             using (fixture.SetCurrency(fixture.Create<CurrencyIsoCode>()))
             {
                 return fixture.CreateMany<UnregisteredOperation>(5);
             }
         }).ToArray();
 
-        fixture.SetNamedParameter(nameof(UnregisteredOperation.Account), _accounts[0]);
+        fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), _accounts[0]);
         fixture.SetNamedParameter<decimal>(nameof(Money.Amount), -900);
         var source = fixture.Create<UnregisteredOperation>();
         var sink = new UnregisteredOperation(source.Timestamp, source.Amount * -1, source.Description, new Dictionary<string, object>(), _accounts[1]);
         _transfer = [source, sink];
-        fixture.ResetNamedParameter<UnregisteredAccount>(nameof(UnregisteredOperation.Account));
+        fixture.ResetNamedParameter<UnregisteredAccount>(nameof(UnregisteredOperation.Budget));
         fixture.ResetNamedParameter<decimal>(nameof(Money.Amount));
 
-        fixture.SetNamedParameter(nameof(UnregisteredOperation.Account), _accounts[^1]);
+        fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), _accounts[^1]);
         _duplicates = fixture.CreateMany<UnregisteredOperation>().Take(2).SelectMany(t => Enumerable.Repeat(t, 2)).ToArray();
     }
 

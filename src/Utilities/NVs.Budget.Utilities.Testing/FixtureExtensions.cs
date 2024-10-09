@@ -42,9 +42,9 @@ public static class FixtureExtensions
 
     public static Fixture ResetCurrency(this Fixture fixture) => fixture.ResetNamedParameter<CurrencyIsoCode>("currency");
 
-    public static IDisposable SetAccount(this Fixture fixture, Account account) => fixture.SetNamedParameter(nameof(Operation.Account).ToLower(), account);
+    public static IDisposable SetAccount(this Fixture fixture, Domain.Entities.Accounts.Budget budget) => fixture.SetNamedParameter(nameof(Operation.Budget).ToLower(), budget);
 
-    public static Fixture ResetAccount(this Fixture fixture) => fixture.ResetNamedParameter<Account>(nameof(Operation.Account).ToLower());
+    public static Fixture ResetAccount(this Fixture fixture) => fixture.ResetNamedParameter<Domain.Entities.Accounts.Budget>(nameof(Operation.Budget).ToLower());
 
     private class Scope<T>(Fixture fixture, string name) : IDisposable
     {

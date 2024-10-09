@@ -44,9 +44,9 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
-        trackedTransaction.Should().BeEquivalentTo(transaction, c => c.Excluding(t => t.Account));
+        trackedTransaction.Should().BeEquivalentTo(transaction, c => c.Excluding(t => t.Budget));
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
-        trackedTransaction.Account.Should().BeEquivalentTo((Account)account, c => c.ComparingByMembers<Account>());
+        trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Accounts.Budget)account, c => c.ComparingByMembers<Domain.Entities.Accounts.Budget>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -54,11 +54,11 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task UpdateTransactionSuccessfully()
     {
         var target = await AddTransaction();
-        var newAccount = _testData.Accounts.First(a => a.Id != target.Account.Id);
+        var newAccount = _testData.Accounts.First(a => a.Id != target.Budget.Id);
 
         TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
-        using (_fixture.SetNamedParameter(nameof(target.Account).ToLower(), (Account)newAccount))
+        using (_fixture.SetNamedParameter(nameof(target.Budget).ToLower(), (Domain.Entities.Accounts.Budget)newAccount))
         using (_fixture.SetNamedParameter(nameof(target.Tags).ToLower(), _fixture.Create<Generator<Tag>>().Take(3)))
         {
             updated = _fixture.Create<TrackedOperation>();

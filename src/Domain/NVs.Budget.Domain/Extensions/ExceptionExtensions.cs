@@ -10,9 +10,9 @@ public static class ExceptionExtensions
 
     public static Exception SetOperationId(this Exception e, Operation operation) => e.WithOperationId(operation);
 
-    public static Exception WithAccountId(this Exception e, Account account) => WithData(e, $"{nameof(Account)}.{nameof(Operation.Id)}", account.Id);
+    public static Exception WithAccountId(this Exception e, Entities.Accounts.Budget budget) => WithData(e, $"{nameof(Entities.Accounts.Budget)}.{nameof(Operation.Id)}", budget.Id);
 
-    public static Exception SetAccountId(this Exception e, Account account) => e.WithAccountId(account);
+    public static Exception SetAccountId(this Exception e, Entities.Accounts.Budget budget) => e.WithAccountId(budget);
 
     public static Exception WithData(this Exception e, string key, object? value)
     {

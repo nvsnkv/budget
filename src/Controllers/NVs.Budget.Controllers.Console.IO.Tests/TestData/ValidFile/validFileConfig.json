@@ -5,8 +5,7 @@
       "Amount": "{7}",
       "CurrencyCode": "{8}",
       "Description":"{6}",
-      "Account.Name": "{2}",
-      "Account.Bank": "Альфабанк",
+      "Budget": "{2}",
       "Attributes": {
         "MCC": "{11}",
         "Category": "{10}"

@@ -7,5 +7,5 @@ public record UnregisteredOperation(
     Money Amount,
     string Description,
     IReadOnlyDictionary<string, object>? Attributes,
-    UnregisteredAccount Account
+    UnregisteredAccount Budget
 );

@@ -66,7 +66,7 @@ internal class ListEffectiveSettingsVerbHandler(
             DateTime.UtcNow,
             Money.Zero(),
             "$Description",
-            new(Guid.Empty, "$Account.Name", "$Account.Bank",[new(Guid.Empty, "$Account.Owner")]),
+            new(Guid.Empty, "$Account.Name",[new(Guid.Empty, "$Account.Owner")]),
             [new Tag("$Tag")],
             new Dictionary<string, object>()
             {

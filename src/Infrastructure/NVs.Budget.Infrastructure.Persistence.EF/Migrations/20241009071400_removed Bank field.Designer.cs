@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    partial class BudgetContextModelSnapshot : ModelSnapshot
+    [Migration("20241009071400_removed Bank field")]
+    partial class removedBankfield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,12 +60,12 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Attributes")
                         .IsRequired()
                         .HasColumnType("jsonb");
-
-                    b.Property<Guid>("BudgetId")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -91,7 +94,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BudgetId");
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("SinkTransferId");
 
@@ -221,9 +224,9 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", "Budget")
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", "Account")
                         .WithMany("Operations")
-                        .HasForeignKey("BudgetId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -277,10 +280,10 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                                 .HasForeignKey("StoredOperationId");
                         });
 
+                    b.Navigation("Account");
+
                     b.Navigation("Amount")
                         .IsRequired();
-
-                    b.Navigation("Budget");
 
                     b.Navigation("SinkTransfer");
 

@@ -16,7 +16,7 @@ public class CriteriaParserShould
         var action = () =>
         {
             var expression = _parser.ParseTransferCriteria(
-                "l.Amount.IsNegative() && r.Amount.IsPositive() && l.Amount.Abs() == r.Amount.Abs() && l.Description == r.Description && l.Account != r.Account && (l.Timestamp - r.Timestamp).Duration() < TimeSpan.FromMinutes(2)");
+                "l.Amount.IsNegative() && r.Amount.IsPositive() && l.Amount.Abs() == r.Amount.Abs() && l.Description == r.Description && l.Budget != r.Budget && (l.Timestamp - r.Timestamp).Duration() < TimeSpan.FromMinutes(2)");
             var func = expression.Compile();
 
             func(_fixture.Create<TrackedOperation>(), _fixture.Create<TrackedOperation>());

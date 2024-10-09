@@ -12,6 +12,6 @@ internal class FileWithDotsInNumbersAndCyrillicAttributes
             {
                 { "Category", "Детские товары" }
             },
-            new UnregisteredAccount("Бюджет", "Банк"))
+            new UnregisteredAccount("Бюджет"))
     };
 }

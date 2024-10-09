@@ -23,8 +23,8 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
-        var query = context.Transfers.Include(t => t.Source).ThenInclude(o => o.Account).ThenInclude(a => a.Owners)
-            .Include(t => t.Sink).ThenInclude(o => o.Account).ThenInclude(a => a.Owners)
+        var query = context.Transfers.Include(t => t.Source).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
+            .Include(t => t.Sink).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
             .Where(queryable);
 
         var items = await query.AsNoTracking().ToListAsync(ct);

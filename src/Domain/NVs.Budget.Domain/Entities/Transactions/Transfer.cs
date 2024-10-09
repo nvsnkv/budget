@@ -90,12 +90,12 @@ public class Transfer : IEnumerable<Operation>
         var timestamp = Source.Timestamp;
         var amount = Fee;
         var description = Comment;
-        var account = Source.Account;
+        var account = Source.Budget;
 
         if (Fee.Amount > 0)
         {
             timestamp = Sink.Timestamp;
-            account = Sink.Account;
+            account = Sink.Budget;
         }
 
         var tags = Enumerable.Repeat(TransferTag, 1);

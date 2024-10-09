@@ -9,7 +9,7 @@ internal class AccountNotFoundError(Guid accountId) : IError
 
     public Dictionary<string, object> Metadata { get; } = new()
     {
-        { $"{nameof(Account)}.{nameof(Account.Id)}", accountId }
+        { $"{nameof(Domain.Entities.Accounts.Budget)}.{nameof(Domain.Entities.Accounts.Budget.Id)}", accountId }
     };
 
     public List<IError> Reasons { get; } = new();

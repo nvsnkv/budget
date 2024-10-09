@@ -78,7 +78,7 @@ internal class TestImportVerbHandler(
             unregistered.Timestamp,
             unregistered.Amount,
             unregistered.Description,
-            new Account(Guid.Empty, unregistered.Account.Name, unregistered.Account.Bank, [user.AsOwner()]),
+            new Domain.Entities.Accounts.Budget(Guid.Empty, unregistered.Budget.Name, [user.AsOwner()]),
             [],
             unregistered.Attributes
         );

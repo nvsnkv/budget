@@ -15,8 +15,8 @@ public class TypeReplacerShould
     [Fact]
     public void ReplaceAccountSuccessfully()
     {
-        Expression<Func<TrackedAccount, bool>> selectById = a => a.Id != Guid.Empty;
-        var converted = selectById.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
+        Expression<Func<TrackedBudget, bool>> selectById = a => a.Id != Guid.Empty;
+        var converted = selectById.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
         converted.Should().NotBeNull();
 
         var account = _fixture.Build<StoredAccount>()
@@ -31,14 +31,14 @@ public class TypeReplacerShould
     [Fact]
     public void PreserveClosures()
     {
-        var reference = _fixture.Create<TrackedAccount>();
-        Expression<Func<TrackedAccount, bool>> expression = a => a.Name == reference.Name && a.Bank == reference.Bank;
+        var reference = _fixture.Create<TrackedBudget>();
+        Expression<Func<TrackedBudget, bool>> expression = a => a.Name == reference.Name;
 
-        var converted = expression.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
+        var converted = expression.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
         converted.Should().NotBeNull();
 
         var predicate = converted.Compile();
-        var account = new StoredAccount(reference.Id, reference.Name, reference.Bank);
+        var account = new StoredAccount(reference.Id, reference.Name);
         predicate(account).Should().BeTrue();
     }
 
@@ -46,8 +46,8 @@ public class TypeReplacerShould
     public void HandleNestedTypes()
     {
         var owner = _fixture.Create<Owner>();
-        Expression<Func<TrackedAccount, bool>> forOwner = a => a.Owners.Any(o => o.Id == owner.Id);
-        var action = () => forOwner.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
+        Expression<Func<TrackedBudget, bool>> forOwner = a => a.Owners.Any(o => o.Id == owner.Id);
+        var action = () => forOwner.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -55,8 +55,8 @@ public class TypeReplacerShould
     public void HandleCollectionsThatDoesNotRequireConversion()
     {
         var owners = _fixture.Create<Generator<Owner>>().Take(3).Select(t=> t.Id).ToList();
-        Expression<Func<TrackedAccount, bool>> forOwners = a => a.Owners.Any(o => owners.Contains(o.Id));
-        var action = () => forOwners.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
+        Expression<Func<TrackedBudget, bool>> forOwners = a => a.Owners.Any(o => owners.Contains(o.Id));
+        var action = () => forOwners.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -65,7 +65,7 @@ public class TypeReplacerShould
     {
         var id = _fixture.Create<Guid>();
 
-        Expression<Func<TrackedOperation, bool>> availableAccounts = o => o.Account.Id == id;
+        Expression<Func<TrackedOperation, bool>> availableAccounts = o => o.Budget.Id == id;
         var action = () => availableAccounts.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
@@ -75,9 +75,9 @@ public class TypeReplacerShould
     {
         var owner = _fixture.Create<Owner>();
         var newAccount = _fixture.Create<UnregisteredAccount>();
-        Expression<Func<TrackedAccount, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newAccount.Name && a.Bank == newAccount.Bank;
+        Expression<Func<TrackedBudget, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newAccount.Name;
 
-        var action = () => expression.ConvertTypes<TrackedAccount, StoredAccount>(MappingProfile.TypeMappings);
+        var action = () => expression.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 }

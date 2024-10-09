@@ -22,9 +22,9 @@ internal class AccountStatisticsVerbHandler(
     IResultWriter<Result> writer,
     ILogbookWriter logbookWriter,
     CronBasedNamedRangeSeriesBuilder seriesBuilder
-) : StatisticsVerbHandlerBase<AccountStatisticsVerb, TrackedAccount>(parser, logbookWriter, writer, seriesBuilder, "a")
+) : StatisticsVerbHandlerBase<AccountStatisticsVerb, TrackedBudget>(parser, logbookWriter, writer, seriesBuilder, "a")
 {
-    protected override Task<Result<CriteriaBasedLogbook>> GetLogbook(AccountStatisticsVerb request, Expression<Func<TrackedAccount, bool>> criteriaResultValue, CancellationToken ct)
+    protected override Task<Result<CriteriaBasedLogbook>> GetLogbook(AccountStatisticsVerb request, Expression<Func<TrackedBudget, bool>> criteriaResultValue, CancellationToken ct)
     {
         var query = new CalcAccountStatisticsQuery(
             criteriaResultValue,

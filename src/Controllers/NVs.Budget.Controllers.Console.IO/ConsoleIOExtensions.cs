@@ -33,7 +33,7 @@ public static class ConsoleIOExtensions
         services.AddTransient<IObjectWriter<TrackedOperation>, TrackedOperationsWriter>();
         services.AddTransient<IObjectWriter<TrackedTransfer>, TransfersWriter>();
         services.AddTransient<IObjectWriter<Operation>, OperationsWriter>();
-        services.AddTransient<IObjectWriter<TrackedAccount>, TrackedAccountsWriter>();
+        services.AddTransient<IObjectWriter<TrackedBudget>, TrackedAccountsWriter>();
 
         services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
         services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();

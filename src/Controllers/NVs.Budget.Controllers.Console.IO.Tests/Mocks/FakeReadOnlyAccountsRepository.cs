@@ -7,26 +7,26 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Controllers.Console.IO.Tests.Mocks;
 
-internal class FakeReadOnlyAccountsRepository(TrackedAccount[] accounts) : IAccountsRepository
+internal class FakeReadOnlyAccountsRepository(TrackedBudget[] accounts) : IAccountsRepository
 {
-    public Task<IReadOnlyCollection<TrackedAccount>> Get(Expression<Func<TrackedAccount, bool>> filter, CancellationToken ct)
+    public Task<IReadOnlyCollection<TrackedBudget>> Get(Expression<Func<TrackedBudget, bool>> filter, CancellationToken ct)
     {
-        return Task.FromResult((IReadOnlyCollection<TrackedAccount>)accounts.Where(filter.Compile()).ToList());
+        return Task.FromResult((IReadOnlyCollection<TrackedBudget>)accounts.Where(filter.Compile()).ToList());
     }
 
-    public Task<Result<TrackedAccount>> Register(UnregisteredAccount newAccount, Owner owner, CancellationToken ct)
-    {
-        Assert.Fail("This method should not be invoked!");
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<TrackedAccount>> Update(TrackedAccount account, CancellationToken ct)
+    public Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, Owner owner, CancellationToken ct)
     {
         Assert.Fail("This method should not be invoked!");
         throw new NotImplementedException();
     }
 
-    public Task<Result> Remove(TrackedAccount account, CancellationToken ct)
+    public Task<Result<TrackedBudget>> Update(TrackedBudget budget, CancellationToken ct)
+    {
+        Assert.Fail("This method should not be invoked!");
+        throw new NotImplementedException();
+    }
+
+    public Task<Result> Remove(TrackedBudget budget, CancellationToken ct)
     {
         Assert.Fail("This method should not be invoked!");
         throw new NotImplementedException();

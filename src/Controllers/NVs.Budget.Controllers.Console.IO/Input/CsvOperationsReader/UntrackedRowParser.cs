@@ -84,16 +84,10 @@ internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFi
             return BuildParseError(descriptionResult.Errors);
         }
 
-        var accountNameResult = ReadField($"{nameof(UnregisteredOperation.Account)}.{nameof(UnregisteredAccount.Name)}", s => s);
-        if (accountNameResult.IsFailed)
+        var budgetNameResult = ReadField($"{nameof(UnregisteredOperation.Budget)}", s => s);
+        if (budgetNameResult.IsFailed)
         {
-            return BuildParseError(accountNameResult.Errors);
-        }
-
-        var accountBankResult = ReadField($"{nameof(UnregisteredOperation.Account)}.{nameof(UnregisteredAccount.Bank)}", s => s);
-        if (accountBankResult.IsFailed)
-        {
-            return BuildParseError(accountBankResult.Errors);
+            return BuildParseError(budgetNameResult.Errors);
         }
 
         var attributesResult = ReadAttributes();
@@ -108,8 +102,7 @@ internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFi
             descriptionResult.Value,
             attributesResult.Value,
             new(
-                accountNameResult.Value,
-                accountBankResult.Value
+                budgetNameResult.Value
             )
         );
     }

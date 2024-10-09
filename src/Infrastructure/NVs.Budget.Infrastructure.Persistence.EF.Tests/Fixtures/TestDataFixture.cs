@@ -11,18 +11,18 @@ public class TestDataFixture
 
     public IReadOnlyCollection<Owner> Owners { get; }
 
-    public IReadOnlyCollection<TrackedAccount> Accounts { get; }
+    public IReadOnlyCollection<TrackedBudget> Accounts { get; }
 
     public TestDataFixture()
     {
-        var accounts = new List<TrackedAccount>();
+        var accounts = new List<TrackedBudget>();
 
         Owners = Fixture.Create<Generator<Owner>>().Take(2).ToList();
         foreach (var owner in Owners)
         {
-            using (Fixture.SetNamedParameter(nameof(Account.Owners).ToLower(), new[] { owner }.AsEnumerable()))
+            using (Fixture.SetNamedParameter(nameof(Domain.Entities.Accounts.Budget.Owners).ToLower(), new[] { owner }.AsEnumerable()))
             {
-                accounts.AddRange(Fixture.Create<Generator<TrackedAccount>>().Take(2));
+                accounts.AddRange(Fixture.Create<Generator<TrackedBudget>>().Take(2));
             }
         }
 

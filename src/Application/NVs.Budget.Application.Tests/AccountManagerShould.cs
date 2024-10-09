@@ -57,10 +57,10 @@ public class AccountManagerShould
     [Fact]
     public async Task RenameOwnedAccounts()
     {
-        IReadOnlyList<TrackedAccount> accounts = GenerateAccounts(1, _owner).ToList().AsReadOnly();
+        IReadOnlyList<TrackedBudget> accounts = GenerateAccounts(1, _owner).ToList().AsReadOnly();
         _repository.Append(accounts);
 
-        var expected = new TrackedAccount(accounts[0].Id, accounts[0].Name, accounts[0].Bank, accounts[0].Owners)
+        var expected = new TrackedBudget(accounts[0].Id, accounts[0].Name, accounts[0].Owners)
         {
             Version = accounts[0].Version
         };
@@ -68,16 +68,15 @@ public class AccountManagerShould
 
         expected.AddOwner(_fixture.Create<Owner>());
 
-        expected.Rename(_fixture.Create<string>(), _fixture.Create<string>());
+        expected.Rename(_fixture.Create<string>());
 
         var result = await _manager.Update(expected, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
 
-        accounts = (IReadOnlyList<TrackedAccount>)await _manager.GetOwnedAccounts(CancellationToken.None);
+        accounts = (IReadOnlyList<TrackedBudget>)await _manager.GetOwnedAccounts(CancellationToken.None);
         accounts.Should().Contain(a => a.Id == expected.Id);
         var actual = accounts.Single(a => a.Id == expected.Id);
         actual.Name.Should().Be(expected.Name);
-        actual.Bank.Should().Be(expected.Bank);
         actual.Owners.Should().BeEquivalentTo(expectedOwners);
     }
 
@@ -96,7 +95,7 @@ public class AccountManagerShould
     [Fact]
     public async Task NotUpdateAccountThatDoesNotExists()
     {
-        var result = await _manager.Update(_fixture.Create<TrackedAccount>(), CancellationToken.None);
+        var result = await _manager.Update(_fixture.Create<TrackedBudget>(), CancellationToken.None);
         result.IsSuccess.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
         result.Errors.Single().Should().BeOfType<AccountDoesNotExistError>();
@@ -137,10 +136,10 @@ public class AccountManagerShould
     [Fact]
     public async Task RemoveAccountOwnedOnlyByCurrentOwner()
     {
-        IReadOnlyList<TrackedAccount> accounts = GenerateAccounts(1, _owner).ToList().AsReadOnly();
+        IReadOnlyList<TrackedBudget> accounts = GenerateAccounts(1, _owner).ToList().AsReadOnly();
         _repository.Append(accounts);
 
-        var expected = new TrackedAccount(accounts[0].Id, accounts[0].Name, accounts[0].Bank, accounts[0].Owners)
+        var expected = new TrackedBudget(accounts[0].Id, accounts[0].Name, accounts[0].Owners)
         {
             Version = accounts[0].Version
         };
@@ -161,11 +160,11 @@ public class AccountManagerShould
         result.Errors.Single().Should().BeOfType<AccountBelongsToMultipleOwnersError>();
     }
 
-    private IEnumerable<TrackedAccount> GenerateAccounts(int count, params Owner[] owners)
+    private IEnumerable<TrackedBudget> GenerateAccounts(int count, params Owner[] owners)
     {
         var fixture = new Fixture();
         fixture.Customizations.Add(new NamedParameterBuilder<IEnumerable<Owner>>(nameof(owners), owners, false));
 
-        return fixture.Create<Generator<TrackedAccount>>().Take(count);
+        return fixture.Create<Generator<TrackedBudget>>().Take(count);
     }
 }

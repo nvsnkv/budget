@@ -60,7 +60,7 @@ public class AccountantShould
     public async Task ImportIncomingTransactions()
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
-        var account = _fixture.Create<TrackedAccount>();
+        var account = _fixture.Create<TrackedBudget>();
         _storage.Accounts.Append([account]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");
 

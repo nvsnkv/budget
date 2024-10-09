@@ -67,7 +67,7 @@ public class ReckonerShould
         var actual = await _reckoner.GetOperations(query, CancellationToken.None).ToListAsync();
 
         actual.Should().BeEquivalentTo(expectedTransactions);
-        actual.Select(a => a.Account).Should().AllSatisfy(a => a.Owners.Contains(_currentOwner).Should().BeTrue());
+        actual.Select(a => a.Budget).Should().AllSatisfy(a => a.Owners.Contains(_currentOwner).Should().BeTrue());
     }
 
     [Fact]
@@ -128,8 +128,8 @@ public class ReckonerShould
 
         actual.Should().NotContain(accessibleTransferWithFee.Cast<TrackedOperation>());
         actual.Should().NotContain(accessibleTransferWithoutFee.Cast<TrackedOperation>());
-        actual.Should().Contain(inaccessibleTransfer.Where(t => t.Account.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
-        actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Account.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
+        actual.Should().Contain(inaccessibleTransfer.Where(t => t.Budget.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
+        actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Budget.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
         actual.Any(a =>CheckIfTheSameTransactions(a, accessibleTransferWithFee.AsTransaction())).Should().BeTrue();
         actual.Any(a => CheckIfTheSameTransactions(a, inaccessibleTransfer.AsTransaction())).Should().BeFalse();
         actual.Any(a => CheckIfTheSameTransactions(a, accessibleTransferWithoutFee.AsTransaction())).Should().BeFalse();
@@ -165,6 +165,6 @@ public class ReckonerShould
         return left.Amount == right.Amount
                && left.Description == right.Description
                && left.Timestamp == right.Timestamp
-               && left.Account == right.Account;
+               && left.Budget == right.Budget;
     }
 }

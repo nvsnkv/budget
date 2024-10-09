@@ -34,7 +34,7 @@ internal class Accountant(
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
         {
-            var accountResult = await TryGetAccount(accounts, unregisteredTransaction.Account, options.RegisterAccounts, ct);
+            var accountResult = await TryGetAccount(accounts, unregisteredTransaction.Budget, options.RegisterAccounts, ct);
             importResultBuilder.Append(accountResult);
             if (!accountResult.IsSuccess)
             {
@@ -164,15 +164,15 @@ internal class Accountant(
 
         await foreach (var transfer in transfers.WithCancellation(ct))
         {
-            if (accounts.All(a => a != transfer.Source.Account))
+            if (accounts.All(a => a != transfer.Source.Budget))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Account));
+                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Budget));
                 continue;
             }
 
-            if (accounts.All(a => a != transfer.Sink.Account))
+            if (accounts.All(a => a != transfer.Sink.Budget))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Account));
+                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Budget));
                 continue;
             }
 
@@ -208,13 +208,13 @@ internal class Accountant(
         return result;
     }
 
-    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedAccount> ownedAccounts, CancellationToken ct)
+    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedBudget> ownedAccounts, CancellationToken ct)
     {
-        if (ownedAccounts.All(a => operation.Account != a))
+        if (ownedAccounts.All(a => operation.Budget != a))
         {
             return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError()
                 .WithTransactionId(operation)
-                .WithAccountId(operation.Account));
+                .WithAccountId(operation.Budget));
         }
 
         var updateResult = await operationsRepository.Update(operation, ct);
@@ -223,16 +223,15 @@ internal class Accountant(
             : Result.Fail(updateResult.Errors);
     }
 
-    private async Task<Result<TrackedAccount>> TryGetAccount(ICollection<TrackedAccount> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
+    private async Task<Result<TrackedBudget>> TryGetAccount(ICollection<TrackedBudget> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
     {
-        var registeredAccount = accounts.FirstOrDefault(a => a.Name == account.Name && a.Bank == account.Bank);
+        var registeredAccount = accounts.FirstOrDefault(a => a.Name == account.Name);
         if (registeredAccount is not null) return Result.Ok(registeredAccount);
 
         if (!shouldRegister)
         {
             return Result.Fail(new AccountNotFoundError()
-                .WithMetadata(nameof(TrackedAccount.Name), account.Name)
-                .WithMetadata(nameof(TrackedAccount.Bank), account.Bank)
+                .WithMetadata(nameof(TrackedBudget.Name), account.Name)
             );
         }
         var result = await Manager.Register(account, ct);

@@ -10,7 +10,7 @@ namespace NVs.Budget.Controllers.Console.Handlers.Commands.Accounts;
 [Verb("list", true, HelpText = "Lists owned accounts for current user")]
 internal class ListVerb : AbstractVerb;
 
-internal class ListVerbHandler(IMediator mediator, IObjectWriter<TrackedAccount> writer) : IRequestHandler<ListVerb, ExitCode>
+internal class ListVerbHandler(IMediator mediator, IObjectWriter<TrackedBudget> writer) : IRequestHandler<ListVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListVerb request, CancellationToken cancellationToken)
     {

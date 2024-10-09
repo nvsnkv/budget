@@ -8,4 +8,4 @@ using NVs.Budget.Controllers.Console.IO.Output.Operations;
 namespace NVs.Budget.Controllers.Console.IO.Output.Accounts;
 
 internal class TrackedAccountsWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options, IMapper mapper, CsvConfiguration config)
-:CsvObjectWriter<TrackedAccount, CsvAccount, CsvAccountClassMap>(streams, options, mapper, config);
+:CsvObjectWriter<TrackedBudget, CsvAccount, CsvAccountClassMap>(streams, options, mapper, config);

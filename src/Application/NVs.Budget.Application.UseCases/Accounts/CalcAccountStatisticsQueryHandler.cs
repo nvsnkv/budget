@@ -18,7 +18,7 @@ internal class CalcAccountStatisticsQueryHandler(IAccountManager manager, IRecko
 
         var ids = filtered.Select(a => a.Id).ToList();
 
-        var operationsFilter = request.OperationsFilter.CombineWith(o => ids.Contains(o.Account.Id));
+        var operationsFilter = request.OperationsFilter.CombineWith(o => ids.Contains(o.Budget.Id));
         var operations = reckoner.GetOperations(new OperationQuery(operationsFilter), cancellationToken);
 
         var logbook = new CriteriaBasedLogbook(new AccountLogbookCriterion(filtered));

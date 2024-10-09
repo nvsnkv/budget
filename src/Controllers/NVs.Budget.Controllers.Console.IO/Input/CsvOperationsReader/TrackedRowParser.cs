@@ -15,7 +15,7 @@ namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 
 internal class TrackedRowParser(IReader parser, IAccountsRepository accountsRepository, CancellationToken cancellationToken) : RowParser<TrackedOperation, CsvTrackedOperation>(parser, cancellationToken)
 {
-    private readonly ConcurrentDictionary<Guid, Task<TrackedAccount?>> _accounts = new();
+    private readonly ConcurrentDictionary<Guid, Task<TrackedBudget?>> _accounts = new();
 
     protected override  async Task<Result<TrackedOperation>> Convert(CsvTrackedOperation row)
     {
@@ -73,7 +73,7 @@ internal class TrackedRowParser(IReader parser, IAccountsRepository accountsRepo
         );
     }
 
-    private async Task<TrackedAccount?> GetAccount(Guid id)
+    private async Task<TrackedBudget?> GetAccount(Guid id)
     {
         var accounts = await accountsRepository.Get(a => a.Id == id, CancellationToken);
         return accounts.FirstOrDefault();

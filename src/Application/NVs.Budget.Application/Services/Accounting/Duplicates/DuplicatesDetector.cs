@@ -30,7 +30,7 @@ internal class DuplicatesDetector(DuplicatesDetectorOptions options)
     }
 
     private bool CheckIsDuplicate(TrackedOperation left, TrackedOperation right) =>
-        left.Account == right.Account
+        left.Budget == right.Budget
         && left.Amount == right.Amount
         && left.Description == right.Description
         && left.Timestamp - right.Timestamp < options.Offset;

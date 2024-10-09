@@ -4,9 +4,9 @@ using NVs.Budget.Domain.ValueObjects.Criteria;
 
 namespace NVs.Budget.Application.UseCases.Accounts;
 
-internal class AccountLogbookCriterion(params TrackedAccount[] accounts) : Criterion("Accounts", accounts.Select(CreateSubcriterion))
+internal class AccountLogbookCriterion(params TrackedBudget[] accounts) : Criterion("Accounts", accounts.Select(CreateSubcriterion))
 {
-    private static Criterion CreateSubcriterion(TrackedAccount account) => new PredicateBasedCriterion($"{account.Bank}: {account.Name}", o => o.Account.Id == account.Id);
+    private static Criterion CreateSubcriterion(TrackedBudget budget) => new PredicateBasedCriterion($"{budget.Name}", o => o.Budget.Id == budget.Id);
 
     public override bool Matched(Operation t) => true;
 }

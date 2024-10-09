@@ -38,7 +38,7 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 
         modelBuilder.Entity<StoredAccount>()
             .HasMany(a => a.Operations)
-            .WithOne(t => t.Account);
+            .WithOne(t => t.Budget);
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);

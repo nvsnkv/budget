@@ -15,6 +15,6 @@ internal abstract class ReckonerBase(IAccountManager manager)
         criteria ??= Any;
         var accounts= await Manager.GetOwnedAccounts(ct);
         var ids = accounts.Select(a => a.Id).ToList();
-        return criteria.CombineWith(t => ids.Contains(t.Account.Id));
+        return criteria.CombineWith(t => ids.Contains(t.Budget.Id));
     }
 }

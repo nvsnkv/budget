@@ -6,8 +6,8 @@ namespace NVs.Budget.Application.Services.Accounting.Results.Successes;
 
 internal class AccountAdded : Success
 {
-    public AccountAdded(Account account) : base("Account was successfully added!")
+    public AccountAdded(Domain.Entities.Accounts.Budget budget) : base("Account was successfully added!")
     {
-        this.WithAccountId(account);
+        this.WithAccountId(budget);
     }
 }

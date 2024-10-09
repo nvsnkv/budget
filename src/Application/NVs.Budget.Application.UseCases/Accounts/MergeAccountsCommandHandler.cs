@@ -17,7 +17,7 @@ internal class MergeAccountsCommandHandler(IReckoner reckoner, IAccountant accou
         var target = accounts.GetValueOrDefault(request.TargetId);
         if (target is null) return Result.Fail(new AccountNotFoundError(request.TargetId));
 
-        var operations = reckoner.GetOperations(new(o => o.Account.Id == source.Id), cancellationToken)
+        var operations = reckoner.GetOperations(new(o => o.Budget.Id == source.Id), cancellationToken)
             .Select(o => new TrackedOperation(o.Id, o.Timestamp, o.Amount, o.Description, target, o.Tags, o.Attributes.AsReadOnly()));
 
         var result = await accountant.Update(operations, cancellationToken);

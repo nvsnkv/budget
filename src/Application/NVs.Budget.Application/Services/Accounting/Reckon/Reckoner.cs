@@ -37,7 +37,7 @@ internal class Reckoner(
             var ids = transactions.Select(t => t.Id).ToList();
             transfers = await transfersRepo.Get(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id), ct);
             transfers = transfers
-                .Where(t => accounts.Contains(t.Source.Account) && accounts.Contains(t.Sink.Account))
+                .Where(t => accounts.Contains(t.Source.Budget) && accounts.Contains(t.Sink.Budget))
                 .ToList();
         }
 
@@ -79,8 +79,8 @@ internal class Reckoner(
         return detector.DetectDuplicates(transactions);
     }
 
-    private TrackedOperation AsTrackedOperation(Operation operation) => new(operation.Id, operation.Timestamp, operation.Amount, operation.Description, AsTrackedAccount(operation.Account), operation.Tags, operation.Attributes.AsReadOnly());
+    private TrackedOperation AsTrackedOperation(Operation operation) => new(operation.Id, operation.Timestamp, operation.Amount, operation.Description, AsTrackedAccount(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly());
 
-    private TrackedAccount AsTrackedAccount(Account account) => account is TrackedAccount ta ? ta : new TrackedAccount(account.Id, account.Name, account.Bank, account.Owners);
+    private TrackedBudget AsTrackedAccount(Domain.Entities.Accounts.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners);
 
 }
