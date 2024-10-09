@@ -11,7 +11,7 @@ public class TestDataFixture
 
     public IReadOnlyCollection<Owner> Owners { get; }
 
-    public IReadOnlyCollection<TrackedBudget> Accounts { get; }
+    public IReadOnlyCollection<TrackedBudget> Budgets { get; }
 
     public TestDataFixture()
     {
@@ -37,7 +37,7 @@ public class TestDataFixture
             }
         }
 
-        Accounts = accounts;
+        Budgets = accounts;
     }
 
 }

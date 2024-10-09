@@ -2,9 +2,9 @@
 
 namespace NVs.Budget.Application.Services.Accounting.Results.Errors;
 
-internal class AccountAlreadyExistsError : IError
+internal class BudgetNotFoundError : IError
 {
-    public string Message => "Account with these name and bank name already exists!";
+    public string Message => "Budget was not found!";
     public Dictionary<string, object> Metadata { get; } = new();
     public List<IError> Reasons { get; } = new();
 }

@@ -19,13 +19,13 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
     {
         var owner = manager.TestData.Owners.First();
 
-        var account = manager.TestData.Fixture.Create<UnregisteredBudget>();
-        var result = await _repo.Register(account, owner, CancellationToken.None);
+        var budget = manager.TestData.Fixture.Create<UnregisteredBudget>();
+        var result = await _repo.Register(budget, owner, CancellationToken.None);
 
         result.Should().BeSuccess();
 
         var created = result.Value;
-        created.Should().NotBeNull().And.BeEquivalentTo(account);
+        created.Should().NotBeNull().And.BeEquivalentTo(budget);
         created.Id.Should().NotBe(default(Guid));
         created.Version.Should().NotBeNullOrEmpty();
 
@@ -37,7 +37,7 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
     [Fact]
     public async Task GetAccount()
     {
-        var expected = manager.TestData.Accounts.Last();
+        var expected = manager.TestData.Budgets.Last();
         var collection = await _repo.Get(a => a.Id == expected.Id, CancellationToken.None);
         collection.Should().HaveCount(1);
         collection.Single().Should().BeEquivalentTo(expected, c => c.ComparingByMembers<TrackedBudget>());
@@ -46,7 +46,7 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
     [Fact]
     public async Task UpdateAccountIfVersionsAreTheSame()
     {
-        var id = manager.TestData.Accounts.First().Id;
+        var id = manager.TestData.Budgets.First().Id;
         var targets = await _repo.Get(a => a.Id == id, CancellationToken.None);
         var target = targets.Single();
 
@@ -73,7 +73,7 @@ public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<D
     [Fact]
     public async Task NotUpdateAccountIfVersionsAreDifferent()
     {
-        var target = manager.TestData.Accounts.First();
+        var target = manager.TestData.Budgets.First();
         var fixture = manager.TestData.Fixture;
         TrackedBudget updated;
         using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))

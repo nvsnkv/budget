@@ -90,12 +90,12 @@ public class Transfer : IEnumerable<Operation>
         var timestamp = Source.Timestamp;
         var amount = Fee;
         var description = Comment;
-        var account = Source.Budget;
+        var budget = Source.Budget;
 
         if (Fee.Amount > 0)
         {
             timestamp = Sink.Timestamp;
-            account = Sink.Budget;
+            budget = Sink.Budget;
         }
 
         var tags = Enumerable.Repeat(TransferTag, 1);
@@ -105,7 +105,7 @@ public class Transfer : IEnumerable<Operation>
             { nameof(Sink), Sink.Id }
         };
 
-        return new Operation(Guid.Empty, timestamp, amount, description, account, tags, attributes);
+        return new Operation(Guid.Empty, timestamp, amount, description, budget, tags, attributes);
     }
 
     public IEnumerator<Operation> GetEnumerator() => new Enumerator(this);

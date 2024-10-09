@@ -4,5 +4,5 @@ internal class CsvTrackedOperation : CsvOperation
 {
     public Guid Id { get; init; }
     public string? Version { get; init; }
-    public Guid AccountId { get; init; }
+    public Guid BudgetId { get; init; }
 }

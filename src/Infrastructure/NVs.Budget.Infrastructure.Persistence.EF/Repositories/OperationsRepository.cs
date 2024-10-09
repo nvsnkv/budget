@@ -47,7 +47,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             var changed = await finder.FindById(updated.Budget.Id, ct);
             if (changed is null)
             {
-                return Result.Fail(new AccountDoesNotExistsError(updated.Budget));
+                return Result.Fail(new BudgetDoesNotExistsError(updated.Budget));
             }
 
             target.Budget = changed;
@@ -93,7 +93,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         var storedAccount = await finder.FindById(budget.Id, ct);
         if (storedAccount is null)
         {
-            return Result.Fail(new AccountDoesNotExistsError(budget));
+            return Result.Fail(new BudgetDoesNotExistsError(budget));
         }
 
         var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp.ToUniversalTime(), operation.Description)

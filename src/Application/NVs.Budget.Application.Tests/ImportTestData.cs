@@ -3,27 +3,23 @@ using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Results;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
 
 internal class ImportTestData
 {
-    private readonly Owner _owner;
-    private readonly UnregisteredBudget[] _accounts;
     private readonly UnregisteredOperation[] _justTransactions;
     private readonly UnregisteredOperation[] _transfer;
     private readonly UnregisteredOperation[] _duplicates;
 
-    public ImportTestData(Fixture fixture, IEnumerable<TrackedBudget> knownAccounts, Owner owner)
+    public ImportTestData(Fixture fixture, IEnumerable<TrackedBudget> knownAccounts)
     {
-        _owner = owner;
-        _accounts = fixture.CreateMany<UnregisteredBudget>().Take(2)
+        UnregisteredBudget[] budgets = fixture.CreateMany<UnregisteredBudget>().Take(2)
             .Concat(knownAccounts.Select(a => new UnregisteredBudget(a.Name)))
             .ToArray();
 
-        _justTransactions = _accounts.SelectMany(a =>
+        _justTransactions = budgets.SelectMany(a =>
         {
             using (fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), a))
             using (fixture.SetCurrency(fixture.Create<CurrencyIsoCode>()))
@@ -32,15 +28,15 @@ internal class ImportTestData
             }
         }).ToArray();
 
-        fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), _accounts[0]);
+        fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), budgets[0]);
         fixture.SetNamedParameter<decimal>(nameof(Money.Amount), -900);
         var source = fixture.Create<UnregisteredOperation>();
-        var sink = new UnregisteredOperation(source.Timestamp, source.Amount * -1, source.Description, new Dictionary<string, object>(), _accounts[1]);
+        var sink = new UnregisteredOperation(source.Timestamp, source.Amount * -1, source.Description, new Dictionary<string, object>(), budgets[1]);
         _transfer = [source, sink];
         fixture.ResetNamedParameter<UnregisteredBudget>(nameof(UnregisteredOperation.Budget));
         fixture.ResetNamedParameter<decimal>(nameof(Money.Amount));
 
-        fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), _accounts[^1]);
+        fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), budgets[^1]);
         _duplicates = fixture.CreateMany<UnregisteredOperation>().Take(2).SelectMany(t => Enumerable.Repeat(t, 2)).ToArray();
     }
 

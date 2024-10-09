@@ -6,11 +6,11 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Controllers.Console.IO.Tests.Mocks;
 
-internal class FakeReadOnlyBudgetsRepository(TrackedBudget[] accounts) : IBudgetsRepository
+internal class FakeReadOnlyBudgetsRepository(TrackedBudget[] budgets) : IBudgetsRepository
 {
     public Task<IReadOnlyCollection<TrackedBudget>> Get(Expression<Func<TrackedBudget, bool>> filter, CancellationToken ct)
     {
-        return Task.FromResult((IReadOnlyCollection<TrackedBudget>)accounts.Where(filter.Compile()).ToList());
+        return Task.FromResult((IReadOnlyCollection<TrackedBudget>)budgets.Where(filter.Compile()).ToList());
     }
 
     public Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, Owner owner, CancellationToken ct)

@@ -32,11 +32,11 @@ internal class Reckoner(
         IReadOnlyCollection<TrackedTransfer> transfers = Empty;
         if (query.ExcludeTransfers)
         {
-            var accounts = await Manager.GetOwnedBudgets(ct);
+            var budgets = await Manager.GetOwnedBudgets(ct);
             var ids = transactions.Select(t => t.Id).ToList();
             transfers = await transfersRepo.Get(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id), ct);
             transfers = transfers
-                .Where(t => accounts.Contains(t.Source.Budget) && accounts.Contains(t.Sink.Budget))
+                .Where(t => budgets.Contains(t.Source.Budget) && budgets.Contains(t.Sink.Budget))
                 .ToList();
         }
 

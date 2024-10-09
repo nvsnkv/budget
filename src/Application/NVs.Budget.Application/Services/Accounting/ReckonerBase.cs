@@ -13,8 +13,8 @@ internal abstract class ReckonerBase(IBudgetManager manager)
     protected async Task<Expression<Func<TrackedOperation, bool>>> ExtendCriteria(Expression<Func<TrackedOperation, bool>>? criteria, CancellationToken ct)
     {
         criteria ??= Any;
-        var accounts= await Manager.GetOwnedBudgets(ct);
-        var ids = accounts.Select(a => a.Id).ToList();
+        var budgets= await Manager.GetOwnedBudgets(ct);
+        var ids = budgets.Select(a => a.Id).ToList();
         return criteria.CombineWith(t => ids.Contains(t.Budget.Id));
     }
 }

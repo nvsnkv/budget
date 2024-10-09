@@ -35,17 +35,17 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task RegisterTransactionSuccessfully()
     {
         var transaction = _fixture.Create<UnregisteredOperation>();
-        var accountId = _testData.Accounts.First().Id;
-        var accounts = await _budgetsRepo.Get(a => a.Id == accountId, CancellationToken.None);
-        var account = accounts.Single();
+        var budgetId = _testData.Budgets.First().Id;
+        var budgets = await _budgetsRepo.Get(a => a.Id == budgetId, CancellationToken.None);
+        var budget = budgets.Single();
 
-        var result = await _repo.Register(transaction, account, CancellationToken.None);
+        var result = await _repo.Register(transaction, budget, CancellationToken.None);
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
         trackedTransaction.Should().BeEquivalentTo(transaction, c => c.Excluding(t => t.Budget));
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
-        trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Accounts.Budget)account, c => c.ComparingByMembers<Domain.Entities.Accounts.Budget>());
+        trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Accounts.Budget)budget, c => c.ComparingByMembers<Domain.Entities.Accounts.Budget>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -53,7 +53,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task UpdateTransactionSuccessfully()
     {
         var target = await AddTransaction();
-        var newAccount = _testData.Accounts.First(a => a.Id != target.Budget.Id);
+        var newAccount = _testData.Budgets.First(a => a.Id != target.Budget.Id);
 
         TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
@@ -74,12 +74,12 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     private async Task<TrackedOperation> AddTransaction()
     {
         var unregistered = _fixture.Create<UnregisteredOperation>();
-        var accountId = _testData.Accounts.First().Id;
+        var budgetId = _testData.Budgets.First().Id;
 
-        var accounts = await _budgetsRepo.Get(a => a.Id == accountId, CancellationToken.None);
-        var account = accounts.Single();
+        var budgets = await _budgetsRepo.Get(a => a.Id == budgetId, CancellationToken.None);
+        var budget = budgets.Single();
 
-        var result = await _repo.Register(unregistered, account, CancellationToken.None);
+        var result = await _repo.Register(unregistered, budget, CancellationToken.None);
         result.Should().BeSuccess();
         var target = result.Value!;
         return target;

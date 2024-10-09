@@ -15,15 +15,15 @@ namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 
 internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsRepository, CancellationToken cancellationToken) : RowParser<TrackedOperation, CsvTrackedOperation>(parser, cancellationToken)
 {
-    private readonly ConcurrentDictionary<Guid, Task<TrackedBudget?>> _accounts = new();
+    private readonly ConcurrentDictionary<Guid, Task<TrackedBudget?>> _budgets = new();
 
     protected override  async Task<Result<TrackedOperation>> Convert(CsvTrackedOperation row)
     {
-        var accountTask = _accounts.GetOrAdd(row.AccountId, GetAccount);
-        var account = await accountTask;
-        if (account is null)
+        var budgetTask = _budgets.GetOrAdd(row.BudgetId, GetBudget);
+        var budget = await budgetTask;
+        if (budget is null)
         {
-            return Result.Fail(new AccountDoesNotExistError(row.AccountId));
+            return Result.Fail(new BudgetDoesNotExistError(row.BudgetId));
         }
 
         if (string.IsNullOrEmpty(row.Amount))
@@ -67,15 +67,15 @@ internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsReposi
             row.Timestamp,
             amount,
             row.Description ?? string.Empty,
-            account,
+            budget,
             tags,
             attributes
         );
     }
 
-    private async Task<TrackedBudget?> GetAccount(Guid id)
+    private async Task<TrackedBudget?> GetBudget(Guid id)
     {
-        var accounts = await budgetsRepository.Get(a => a.Id == id, CancellationToken);
-        return accounts.FirstOrDefault();
+        var budgets = await budgetsRepository.Get(a => a.Id == id, CancellationToken);
+        return budgets.FirstOrDefault();
     }
 }

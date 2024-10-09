@@ -17,7 +17,7 @@ internal class ImportVerb : AbstractVerb
     [Option('d', "dir", Required = true, HelpText = "Directory with files to import")]
     public string? DirectoryPath { get; [UsedImplicitly] set; }
 
-    [Option("register-accs", Required = false, HelpText = "Create new accounts if no existing accounts matches imported data")]
+    [Option("register-accs", Required = false, HelpText = "Create new accounts if no existing accounts matches imported data"), Obsolete("TODO REMOVE OPTION")]
     public bool RegisterAccounts { get; [UsedImplicitly] set; }
 
     [Option("transfers-confidence", Required = false, Default = DetectionAccuracy.Exact, HelpText = "Transfers detection accuracy (Exact or Likely)")]

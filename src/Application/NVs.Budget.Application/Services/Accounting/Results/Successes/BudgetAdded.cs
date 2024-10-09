@@ -3,9 +3,9 @@ using NVs.Budget.Domain.Extensions;
 
 namespace NVs.Budget.Application.Services.Accounting.Results.Successes;
 
-internal class AccountAdded : Success
+internal class BudgetAdded : Success
 {
-    public AccountAdded(Domain.Entities.Accounts.Budget budget) : base("Account was successfully added!")
+    public BudgetAdded(Domain.Entities.Accounts.Budget budget) : base("Budget was successfully added!")
     {
         this.WithAccountId(budget);
     }

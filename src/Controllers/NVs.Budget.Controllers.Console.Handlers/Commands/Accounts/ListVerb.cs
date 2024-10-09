@@ -7,15 +7,15 @@ using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Accounts;
 
-[Verb("list", true, HelpText = "Lists owned accounts for current user")]
+[Verb("list", true, HelpText = "Lists owned budgets for current user")]
 internal class ListVerb : AbstractVerb;
 
 internal class ListVerbHandler(IMediator mediator, IObjectWriter<TrackedBudget> writer) : IRequestHandler<ListVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListVerb request, CancellationToken cancellationToken)
     {
-        var accounts = await mediator.Send(new ListOwnedBudgetsQuery(), cancellationToken);
-        await writer.Write(accounts, cancellationToken);
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), cancellationToken);
+        await writer.Write(budgets, cancellationToken);
 
         return ExitCode.Success;
     }

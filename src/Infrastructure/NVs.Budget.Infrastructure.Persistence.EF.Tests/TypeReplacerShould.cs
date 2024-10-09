@@ -19,13 +19,13 @@ public class TypeReplacerShould
         var converted = selectById.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
         converted.Should().NotBeNull();
 
-        var account = _fixture.Build<StoredAccount>()
+        var budget = _fixture.Build<StoredAccount>()
             .Without(a => a.Owners)
             .Without(a => a.Operations)
             .Create();
 
         var predicate = converted.Compile();
-        predicate(account).Should().BeTrue();
+        predicate(budget).Should().BeTrue();
     }
 
     [Fact]
@@ -38,8 +38,8 @@ public class TypeReplacerShould
         converted.Should().NotBeNull();
 
         var predicate = converted.Compile();
-        var account = new StoredAccount(reference.Id, reference.Name);
-        predicate(account).Should().BeTrue();
+        var budget = new StoredAccount(reference.Id, reference.Name);
+        predicate(budget).Should().BeTrue();
     }
 
     [Fact]

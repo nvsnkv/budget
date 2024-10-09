@@ -2,9 +2,9 @@
 
 namespace NVs.Budget.Application.Services.Accounting.Results.Errors;
 
-internal class AccountBelongsToMultipleOwnersError : IError
+internal class BudgetDoesNotBelongToCurrentOwnerError : IError
 {
-    public string Message => "Cannot remove account with more than one owner!";
+    public string Message => "Given budget does not belong to current owner!";
     public Dictionary<string, object> Metadata { get; } = new();
     public List<IError> Reasons { get; } = new();
 }

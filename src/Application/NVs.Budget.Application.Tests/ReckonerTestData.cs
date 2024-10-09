@@ -9,11 +9,11 @@ internal class ReckonerTestData
 {
     public IReadOnlyList<TrackedOperation> OwnedTransactions { get; }
 
-    public IReadOnlyList<TrackedBudget> OwnedAccounts { get; }
+    public IReadOnlyList<TrackedBudget> OwnedBudgets { get; }
 
     public IReadOnlyList<TrackedOperation> NotOwnedTransactions { get; }
 
-    public IEnumerable<TrackedBudget> AllAccounts => OwnedAccounts
+    public IEnumerable<TrackedBudget> AllAccounts => OwnedBudgets
         .Concat(OwnedTransactions.Select(t => t.Budget as TrackedBudget))
         .Concat(NotOwnedTransactions.Select(t => t.Budget as TrackedBudget))
         .Where(a => a is not null)
@@ -24,16 +24,16 @@ internal class ReckonerTestData
     public ReckonerTestData(Owner owner, int ownedAccountsCount = 2, int ownedTransactionsPerAccount = 3, int notOwnedTransactionsCount = 5)
     {
         var fixture = new Fixture();
-        OwnedAccounts = fixture
+        OwnedBudgets = fixture
             .CreateMany<TrackedBudget>()
             .Take(ownedAccountsCount)
             .ToList();
-        foreach (var account in OwnedAccounts)
+        foreach (var budget in OwnedBudgets)
         {
-            account.AddOwner(owner);
+            budget.AddOwner(owner);
         }
 
-        OwnedTransactions = OwnedAccounts.SelectMany((a, i) =>
+        OwnedTransactions = OwnedBudgets.SelectMany((a, i) =>
         {
             using (fixture.SetAccount(a))
             {

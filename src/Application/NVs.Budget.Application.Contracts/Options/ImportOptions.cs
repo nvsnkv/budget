@@ -2,4 +2,4 @@
 
 namespace NVs.Budget.Application.Contracts.Options;
 
-public record ImportOptions(bool RegisterAccounts, DetectionAccuracy? TransferConfidenceLevel);
+public record ImportOptions(bool RegisterNewBudgets, DetectionAccuracy? TransferConfidenceLevel);

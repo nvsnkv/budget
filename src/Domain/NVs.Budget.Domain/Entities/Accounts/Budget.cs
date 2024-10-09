@@ -12,7 +12,7 @@ public class Budget : EntityBase<Guid>
         _owners.AddRange(owners.DistinctBy(o => o.Id));
         if (_owners.Count == 0)
         {
-            throw new ArgumentException("Unable to create account without owners!");
+            throw new ArgumentException("Unable to create budget without owners!");
         }
     }
 
@@ -36,7 +36,7 @@ public class Budget : EntityBase<Guid>
         if (!_owners.Any(owner.Equals)) return;
         if (_owners.Count == 1)
         {
-            throw new InvalidOperationException("Unable to remove last owner of account!");
+            throw new InvalidOperationException("Unable to remove last owner of a budget!");
         }
 
         _owners.Remove(owner);

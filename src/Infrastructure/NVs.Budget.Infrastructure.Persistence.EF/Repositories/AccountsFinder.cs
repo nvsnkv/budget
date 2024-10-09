@@ -25,21 +25,21 @@ internal class AccountsFinder : IDisposable, IAsyncDisposable
 
     public async Task<StoredAccount?> FindById(Guid id, CancellationToken ct)
     {
-        var account = _storedAccounts.GetValueOrDefault(id, null);
-        if (account is not null)
+        var budget = _storedAccounts.GetValueOrDefault(id, null);
+        if (budget is not null)
         {
-            return account;
+            return budget;
         }
 
-        account = await _context.Accounts.Include(a => a.Owners.Where(o => !o.Deleted))
+        budget = await _context.Accounts.Include(a => a.Owners.Where(o => !o.Deleted))
             .FirstOrDefaultAsync(a => a.Id == id, ct);
 
-        if (account is not null)
+        if (budget is not null)
         {
-            _storedAccounts.Add(id, account);
+            _storedAccounts.Add(id, budget);
         }
 
-        return account;
+        return budget;
     }
 
     public void Dispose()

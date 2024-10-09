@@ -24,14 +24,14 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             return Result.Fail(new OwnerIsNotRegisteredError());
         }
 
-        var account = new StoredAccount(Guid.Empty, newBudget.Name)
+        var budget = new StoredAccount(Guid.Empty, newBudget.Name)
         {
             Owners = { storedOwner }
         };
 
-        BumpVersion(account);
+        BumpVersion(budget);
 
-        var entry = await context.Accounts.AddAsync(account, ct);
+        var entry = await context.Accounts.AddAsync(budget, ct);
         await context.SaveChangesAsync(ct);
 
         return Mapper.Map<TrackedBudget>(entry.Entity);

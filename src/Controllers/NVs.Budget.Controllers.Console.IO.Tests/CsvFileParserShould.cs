@@ -42,10 +42,10 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     [Fact]
     public async Task ParseTrackedTransactionsFileSuccessfully()
     {
-        var accounts = _fixture.Create<Generator<TrackedBudget>>().Take(2).ToArray();
+        var budgets = _fixture.Create<Generator<TrackedBudget>>().Take(2).ToArray();
         var operations = new List<TrackedOperation>();
 
-        foreach (var account in accounts)
+        foreach (var account in budgets)
         {
             using (_fixture.SetAccount(account))
             {
@@ -53,7 +53,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
             }
         }
 
-        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository(accounts);
+        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository(budgets);
 
         await using var streams = new FakeStreamsProvider();
         testBed.StreamProvider = streams;

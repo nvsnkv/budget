@@ -23,19 +23,19 @@ internal class BudgetManager(IBudgetsRepository repository, IUser currentUser) :
         var existing = await repository.Get(
             a => a.Owners.Any(o => o.Id == _currentOwner.Id) && a.Name == newBudget.Name,
             ct);
-        if (existing.Count != 0) return Result.Fail<TrackedBudget>(new AccountAlreadyExistsError());
+        if (existing.Count != 0) return Result.Fail<TrackedBudget>(new BudgetAlreadyExistsError());
 
         return await repository.Register(newBudget, _currentOwner, ct);
     }
 
     public async Task<Result> ChangeOwners(TrackedBudget budget, IReadOnlyCollection<Owner> owners, CancellationToken ct)
     {
-        if (!budget.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
+        if (!budget.Owners.Contains(_currentOwner)) return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError());
 
-        if (!owners.Contains(_currentOwner)) return Result.Fail(new CurrentOwnerLosesAccessToAccountError());
+        if (!owners.Contains(_currentOwner)) return Result.Fail(new CurrentOwnerLosesAccessToBudgetError());
 
         var found = (await repository.Get(a => a.Id == budget.Id, ct)).FirstOrDefault();
-        if (found is null) return Result.Fail(new AccountDoesNotExistError(budget.Id));
+        if (found is null) return Result.Fail(new BudgetDoesNotExistError(budget.Id));
 
         foreach (var exOwner in found.Owners.Except(owners).ToList())
         {
@@ -54,8 +54,8 @@ internal class BudgetManager(IBudgetsRepository repository, IUser currentUser) :
     public async Task<Result> Update(TrackedBudget budget, CancellationToken ct)
     {
         var found = (await repository.Get(a => a.Id == budget.Id, ct)).FirstOrDefault();
-        if (found is null) return Result.Fail(new AccountDoesNotExistError(budget.Id));
-        if (!found.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
+        if (found is null) return Result.Fail(new BudgetDoesNotExistError(budget.Id));
+        if (!found.Owners.Contains(_currentOwner)) return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError());
 
         found.Rename(budget.Name);
         var result = await repository.Update(found, ct);
@@ -64,8 +64,8 @@ internal class BudgetManager(IBudgetsRepository repository, IUser currentUser) :
 
     public async Task<Result> Remove(TrackedBudget budget, CancellationToken ct)
     {
-        if (!budget.Owners.Contains(_currentOwner)) return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError());
-        if (budget.Owners.Count > 1) return Result.Fail(new AccountBelongsToMultipleOwnersError());
+        if (!budget.Owners.Contains(_currentOwner)) return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError());
+        if (budget.Owners.Count > 1) return Result.Fail(new BudgetBelongsToMultipleOwnersError());
 
         await repository.Remove(budget, ct);
 

@@ -15,14 +15,14 @@ internal class CsvMappingProfile : Profile
     {
         CreateMap<Operation, CsvOperation>()
             .ForMember(c => c.Amount, o => o.ConvertUsing<Money>(MoneyConverter.Instance))
-            .ForMember(c => c.Account, o => o.MapFrom(t => t.Budget.Name))
+            .ForMember(c => c.Budget, o => o.MapFrom(t => t.Budget.Name))
             .ForMember(c => c.Tags, o => o.ConvertUsing(TagsConverter.Instance, t => t.Tags))
             .ForMember(c => c.Attributes, o => o.ConvertUsing(AttributesConverter.Instance, t => t.Attributes));
 
         CreateMap<TrackedOperation, CsvTrackedOperation>()
             .ForMember(c => c.Amount, o => o.ConvertUsing<Money>(MoneyConverter.Instance))
-            .ForMember(c => c.AccountId, o => o.MapFrom(t => t.Budget.Id))
-            .ForMember(c => c.Account, o => o.MapFrom(t => t.Budget.Name))
+            .ForMember(c => c.BudgetId, o => o.MapFrom(t => t.Budget.Id))
+            .ForMember(c => c.Budget, o => o.MapFrom(t => t.Budget.Name))
             .ForMember(c => c.Tags, o => o.ConvertUsing(TagsConverter.Instance, t => t.Tags))
             .ForMember(c => c.Attributes, o => o.ConvertUsing(AttributesConverter.Instance, t => t.Attributes));
 

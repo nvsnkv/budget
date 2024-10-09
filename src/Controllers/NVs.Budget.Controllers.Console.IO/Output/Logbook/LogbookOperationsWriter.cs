@@ -39,8 +39,8 @@ internal class LogbookOperationsWriter(IXLWorksheet worksheet, IMapper mapper)
             worksheet.Cell(_rowNum, _colNum + 5).SetValue(nameof(CsvTrackedOperation.Tags));
             worksheet.Cell(_rowNum, _colNum + 6).SetValue(nameof(CsvTrackedOperation.Attributes));
             worksheet.Cell(_rowNum, _colNum + 7).SetValue("");
-            worksheet.Cell(_rowNum, _colNum + 8).SetValue(nameof(CsvTrackedOperation.AccountId));
-            worksheet.Cell(_rowNum, _colNum + 9).SetValue(nameof(CsvTrackedOperation.Account));
+            worksheet.Cell(_rowNum, _colNum + 8).SetValue(nameof(CsvTrackedOperation.BudgetId));
+            worksheet.Cell(_rowNum, _colNum + 9).SetValue(nameof(CsvTrackedOperation.Budget));
             worksheet.Cell(_rowNum, _colNum + 10).SetValue(nameof(CsvTrackedOperation.Bank));
             _rowNum++;
 
@@ -54,8 +54,8 @@ internal class LogbookOperationsWriter(IXLWorksheet worksheet, IMapper mapper)
                 worksheet.Cell(_rowNum, _colNum + 5).SetValue(operation.Tags);
                 worksheet.Cell(_rowNum, _colNum + 6).SetValue(operation.Attributes);
                 worksheet.Cell(_rowNum, _colNum + 7).SetValue("");
-                worksheet.Cell(_rowNum, _colNum + 8).SetValue(operation.AccountId.ToString());
-                worksheet.Cell(_rowNum, _colNum + 9).SetValue(operation.Account);
+                worksheet.Cell(_rowNum, _colNum + 8).SetValue(operation.BudgetId.ToString());
+                worksheet.Cell(_rowNum, _colNum + 9).SetValue(operation.Budget);
                 worksheet.Cell(_rowNum, _colNum + 10).SetValue(operation.Bank);
 
                 _rowNum++;

@@ -30,7 +30,7 @@ public class AccountantShould
         var user = new Mock<IUser>();
         user.Setup(u => u.AsOwner()).Returns(_owner);
 
-        var accountManager = new BudgetManager(_storage.Budgets, user.Object);
+        var budgetManager = new BudgetManager(_storage.Budgets, user.Object);
 
         var exactTransferCriterion = new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",
             (src, snk) => src.Amount == snk.Amount * -1
@@ -49,7 +49,7 @@ public class AccountantShould
         _accountant = new(
             _storage.Operations,
             _storage.Transfers,
-            accountManager,
+            budgetManager,
             tagsManager,
             new TransfersListBuilder(transferDetector),
             new ImportResultBuilder(duplicatesDetector)
@@ -60,11 +60,11 @@ public class AccountantShould
     public async Task ImportIncomingTransactions()
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
-        var account = _fixture.Create<TrackedBudget>();
-        _storage.Budgets.Append([account]);
+        var budget = _fixture.Create<TrackedBudget>();
+        _storage.Budgets.Append([budget]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");
 
-        var data = new ImportTestData(_fixture, [account], _owner);
+        var data = new ImportTestData(_fixture, [budget]);
 
         var result = await _accountant.ImportOperations(data.Operations, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
 

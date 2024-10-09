@@ -7,6 +7,6 @@ internal class CsvOperation
     public string? Description { get; init; }
     public string? Tags { get; init; }
     public string? Attributes { get; init; }
-    public string? Account { get; init; }
+    public string? Budget { get; init; }
     public string? Bank { get; init; }
 }

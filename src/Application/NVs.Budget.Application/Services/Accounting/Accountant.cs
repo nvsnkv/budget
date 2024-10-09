@@ -30,18 +30,18 @@ internal class Accountant(
         importResultBuilder.Clear();
         transfersListBuilder.Clear();
 
-        var accounts = (await Manager.GetOwnedBudgets(ct)).ToList();
+        var budgets = (await Manager.GetOwnedBudgets(ct)).ToList();
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
         {
-            var accountResult = await TryGetAccount(accounts, unregisteredTransaction.Budget, options.RegisterAccounts, ct);
-            importResultBuilder.Append(accountResult);
-            if (!accountResult.IsSuccess)
+            var budgetResult = await TryGetBudget(budgets, unregisteredTransaction.Budget, options.RegisterNewBudgets, ct);
+            importResultBuilder.Append(budgetResult);
+            if (!budgetResult.IsSuccess)
             {
                 continue;
             }
 
-            var transactionResult = await operationsRepository.Register(unregisteredTransaction, accountResult.Value, ct);
+            var transactionResult = await operationsRepository.Register(unregisteredTransaction, budgetResult.Value, ct);
             importResultBuilder.Append(transactionResult);
 
             if (transactionResult.IsSuccess)
@@ -97,11 +97,11 @@ internal class Accountant(
 
     public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedBudgets(ct);
+        var budgets = await Manager.GetOwnedBudgets(ct);
         var result = new Result();
         await foreach (var transaction in operations.WithCancellation(ct))
         {
-            var updateResult = await Update(transaction, accounts, ct);
+            var updateResult = await Update(transaction, budgets, ct);
             result.Reasons.AddRange(updateResult.Reasons);
         }
 
@@ -159,20 +159,20 @@ internal class Accountant(
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedBudgets(ct);
+        var budgets = await Manager.GetOwnedBudgets(ct);
         var result = new Result();
 
         await foreach (var transfer in transfers.WithCancellation(ct))
         {
-            if (accounts.All(a => a != transfer.Source.Budget))
+            if (budgets.All(a => a != transfer.Source.Budget))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Budget));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Budget));
                 continue;
             }
 
-            if (accounts.All(a => a != transfer.Sink.Budget))
+            if (budgets.All(a => a != transfer.Sink.Budget))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Budget));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Budget));
                 continue;
             }
 
@@ -212,7 +212,7 @@ internal class Accountant(
     {
         if (ownedAccounts.All(a => operation.Budget != a))
         {
-            return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError()
+            return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError()
                 .WithTransactionId(operation)
                 .WithAccountId(operation.Budget));
         }
@@ -223,14 +223,14 @@ internal class Accountant(
             : Result.Fail(updateResult.Errors);
     }
 
-    private async Task<Result<TrackedBudget>> TryGetAccount(ICollection<TrackedBudget> accounts, UnregisteredBudget budget, bool shouldRegister, CancellationToken ct)
+    private async Task<Result<TrackedBudget>> TryGetBudget(ICollection<TrackedBudget> budgets, UnregisteredBudget budget, bool shouldRegister, CancellationToken ct)
     {
-        var registeredAccount = accounts.FirstOrDefault(a => a.Name == budget.Name);
-        if (registeredAccount is not null) return Result.Ok(registeredAccount);
+        var registeredBudget = budgets.FirstOrDefault(a => a.Name == budget.Name);
+        if (registeredBudget is not null) return Result.Ok(registeredBudget);
 
         if (!shouldRegister)
         {
-            return Result.Fail(new AccountNotFoundError()
+            return Result.Fail(new BudgetNotFoundError()
                 .WithMetadata(nameof(TrackedBudget.Name), budget.Name)
             );
         }
@@ -240,9 +240,9 @@ internal class Accountant(
             return Result.Fail(result.Errors);
         }
 
-        registeredAccount = result.Value;
-        accounts.Add(registeredAccount);
+        registeredBudget = result.Value;
+        budgets.Add(registeredBudget);
 
-        return Result.Ok(registeredAccount).WithReason(new AccountAdded(registeredAccount));
+        return Result.Ok(registeredBudget).WithReason(new BudgetAdded(registeredBudget));
     }
 }

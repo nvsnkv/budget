@@ -29,7 +29,7 @@ public class DbContextManager : IAsyncLifetime
         await new PostgreSqlDbMigrator(context).MigrateAsync(CancellationToken.None);
 
         var owners = Mapper.Map<IEnumerable<StoredOwner>>(TestData.Owners).ToList().ToDictionary(o => o.Id);
-        var accounts = Mapper.Map<IEnumerable<StoredAccount>>(TestData.Accounts).ToList();
+        var accounts = Mapper.Map<IEnumerable<StoredAccount>>(TestData.Budgets).ToList();
 
         foreach (var account in accounts)
         {
