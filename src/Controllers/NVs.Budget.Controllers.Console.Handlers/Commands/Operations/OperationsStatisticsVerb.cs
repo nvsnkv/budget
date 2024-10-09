@@ -4,10 +4,10 @@ using FluentResults;
 using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
@@ -23,7 +23,7 @@ internal class OperationsStatisticsVerbHandler(
     IMediator mediator,
     IInputStreamProvider inputStreamProvider,
     ILogbookCriteriaReader criteriaReader,
-    CriteriaParser parser,
+    ICriteriaParser parser,
     ILogbookWriter logbookWriter,
     IResultWriter<Result> writer,
     CronBasedNamedRangeSeriesBuilder seriesBuilder

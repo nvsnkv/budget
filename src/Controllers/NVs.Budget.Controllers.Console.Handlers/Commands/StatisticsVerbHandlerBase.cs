@@ -1,16 +1,16 @@
 using System.Linq.Expressions;
 using FluentResults;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Domain.Aggregates;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands;
 
 internal abstract class StatisticsVerbHandlerBase<T, TCriteria>(
-    CriteriaParser parser,
+    ICriteriaParser parser,
     ILogbookWriter logbookWriter,
     IResultWriter<Result> writer,
     CronBasedNamedRangeSeriesBuilder seriesBuilder,

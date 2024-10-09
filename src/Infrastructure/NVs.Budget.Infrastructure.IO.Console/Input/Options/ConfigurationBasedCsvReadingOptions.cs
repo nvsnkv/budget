@@ -1,22 +1,21 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.Options;
 
-internal class CsvReadingOptions
+internal class ConfigurationBasedCsvReadingOptions() : CsvReadingOptions(new Dictionary<Regex, CsvFileReadingOptions>())
 {
-    private Dictionary<Regex, CsvFileReadingOptions> _options = new ();
-
     public void UpdateFromConfiguration(IConfiguration configuration, CultureInfo culture)
     {
         var fileConfigs = configuration.GetSection(nameof(CsvReadingOptions)).GetChildren();
-        _options = fileConfigs.ToDictionary(c => new Regex(c.Key), section => CreateFileReadingOptions(section, culture));
-    }
-    public CsvFileReadingOptions? GetFileOptionsFor(string name)
-    {
-        var key = _options.Keys.FirstOrDefault(k => k.IsMatch(name));
-        return key is null ? null : _options[key];
+        Options.Clear();
+
+        foreach (var section in fileConfigs)
+        {
+            Options.Add(new Regex(section.Key), CreateFileReadingOptions(section, culture));
+        }
     }
 
     private CsvFileReadingOptions CreateFileReadingOptions(IConfigurationSection section, CultureInfo culture)

@@ -3,7 +3,7 @@ using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Criteria;
+namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 
 internal class CriteriaListReader(CriteriaParser criteriaParser, SubstitutionsParser substitutionsParser, IConfiguration config)
 {

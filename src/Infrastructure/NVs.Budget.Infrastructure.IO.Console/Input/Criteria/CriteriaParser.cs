@@ -8,9 +8,9 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Criteria;
+namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 
-internal class CriteriaParser
+internal class CriteriaParser : ICriteriaParser
 {
     private readonly ParsingConfig _config = new()
     {

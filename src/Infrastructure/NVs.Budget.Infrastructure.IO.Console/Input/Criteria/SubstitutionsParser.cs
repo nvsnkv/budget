@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using NVs.Budget.Utilities.Expressions;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Criteria;
+namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 
 internal class SubstitutionsParser(CriteriaParser parser)
 {

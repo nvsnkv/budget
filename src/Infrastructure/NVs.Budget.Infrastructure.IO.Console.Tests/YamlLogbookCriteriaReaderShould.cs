@@ -1,9 +1,9 @@
 using System.Text;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
-using NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
 using NVs.Budget.Domain.ValueObjects.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Tests;
 

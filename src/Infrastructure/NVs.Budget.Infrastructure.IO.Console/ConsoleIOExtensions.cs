@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvTransfersReader;
 using NVs.Budget.Infrastructure.IO.Console.Input.Options;
@@ -35,6 +37,7 @@ public static class ConsoleIOExtensions
         services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
         services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
         services.AddTransient<ILogbookWriter, LogbookWriter>();
+        services.AddTransient<ICriteriaParser, CriteriaParser>();
 
         services.AddSingleton<IOutputStreamProvider, ConsoleOutputStreams>();
         services.AddTransient<IOperationsReader, CsvOperationsReader>();
@@ -42,7 +45,7 @@ public static class ConsoleIOExtensions
         services.AddTransient<IOutputOptionsChanger, OutputOptionsChanger>();
 
         services.AddTransient<IInputStreamProvider, ConsoleInputStream>();
-
+        
         return services;
     }
 
@@ -53,7 +56,7 @@ public static class ConsoleIOExtensions
 
 
         services.Configure<OutputOptions>(configuration.GetSection(nameof(OutputOptions)).Bind);
-        services.Configure<CsvReadingOptions>(c => c.UpdateFromConfiguration(configuration, culture));
+        services.Configure<ConfigurationBasedCsvReadingOptions>(c => c.UpdateFromConfiguration(configuration, culture));
 
         services.AddSingleton(configuration);
 
@@ -65,6 +68,20 @@ public static class ConsoleIOExtensions
             HasHeaderRecord = true,
             DetectDelimiter = true
         });
+
+        var criteriaParser = new CriteriaParser();
+        var substitutionsParser = new SubstitutionsParser(criteriaParser);
+        var criteriaListReader = new CriteriaListReader(criteriaParser, substitutionsParser, configuration);
+
+        var transferCriteria = criteriaListReader.GetTransferCriteria();
+        services.AddSingleton(transferCriteria);
+
+        var taggingCriteria = criteriaListReader.GetTaggingCriteria();
+        services.AddSingleton(taggingCriteria);
+
+        var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
+        services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);
+
         return services;
     }
 }

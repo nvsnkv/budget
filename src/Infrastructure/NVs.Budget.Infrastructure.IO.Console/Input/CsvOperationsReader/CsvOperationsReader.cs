@@ -11,9 +11,9 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader;
 
-internal class CsvOperationsReader(CsvConfiguration configuration, IOptionsSnapshot<CsvReadingOptions> options, IBudgetsRepository budgetsRepository) : IOperationsReader
+internal class CsvOperationsReader(CsvConfiguration configuration, IOptionsSnapshot<ConfigurationBasedCsvReadingOptions> options, IBudgetsRepository budgetsRepository) : IOperationsReader
 {
-    private readonly CsvReadingOptions _options = options.Value;
+    private readonly ConfigurationBasedCsvReadingOptions _options = options.Value;
     public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUnregisteredOperations(StreamReader input, string name, [EnumeratorCancellation] CancellationToken ct)
     {
         var fileOptions = _options.GetFileOptionsFor(name);

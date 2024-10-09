@@ -3,7 +3,7 @@ using CommandLine;
 using FluentResults;
 using MediatR;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands;
@@ -14,7 +14,7 @@ internal class CriteriaBasedVerb : AbstractVerb
     public IEnumerable<string>? Criteria { get; set; }
 }
 
-internal abstract class CriteriaBasedVerbHandler<T, TPredicate>(CriteriaParser parser, IResultWriter<Result> writer, string paramName = "o") : IRequestHandler<T, ExitCode> where T: CriteriaBasedVerb
+internal abstract class CriteriaBasedVerbHandler<T, TPredicate>(ICriteriaParser parser, IResultWriter<Result> writer, string paramName = "o") : IRequestHandler<T, ExitCode> where T: CriteriaBasedVerb
 {
     protected readonly IResultWriter<Result> Writer = writer;
 

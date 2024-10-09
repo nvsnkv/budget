@@ -3,11 +3,10 @@ using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects.Criteria;
-using NVs.Budget.Infrastructure.IO.Console.Input;
 using YamlDotNet.RepresentationModel;
 using Tag = NVs.Budget.Domain.ValueObjects.Tag;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
+namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 
 internal class YamlLogbookRulesetReader(CriteriaParser criteriaParser, SubstitutionsParser substitutionsParser) : ILogbookCriteriaReader
 {

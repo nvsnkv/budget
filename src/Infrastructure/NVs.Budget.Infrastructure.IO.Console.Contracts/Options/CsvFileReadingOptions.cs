@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.Options;
 
-internal class CsvFileReadingOptions(
+public class CsvFileReadingOptions(
     IDictionary<string, FieldConfiguration> configurations,
     CultureInfo culture,
     DateTimeKind dateTimeKind = DateTimeKind.Local,

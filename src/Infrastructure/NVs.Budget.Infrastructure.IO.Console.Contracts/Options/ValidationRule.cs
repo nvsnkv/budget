@@ -1,6 +1,6 @@
 namespace NVs.Budget.Infrastructure.IO.Console.Input.Options;
 
-internal record ValidationRule(
+public record ValidationRule(
     FieldConfiguration FieldConfiguration,
     ValidationRule.ValidationCondition Condition,
     string Value
