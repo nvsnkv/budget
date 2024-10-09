@@ -5,7 +5,7 @@ using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Tests;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class YamlLogbookRulesetReaderShould
 {

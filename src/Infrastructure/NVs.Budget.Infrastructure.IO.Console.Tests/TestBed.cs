@@ -1,12 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NVs.Budget.Controllers.Console.IO.Tests.Mocks;
-using NVs.Budget.Infrastructure.IO.Console;
 using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Output;
+using NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
-namespace NVs.Budget.Controllers.Console.IO.Tests;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class TestBed
 {

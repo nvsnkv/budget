@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    partial class BudgetContextModelSnapshot : ModelSnapshot
+    [Migration("20241009143042_Accounts to Budgets")]
+    partial class AccountstoBudgets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,42 +52,6 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Budgets", "budget");
-                });
-
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("BudgetId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CultureInfo")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DateTimeKind")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("FileNamePattern")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BudgetId");
-
-                    b.ToTable("CsvFileReadingOptions", "budget");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
@@ -255,117 +222,6 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.ToTable("StoredBudgetStoredOwner", "budget");
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
-                {
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
-                        .WithMany("CsvReadingOptions")
-                        .HasForeignKey("BudgetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredFieldConfiguration", "AttributesConfiguration", b1 =>
-                        {
-                            b1.Property<Guid>("FileReadingOptionId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
-
-                            b1.Property<string>("Field")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Pattern")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("FileReadingOptionId", "Id");
-
-                            b1.ToTable("CsvFileReadingOptions_AttributesConfiguration", "budget");
-
-                            b1.WithOwner("FileReadingOption")
-                                .HasForeignKey("FileReadingOptionId");
-
-                            b1.Navigation("FileReadingOption");
-                        });
-
-                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredFieldConfiguration", "FieldConfigurations", b1 =>
-                        {
-                            b1.Property<Guid>("FileReadingOptionId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
-
-                            b1.Property<string>("Field")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Pattern")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("FileReadingOptionId", "Id");
-
-                            b1.ToTable("CsvFileReadingOptions_FieldConfigurations", "budget");
-
-                            b1.WithOwner("FileReadingOption")
-                                .HasForeignKey("FileReadingOptionId");
-
-                            b1.Navigation("FileReadingOption");
-                        });
-
-                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredValidationRule", "ValidationRules", b1 =>
-                        {
-                            b1.Property<Guid>("FileReadingOptionId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
-
-                            b1.Property<int>("Condition")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("FieldConfiguration")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("RuleName")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.HasKey("FileReadingOptionId", "Id");
-
-                            b1.ToTable("StoredValidationRule", "budget");
-
-                            b1.WithOwner("FileReadingOption")
-                                .HasForeignKey("FileReadingOptionId");
-
-                            b1.Navigation("FileReadingOption");
-                        });
-
-                    b.Navigation("AttributesConfiguration");
-
-                    b.Navigation("Budget");
-
-                    b.Navigation("FieldConfigurations");
-
-                    b.Navigation("ValidationRules");
-                });
-
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
                 {
                     b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
@@ -505,8 +361,6 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
                 {
-                    b.Navigation("CsvReadingOptions");
-
                     b.Navigation("Operations");
                 });
 #pragma warning restore 612, 618

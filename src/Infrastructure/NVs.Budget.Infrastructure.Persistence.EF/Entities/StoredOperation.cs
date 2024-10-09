@@ -18,7 +18,7 @@ internal class StoredOperation(Guid id, DateTime timestamp, string description) 
     public IList<StoredTag> Tags { get; init; } = new List<StoredTag>();
     public Dictionary<string, object> Attributes { get; set; } = new();
 
-    public virtual StoredAccount Budget { get; set; } = StoredAccount.Invalid;
+    public virtual StoredBudget Budget { get; set; } = StoredBudget.Invalid;
     public virtual StoredTransfer? SourceTransfer { get; set; }
     public virtual StoredTransfer? SinkTransfer { get; set; }
 

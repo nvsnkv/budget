@@ -1,6 +1,6 @@
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
-namespace NVs.Budget.Controllers.Console.IO.Tests.Mocks;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
 
 public class FakeStreamsProvider : IOutputStreamProvider, IDisposable, IAsyncDisposable
 {

@@ -10,7 +10,7 @@ using NVs.Budget.Utilities.Testing;
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
 [Collection(nameof(DatabaseCollectionFixture))]
-public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<DbContextManager>
+public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<DbContextManager>
 {
     private readonly BudgetsRepository _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
 

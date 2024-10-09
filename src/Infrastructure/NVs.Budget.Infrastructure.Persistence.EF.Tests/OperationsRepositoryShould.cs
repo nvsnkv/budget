@@ -26,7 +26,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         }
 
         var context = manager.GetDbBudgetContext();
-        _repo = new(manager.Mapper, context, new VersionGenerator(), new AccountsFinder(context));
+        _repo = new(manager.Mapper, context, new VersionGenerator(), new BudgetsFinder(context));
         _budgetsRepo = new(manager.Mapper, context, new VersionGenerator());
         _testData = manager.TestData;
     }

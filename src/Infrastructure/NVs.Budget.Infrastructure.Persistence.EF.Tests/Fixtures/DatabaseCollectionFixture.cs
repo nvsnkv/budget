@@ -29,18 +29,18 @@ public class DbContextManager : IAsyncLifetime
         await new PostgreSqlDbMigrator(context).MigrateAsync(CancellationToken.None);
 
         var owners = Mapper.Map<IEnumerable<StoredOwner>>(TestData.Owners).ToList().ToDictionary(o => o.Id);
-        var accounts = Mapper.Map<IEnumerable<StoredAccount>>(TestData.Budgets).ToList();
+        var budgets = Mapper.Map<IEnumerable<StoredBudget>>(TestData.Budgets).ToList();
 
-        foreach (var account in accounts)
+        foreach (var budget in budgets)
         {
-            var storedOwners = account.Owners.Select(o => owners[o.Id]).ToList();
-            account.Owners.Clear();
+            var storedOwners = budget.Owners.Select(o => owners[o.Id]).ToList();
+            budget.Owners.Clear();
             foreach (var owner in storedOwners)
             {
-                account.Owners.Add(owner);
+                budget.Owners.Add(owner);
             }
 
-            await context.Accounts.AddAsync(account);
+            await context.Budgets.AddAsync(budget);
         }
 
         await context.SaveChangesAsync();

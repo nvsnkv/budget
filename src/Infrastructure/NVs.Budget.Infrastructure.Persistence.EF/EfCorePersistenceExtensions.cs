@@ -13,7 +13,7 @@ public static class EfCorePersistenceExtensions
     {
         services.AddAutoMapper(c => c.AddProfile(new MappingProfile()))
             .AddDbContext<BudgetContext>(o => o.UseNpgsql(connectionString))
-            .AddTransient<AccountsFinder>()
+            .AddTransient<BudgetsFinder>()
             .AddSingleton<VersionGenerator>();
 
         services.AddTransient<IBudgetsRepository, BudgetsRepository>()

@@ -10,13 +10,15 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<StoredOwner> Owners { get; init; } = null!;
 
-    public DbSet<StoredAccount> Accounts { get; init; } = null!;
+    public DbSet<StoredBudget> Budgets { get; init; } = null!;
 
     public DbSet<StoredOperation> Operations { get; init; } = null!;
 
     public DbSet<StoredRate> Rates { get; init; } = null!;
 
     public DbSet<StoredTransfer> Transfers { get; init; } = null!;
+
+    public DbSet<StoredCsvFileReadingOption> CsvFileReadingOptions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,13 +34,19 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 
         ownBuilder.HasIndex(o => o.UserId);
 
+        var sBuilder = modelBuilder.Entity<StoredCsvFileReadingOption>();
+        sBuilder.OwnsMany<StoredFieldConfiguration>(o => o.FieldConfigurations);
+        sBuilder.OwnsMany<StoredFieldConfiguration>(o => o.AttributesConfiguration);
+        sBuilder.OwnsMany<StoredValidationRule>(o => o.ValidationRules);
+
         var rBuilder = modelBuilder.Entity<StoredRate>();
         rBuilder.HasOne(r => r.Owner).WithMany()
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<StoredAccount>()
-            .HasMany(a => a.Operations)
-            .WithOne(t => t.Budget);
+        var bBuilder = modelBuilder.Entity<StoredBudget>();
+        bBuilder.HasMany(a => a.Operations).WithOne(t => t.Budget);
+        bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
+
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);

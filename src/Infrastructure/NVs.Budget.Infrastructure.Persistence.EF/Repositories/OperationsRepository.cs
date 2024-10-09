@@ -13,7 +13,7 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator, AccountsFinder finder) :
+internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator, BudgetsFinder finder) :
     RepositoryBase<TrackedOperation, Guid, StoredOperation>(mapper, versionGenerator), IOperationsRepository
 {
     private readonly ExpressionSplitter _splitter = new();

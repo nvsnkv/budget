@@ -3,7 +3,7 @@ using FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Tests;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class SubstitutionsParserShould
 {

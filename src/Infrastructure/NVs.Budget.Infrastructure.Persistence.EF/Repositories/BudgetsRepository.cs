@@ -12,7 +12,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
 internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator):
-    RepositoryBase<TrackedBudget, Guid, StoredAccount>(mapper, versionGenerator), IBudgetsRepository
+    RepositoryBase<TrackedBudget, Guid, StoredBudget>(mapper, versionGenerator), IBudgetsRepository
 {
     private readonly DbSet<StoredOwner> _owners = context.Owners;
 
@@ -24,33 +24,33 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             return Result.Fail(new OwnerIsNotRegisteredError());
         }
 
-        var budget = new StoredAccount(Guid.Empty, newBudget.Name)
+        var budget = new StoredBudget(Guid.Empty, newBudget.Name)
         {
             Owners = { storedOwner }
         };
 
         BumpVersion(budget);
 
-        var entry = await context.Accounts.AddAsync(budget, ct);
+        var entry = await context.Budgets.AddAsync(budget, ct);
         await context.SaveChangesAsync(ct);
 
         return Mapper.Map<TrackedBudget>(entry.Entity);
     }
 
-    protected override IQueryable<StoredAccount> GetData(Expression<Func<StoredAccount, bool>> expression)
+    protected override IQueryable<StoredBudget> GetData(Expression<Func<StoredBudget, bool>> expression)
     {
-        return context.Accounts.Include(a => a.Owners.Where(o => !o.Deleted)).Where(expression);
+        return context.Budgets.Include(a => a.Owners.Where(o => !o.Deleted)).Where(expression);
     }
 
-    protected override Task<StoredAccount?> GetTarget(TrackedBudget item, CancellationToken ct)
+    protected override Task<StoredBudget?> GetTarget(TrackedBudget item, CancellationToken ct)
     {
-        return context.Accounts
+        return context.Budgets
             .Include(a => a.Owners.Where(o => !o.Deleted))
             .Where(a => a.Id == item.Id)
             .FirstOrDefaultAsync(ct);
     }
 
-    protected override async Task<Result<StoredAccount>> Update(StoredAccount target, TrackedBudget updated, CancellationToken ct)
+    protected override async Task<Result<StoredBudget>> Update(StoredBudget target, TrackedBudget updated, CancellationToken ct)
     {
         var ids = updated.Owners.Select(o => o.Id).ToArray();
         var newOwners = await context.Owners.Where(o => ids.Contains(o.Id) && !o.Deleted).ToListAsync(ct);
@@ -76,7 +76,7 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
         return Result.Ok(target);
     }
 
-    protected override Task Remove(StoredAccount target, CancellationToken ct)
+    protected override Task Remove(StoredBudget target, CancellationToken ct)
     {
         target.Deleted = true;
         return context.SaveChangesAsync(ct);

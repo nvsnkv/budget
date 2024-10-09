@@ -3,13 +3,13 @@ using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
-using NVs.Budget.Controllers.Console.IO.Tests.Mocks;
-using NVs.Budget.Controllers.Console.IO.Tests.TestData;
-using NVs.Budget.Controllers.Console.IO.Tests.TestData.FileWithDotsInNumbersAndCyrillicAttributes;
 using NVs.Budget.Infrastructure.IO.Console.Output;
+using NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
+using NVs.Budget.Infrastructure.IO.Console.Tests.TestData.FileWithDotsInNumbersAndCyrillicAttributes;
+using NVs.Budget.Infrastructure.IO.Console.Tests.TestData.ValidFile;
 using NVs.Budget.Utilities.Testing;
 
-namespace NVs.Budget.Controllers.Console.IO.Tests;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
 {

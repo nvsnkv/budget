@@ -4,7 +4,7 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
-namespace NVs.Budget.Controllers.Console.IO.Tests.Mocks;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
 
 internal class FakeReadOnlyBudgetsRepository(TrackedBudget[] budgets) : IBudgetsRepository
 {

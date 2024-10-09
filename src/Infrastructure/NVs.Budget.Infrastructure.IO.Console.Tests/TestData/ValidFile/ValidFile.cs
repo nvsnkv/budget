@@ -1,7 +1,7 @@
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 
-namespace NVs.Budget.Controllers.Console.IO.Tests.TestData;
+namespace NVs.Budget.Infrastructure.IO.Console.Tests.TestData.ValidFile;
 
 internal class ValidFile
 {

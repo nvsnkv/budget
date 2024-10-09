@@ -16,10 +16,10 @@ public class TypeReplacerShould
     public void ReplaceAccountSuccessfully()
     {
         Expression<Func<TrackedBudget, bool>> selectById = a => a.Id != Guid.Empty;
-        var converted = selectById.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
+        var converted = selectById.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         converted.Should().NotBeNull();
 
-        var budget = _fixture.Build<StoredAccount>()
+        var budget = _fixture.Build<StoredBudget>()
             .Without(a => a.Owners)
             .Without(a => a.Operations)
             .Create();
@@ -34,11 +34,11 @@ public class TypeReplacerShould
         var reference = _fixture.Create<TrackedBudget>();
         Expression<Func<TrackedBudget, bool>> expression = a => a.Name == reference.Name;
 
-        var converted = expression.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
+        var converted = expression.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         converted.Should().NotBeNull();
 
         var predicate = converted.Compile();
-        var budget = new StoredAccount(reference.Id, reference.Name);
+        var budget = new StoredBudget(reference.Id, reference.Name);
         predicate(budget).Should().BeTrue();
     }
 
@@ -47,7 +47,7 @@ public class TypeReplacerShould
     {
         var owner = _fixture.Create<Owner>();
         Expression<Func<TrackedBudget, bool>> forOwner = a => a.Owners.Any(o => o.Id == owner.Id);
-        var action = () => forOwner.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
+        var action = () => forOwner.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -56,7 +56,7 @@ public class TypeReplacerShould
     {
         var owners = _fixture.Create<Generator<Owner>>().Take(3).Select(t=> t.Id).ToList();
         Expression<Func<TrackedBudget, bool>> forOwners = a => a.Owners.Any(o => owners.Contains(o.Id));
-        var action = () => forOwners.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
+        var action = () => forOwners.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -77,7 +77,7 @@ public class TypeReplacerShould
         var newAccount = _fixture.Create<UnregisteredBudget>();
         Expression<Func<TrackedBudget, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newAccount.Name;
 
-        var action = () => expression.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);
+        var action = () => expression.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 }
