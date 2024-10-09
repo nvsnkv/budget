@@ -1,4 +1,3 @@
-using FluentResults;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Domain.Aggregates;
 

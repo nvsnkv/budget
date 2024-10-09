@@ -2,7 +2,6 @@
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
@@ -15,7 +14,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 {
     private readonly Fixture _fixture;
     private readonly OperationsRepository _repo;
-    private readonly AccountsRepository _accountsRepo;
+    private readonly BudgetsRepository _budgetsRepo;
     private readonly TestDataFixture _testData;
 
     public OperationsRepositoryShould(DbContextManager manager)
@@ -28,7 +27,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         var context = manager.GetDbBudgetContext();
         _repo = new(manager.Mapper, context, new VersionGenerator(), new AccountsFinder(context));
-        _accountsRepo = new(manager.Mapper, context, new VersionGenerator());
+        _budgetsRepo = new(manager.Mapper, context, new VersionGenerator());
         _testData = manager.TestData;
     }
 
@@ -37,7 +36,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     {
         var transaction = _fixture.Create<UnregisteredOperation>();
         var accountId = _testData.Accounts.First().Id;
-        var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
+        var accounts = await _budgetsRepo.Get(a => a.Id == accountId, CancellationToken.None);
         var account = accounts.Single();
 
         var result = await _repo.Register(transaction, account, CancellationToken.None);
@@ -77,7 +76,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var unregistered = _fixture.Create<UnregisteredOperation>();
         var accountId = _testData.Accounts.First().Id;
 
-        var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
+        var accounts = await _budgetsRepo.Get(a => a.Id == accountId, CancellationToken.None);
         var account = accounts.Single();
 
         var result = await _repo.Register(unregistered, account, CancellationToken.None);

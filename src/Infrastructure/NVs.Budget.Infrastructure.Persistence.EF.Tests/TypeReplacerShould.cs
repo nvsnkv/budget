@@ -74,7 +74,7 @@ public class TypeReplacerShould
     public void ReplaceNestedTypesWithinExtensionMethods()
     {
         var owner = _fixture.Create<Owner>();
-        var newAccount = _fixture.Create<UnregisteredAccount>();
+        var newAccount = _fixture.Create<UnregisteredBudget>();
         Expression<Func<TrackedBudget, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newAccount.Name;
 
         var action = () => expression.ConvertTypes<TrackedBudget, StoredAccount>(MappingProfile.TypeMappings);

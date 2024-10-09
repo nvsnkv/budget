@@ -20,7 +20,7 @@ namespace NVs.Budget.Application.Services.Accounting;
 internal class Accountant(
     IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
-    IAccountManager manager,
+    IBudgetManager manager,
     TagsManager tagsManager,
     TransfersListBuilder transfersListBuilder,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
@@ -30,7 +30,7 @@ internal class Accountant(
         importResultBuilder.Clear();
         transfersListBuilder.Clear();
 
-        var accounts = (await Manager.GetOwnedAccounts(ct)).ToList();
+        var accounts = (await Manager.GetOwnedBudgets(ct)).ToList();
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
         {
@@ -97,7 +97,7 @@ internal class Accountant(
 
     public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedAccounts(ct);
+        var accounts = await Manager.GetOwnedBudgets(ct);
         var result = new Result();
         await foreach (var transaction in operations.WithCancellation(ct))
         {
@@ -159,7 +159,7 @@ internal class Accountant(
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedAccounts(ct);
+        var accounts = await Manager.GetOwnedBudgets(ct);
         var result = new Result();
 
         await foreach (var transfer in transfers.WithCancellation(ct))
@@ -223,18 +223,18 @@ internal class Accountant(
             : Result.Fail(updateResult.Errors);
     }
 
-    private async Task<Result<TrackedBudget>> TryGetAccount(ICollection<TrackedBudget> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
+    private async Task<Result<TrackedBudget>> TryGetAccount(ICollection<TrackedBudget> accounts, UnregisteredBudget budget, bool shouldRegister, CancellationToken ct)
     {
-        var registeredAccount = accounts.FirstOrDefault(a => a.Name == account.Name);
+        var registeredAccount = accounts.FirstOrDefault(a => a.Name == budget.Name);
         if (registeredAccount is not null) return Result.Ok(registeredAccount);
 
         if (!shouldRegister)
         {
             return Result.Fail(new AccountNotFoundError()
-                .WithMetadata(nameof(TrackedBudget.Name), account.Name)
+                .WithMetadata(nameof(TrackedBudget.Name), budget.Name)
             );
         }
-        var result = await Manager.Register(account, ct);
+        var result = await Manager.Register(budget, ct);
         if (!result.IsSuccess)
         {
             return Result.Fail(result.Errors);

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
@@ -10,7 +9,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Entities;
 
 internal class MappingProfile : Profile
 {
-    public static readonly IReadOnlyDictionary<Type, Type> TypeMappings = new Dictionary<Type, Type>()
+    public static readonly IReadOnlyDictionary<Type, Type> TypeMappings = new Dictionary<Type, Type>
     {
         { typeof(Money), typeof(StoredMoney) },
         { typeof(Tag), typeof(StoredTag) },

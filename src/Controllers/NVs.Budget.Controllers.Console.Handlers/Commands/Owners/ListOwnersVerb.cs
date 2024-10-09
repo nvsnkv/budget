@@ -17,7 +17,7 @@ internal class ListOwnersVerb : AbstractVerb
     public string ParamName { get; [UsedImplicitly] set; } = "o";
 
     [Value(0)] public IEnumerable<string>? Criteria { get; [UsedImplicitly] set; }
-};
+}
 
 [UsedImplicitly]
 internal class ListOwnersVerbHandler(IMediator mediator, CriteriaParser parser, IResultWriter<Result> resultWriter, IObjectWriter<TrackedOwner> writer) : IRequestHandler<ListOwnersVerb, ExitCode>

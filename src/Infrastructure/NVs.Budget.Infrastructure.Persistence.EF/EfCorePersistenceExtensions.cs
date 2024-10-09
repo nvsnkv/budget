@@ -16,7 +16,7 @@ public static class EfCorePersistenceExtensions
             .AddTransient<AccountsFinder>()
             .AddSingleton<VersionGenerator>();
 
-        services.AddTransient<IAccountsRepository, AccountsRepository>()
+        services.AddTransient<IBudgetsRepository, BudgetsRepository>()
             .AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>()
             .AddTransient<IOperationsRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()

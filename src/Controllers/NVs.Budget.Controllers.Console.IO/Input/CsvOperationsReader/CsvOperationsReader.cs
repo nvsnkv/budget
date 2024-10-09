@@ -12,7 +12,7 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Controllers.Console.IO.Input.CsvOperationsReader;
 
-internal class CsvOperationsReader(CsvConfiguration configuration, IOptionsSnapshot<CsvReadingOptions> options, IAccountsRepository accountsRepository) : IOperationsReader
+internal class CsvOperationsReader(CsvConfiguration configuration, IOptionsSnapshot<CsvReadingOptions> options, IBudgetsRepository budgetsRepository) : IOperationsReader
 {
     private readonly CsvReadingOptions _options = options.Value;
     public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUnregisteredOperations(StreamReader input, string name, [EnumeratorCancellation] CancellationToken ct)
@@ -47,7 +47,7 @@ internal class CsvOperationsReader(CsvConfiguration configuration, IOptionsSnaps
         var parser = new CsvReader(input, configuration, true);
         parser.Context.RegisterClassMap<CsvTrackedOperationClassMap>();
 
-        var rowParser = new TrackedRowParser(parser, accountsRepository, ct);
+        var rowParser = new TrackedRowParser(parser, budgetsRepository, ct);
 
         while (await rowParser.ReadAsync())
         {

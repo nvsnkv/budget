@@ -18,7 +18,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     [Fact]
     public async Task ParseValidFile()
     {
-        testBed.AccountsRepository = new FakeReadOnlyAccountsRepository([]);
+        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
         var parser = testBed.GetCsvParser("TestData\\ValidFile\\validFileConfig.json");
         var stream = File.OpenRead("TestData\\ValidFile\\validFile.csv");
 
@@ -30,7 +30,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     [Fact]
     public async Task ParseFileWithDotsInNumbersAndCyrillicComments()
     {
-        testBed.AccountsRepository = new FakeReadOnlyAccountsRepository([]);
+        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
         var parser = testBed.GetCsvParser("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.yml");
         var stream = File.OpenRead("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.csv");
 
@@ -53,7 +53,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
             }
         }
 
-        testBed.AccountsRepository = new FakeReadOnlyAccountsRepository(accounts);
+        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository(accounts);
 
         await using var streams = new FakeStreamsProvider();
         testBed.StreamProvider = streams;

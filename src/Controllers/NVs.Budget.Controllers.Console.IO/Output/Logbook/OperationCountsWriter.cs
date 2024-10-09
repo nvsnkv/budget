@@ -1,5 +1,4 @@
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Domain.ValueObjects.Criteria;

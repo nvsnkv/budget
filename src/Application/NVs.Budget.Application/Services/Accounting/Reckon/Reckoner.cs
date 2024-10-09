@@ -6,7 +6,6 @@ using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Domain.Aggregates;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
@@ -20,7 +19,7 @@ internal class Reckoner(
     ITransfersRepository transfersRepo,
     MoneyConverter converter,
     DuplicatesDetector detector,
-    IAccountManager manager) : ReckonerBase(manager), IReckoner
+    IBudgetManager manager) : ReckonerBase(manager), IReckoner
 {
     private static readonly TrackedTransfer[] Empty = [];
 
@@ -33,7 +32,7 @@ internal class Reckoner(
         IReadOnlyCollection<TrackedTransfer> transfers = Empty;
         if (query.ExcludeTransfers)
         {
-            var accounts = await Manager.GetOwnedAccounts(ct);
+            var accounts = await Manager.GetOwnedBudgets(ct);
             var ids = transactions.Select(t => t.Id).ToList();
             transfers = await transfersRepo.Get(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id), ct);
             transfers = transfers

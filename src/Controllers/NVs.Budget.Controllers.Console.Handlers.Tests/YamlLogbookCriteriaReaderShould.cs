@@ -3,7 +3,6 @@ using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Controllers.Console.Handlers.Criteria;
 using NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
-using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Tests;

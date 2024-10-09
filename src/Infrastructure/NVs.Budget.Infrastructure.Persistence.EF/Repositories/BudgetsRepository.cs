@@ -11,12 +11,12 @@ using NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class AccountsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator):
-    RepositoryBase<TrackedBudget, Guid, StoredAccount>(mapper, versionGenerator), IAccountsRepository
+internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator):
+    RepositoryBase<TrackedBudget, Guid, StoredAccount>(mapper, versionGenerator), IBudgetsRepository
 {
     private readonly DbSet<StoredOwner> _owners = context.Owners;
 
-    public async Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, Owner owner, CancellationToken ct)
+    public async Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, Owner owner, CancellationToken ct)
     {
         var storedOwner = await _owners.FirstOrDefaultAsync(o => o.Id == owner.Id, ct);
         if (storedOwner is null)
@@ -24,7 +24,7 @@ internal class AccountsRepository(IMapper mapper, BudgetContext context, Version
             return Result.Fail(new OwnerIsNotRegisteredError());
         }
 
-        var account = new StoredAccount(Guid.Empty, newAccount.Name)
+        var account = new StoredAccount(Guid.Empty, newBudget.Name)
         {
             Owners = { storedOwner }
         };

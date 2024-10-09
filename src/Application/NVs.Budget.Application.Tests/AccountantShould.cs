@@ -30,7 +30,7 @@ public class AccountantShould
         var user = new Mock<IUser>();
         user.Setup(u => u.AsOwner()).Returns(_owner);
 
-        var accountManager = new AccountManager(_storage.Accounts, user.Object);
+        var accountManager = new BudgetManager(_storage.Budgets, user.Object);
 
         var exactTransferCriterion = new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",
             (src, snk) => src.Amount == snk.Amount * -1
@@ -61,7 +61,7 @@ public class AccountantShould
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
         var account = _fixture.Create<TrackedBudget>();
-        _storage.Accounts.Append([account]);
+        _storage.Budgets.Append([account]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");
 
         var data = new ImportTestData(_fixture, [account], _owner);

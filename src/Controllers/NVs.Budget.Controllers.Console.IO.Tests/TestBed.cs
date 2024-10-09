@@ -29,7 +29,7 @@ public class TestBed
         return collection.BuildServiceProvider();
     }
 
-    public IAccountsRepository? AccountsRepository { get; set; }
+    public IBudgetsRepository? AccountsRepository { get; set; }
 
     public IOutputStreamProvider? StreamProvider { get; set; } = new FakeStreamsProvider();
 

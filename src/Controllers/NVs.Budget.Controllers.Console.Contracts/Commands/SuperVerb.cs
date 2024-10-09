@@ -1,5 +1,4 @@
 ﻿using CommandLine;
-using MediatR;
 
 namespace NVs.Budget.Controllers.Console.Contracts.Commands;
 

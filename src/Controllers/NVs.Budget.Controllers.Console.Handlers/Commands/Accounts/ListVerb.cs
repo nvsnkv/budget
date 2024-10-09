@@ -14,7 +14,7 @@ internal class ListVerbHandler(IMediator mediator, IObjectWriter<TrackedBudget> 
 {
     public async Task<ExitCode> Handle(ListVerb request, CancellationToken cancellationToken)
     {
-        var accounts = await mediator.Send(new ListOwnedAccountsQuery(), cancellationToken);
+        var accounts = await mediator.Send(new ListOwnedBudgetsQuery(), cancellationToken);
         await writer.Write(accounts, cancellationToken);
 
         return ExitCode.Success;

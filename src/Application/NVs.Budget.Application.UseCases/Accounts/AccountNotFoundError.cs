@@ -1,5 +1,4 @@
 using FluentResults;
-using NVs.Budget.Domain.Entities.Accounts;
 
 namespace NVs.Budget.Application.UseCases.Accounts;
 

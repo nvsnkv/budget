@@ -19,7 +19,7 @@ internal class DuplicatesDetector(DuplicatesDetectorOptions options)
 
             if (!duplicateFound)
             {
-                buckets.Add(new List<TrackedOperation>() { transaction });
+                buckets.Add(new List<TrackedOperation> { transaction });
             }
         }
 

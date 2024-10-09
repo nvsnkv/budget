@@ -99,7 +99,7 @@ public class Transfer : IEnumerable<Operation>
         }
 
         var tags = Enumerable.Repeat(TransferTag, 1);
-        var attributes = new Dictionary<string, object>()
+        var attributes = new Dictionary<string, object>
         {
             { nameof(Source), Source.Id },
             { nameof(Sink), Sink.Id }

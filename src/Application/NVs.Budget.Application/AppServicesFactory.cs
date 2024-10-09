@@ -16,7 +16,7 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 namespace NVs.Budget.Application;
 
 public sealed class AppServicesFactory(
-    IAccountsRepository accountsRepository,
+    IBudgetsRepository budgetsRepository,
     IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
     IExchangeRatesRepository ratesRepository,
@@ -27,7 +27,7 @@ public sealed class AppServicesFactory(
 {
     public DuplicatesDetectorOptions DuplicatesDetectorOptions { get; set; } = DuplicatesDetectorOptions.Default;
 
-    public IAccountManager CreateAccountManager() => new AccountManager(accountsRepository, userCache.CachedUser);
+    public IBudgetManager CreateAccountManager() => new BudgetManager(budgetsRepository, userCache.CachedUser);
     public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
     public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
 

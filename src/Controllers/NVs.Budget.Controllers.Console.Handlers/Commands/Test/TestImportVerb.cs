@@ -8,7 +8,6 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Output;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Test;

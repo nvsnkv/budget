@@ -8,24 +8,24 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting;
 
-internal class AccountManager(IAccountsRepository repository, IUser currentUser) : IAccountManager
+internal class BudgetManager(IBudgetsRepository repository, IUser currentUser) : IBudgetManager
 {
     private readonly Owner _currentOwner = currentUser.AsOwner();
 
-    public Task<IReadOnlyCollection<TrackedBudget>> GetOwnedAccounts(CancellationToken ct)
+    public Task<IReadOnlyCollection<TrackedBudget>> GetOwnedBudgets(CancellationToken ct)
     {
         var id = _currentOwner.Id;
         return repository.Get(a => a.Owners.Any(o => o.Id == id), ct);
     }
 
-    public async Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, CancellationToken ct)
+    public async Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, CancellationToken ct)
     {
         var existing = await repository.Get(
-            a => a.Owners.Any(o => o.Id == _currentOwner.Id) && a.Name == newAccount.Name,
+            a => a.Owners.Any(o => o.Id == _currentOwner.Id) && a.Name == newBudget.Name,
             ct);
         if (existing.Count != 0) return Result.Fail<TrackedBudget>(new AccountAlreadyExistsError());
 
-        return await repository.Register(newAccount, _currentOwner, ct);
+        return await repository.Register(newBudget, _currentOwner, ct);
     }
 
     public async Task<Result> ChangeOwners(TrackedBudget budget, IReadOnlyCollection<Owner> owners, CancellationToken ct)

@@ -1,6 +1,4 @@
-﻿
-using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.Entities.Operations;
+﻿using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.Extensions;
 

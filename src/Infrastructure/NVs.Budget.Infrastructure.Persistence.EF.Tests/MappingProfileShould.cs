@@ -3,7 +3,6 @@ using AutoFixture.Kernel;
 using AutoMapper;
 using FluentAssertions;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;

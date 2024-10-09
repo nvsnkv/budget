@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using NMoneys;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Utilities.Testing;

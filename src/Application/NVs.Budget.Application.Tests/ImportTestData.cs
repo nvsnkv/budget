@@ -3,7 +3,6 @@ using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Results;
-using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Utilities.Testing;
 
@@ -12,7 +11,7 @@ namespace NVs.Budget.Application.Tests;
 internal class ImportTestData
 {
     private readonly Owner _owner;
-    private readonly UnregisteredAccount[] _accounts;
+    private readonly UnregisteredBudget[] _accounts;
     private readonly UnregisteredOperation[] _justTransactions;
     private readonly UnregisteredOperation[] _transfer;
     private readonly UnregisteredOperation[] _duplicates;
@@ -20,8 +19,8 @@ internal class ImportTestData
     public ImportTestData(Fixture fixture, IEnumerable<TrackedBudget> knownAccounts, Owner owner)
     {
         _owner = owner;
-        _accounts = fixture.CreateMany<UnregisteredAccount>().Take(2)
-            .Concat(knownAccounts.Select(a => new UnregisteredAccount(a.Name)))
+        _accounts = fixture.CreateMany<UnregisteredBudget>().Take(2)
+            .Concat(knownAccounts.Select(a => new UnregisteredBudget(a.Name)))
             .ToArray();
 
         _justTransactions = _accounts.SelectMany(a =>
@@ -38,7 +37,7 @@ internal class ImportTestData
         var source = fixture.Create<UnregisteredOperation>();
         var sink = new UnregisteredOperation(source.Timestamp, source.Amount * -1, source.Description, new Dictionary<string, object>(), _accounts[1]);
         _transfer = [source, sink];
-        fixture.ResetNamedParameter<UnregisteredAccount>(nameof(UnregisteredOperation.Budget));
+        fixture.ResetNamedParameter<UnregisteredBudget>(nameof(UnregisteredOperation.Budget));
         fixture.ResetNamedParameter<decimal>(nameof(Money.Amount));
 
         fixture.SetNamedParameter(nameof(UnregisteredOperation.Budget), _accounts[^1]);

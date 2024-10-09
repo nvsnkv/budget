@@ -1,5 +1,3 @@
-using FluentResults;
-
 namespace NVs.Budget.Controllers.Console.Contracts.IO.Output;
 
 public interface IOutputStreamProvider

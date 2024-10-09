@@ -8,7 +8,6 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Output;
 using NVs.Budget.Controllers.Console.IO.Output;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
@@ -19,7 +18,7 @@ internal class ListEffectiveSettingsVerb : AbstractVerb;
 
 internal class ListEffectiveSettingsVerbHandler(
     IOutputStreamProvider streams,
-    IOptionsSnapshot<OutputOptions> outputOptions,
+    IOptions<OutputOptions> outputOptions,
     IConfigurationRoot configuration,
     IDbConnectionInfo dbConnectionInfo,
     IReadOnlyList<TransferCriterion> transferCriteria,
@@ -68,7 +67,7 @@ internal class ListEffectiveSettingsVerbHandler(
             "$Description",
             new(Guid.Empty, "$Account.Name",[new(Guid.Empty, "$Account.Owner")]),
             [new Tag("$Tag")],
-            new Dictionary<string, object>()
+            new Dictionary<string, object>
             {
                 {"Category", "$Attrbutes[\"Category\"]" },
                 {"Comment", "$Attrbutes[\"Comment\"]" },

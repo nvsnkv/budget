@@ -4,10 +4,10 @@ using NVs.Budget.Domain.Entities.Accounts;
 
 namespace NVs.Budget.Application.Contracts.Services;
 
-public interface IAccountManager
+public interface IBudgetManager
 {
-    Task<IReadOnlyCollection<TrackedBudget>> GetOwnedAccounts(CancellationToken ct);
-    Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, CancellationToken ct);
+    Task<IReadOnlyCollection<TrackedBudget>> GetOwnedBudgets(CancellationToken ct);
+    Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, CancellationToken ct);
     Task<Result> ChangeOwners(TrackedBudget budget, IReadOnlyCollection<Owner> owners, CancellationToken ct);
     Task<Result> Update(TrackedBudget budget, CancellationToken ct);
     Task<Result> Remove(TrackedBudget budget, CancellationToken ct);

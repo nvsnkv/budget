@@ -1,5 +1,4 @@
 ﻿using NMoneys;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Domain.Entities.Operations;

@@ -1,7 +1,6 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Contracts.IO.Options;

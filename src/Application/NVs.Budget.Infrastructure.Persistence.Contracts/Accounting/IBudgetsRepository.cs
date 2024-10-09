@@ -5,10 +5,10 @@ using NVs.Budget.Domain.Entities.Accounts;
 
 namespace NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
-public interface IAccountsRepository
+public interface IBudgetsRepository
 {
     Task<IReadOnlyCollection<TrackedBudget>> Get(Expression<Func<TrackedBudget, bool>> filter, CancellationToken ct);
-    Task<Result<TrackedBudget>> Register(UnregisteredAccount newAccount, Owner owner, CancellationToken ct);
+    Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, Owner owner, CancellationToken ct);
     Task<Result<TrackedBudget>> Update(TrackedBudget budget, CancellationToken ct);
     Task<Result> Remove(TrackedBudget budget, CancellationToken ct);
 }

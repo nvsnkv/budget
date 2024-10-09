@@ -13,18 +13,18 @@ namespace NVs.Budget.Application.Tests;
 
 public class AccountManagerShould
 {
-    private readonly FakeAccountsRepository _repository = new();
+    private readonly FakeBudgetsRepository _repository = new();
     private readonly Fixture _fixture = new();
     private readonly Mock<IUser> _user = new();
 
-    private readonly AccountManager _manager;
+    private readonly BudgetManager _manager;
     private readonly Owner _owner;
 
     public AccountManagerShould()
     {
         _owner = _fixture.Create<Owner>();
         _user.Setup(u => u.AsOwner()).Returns(_owner);
-        _manager = new AccountManager(_repository, _user.Object);
+        _manager = new BudgetManager(_repository, _user.Object);
     }
 
     [Fact]
@@ -36,21 +36,21 @@ public class AccountManagerShould
         _repository.Append(ownedAccounts);
         _repository.Append(notOwnedAccounts);
 
-        var accounts = await _manager.GetOwnedAccounts(CancellationToken.None);
+        var accounts = await _manager.GetOwnedBudgets(CancellationToken.None);
         accounts.Should().BeEquivalentTo(ownedAccounts);
     }
 
     [Fact]
     public async Task CreateAccount()
     {
-        var newAccount = _fixture.Create<UnregisteredAccount>();
+        var newAccount = _fixture.Create<UnregisteredBudget>();
         var result = await _manager.Register(newAccount, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Owners.Should().HaveCount(1);
         result.Value.Owners.Single().Should().Be(_user.Object.AsOwner());
 
-        var accounts = await _manager.GetOwnedAccounts(CancellationToken.None);
+        var accounts = await _manager.GetOwnedBudgets(CancellationToken.None);
         accounts.Should().Contain(result.Value);
     }
 
@@ -73,7 +73,7 @@ public class AccountManagerShould
         var result = await _manager.Update(expected, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
 
-        accounts = (IReadOnlyList<TrackedBudget>)await _manager.GetOwnedAccounts(CancellationToken.None);
+        accounts = (IReadOnlyList<TrackedBudget>)await _manager.GetOwnedBudgets(CancellationToken.None);
         accounts.Should().Contain(a => a.Id == expected.Id);
         var actual = accounts.Single(a => a.Id == expected.Id);
         actual.Name.Should().Be(expected.Name);
@@ -112,7 +112,7 @@ public class AccountManagerShould
         var result = await _manager.ChangeOwners(expected, owners, CancellationToken.None);
         result.IsSuccess.Should().BeTrue();
 
-        var actuals = await _manager.GetOwnedAccounts(CancellationToken.None);
+        var actuals = await _manager.GetOwnedBudgets(CancellationToken.None);
         actuals.Should().HaveCount(1);
         var actual = actuals.Single();
         actual.Id.Should().Be(expected.Id);

@@ -38,7 +38,7 @@ public class ReckonerShould
 
 
         var converter = new MoneyConverter(new Mock<IExchangeRatesRepository>().Object, _ratesProvider.Object, user.Object);
-        var manager = new AccountManager(_storage.Accounts, user.Object);
+        var manager = new BudgetManager(_storage.Budgets, user.Object);
 
         _reckoner = new Reckoner(
             _storage.Operations,
@@ -48,7 +48,7 @@ public class ReckonerShould
             manager);
 
         _data = new ReckonerTestData(_currentOwner, 2, 4, 6);
-        _storage.Accounts.Append(_data.AllAccounts);
+        _storage.Budgets.Append(_data.AllAccounts);
         _storage.Operations.Append(_data.AllTransactions);
 
     }

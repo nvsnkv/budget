@@ -12,14 +12,14 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 [Collection(nameof(DatabaseCollectionFixture))]
 public class AccountsRepositoryShould(DbContextManager manager): IClassFixture<DbContextManager>
 {
-    private readonly AccountsRepository _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
+    private readonly BudgetsRepository _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
 
     [Fact]
     public async Task RegisterAnAccount()
     {
         var owner = manager.TestData.Owners.First();
 
-        var account = manager.TestData.Fixture.Create<UnregisteredAccount>();
+        var account = manager.TestData.Fixture.Create<UnregisteredBudget>();
         var result = await _repo.Register(account, owner, CancellationToken.None);
 
         result.Should().BeSuccess();

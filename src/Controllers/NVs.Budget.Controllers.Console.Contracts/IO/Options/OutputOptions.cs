@@ -7,4 +7,4 @@ public class OutputOptions
     public string OutputStreamName { get; set; } = string.Empty;
 
     public string ErrorStreamName { get; set; } = string.Empty;
-};
+}
