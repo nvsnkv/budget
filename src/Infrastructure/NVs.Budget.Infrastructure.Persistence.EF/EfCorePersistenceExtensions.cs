@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -17,6 +18,7 @@ public static class EfCorePersistenceExtensions
             .AddSingleton<VersionGenerator>();
 
         services.AddTransient<IBudgetsRepository, BudgetsRepository>()
+            .AddTransient<IBudgetSpecificSettingsRepository, BudgetSpecificSettingsRepository>()
             .AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>()
             .AddTransient<IOperationsRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()

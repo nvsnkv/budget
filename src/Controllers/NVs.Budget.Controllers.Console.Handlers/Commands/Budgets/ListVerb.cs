@@ -5,7 +5,7 @@ using NVs.Budget.Application.Contracts.UseCases.Accounts;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
-namespace NVs.Budget.Controllers.Console.Handlers.Commands.Accounts;
+namespace NVs.Budget.Controllers.Console.Handlers.Commands.Budgets;
 
 [Verb("list", true, HelpText = "Lists owned budgets for current user")]
 internal class ListVerb : AbstractVerb;

@@ -9,6 +9,7 @@ using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Input.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Input.Options;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader;
 

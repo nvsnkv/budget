@@ -3,8 +3,10 @@ using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Utilities.Expressions;
+using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
@@ -13,15 +15,16 @@ public class TypeReplacerShould
     private readonly Fixture _fixture = new();
 
     [Fact]
-    public void ReplaceAccountSuccessfully()
+    public void ReplaceBudgetSuccessfully()
     {
         Expression<Func<TrackedBudget, bool>> selectById = a => a.Id != Guid.Empty;
         var converted = selectById.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         converted.Should().NotBeNull();
 
         var budget = _fixture.Build<StoredBudget>()
-            .Without(a => a.Owners)
-            .Without(a => a.Operations)
+            .Without(b => b.Owners)
+            .Without(b => b.Operations)
+            .Without(b => b.CsvReadingOptions)
             .Create();
 
         var predicate = converted.Compile();

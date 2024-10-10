@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using NVs.Budget.Infrastructure.IO.Console.Input.Options;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Options;
 

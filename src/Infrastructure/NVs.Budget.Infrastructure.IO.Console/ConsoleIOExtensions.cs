@@ -14,7 +14,7 @@ using NVs.Budget.Infrastructure.IO.Console.Input.CsvTransfersReader;
 using NVs.Budget.Infrastructure.IO.Console.Input.Options;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
-using NVs.Budget.Infrastructure.IO.Console.Output.Accounts;
+using NVs.Budget.Infrastructure.IO.Console.Output.Budgets;
 using NVs.Budget.Infrastructure.IO.Console.Output.Logbook;
 using NVs.Budget.Infrastructure.IO.Console.Output.Operations;
 using NVs.Budget.Infrastructure.IO.Console.Output.Owners;
@@ -32,7 +32,8 @@ public static class ConsoleIOExtensions
         services.AddTransient<IObjectWriter<TrackedOperation>, TrackedOperationsWriter>();
         services.AddTransient<IObjectWriter<TrackedTransfer>, TransfersWriter>();
         services.AddTransient<IObjectWriter<Operation>, OperationsWriter>();
-        services.AddTransient<IObjectWriter<TrackedBudget>, TrackedAccountsWriter>();
+        services.AddTransient<IObjectWriter<TrackedBudget>, TrackedBudgetWriter>();
+        services.AddTransient<IObjectWriter<CsvReadingOptions>, YamlBasedCsvReadingOptionsWriter>();
 
         services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
         services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
@@ -43,6 +44,7 @@ public static class ConsoleIOExtensions
         services.AddTransient<IOperationsReader, CsvOperationsReader>();
         services.AddTransient<ITransfersReader, CsvTransfersReader>();
         services.AddTransient<IOutputOptionsChanger, OutputOptionsChanger>();
+        services.AddTransient<ICsvReadingOptionsReader, YamlBasedCsvReadingOptionsReader>();
 
         services.AddTransient<IInputStreamProvider, ConsoleInputStream>();
         

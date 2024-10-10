@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Globalization;
 
-namespace NVs.Budget.Infrastructure.IO.Console.Input.Options;
+namespace NVs.Budget.Infrastructure.IO.Console.Options;
 
 public class CsvFileReadingOptions(
     IDictionary<string, FieldConfiguration> configurations,

@@ -30,7 +30,7 @@ internal class CsvMappingProfile : Profile
             .ForMember(c => c.SinkId, o => o.MapFrom(t => t.Sink.Id))
             .ForMember(c => c.Fee, o => o.ConvertUsing<Money>(MoneyConverter.Instance));
 
-        CreateMap<TrackedBudget, CsvAccount>()
+        CreateMap<TrackedBudget, CsvBudget>()
             .ForMember(c => c.Owners, o => o.ConvertUsing(OwnersConverter.Instance));
     }
 }

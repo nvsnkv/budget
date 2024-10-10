@@ -1,4 +1,4 @@
-namespace NVs.Budget.Infrastructure.IO.Console.Input.Options;
+namespace NVs.Budget.Infrastructure.IO.Console.Options;
 
 public record ValidationRule(
     FieldConfiguration FieldConfiguration,

@@ -32,10 +32,24 @@ internal class EntryPoint(
                 return (int)ExitCode.ArgumentsError;
             }
 
-            var line = await reader.Value.ReadLineAsync(ct);
-            args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+            do
+            {
+                var line = await reader.Value.ReadLineAsync(ct);
+                if (ct.IsCancellationRequested)
+                {
+                    return (int)ExitCode.Cancelled;
+                }
+
+                args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+                await ProcessArgs(args, ct);
+            } while (!ct.IsCancellationRequested);
         }
 
+        return await ProcessArgs(args, ct);
+    }
+
+    private async Task<int> ProcessArgs(string[] args, CancellationToken ct)
+    {
         var parsedResult = parser.ParseArguments(args, SuperVerbTypes);
         return await parsedResult.MapResult(async obj =>
             {

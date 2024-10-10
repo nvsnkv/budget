@@ -1,4 +1,4 @@
-using NVs.Budget.Infrastructure.IO.Console.Input.Options;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Entities;
 
