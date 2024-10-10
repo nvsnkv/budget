@@ -4,6 +4,7 @@ using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
+using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
@@ -19,6 +20,7 @@ internal class DetailsVerbHandler(
     IBudgetManager manager,
     IBudgetSpecificSettingsRepository csvSettingsRepo,
     IObjectWriter<TrackedBudget> budgetWriter,
+    IObjectWriter<CsvReadingOptions> optionsWriter,
     IResultWriter<Result> writer) : IRequestHandler<DetailsVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(DetailsVerb request, CancellationToken cancellationToken)
@@ -42,7 +44,7 @@ internal class DetailsVerbHandler(
         var config = await csvSettingsRepo.GetReadingOptionsFor(budget, cancellationToken);
         if (config is not null)
         {
-
+            await optionsWriter.Write(config, cancellationToken);
         }
 
         return ExitCode.Success;

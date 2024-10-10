@@ -18,7 +18,7 @@ public class YamlBasedCsvReadingOptionsWriter(IOutputStreamProvider streams, IOp
             await writer.WriteLineAsync("    DateTimeKind: " + fileOpts.DateTimeKind);
             foreach (var (field, config) in fileOpts)
             {
-                await writer.WriteLineAsync($"    {Encode(field)}: '{Encode(config.Pattern)}'");
+                await writer.WriteLineAsync($"    {Encode(field)}: {Encode(config.Pattern)}");
             }
 
             await writer.WriteLineAsync("    Attributes:");

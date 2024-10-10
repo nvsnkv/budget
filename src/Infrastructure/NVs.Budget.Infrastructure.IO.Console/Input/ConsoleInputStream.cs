@@ -9,6 +9,11 @@ internal class ConsoleInputStream : IInputStreamProvider, IDisposable
     private readonly ConcurrentDictionary<string, StreamReader> _readers = new();
     private volatile bool _disposed;
 
+    public ConsoleInputStream()
+    {
+        System.Console.InputEncoding = System.Text.Encoding.GetEncoding(65001);
+    }
+
     public Task<Result<StreamReader>> GetInput(string name = "")
     {
         if (_disposed) throw new ObjectDisposedException(nameof(ConsoleInputStream));

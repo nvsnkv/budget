@@ -8,6 +8,11 @@ internal class ConsoleOutputStreams : IOutputStreamProvider, IAsyncDisposable
     private readonly ConcurrentDictionary<string, StreamWriter> _errors = new();
     private volatile bool _disposed;
 
+    public ConsoleOutputStreams()
+    {
+        System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(65001);
+    }
+
     public Task<StreamWriter> GetOutput(string name = "") => Task.FromResult(GetWriter(_outputs, name, CreateOutputWriter));
 
     public Task<StreamWriter> GetError(string name = "") => Task.FromResult(GetWriter(_errors, name, CreateErrorWriter));
