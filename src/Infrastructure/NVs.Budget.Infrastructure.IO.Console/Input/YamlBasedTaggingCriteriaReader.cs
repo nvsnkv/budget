@@ -5,15 +5,15 @@ using YamlDotNet.RepresentationModel;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
 
-internal class YamlBasedTaggingRulesReader : YamlReader, ITaggingRulesReader
+internal class YamlBasedTaggingCriteriaReader : YamlReader, ITaggingCriteriaReader
 {
-    public IAsyncEnumerable<Result<TaggingRule>> ReadFrom(StreamReader reader, CancellationToken ct)
+    public IAsyncEnumerable<Result<TaggingCriterion>> ReadFrom(StreamReader reader, CancellationToken ct)
     {
         var results = ReadSync(reader);
         return results.ToAsyncEnumerable();
     }
 
-    private IEnumerable<Result<TaggingRule>> ReadSync(StreamReader reader)
+    private IEnumerable<Result<TaggingCriterion>> ReadSync(StreamReader reader)
     {
         var rootResult = LoadRootNodeFrom(reader);
         if (rootResult.IsFailed)
@@ -23,7 +23,7 @@ internal class YamlBasedTaggingRulesReader : YamlReader, ITaggingRulesReader
         }
 
         var root = rootResult.Value;
-        foreach (var (tagKey, tagRules) in root)
+        foreach (var (tagKey, tagCriteria) in root)
         {
             var tag = ReadString(tagKey, EmptyPath);
             if (!tag.IsSuccess)
@@ -32,22 +32,22 @@ internal class YamlBasedTaggingRulesReader : YamlReader, ITaggingRulesReader
                 continue;
             }
 
-            if (tagRules is not YamlSequenceNode rules)
+            if (tagCriteria is not YamlSequenceNode criteria)
             {
-                yield return Result.Fail(new UnexpectedNodeTypeError(tagRules.GetType(), typeof(YamlSequenceNode), [tag.Value]));
+                yield return Result.Fail(new UnexpectedNodeTypeError(tagCriteria.GetType(), typeof(YamlSequenceNode), [tag.Value]));
                 continue;
             }
 
-            foreach (var ruleNode in rules)
+            foreach (var criterionNode in criteria)
             {
-                var rule = ReadString(ruleNode, [tag.Value]);
-                if (!rule.IsSuccess)
+                var criterion = ReadString(criterionNode, [tag.Value]);
+                if (!criterion.IsSuccess)
                 {
-                    yield return rule.ToResult();
+                    yield return criterion.ToResult();
                 }
                 else
                 {
-                    yield return new TaggingRule(tag.Value, rule.Value);
+                    yield return new TaggingCriterion(tag.Value, criterion.Value);
                 }
             }
         }

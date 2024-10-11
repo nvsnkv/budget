@@ -21,8 +21,7 @@ internal class ListEffectiveSettingsVerbHandler(
     IOptions<OutputOptions> outputOptions,
     IConfigurationRoot configuration,
     IDbConnectionInfo dbConnectionInfo,
-    IReadOnlyList<TransferCriterion> transferCriteria,
-    IReadOnlyCollection<TaggingRule> taggingCriteria
+    IReadOnlyList<TransferCriterion> transferCriteria
 ) : IRequestHandler<ListEffectiveSettingsVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListEffectiveSettingsVerb request, CancellationToken cancellationToken)
@@ -59,16 +58,7 @@ internal class ListEffectiveSettingsVerbHandler(
 
         await writer.WriteLineAsync();
 
-        await writer.WriteLineAsync("5. Tagging criteria ($ sign and zeroes indicate substitution)");
-
-        foreach (var criterion in taggingCriteria)
-        {
-            await writer.WriteLineAsync($"{criterion.Tag}: {criterion.Condition}");
-        }
-
-        await writer.WriteLineAsync();
-
-        await writer.WriteLineAsync("6. Parsing rules");
+        await writer.WriteLineAsync("5. Parsing rules");
         await writer.WriteLineAsync($"CultureCode: {configuration.GetValue<string>("CultureCode") ?? "not specified"}");
         await writer.WriteLineAsync("Known input types:");
         foreach (var section in configuration.GetSection("CsvReadingOptions").GetChildren())

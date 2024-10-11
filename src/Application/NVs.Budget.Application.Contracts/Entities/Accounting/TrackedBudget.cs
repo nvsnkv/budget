@@ -3,19 +3,19 @@ using NVs.Budget.Domain.Entities.Accounts;
 
 namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
-public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnumerable<TaggingRule> taggingRules)
+public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnumerable<TaggingCriterion> taggingCriteria)
     : Domain.Entities.Accounts.Budget(id, name, owners), ITrackableEntity<Guid>
 {
-    private readonly List<TaggingRule> _taggingRules = [..OrderRules(taggingRules)];
+    private readonly List<TaggingCriterion> _taggingRules = [..OrderCriteria(taggingCriteria)];
 
-    public IReadOnlyCollection<TaggingRule> TaggingRules => _taggingRules.AsReadOnly();
+    public IReadOnlyCollection<TaggingCriterion> TaggingCriteria => _taggingRules.AsReadOnly();
     public string? Version { get; set; }
 
-    public void SetTaggingRules(IEnumerable<TaggingRule> rules)
+    public void SetTaggingRules(IEnumerable<TaggingCriterion> criteria)
     {
         _taggingRules.Clear();
-        _taggingRules.AddRange(OrderRules(rules));
+        _taggingRules.AddRange(OrderCriteria(criteria));
     }
 
-    private static IEnumerable<TaggingRule> OrderRules(IEnumerable<TaggingRule> rules) => rules.OrderBy(r => r.Tag).ThenBy(r => r.Condition);
+    private static IEnumerable<TaggingCriterion> OrderCriteria(IEnumerable<TaggingCriterion> criteria) => criteria.OrderBy(r => r.Tag).ThenBy(r => r.Condition);
 }

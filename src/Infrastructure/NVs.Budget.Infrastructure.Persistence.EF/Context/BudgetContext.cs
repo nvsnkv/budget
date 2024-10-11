@@ -46,7 +46,7 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         var bBuilder = modelBuilder.Entity<StoredBudget>();
         bBuilder.HasMany(a => a.Operations).WithOne(t => t.Budget);
         bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
-        bBuilder.OwnsMany<StoredTaggingRule>(b => b.TaggingRules).WithOwner(t => t.Budget);
+        bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(t => t.Budget);
 
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();

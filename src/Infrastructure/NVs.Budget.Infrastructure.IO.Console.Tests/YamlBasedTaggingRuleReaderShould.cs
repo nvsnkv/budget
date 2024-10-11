@@ -10,7 +10,7 @@ namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 public class YamlBasedTaggingRuleReaderShould
 {
     private readonly Fixture _fixture = new();
-    private readonly YamlBasedTaggingRulesReader _reader = new();
+    private readonly YamlBasedTaggingCriteriaReader _reader = new();
 
     [Fact]
     public async Task ReadValues()
@@ -24,7 +24,7 @@ public class YamlBasedTaggingRuleReaderShould
             tags[keys[i]].AddRange(values);
         }
 
-        var expected = tags.SelectMany(kv => kv.Value.Select(v => new TaggingRule(kv.Key, v))).ToList();
+        var expected = tags.SelectMany(kv => kv.Value.Select(v => new TaggingCriterion(kv.Key, v))).ToList();
         var stream = GetStream(tags);
 
         var actual = await _reader.ReadFrom(new StreamReader(stream), CancellationToken.None).ToListAsync();

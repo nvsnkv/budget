@@ -29,7 +29,7 @@ internal class UpdateVerb : AbstractVerb
 internal class UpdateVerbHandler(
     IInputStreamProvider input,
     ICsvReadingOptionsReader reader,
-    ITaggingRulesReader taggingRulesReader,
+    ITaggingCriteriaReader taggingCriteriaReader,
     IBudgetManager manager,
     IBudgetSpecificSettingsRepository repository,
     IResultWriter<Result> resultWriter
@@ -64,7 +64,7 @@ internal class UpdateVerbHandler(
             hasChanges = true;
         }
 
-        List<TaggingRule>? rules = null;
+        List<TaggingCriterion>? taggingCriteria = null;
         if (!string.IsNullOrEmpty(request.TaggingRulesPath))
         {
             if (!File.Exists(request.TaggingRulesPath))
@@ -80,12 +80,12 @@ internal class UpdateVerbHandler(
                 return ExitCode.ArgumentsError;
             }
 
-            rules = new List<TaggingRule>();
-            await foreach (var rule in taggingRulesReader.ReadFrom(stream.Value, cancellationToken))
+            taggingCriteria = new List<TaggingCriterion>();
+            await foreach (var rule in taggingCriteriaReader.ReadFrom(stream.Value, cancellationToken))
             {
                 if (rule.IsSuccess)
                 {
-                    rules.Add(rule.Value);
+                    taggingCriteria.Add(rule.Value);
                 }
                 else
                 {
@@ -94,9 +94,9 @@ internal class UpdateVerbHandler(
             }
         }
 
-        if (rules is not null)
+        if (taggingCriteria is not null)
         {
-            budget.SetTaggingRules(rules);
+            budget.SetTaggingRules(taggingCriteria);
             hasChanges = true;
         }
 

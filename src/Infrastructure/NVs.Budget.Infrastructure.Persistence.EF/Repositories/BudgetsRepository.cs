@@ -46,7 +46,7 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
     {
         return context.Budgets
             .Include(b => b.Owners.Where(o => !o.Deleted))
-            .Include(b => b.TaggingRules)
+            .Include(b => b.TaggingCriteria)
             .Where(b => b.Id == item.Id)
             .FirstOrDefaultAsync(ct);
     }
@@ -73,11 +73,11 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             target.Owners.Add(toAdd);
         }
 
-        target.TaggingRules.Clear();
-        foreach (var rule in updated.TaggingRules.Select(Mapper.Map<StoredTaggingRule>))
+        target.TaggingCriteria.Clear();
+        foreach (var rule in updated.TaggingCriteria.Select(Mapper.Map<StoredTaggingCriterion>))
         {
             rule.Budget = target;
-            target.TaggingRules.Add(rule);
+            target.TaggingCriteria.Add(rule);
         }
 
         await context.SaveChangesAsync(ct);

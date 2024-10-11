@@ -25,7 +25,7 @@ public class TypeReplacerShould
             .Without(b => b.Owners)
             .Without(b => b.Operations)
             .Without(b => b.CsvReadingOptions)
-            .Without(b => b.TaggingRules)
+            .Without(b => b.TaggingCriteria)
             .Create();
 
         var predicate = converted.Compile();

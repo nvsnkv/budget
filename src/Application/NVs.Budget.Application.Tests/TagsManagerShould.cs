@@ -21,7 +21,7 @@ public class TagsManagerShould
         var transaction = _fixture.Create<TrackedOperation>();
         var another = _fixture.Create<TrackedOperation>();
 
-        var rules = new TaggingRule[]
+        var rules = new TaggingCriterion[]
         {
             new("\"Universe\"", "true"),
             new("\"Unique\"", $"o.Id == Guid.Parse(\"{transaction.Id}\")"),

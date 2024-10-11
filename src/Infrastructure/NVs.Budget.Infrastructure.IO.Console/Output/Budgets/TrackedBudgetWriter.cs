@@ -15,10 +15,10 @@ internal class TrackedBudgetWriter(IOutputStreamProvider streams, IOptionsSnapsh
     private async Task<bool> WriteDetails(TrackedBudget budget, CancellationToken ct)
     {
         var writer = await Streams.GetOutput(Options.Value.OutputStreamName);
-        if (budget.TaggingRules.Any())
+        if (budget.TaggingCriteria.Any())
         {
             await writer.WriteLineAsync("| Tagging rules");
-            foreach (var rule in budget.TaggingRules)
+            foreach (var rule in budget.TaggingCriteria)
             {
                 await writer.WriteLineAsync($"| {rule.Tag}{rule.Condition}");
             }

@@ -31,7 +31,7 @@ internal class MappingProfile : Profile
         CreateMap<Tag, StoredTag>().ReverseMap();
 
         CreateMap<Owner, StoredOwner>().ReverseMap();
-        CreateMap<TaggingRule, StoredTaggingRule>().ReverseMap();
+        CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
         CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
         CreateMap<Domain.Entities.Accounts.Budget, StoredBudget>().ReverseMap();
         CreateMap<TrackedBudget, StoredBudget>().ReverseMap();

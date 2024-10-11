@@ -3,4 +3,4 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Application.Services.Accounting.Tags;
 
-internal record TaggingCriterion(Func<TrackedOperation, Tag> Tag, Func<TrackedOperation, bool> Criterion);
+internal record TaggingFunc(Func<TrackedOperation, Tag> Tag, Func<TrackedOperation, bool> Criterion);

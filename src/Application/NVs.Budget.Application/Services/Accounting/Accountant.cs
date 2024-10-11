@@ -28,7 +28,7 @@ internal class Accountant(
     {
         importResultBuilder.Clear();
         transfersListBuilder.Clear();
-        var tagsManager = new TagsManager(budget.TaggingRules);
+        var tagsManager = new TagsManager(budget.TaggingCriteria);
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
         {
@@ -102,7 +102,7 @@ internal class Accountant(
 
     public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, bool fromScratch, CancellationToken ct)
     {
-        var tagsManager = new TagsManager(budget.TaggingRules);
+        var tagsManager = new TagsManager(budget.TaggingCriteria);
         var updated = operations.Select(operation =>
         {
             if (fromScratch)

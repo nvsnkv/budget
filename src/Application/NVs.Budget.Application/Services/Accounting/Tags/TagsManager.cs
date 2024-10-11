@@ -9,12 +9,12 @@ namespace NVs.Budget.Application.Services.Accounting.Tags;
 internal class TagsManager
 {
     private static readonly ExpressionParser Parser = new();
-    private readonly IReadOnlyCollection<TaggingCriterion> _criteria;
+    private readonly IReadOnlyCollection<TaggingFunc> _criteria;
 
-    public TagsManager(IEnumerable<TaggingRule> rules)
+    public TagsManager(IEnumerable<TaggingCriterion> criteria)
     {
-        _criteria = rules
-            .Select(r => new TaggingCriterion(
+        _criteria = criteria
+            .Select(r => new TaggingFunc(
                 o => new Tag(Parser.ParseConversion<TrackedOperation, string>(r.Tag, "o").Compile()(o)),
                 Parser.ParsePredicate<TrackedOperation>(r.Condition, "o").Compile()))
             .ToList()

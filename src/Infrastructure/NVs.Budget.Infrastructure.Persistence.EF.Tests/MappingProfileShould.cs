@@ -28,7 +28,7 @@ public class MappingProfileShould
     [Theory]
     [InlineData(typeof(Owner), typeof(StoredOwner))]
     [InlineData(typeof(TrackedOwner), typeof(StoredOwner))]
-    [InlineData(typeof(TaggingRule), typeof(StoredTaggingRule))]
+    [InlineData(typeof(TaggingCriterion), typeof(StoredTaggingCriterion))]
     [InlineData(typeof(Domain.Entities.Accounts.Budget), typeof(StoredBudget))]
     [InlineData(typeof(TrackedBudget), typeof(StoredBudget))]
     [InlineData(typeof(TrackedOperation), typeof(StoredOperation))]

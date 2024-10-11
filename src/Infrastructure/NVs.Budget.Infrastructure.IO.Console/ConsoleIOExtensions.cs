@@ -79,9 +79,6 @@ public static class ConsoleIOExtensions
         var transferCriteria = criteriaListReader.GetTransferCriteria();
         services.AddSingleton(transferCriteria);
 
-        var taggingCriteria = criteriaListReader.GetTaggingCriteria();
-        services.AddSingleton(taggingCriteria);
-
         var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
         services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);
 
