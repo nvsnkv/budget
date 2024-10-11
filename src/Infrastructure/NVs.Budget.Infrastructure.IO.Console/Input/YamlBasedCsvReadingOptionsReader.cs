@@ -1,19 +1,15 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentResults;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
-using NVs.Budget.Infrastructure.IO.Console.Input.Options;
 using NVs.Budget.Infrastructure.IO.Console.Options;
-using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
 
-internal class YamlBasedCsvReadingOptionsReader : ICsvReadingOptionsReader
+internal class YamlBasedCsvReadingOptionsReader : YamlReader, ICsvReadingOptionsReader
 {
-    private static readonly string[] EmptyPath = [];
     private static readonly YamlScalarNode RootKey = new("CsvReadingOptions");
     private static readonly YamlScalarNode CultureCodeKey = new("CultureCode");
     private static readonly YamlScalarNode DateTimeKindKey = new("DateTimeKind");
@@ -27,21 +23,13 @@ internal class YamlBasedCsvReadingOptionsReader : ICsvReadingOptionsReader
 
     private Result<CsvReadingOptions> ReadSync(StreamReader reader)
     {
-        var stream = new YamlStream();
-        try { stream.Load(reader); } catch(YamlException e) { return Result.Fail(new ExceptionBasedError(e, e.ToString())); }
-
-        var count = stream.Documents.Count;
-        if (count != 1)
+        var mapResult = LoadRootNodeFrom(reader);
+        if (!mapResult.IsSuccess)
         {
-            return Result.Fail(new YamlParsingError(count == 0 ? "No YAML document found in input" : "Multiple documents found in input", EmptyPath));
+            return mapResult.ToResult();
         }
 
-        var document = stream.Documents.Single();
-
-        if (document.RootNode is not YamlMappingNode mapping)
-        {
-            return Result.Fail(new UnexpectedNodeTypeError(document.RootNode.GetType(), typeof(YamlMappingNode), EmptyPath));
-        }
+        var mapping = mapResult.Value;
 
         if (!mapping.Children.TryGetValue(RootKey, out var filesNode) || filesNode is not YamlMappingNode files)
         {
@@ -306,15 +294,5 @@ internal class YamlBasedCsvReadingOptionsReader : ICsvReadingOptionsReader
         }
 
         return new ValidationRule(new(fieldConfig.Value), condition, value.Value);
-    }
-
-    private Result<string> ReadString(YamlNode node, ICollection<string> path)
-    {
-        if (node is not YamlScalarNode scalar)
-        {
-            return Result.Fail(new UnexpectedNodeTypeError(node.GetType(), typeof(YamlScalarNode), path));
-        }
-
-        return scalar.Value ?? string.Empty;
     }
 }

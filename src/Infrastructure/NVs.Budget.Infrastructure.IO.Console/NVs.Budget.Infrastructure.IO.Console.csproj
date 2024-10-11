@@ -24,4 +24,10 @@
       <ProjectReference Include="..\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="System.Linq.Async">
+        <HintPath>..\..\Hosts\NVs.Budget.Hosts.Console\bin\Debug\net8.0\System.Linq.Async.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
