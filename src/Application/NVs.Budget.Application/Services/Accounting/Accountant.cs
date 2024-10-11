@@ -21,27 +21,19 @@ internal class Accountant(
     IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
     IBudgetManager manager,
-    TagsManager tagsManager,
     TransfersListBuilder transfersListBuilder,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, TrackedBudget budget, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
         transfersListBuilder.Clear();
-
-        var budgets = (await Manager.GetOwnedBudgets(ct)).ToList();
+        var tagsManager = new TagsManager(budget.TaggingRules);
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
         {
-            var budgetResult = await TryGetBudget(budgets, unregisteredTransaction.Budget, options.RegisterNewBudgets, ct);
-            importResultBuilder.Append(budgetResult);
-            if (!budgetResult.IsSuccess)
-            {
-                continue;
-            }
 
-            var transactionResult = await operationsRepository.Register(unregisteredTransaction, budgetResult.Value, ct);
+            var transactionResult = await operationsRepository.Register(unregisteredTransaction, budget, ct);
             importResultBuilder.Append(transactionResult);
 
             if (transactionResult.IsSuccess)
@@ -108,8 +100,9 @@ internal class Accountant(
         return result;
     }
 
-    public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, bool fromScratch, CancellationToken ct)
+    public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, bool fromScratch, CancellationToken ct)
     {
+        var tagsManager = new TagsManager(budget.TaggingRules);
         var updated = operations.Select(operation =>
         {
             if (fromScratch)
@@ -221,28 +214,5 @@ internal class Accountant(
         return updateResult.IsSuccess
             ? Result.Ok(updateResult.Value).WithReason(new OperationUpdated(updateResult.Value))
             : Result.Fail(updateResult.Errors);
-    }
-
-    private async Task<Result<TrackedBudget>> TryGetBudget(ICollection<TrackedBudget> budgets, UnregisteredBudget budget, bool shouldRegister, CancellationToken ct)
-    {
-        var registeredBudget = budgets.FirstOrDefault(a => a.Name == budget.Name);
-        if (registeredBudget is not null) return Result.Ok(registeredBudget);
-
-        if (!shouldRegister)
-        {
-            return Result.Fail(new BudgetNotFoundError()
-                .WithMetadata(nameof(TrackedBudget.Name), budget.Name)
-            );
-        }
-        var result = await Manager.Register(budget, ct);
-        if (!result.IsSuccess)
-        {
-            return Result.Fail(result.Errors);
-        }
-
-        registeredBudget = result.Value;
-        budgets.Add(registeredBudget);
-
-        return Result.Ok(registeredBudget).WithReason(new BudgetAdded(registeredBudget));
     }
 }

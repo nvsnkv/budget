@@ -5,7 +5,6 @@ CsvReadingOptions:
     Amount: '{1}'
     CurrencyCode: '{2}'
     Description: '{3}'
-    Budget: '{4}'
     Attributes:
       Category: '{6}'
     ValidationRules:

@@ -14,11 +14,11 @@ namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 [Verb("import", HelpText = "Import operations from files")]
 internal class ImportVerb : AbstractVerb
 {
+    [Option('b', "budget", Required = true, HelpText = "ID of a budget to import operations to")]
+    public string BudgetId { get; [UsedImplicitly] set; } = string.Empty;
+
     [Option('d', "dir", Required = true, HelpText = "Directory with files to import")]
     public string? DirectoryPath { get; [UsedImplicitly] set; }
-
-    [Option("register-accs", Required = false, HelpText = "Create new accounts if no existing accounts matches imported data"), Obsolete("TODO REMOVE OPTION")]
-    public bool RegisterAccounts { get; [UsedImplicitly] set; }
 
     [Option("transfers-confidence", Required = false, Default = DetectionAccuracy.Exact, HelpText = "Transfers detection accuracy (Exact or Likely)")]
     public DetectionAccuracy DetectionAccuracy { get; [UsedImplicitly] set; }
@@ -40,7 +40,13 @@ internal class ImportVerbHandler(
 
         var exitCodes = new HashSet<ExitCode> { ExitCode.Success };
 
-        var options = new ImportOptions(request.RegisterAccounts, request.DetectionAccuracy);
+        if (!Guid.TryParse(request.BudgetId, out var budgetId))
+        {
+            await resultWriter.Write(Result.Fail("Given ID is not a guid"), cancellationToken);
+            return ExitCode.ArgumentsError;
+        }
+
+        var options = new ImportOptions(request.DetectionAccuracy);
 
         foreach (var file in Directory.EnumerateFiles(request.DirectoryPath))
         {
@@ -62,7 +68,7 @@ internal class ImportVerbHandler(
 
                 }).Where(o => o is not null);
 
-                var result = await mediator.Send(new ImportOperationsCommand(parsedOperations!, options), cancellationToken);
+                var result = await mediator.Send(new ImportOperationsCommand(parsedOperations!,budgetId, options), cancellationToken);
                 exitCodes.Add(result.ToExitCode());
             }
         }

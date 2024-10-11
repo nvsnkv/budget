@@ -5,20 +5,18 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 
-internal class CriteriaListReader(CriteriaParser criteriaParser, SubstitutionsParser substitutionsParser, IConfiguration config)
+internal class CriteriaListReader(CriteriaParser criteriaParser, IConfiguration config)
 {
     public IReadOnlyList<TransferCriterion> GetTransferCriteria() => config.GetSection("Transfers").GetChildren().Select(GetTransferCriterion).ToList().AsReadOnly();
 
-    public IReadOnlyCollection<TaggingCriterion> GetTaggingCriteria() => config.GetSection("Tags").GetChildren().SelectMany(GetTaggingCriterion).ToList().AsReadOnly();
+    public IReadOnlyCollection<TaggingRule> GetTaggingCriteria() => config.GetSection("Tags").GetChildren().SelectMany(GetTaggingCriterion).ToList().AsReadOnly();
 
-    private IEnumerable<TaggingCriterion> GetTaggingCriterion(IConfigurationSection section)
+    private IEnumerable<TaggingRule> GetTaggingCriterion(IConfigurationSection section)
     {
-        var tagFn = substitutionsParser.GetSubstitutions<TrackedOperation>(section.Key, "o");
-
         var criteria = section.Get<string[]>() ?? [];
         foreach (var criterion in criteria)
         {
-            yield return new TaggingCriterion(o => new Tag(tagFn(o)), criteriaParser.ParseTaggingCriteria(criterion).Compile());
+            yield return new TaggingRule(section.Key, criterion);
         }
     }
 

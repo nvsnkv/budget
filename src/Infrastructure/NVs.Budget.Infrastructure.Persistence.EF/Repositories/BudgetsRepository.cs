@@ -45,8 +45,9 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
     protected override Task<StoredBudget?> GetTarget(TrackedBudget item, CancellationToken ct)
     {
         return context.Budgets
-            .Include(a => a.Owners.Where(o => !o.Deleted))
-            .Where(a => a.Id == item.Id)
+            .Include(b => b.Owners.Where(o => !o.Deleted))
+            .Include(b => b.TaggingRules)
+            .Where(b => b.Id == item.Id)
             .FirstOrDefaultAsync(ct);
     }
 
@@ -70,6 +71,13 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
         foreach (var toAdd in newOwners.Except(target.Owners))
         {
             target.Owners.Add(toAdd);
+        }
+
+        target.TaggingRules.Clear();
+        foreach (var rule in updated.TaggingRules.Select(Mapper.Map<StoredTaggingRule>))
+        {
+            rule.Budget = target;
+            target.TaggingRules.Add(rule);
         }
 
         await context.SaveChangesAsync(ct);

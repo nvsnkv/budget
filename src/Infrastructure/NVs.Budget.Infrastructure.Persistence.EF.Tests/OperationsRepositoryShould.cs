@@ -43,7 +43,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
-        trackedTransaction.Should().BeEquivalentTo(transaction, c => c.Excluding(t => t.Budget));
+        trackedTransaction.Should().BeEquivalentTo(transaction);
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
         trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Accounts.Budget)budget, c => c.ComparingByMembers<Domain.Entities.Accounts.Budget>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();

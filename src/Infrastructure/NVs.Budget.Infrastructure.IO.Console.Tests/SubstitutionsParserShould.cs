@@ -2,6 +2,7 @@ using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
+using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 

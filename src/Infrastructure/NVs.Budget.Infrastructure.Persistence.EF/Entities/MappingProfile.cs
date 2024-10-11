@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using NMoneys;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
@@ -30,6 +31,7 @@ internal class MappingProfile : Profile
         CreateMap<Tag, StoredTag>().ReverseMap();
 
         CreateMap<Owner, StoredOwner>().ReverseMap();
+        CreateMap<TaggingRule, StoredTaggingRule>().ReverseMap();
         CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
         CreateMap<Domain.Entities.Accounts.Budget, StoredBudget>().ReverseMap();
         CreateMap<TrackedBudget, StoredBudget>().ReverseMap();

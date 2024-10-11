@@ -19,6 +19,7 @@ using NVs.Budget.Infrastructure.IO.Console.Output.Logbook;
 using NVs.Budget.Infrastructure.IO.Console.Output.Operations;
 using NVs.Budget.Infrastructure.IO.Console.Output.Owners;
 using NVs.Budget.Infrastructure.IO.Console.Output.Results;
+using NVs.Budget.Utilities.Expressions;
 
 [assembly:InternalsVisibleTo("NVs.Budget.Infrastructure.IO.Console.Tests")]
 namespace NVs.Budget.Infrastructure.IO.Console;
@@ -73,7 +74,7 @@ public static class ConsoleIOExtensions
 
         var criteriaParser = new CriteriaParser();
         var substitutionsParser = new SubstitutionsParser(criteriaParser);
-        var criteriaListReader = new CriteriaListReader(criteriaParser, substitutionsParser, configuration);
+        var criteriaListReader = new CriteriaListReader(criteriaParser, configuration);
 
         var transferCriteria = criteriaListReader.GetTransferCriteria();
         services.AddSingleton(transferCriteria);

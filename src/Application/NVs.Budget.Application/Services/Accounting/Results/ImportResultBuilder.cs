@@ -50,6 +50,4 @@ internal class ImportResultBuilder(DuplicatesDetector detector)
         var duplicates = detector.DetectDuplicates(_transactions);
         return new ImportResult(_transactions, _transfers, duplicates, _reasons);
     }
-
-    public void Append(Result<TrackedBudget> result) => _reasons.AddRange(result.Reasons);
 }

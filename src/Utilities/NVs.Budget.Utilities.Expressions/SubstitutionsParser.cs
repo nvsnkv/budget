@@ -1,10 +1,9 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using NVs.Budget.Utilities.Expressions;
 
-namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
+namespace NVs.Budget.Utilities.Expressions;
 
-internal class SubstitutionsParser(CriteriaParser parser)
+public class SubstitutionsParser(ExpressionParser parser)
 {
     private static readonly Regex SubstitutionPattern = new(@"\$\{(.+?)\}", RegexOptions.Compiled);
 

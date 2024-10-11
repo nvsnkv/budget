@@ -3,6 +3,7 @@ using AutoFixture.Kernel;
 using AutoMapper;
 using FluentAssertions;
 using NMoneys;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
@@ -27,6 +28,7 @@ public class MappingProfileShould
     [Theory]
     [InlineData(typeof(Owner), typeof(StoredOwner))]
     [InlineData(typeof(TrackedOwner), typeof(StoredOwner))]
+    [InlineData(typeof(TaggingRule), typeof(StoredTaggingRule))]
     [InlineData(typeof(Domain.Entities.Accounts.Budget), typeof(StoredBudget))]
     [InlineData(typeof(TrackedBudget), typeof(StoredBudget))]
     [InlineData(typeof(TrackedOperation), typeof(StoredOperation))]

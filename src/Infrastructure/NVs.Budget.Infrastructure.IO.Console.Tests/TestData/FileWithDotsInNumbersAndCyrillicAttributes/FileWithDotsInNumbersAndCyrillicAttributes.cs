@@ -11,7 +11,6 @@ internal class FileWithDotsInNumbersAndCyrillicAttributes
             new Dictionary<string, object>
             {
                 { "Category", "Детские товары" }
-            },
-            new UnregisteredBudget("Бюджет"))
+            })
     };
 }

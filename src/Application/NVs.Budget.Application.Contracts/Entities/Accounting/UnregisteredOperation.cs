@@ -6,6 +6,5 @@ public record UnregisteredOperation(
     DateTime Timestamp,
     Money Amount,
     string Description,
-    IReadOnlyDictionary<string, object>? Attributes,
-    UnregisteredBudget Budget
+    IReadOnlyDictionary<string, object>? Attributes
 );

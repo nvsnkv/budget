@@ -44,13 +44,11 @@ public class AccountantShould
         var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorOptions.Default);
 
         var tagMeCriterion = new TaggingCriterion(_ => new("TagMe!"), t => t.Description == "Tag me!");
-        var tagsManager = new TagsManager(new[] { tagMeCriterion });
 
         _accountant = new(
             _storage.Operations,
             _storage.Transfers,
             budgetManager,
-            tagsManager,
             new TransfersListBuilder(transferDetector),
             new ImportResultBuilder(duplicatesDetector)
         );
@@ -60,13 +58,14 @@ public class AccountantShould
     public async Task ImportIncomingTransactions()
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
+        _fixture.SetNamedParameter("taggingRules", Enumerable.Empty<TaggingRule>());
         var budget = _fixture.Create<TrackedBudget>();
         _storage.Budgets.Append([budget]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");
 
         var data = new ImportTestData(_fixture, [budget]);
 
-        var result = await _accountant.ImportOperations(data.Operations, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
+        var result = await _accountant.ImportOperations(data.Operations, budget, new ImportOptions(DetectionAccuracy.Exact), CancellationToken.None);
 
         data.VerifyResult(result);
     }

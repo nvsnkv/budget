@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
 using NVs.Budget.Domain.Entities.Accounts;

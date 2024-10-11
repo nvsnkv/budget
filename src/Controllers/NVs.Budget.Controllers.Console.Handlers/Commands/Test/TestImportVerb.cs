@@ -77,7 +77,7 @@ internal class TestImportVerbHandler(
             unregistered.Timestamp,
             unregistered.Amount,
             unregistered.Description,
-            new Domain.Entities.Accounts.Budget(Guid.Empty, unregistered.Budget.Name, [user.AsOwner()]),
+            new Domain.Entities.Accounts.Budget(Guid.Empty, "fake budget", [user.AsOwner()]),
             [],
             unregistered.Attributes
         );

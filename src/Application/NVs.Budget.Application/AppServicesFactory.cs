@@ -22,18 +22,16 @@ public sealed class AppServicesFactory(
     IExchangeRatesRepository ratesRepository,
     IExchangeRatesProvider ratesProvider,
     UserCache userCache,
-    IReadOnlyCollection<TaggingCriterion> taggingCriteria,
     IReadOnlyList<TransferCriterion> transferCriteria)
 {
     public DuplicatesDetectorOptions DuplicatesDetectorOptions { get; set; } = DuplicatesDetectorOptions.Default;
 
     public IBudgetManager CreateAccountManager() => new BudgetManager(budgetsRepository, userCache.CachedUser);
     public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
-    public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTagsManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
+    public IAccountant CreateAccountant() => new Accountant(operationsRepository, transfersRepository, CreateAccountManager(), CreateTransferListBuilder(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
     private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, userCache.CachedUser);
     private DuplicatesDetector CreateDuplicatesDetector() => new(DuplicatesDetectorOptions);
-    private TagsManager CreateTagsManager() => new TagsManager(taggingCriteria);
     private TransfersListBuilder CreateTransferListBuilder() => new(CreateTransfersDetector());
     private TransferDetector CreateTransfersDetector() => new(transferCriteria);
 }

@@ -3,6 +3,7 @@ using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects.Criteria;
+using NVs.Budget.Utilities.Expressions;
 using YamlDotNet.RepresentationModel;
 using Tag = NVs.Budget.Domain.ValueObjects.Tag;
 

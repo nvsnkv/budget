@@ -21,14 +21,14 @@ public class TagsManagerShould
         var transaction = _fixture.Create<TrackedOperation>();
         var another = _fixture.Create<TrackedOperation>();
 
-        var criteria = new TaggingCriterion[]
+        var rules = new TaggingRule[]
         {
-            new(_ => universeTag, _ => true),
-            new(_ => uniqueTag, t => t == transaction),
-            new(_ => exceptTag, t => t != transaction)
+            new("\"Universe\"", "true"),
+            new("\"Unique\"", $"o.Id == Guid.Parse(\"{transaction.Id}\")"),
+            new("\"Except\"", $"o.Id != Guid.Parse(\"{transaction.Id}\")")
         };
 
-        var manager = new TagsManager(criteria);
+        var manager = new TagsManager(rules);
         manager.GetTags(transaction).Should().BeEquivalentTo(new[] { universeTag, uniqueTag });
         manager.GetTags(another).Should().BeEquivalentTo(new[] { universeTag, exceptTag });
     }
