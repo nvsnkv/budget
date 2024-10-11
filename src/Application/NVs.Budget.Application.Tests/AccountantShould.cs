@@ -56,7 +56,7 @@ public class AccountantShould
     public async Task ImportIncomingTransactions()
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
-        _fixture.SetNamedParameter("taggingRules", Enumerable.Empty<TaggingCriterion>());
+        _fixture.SetNamedParameter("taggingCriteria", Enumerable.Empty<TaggingCriterion>());
         var budget = _fixture.Create<TrackedBudget>();
         _storage.Budgets.Append([budget]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");

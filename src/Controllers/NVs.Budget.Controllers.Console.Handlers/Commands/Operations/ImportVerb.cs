@@ -4,9 +4,11 @@ using JetBrains.Annotations;
 using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
+using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
@@ -27,6 +29,8 @@ internal class ImportVerb : AbstractVerb
 internal class ImportVerbHandler(
     IInputStreamProvider input,
     IResultWriter<Result> resultWriter,
+    IBudgetSpecificSettingsRepository settingsRepo,
+    IBudgetManager manager,
     IOperationsReader reader,
     IMediator mediator
 ) : IRequestHandler<ImportVerb, ExitCode>
@@ -46,10 +50,28 @@ internal class ImportVerbHandler(
             return ExitCode.ArgumentsError;
         }
 
+        var budgets = await manager.GetOwnedBudgets(cancellationToken);
+        var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
+        if (budget is null)
+        {
+            await resultWriter.Write(Result.Fail("Budget with given id does not exists"), cancellationToken);
+            return ExitCode.ArgumentsError;
+        }
+
+        var csvOptions = await settingsRepo.GetReadingOptionsFor(budget, cancellationToken);
+
         var options = new ImportOptions(request.DetectionAccuracy);
 
         foreach (var file in Directory.EnumerateFiles(request.DirectoryPath))
         {
+            var fileOptionsResult = csvOptions.GetFileOptionsFor(file);
+            if (fileOptionsResult.IsFailed)
+            {
+                await resultWriter.Write(fileOptionsResult.ToResult(), cancellationToken);
+                exitCodes.Add(ExitCode.OperationError);
+                continue;
+            }
+
             var fileStreamResult = await input.GetInput(file);
             if (fileStreamResult.IsFailed)
             {
@@ -58,7 +80,7 @@ internal class ImportVerbHandler(
             }
             else
             {
-                var operations = reader.ReadUnregisteredOperations(fileStreamResult.Value, file, cancellationToken);
+                var operations = reader.ReadUnregisteredOperations(fileStreamResult.Value, fileOptionsResult.Value, cancellationToken);
                 var parsedOperations = operations.SelectAwait(async r =>
                 {
                     if (r.IsSuccess) return r.Value;
@@ -68,7 +90,7 @@ internal class ImportVerbHandler(
 
                 }).Where(o => o is not null);
 
-                var result = await mediator.Send(new ImportOperationsCommand(parsedOperations!,budgetId, options), cancellationToken);
+                var result = await mediator.Send(new ImportOperationsCommand(parsedOperations!,budget, options), cancellationToken);
                 exitCodes.Add(result.ToExitCode());
             }
         }

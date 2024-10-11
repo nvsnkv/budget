@@ -11,7 +11,6 @@ using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvTransfersReader;
-using NVs.Budget.Infrastructure.IO.Console.Input.Options;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.IO.Console.Output.Budgets;
@@ -59,7 +58,6 @@ public static class ConsoleIOExtensions
 
 
         services.Configure<OutputOptions>(configuration.GetSection(nameof(OutputOptions)).Bind);
-        services.Configure<ConfigurationBasedCsvReadingOptions>(c => c.UpdateFromConfiguration(configuration, culture));
 
         services.AddSingleton(configuration);
 

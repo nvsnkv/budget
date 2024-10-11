@@ -12,7 +12,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
 internal class BudgetSpecificSettingsRepository(BudgetContext context) : IBudgetSpecificSettingsRepository
 {
-    public async Task<CsvReadingOptions?> GetReadingOptionsFor(TrackedBudget budget, CancellationToken ct)
+    public async Task<CsvReadingOptions> GetReadingOptionsFor(TrackedBudget budget, CancellationToken ct)
     {
         var options = await context.CsvFileReadingOptions
             .Include(o => o.FieldConfigurations)
@@ -20,12 +20,9 @@ internal class BudgetSpecificSettingsRepository(BudgetContext context) : IBudget
             .Include(o => o.ValidationRules)
             .Where(o => o.Budget.Id == budget.Id && o.Deleted == false).ToListAsync(ct);
 
-        if (options.Count == 0)
-        {
-            return null;
-        }
-
-        return new CsvReadingOptions(options.ToDictionary(o => new Regex(o.FileNamePattern), CreateFileReadingOption));
+        return options.Count != 0
+            ? new CsvReadingOptions(options.ToDictionary(o => new Regex(o.FileNamePattern), CreateFileReadingOption))
+            : CsvReadingOptions.Empty;
     }
 
     private CsvFileReadingOptions CreateFileReadingOption(StoredCsvFileReadingOption option)

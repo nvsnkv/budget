@@ -8,12 +8,11 @@ using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Input.Errors;
-using NVs.Budget.Infrastructure.IO.Console.Input.Options;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader;
 
-internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFileReadingOptions fileOptions, CancellationToken ct)
+internal partial class UntrackedRowParser(IParser parser, SpecificCsvFileReadingOptions fileOptions, CancellationToken ct)
 {
     private static readonly Regex CellsIndexPattern = GenerateCellIndexPattern();
     private volatile int _row = -1;
@@ -175,7 +174,7 @@ internal partial class UntrackedRowParser(IParser parser, string fileName, CsvFi
         return fileOption.Pattern;
     }
 
-    private Result<UnregisteredOperation> BuildParseError(List<IError> errors) => Result.Fail<UnregisteredOperation>(new RowNotParsedError(_row, errors).WithMetadata(nameof(fileName), fileName));
+    private Result<UnregisteredOperation> BuildParseError(List<IError> errors) => Result.Fail<UnregisteredOperation>(new RowNotParsedError(_row, errors).WithMetadata(nameof(fileOptions.FileName), fileOptions.FileName));
 
     [GeneratedRegex("{(\\d+)}", RegexOptions.Compiled)]
     private static partial Regex GenerateCellIndexPattern();

@@ -7,6 +7,6 @@ namespace NVs.Budget.Application.Contracts.UseCases.Operations;
 
 public record ImportOperationsCommand(
     IAsyncEnumerable<UnregisteredOperation> Operations,
-    Guid BudgetId,
+    TrackedBudget Budget,
     ImportOptions Options
 ) : IRequest<ImportResult>;

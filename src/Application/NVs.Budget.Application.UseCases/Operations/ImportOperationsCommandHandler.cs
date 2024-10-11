@@ -6,17 +6,10 @@ using NVs.Budget.Application.Contracts.UseCases.Operations;
 
 namespace NVs.Budget.Application.UseCases.Operations;
 
-internal class ImportOperationsCommandHandler(IAccountant accountant, IBudgetManager manager) : IRequestHandler<ImportOperationsCommand, ImportResult>
+internal class ImportOperationsCommandHandler(IAccountant accountant) : IRequestHandler<ImportOperationsCommand, ImportResult>
 {
     public async Task<ImportResult> Handle(ImportOperationsCommand request, CancellationToken cancellationToken)
     {
-        var budgets = await manager.GetOwnedBudgets(cancellationToken);
-        var budget = budgets.FirstOrDefault(b => b.Id == request.BudgetId);
-        if (budget is null)
-        {
-            return new ImportResult([], [], [], [new BudgetDoesNotExistError(request.BudgetId)]);
-        }
-
-        return await accountant.ImportOperations(request.Operations, budget, request.Options, cancellationToken);
+        return await accountant.ImportOperations(request.Operations, request.Budget, request.Options, cancellationToken);
     }
 }

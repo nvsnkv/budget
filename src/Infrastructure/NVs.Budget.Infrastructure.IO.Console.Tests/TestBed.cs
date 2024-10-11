@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
@@ -9,11 +10,9 @@ namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class TestBed
 {
-    public IServiceProvider GetServiceProvider(string configurationFile)
+    public IServiceProvider GetServiceProvider()
     {
-        var configuration = configurationFile.EndsWith(".json")
-            ? new ConfigurationBuilder().AddJsonFile(configurationFile).Build()
-            : new ConfigurationBuilder().AddYamlFile(configurationFile).Build();
+        var configuration = new ConfigurationBuilder().Build();
 
         var collection = new ServiceCollection().AddConsoleIO().UseConsoleIO(configuration);
         if (AccountsRepository is not null)
@@ -29,9 +28,20 @@ public class TestBed
         return collection.BuildServiceProvider();
     }
 
-    public IBudgetsRepository? AccountsRepository { get; set; }
+    internal IBudgetsRepository? AccountsRepository { get; set; }
 
-    public IOutputStreamProvider? StreamProvider { get; set; } = new FakeStreamsProvider();
+    internal IOutputStreamProvider? StreamProvider { get; set; } = new FakeStreamsProvider();
 
-    internal IOperationsReader GetCsvParser(string configurationFile) => GetServiceProvider(configurationFile).GetRequiredService<IOperationsReader>();
+    internal IOperationsReader GetCsvParser() => GetServiceProvider().GetRequiredService<IOperationsReader>();
+
+    internal async Task<CsvReadingOptions> GetOptionsFrom(string file)
+    {
+        using var stream = new StreamReader(File.OpenRead(file));
+        var reader = GetServiceProvider().GetRequiredService<ICsvReadingOptionsReader>();
+
+        var result = await reader.ReadFrom(stream, CancellationToken.None);
+        return result.Value;
+    }
+
+
 }

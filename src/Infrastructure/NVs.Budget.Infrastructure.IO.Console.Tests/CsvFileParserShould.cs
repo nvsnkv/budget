@@ -19,10 +19,12 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     public async Task ParseValidFile()
     {
         testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
-        var parser = testBed.GetCsvParser("TestData\\ValidFile\\validFileConfig.json");
+        var parser = testBed.GetCsvParser();
+        var options = await testBed.GetOptionsFrom("TestData\\ValidFile\\validFileConfig.yml");
         var stream = File.OpenRead("TestData\\ValidFile\\validFile.csv");
 
-        var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), "validFile.csv", CancellationToken.None).ToListAsync();
+        var name = "validFile.csv";
+        var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), options.GetFileOptionsFor(name).Value, CancellationToken.None).ToListAsync();
         operations.Should().AllSatisfy(r => r.Should().BeSuccess());
         operations.Select(o => o.Value).Should().BeEquivalentTo(ValidFile.Operations);
     }
@@ -31,10 +33,12 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     public async Task ParseFileWithDotsInNumbersAndCyrillicComments()
     {
         testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
-        var parser = testBed.GetCsvParser("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.yml");
+        var parser = testBed.GetCsvParser();
+        var options = await testBed.GetOptionsFrom("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.yml");
         var stream = File.OpenRead("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.csv");
 
-        var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), "file.csv", CancellationToken.None).ToListAsync();
+        var name = "file.csv";
+        var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), options.GetFileOptionsFor(name).Value, CancellationToken.None).ToListAsync();
         operations.Should().AllSatisfy(r => r.Should().BeSuccess());
         operations.Select(o => o.Value).Should().BeEquivalentTo(FileWithDotsInNumbersAndCyrillicAttributes.Operations);
     }
@@ -58,14 +62,14 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
         await using var streams = new FakeStreamsProvider();
         testBed.StreamProvider = streams;
 
-        var writer = testBed.GetServiceProvider("TestData\\ValidFile\\validFileConfig.json").GetRequiredService<IObjectWriter<TrackedOperation>>();
+        var writer = testBed.GetServiceProvider().GetRequiredService<IObjectWriter<TrackedOperation>>();
 
         await writer.Write(operations, CancellationToken.None);
         var data = streams.GetOutputBytes();
 
         await using var stream = new MemoryStream(data);
         using var reader = new StreamReader(stream);
-        var parser = testBed.GetCsvParser("TestData\\ValidFile\\validFileConfig.json");
+        var parser = testBed.GetCsvParser();
 
         var actual = await parser.ReadTrackedOperation(reader, CancellationToken.None).ToListAsync();
         actual.Should().AllSatisfy(r => r.Should().BeSuccess());

@@ -46,7 +46,7 @@
       <None Update="TestData\ValidFile\validFile.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="TestData\ValidFile\validFileConfig.json">
+      <None Update="TestData\ValidFile\validFileConfig.yml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
