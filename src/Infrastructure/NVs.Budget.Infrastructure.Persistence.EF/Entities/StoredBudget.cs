@@ -20,6 +20,6 @@ internal class StoredBudget(Guid id, string name) : DbRecord, ITrackableEntity<G
     public virtual IList<StoredCsvFileReadingOption> CsvReadingOptions { get; set; } = new List<StoredCsvFileReadingOption>();
     public virtual IList<StoredOwner> Owners { get; init; } = new List<StoredOwner>();
     public virtual IList<StoredOperation> Operations { get; init; } = new List<StoredOperation>();
-
     public virtual IList<StoredTaggingCriterion> TaggingCriteria { get; init; } = new List<StoredTaggingCriterion>();
+    public virtual IList<StoredTransferCriterion> TransferCriteria { get; init; } = new List<StoredTransferCriterion>();
 }

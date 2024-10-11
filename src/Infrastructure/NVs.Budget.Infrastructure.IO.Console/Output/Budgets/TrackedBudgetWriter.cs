@@ -17,10 +17,20 @@ internal class TrackedBudgetWriter(IOutputStreamProvider streams, IOptionsSnapsh
         var writer = await Streams.GetOutput(Options.Value.OutputStreamName);
         if (budget.TaggingCriteria.Any())
         {
-            await writer.WriteLineAsync("| Tagging rules");
+            await writer.WriteLineAsync("| Tagging criteria");
             foreach (var rule in budget.TaggingCriteria)
             {
                 await writer.WriteLineAsync($"| {rule.Tag}{rule.Condition}");
+            }
+        }
+
+        if (budget.TransferCriteria.Any())
+        {
+            await writer.WriteLineAsync("| Transfer criteria");
+            foreach (var criterion in budget.TransferCriteria)
+            {
+                await writer.WriteLineAsync($"| {criterion.Accuracy}: {criterion.Comment}");
+                await writer.WriteLineAsync($"| criterion: {criterion.Criterion}");
             }
         }
 

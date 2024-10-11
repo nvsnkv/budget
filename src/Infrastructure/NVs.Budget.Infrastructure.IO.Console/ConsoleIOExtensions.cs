@@ -45,6 +45,8 @@ public static class ConsoleIOExtensions
         services.AddTransient<ITransfersReader, CsvTransfersReader>();
         services.AddTransient<IOutputOptionsChanger, OutputOptionsChanger>();
         services.AddTransient<ICsvReadingOptionsReader, YamlBasedCsvReadingOptionsReader>();
+        services.AddTransient<ITaggingCriteriaReader, YamlBasedTaggingCriteriaReader>();
+        services.AddTransient<ITransferCriteriaReader, YamlBasedTransferCriteriaReader>();
 
         services.AddTransient<IInputStreamProvider, ConsoleInputStream>();
         
@@ -72,10 +74,6 @@ public static class ConsoleIOExtensions
 
         var criteriaParser = new CriteriaParser();
         var substitutionsParser = new SubstitutionsParser(criteriaParser);
-        var criteriaListReader = new CriteriaListReader(criteriaParser, configuration);
-
-        var transferCriteria = criteriaListReader.GetTransferCriteria();
-        services.AddSingleton(transferCriteria);
 
         var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
         services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);

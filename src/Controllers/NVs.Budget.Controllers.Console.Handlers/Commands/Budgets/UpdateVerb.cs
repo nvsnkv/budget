@@ -3,6 +3,7 @@ using FluentResults;
 using JetBrains.Annotations;
 using MediatR;
 using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Input;
@@ -22,13 +23,17 @@ internal class UpdateVerb : AbstractVerb
     [Option("csv-reading-options", HelpText = "Path to YAML file with CSV reading options. If defined, options will be updated")]
     public string? CsvReadingOptionsPath { get; [UsedImplicitly] set; }
 
-    [Option('t', "tagging-rules", HelpText = "Path to Yaml file with tagging rules. If defined, tagging rules will be updated")]
-    public string? TaggingRulesPath { get; set; }
+    [Option("tagging-criteria", HelpText = "Path to YAML file with tagging criteria. If defined, tagging criteria will be updated")]
+    public string? TaggingCriteriaPath { get; [UsedImplicitly] set; }
+
+    [Option("transfer-criteria", HelpText = "Path to YAML file with transfer criteria. If defined, transfer criteria will be updated")]
+    public string? TransferCriteriaPath { get; [UsedImplicitly] set; }
 }
 
 internal class UpdateVerbHandler(
     IInputStreamProvider input,
     ICsvReadingOptionsReader reader,
+    ITransferCriteriaReader transferCriteriaReader,
     ITaggingCriteriaReader taggingCriteriaReader,
     IBudgetManager manager,
     IBudgetSpecificSettingsRepository repository,
@@ -43,7 +48,7 @@ internal class UpdateVerbHandler(
             return ExitCode.ArgumentsError;
         }
 
-        if (string.IsNullOrEmpty(request.Name) && string.IsNullOrEmpty(request.CsvReadingOptionsPath) && string.IsNullOrEmpty(request.TaggingRulesPath))
+        if (string.IsNullOrEmpty(request.Name) && string.IsNullOrEmpty(request.CsvReadingOptionsPath) && string.IsNullOrEmpty(request.TaggingCriteriaPath))
         {
             await resultWriter.Write(Result.Fail("No options to update given"), cancellationToken);
             return ExitCode.ArgumentsError;
@@ -57,48 +62,17 @@ internal class UpdateVerbHandler(
             return ExitCode.ArgumentsError;
         }
 
-        var hasChanges = false;
-        if (!string.IsNullOrEmpty(request.Name))
+        var hasChanges = TryRename(request, budget);
+
+        var changeTaggingCriteriaResult = await TryChangeTaggingCriteria(request, budget, cancellationToken);
+        if (changeTaggingCriteriaResult.IsFailed)
         {
-            budget.Rename(request.Name);
-            hasChanges = true;
+            return ExitCode.ArgumentsError;
         }
 
-        List<TaggingCriterion>? taggingCriteria = null;
-        if (!string.IsNullOrEmpty(request.TaggingRulesPath))
-        {
-            if (!File.Exists(request.TaggingRulesPath))
-            {
-                await resultWriter.Write(Result.Fail("Tagging rules file does not exist"), cancellationToken);
-                return ExitCode.ArgumentsError;
-            }
+        hasChanges = hasChanges || changeTaggingCriteriaResult.Value;
 
-            var stream = await input.GetInput(request.TaggingRulesPath);
-            if (!stream.IsSuccess)
-            {
-                await resultWriter.Write(stream.ToResult(), cancellationToken);
-                return ExitCode.ArgumentsError;
-            }
-
-            taggingCriteria = new List<TaggingCriterion>();
-            await foreach (var rule in taggingCriteriaReader.ReadFrom(stream.Value, cancellationToken))
-            {
-                if (rule.IsSuccess)
-                {
-                    taggingCriteria.Add(rule.Value);
-                }
-                else
-                {
-                    await resultWriter.Write(rule.ToResult(), cancellationToken);
-                }
-            }
-        }
-
-        if (taggingCriteria is not null)
-        {
-            budget.SetTaggingRules(taggingCriteria);
-            hasChanges = true;
-        }
+        var changeTransferCriteriaResult = await TryChangeTransferCriteria(request, budget, cancellationToken);
 
         if (hasChanges)
         {
@@ -142,5 +116,98 @@ internal class UpdateVerbHandler(
         }
 
         return ExitCode.Success;
+    }
+
+    private async Task<Result<bool>> TryChangeTransferCriteria(UpdateVerb request, TrackedBudget budget, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(request.TransferCriteriaPath))
+        {
+            return false;
+        }
+
+        if (!File.Exists(request.TransferCriteriaPath))
+        {
+            var result = Result.Fail("Transfer criteria file does not exist");
+            await resultWriter.Write(result, cancellationToken);
+            return result;
+        }
+
+        var stream = await input.GetInput(request.TransferCriteriaPath);
+        if (!stream.IsSuccess)
+        {
+            var result = stream.ToResult();
+            await resultWriter.Write(result, cancellationToken);
+            return result;
+        }
+
+        var criteria = await transferCriteriaReader.ReadFrom(stream.Value, cancellationToken).ToListAsync(cancellationToken);
+        var errors = criteria.Where(r => r.IsFailed).SelectMany(r => r.Errors);
+        var values = criteria.Where(r => r.IsSuccess).Select(r => r.Value).ToList();
+
+        if (values.Any())
+        {
+            budget.SetTransferCriteria(values);
+            return Result.Ok(true).WithErrors(errors);
+        }
+
+        return Result.Fail(errors);
+    }
+
+    private async Task<Result<bool>> TryChangeTaggingCriteria(UpdateVerb request, TrackedBudget budget, CancellationToken cancellationToken)
+    {
+        List<TaggingCriterion>? taggingCriteria = null;
+        if (!string.IsNullOrEmpty(request.TaggingCriteriaPath))
+        {
+            if (!File.Exists(request.TaggingCriteriaPath))
+            {
+                var result = Result.Fail("Tagging criteria file does not exist");
+                await resultWriter.Write(result, cancellationToken);
+                return result;
+            }
+
+            var stream = await input.GetInput(request.TaggingCriteriaPath);
+            if (!stream.IsSuccess)
+            {
+                var result = stream.ToResult();
+                await resultWriter.Write(result, cancellationToken);
+                return result;
+            }
+
+            taggingCriteria = new List<TaggingCriterion>();
+            await foreach (var rule in taggingCriteriaReader.ReadFrom(stream.Value, cancellationToken))
+            {
+                if (rule.IsSuccess)
+                {
+                    taggingCriteria.Add(rule.Value);
+                }
+                else
+                {
+                    await resultWriter.Write(rule.ToResult(), cancellationToken);
+                }
+            }
+
+            if (!taggingCriteria.Any())
+            {
+                taggingCriteria = null;
+            }
+        }
+
+        if (taggingCriteria is not null)
+        {
+            budget.SetTaggingCriteria(taggingCriteria);
+        }
+
+        return taggingCriteria is not null;
+    }
+
+    private static bool TryRename(UpdateVerb request, TrackedBudget budget)
+    {
+        if (!string.IsNullOrEmpty(request.Name))
+        {
+            budget.Rename(request.Name);
+            return true;
+        }
+
+        return false;
     }
 }

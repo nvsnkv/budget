@@ -74,10 +74,17 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
         }
 
         target.TaggingCriteria.Clear();
-        foreach (var rule in updated.TaggingCriteria.Select(Mapper.Map<StoredTaggingCriterion>))
+        foreach (var criterion in updated.TaggingCriteria.Select(Mapper.Map<StoredTaggingCriterion>))
         {
-            rule.Budget = target;
-            target.TaggingCriteria.Add(rule);
+            criterion.Budget = target;
+            target.TaggingCriteria.Add(criterion);
+        }
+
+        target.TransferCriteria.Clear();
+        foreach (var criterion in updated.TransferCriteria.Select(Mapper.Map<StoredTransferCriterion>))
+        {
+            criterion.Budget = target;
+            target.TransferCriteria.Add(criterion);
         }
 
         await context.SaveChangesAsync(ct);

@@ -32,22 +32,12 @@ public class AccountantShould
 
         var budgetManager = new BudgetManager(_storage.Budgets, user.Object);
 
-        var exactTransferCriterion = new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",
-            (src, snk) => src.Amount == snk.Amount * -1
-                          && src.Timestamp.Date == snk.Timestamp.Date
-                          && src.Description == snk.Description);
-        var transferDetector = new TransferDetector(new[]
-        {
-            exactTransferCriterion
-        });
-
         var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorOptions.Default);
 
         _accountant = new(
             _storage.Operations,
             _storage.Transfers,
             budgetManager,
-            new TransfersListBuilder(transferDetector),
             new ImportResultBuilder(duplicatesDetector)
         );
     }
@@ -57,6 +47,10 @@ public class AccountantShould
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
         _fixture.SetNamedParameter("taggingCriteria", Enumerable.Empty<TaggingCriterion>());
+        _fixture.SetNamedParameter("transferCriteria", (IEnumerable<TransferCriterion>)new[]
+        {
+            new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer","l.Amount.Amount == r.Amount.Amount * -1 && l.Timestamp.Date == r.Timestamp.Date && l.Description == r.Description")
+        });
         var budget = _fixture.Create<TrackedBudget>();
         _storage.Budgets.Append([budget]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");

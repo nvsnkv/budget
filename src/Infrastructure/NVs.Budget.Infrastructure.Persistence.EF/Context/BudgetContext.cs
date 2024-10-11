@@ -44,10 +44,10 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
             .OnDelete(DeleteBehavior.Cascade);
 
         var bBuilder = modelBuilder.Entity<StoredBudget>();
-        bBuilder.HasMany(a => a.Operations).WithOne(t => t.Budget);
+        bBuilder.HasMany(b => b.Operations).WithOne(t => t.Budget);
         bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
-        bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(t => t.Budget);
-
+        bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(c => c.Budget);
+        bBuilder.OwnsMany<StoredTransferCriterion>(b => b.TransferCriteria).WithOwner(c => c.Budget);
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);

@@ -21,8 +21,8 @@ public class TransferDetectorShould
 
         var criteria = new TransferCriterion[]
         {
-            new(DetectionAccuracy.Exact, "Exactly!", (src, snk) => src == source && snk == sink),
-            new(DetectionAccuracy.Likely, "Maybe", (src, _) => src == source)
+            new(DetectionAccuracy.Exact, "Exactly!", $"(l.Id == Guid.Parse(\"{source.Id}\")) && (r.Id == Guid.Parse(\"{sink.Id}\")) && (r.Amount.Amount > 0)"),
+            new(DetectionAccuracy.Likely, "Maybe", $"l.Id == Guid.Parse(\"{source.Id}\")")
         };
 
         var detector = new TransferDetector(criteria);
@@ -48,7 +48,7 @@ public class TransferDetectorShould
     [MemberData(nameof(GetBadOptions))]
     public void PreserveDomainInvariants(TrackedOperation source, TrackedOperation sink, string error)
     {
-        var criteria = new TransferCriterion[] { new(DetectionAccuracy.Exact, "For sure!", (_ , _) => true) };
+        var criteria = new TransferCriterion[] { new(DetectionAccuracy.Exact, "For sure!", "true") };
         var detector = new TransferDetector(criteria);
 
         detector.Detect(source, sink).IsSuccess.Should().BeFalse($"Following error was not tracked: {error}");

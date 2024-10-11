@@ -20,8 +20,7 @@ internal class ListEffectiveSettingsVerbHandler(
     IOutputStreamProvider streams,
     IOptions<OutputOptions> outputOptions,
     IConfigurationRoot configuration,
-    IDbConnectionInfo dbConnectionInfo,
-    IReadOnlyList<TransferCriterion> transferCriteria
+    IDbConnectionInfo dbConnectionInfo
 ) : IRequestHandler<ListEffectiveSettingsVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListEffectiveSettingsVerb request, CancellationToken cancellationToken)
@@ -50,15 +49,7 @@ internal class ListEffectiveSettingsVerbHandler(
         await writer.WriteLineAsync($"{nameof(dbConnectionInfo.Database)}: {dbConnectionInfo.Database}");
         await writer.WriteLineAsync();
 
-        await writer.WriteLineAsync("4. Transfer criteria");
-        foreach (var criterion in transferCriteria)
-        {
-            await writer.WriteLineAsync($"{criterion.Comment} - {criterion.Accuracy}");
-        }
-
-        await writer.WriteLineAsync();
-
-        await writer.WriteLineAsync("5. Parsing rules");
+        await writer.WriteLineAsync("4. Parsing rules");
         await writer.WriteLineAsync($"CultureCode: {configuration.GetValue<string>("CultureCode") ?? "not specified"}");
         await writer.WriteLineAsync("Known input types:");
         foreach (var section in configuration.GetSection("CsvReadingOptions").GetChildren())

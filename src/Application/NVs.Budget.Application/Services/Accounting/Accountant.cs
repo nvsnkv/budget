@@ -21,13 +21,13 @@ internal class Accountant(
     IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
     IBudgetManager manager,
-    TransfersListBuilder transfersListBuilder,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
     public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, TrackedBudget budget, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
-        transfersListBuilder.Clear();
+
+        var transfersListBuilder = new TransfersListBuilder(new TransferDetector(budget.TransferCriteria));
         var tagsManager = new TagsManager(budget.TaggingCriteria);
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
