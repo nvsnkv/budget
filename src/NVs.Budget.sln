@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.IO.Console.Tests", "Infrastructure\NVs.Budget.Infrastructure.IO.Console.Tests\NVs.Budget.Infrastructure.IO.Console.Tests.csproj", "{2A15D8BF-AD28-4192-A9E7-B81B8612B2CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.Expressions.Tests", "Utilities\NVs.Budget.Utilities.Expressions.Tests\NVs.Budget.Utilities.Expressions.Tests.csproj", "{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,7 @@ Global
 		{665E81AE-13CE-438B-8559-5CA0619F94A2} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{E7257A6C-B2C0-4B24-99EF-6E4E495FCF90} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{2A15D8BF-AD28-4192-A9E7-B81B8612B2CF} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
+		{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -201,5 +204,9 @@ Global
 		{2A15D8BF-AD28-4192-A9E7-B81B8612B2CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A15D8BF-AD28-4192-A9E7-B81B8612B2CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A15D8BF-AD28-4192-A9E7-B81B8612B2CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
