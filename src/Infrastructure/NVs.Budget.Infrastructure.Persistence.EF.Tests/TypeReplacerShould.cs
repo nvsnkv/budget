@@ -3,7 +3,6 @@ using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
@@ -12,7 +11,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 
 public class TypeReplacerShould
 {
-    private readonly Fixture _fixture = new();
+    private readonly Fixture _fixture = new() { Customizations = { new ReadableExpressionsBuilder() }};
 
     [Fact]
     public void ReplaceBudgetSuccessfully()

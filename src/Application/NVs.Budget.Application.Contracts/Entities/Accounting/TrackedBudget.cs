@@ -25,6 +25,6 @@ public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnu
         _transferCriteria.AddRange(Order(criteria));
     }
 
-    private static IEnumerable<TaggingCriterion> Order(IEnumerable<TaggingCriterion> criteria) => criteria.OrderBy(r => r.Tag).ThenBy(r => r.Condition);
+    private static IEnumerable<TaggingCriterion> Order(IEnumerable<TaggingCriterion> criteria) => criteria.OrderBy(r => r.Tag.ToString()).ThenBy(r => r.Condition.ToString());
     private static IEnumerable<TransferCriterion> Order(IEnumerable<TransferCriterion> criteria) => criteria.OrderBy(c => c.Comment);
 }

@@ -23,7 +23,7 @@ internal class ReckonerTestData
 
     public ReckonerTestData(Owner owner, int ownedAccountsCount = 2, int ownedTransactionsPerAccount = 3, int notOwnedTransactionsCount = 5)
     {
-        var fixture = new Fixture();
+        var fixture = new Fixture() { Customizations = { new ReadableExpressionsBuilder() }};
         OwnedBudgets = fixture
             .CreateMany<TrackedBudget>()
             .Take(ownedAccountsCount)
