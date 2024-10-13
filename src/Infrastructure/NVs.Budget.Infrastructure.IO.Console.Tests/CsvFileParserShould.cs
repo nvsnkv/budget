@@ -13,7 +13,7 @@ namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
 {
-    private readonly Fixture _fixture = new();
+    private readonly Fixture _fixture = new() { Customizations = { new ReadableExpressionsBuilder() }};
 
     [Fact]
     public async Task ParseValidFile()

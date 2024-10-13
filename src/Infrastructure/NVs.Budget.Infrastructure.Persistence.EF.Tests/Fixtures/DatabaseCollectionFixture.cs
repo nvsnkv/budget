@@ -3,6 +3,7 @@ using AutoMapper.EquivalencyExpression;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
+using NVs.Budget.Utilities.Expressions;
 using Testcontainers.PostgreSql;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
@@ -18,7 +19,7 @@ public class DbContextManager : IAsyncLifetime
     public readonly TestDataFixture TestData = new();
     public readonly IMapper Mapper = new Mapper(new MapperConfiguration(c =>
     {
-        c.AddProfile<MappingProfile>();
+        c.AddProfile(new MappingProfile(ReadableExpressionsParser.Default));
         c.AddCollectionMappers();
     }));
 

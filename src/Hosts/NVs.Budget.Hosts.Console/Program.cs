@@ -15,6 +15,7 @@ using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
 using NVs.Budget.Infrastructure.Identity.Console;
 using NVs.Budget.Infrastructure.IO.Console;
 using NVs.Budget.Infrastructure.Persistence.EF;
+using NVs.Budget.Utilities.Expressions;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -53,7 +54,10 @@ var collection = new ServiceCollection().AddConsoleIdentity()
     .AddLogging(builder => builder.AddConfiguration(configuration).AddSimpleConsole())
     .AddSingleton(configuration)
     .AddMediatR(c => c.RegisterServicesFromAssembly(typeof(AdminVerb).Assembly))
-    .AddEfCorePersistence(configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"))
+    .AddEfCorePersistence(
+        configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"),
+        ReadableExpressionsParser.Default
+    )
     .AddScoped<UserCache>()
     .AddScoped<IUser>(p => p.GetRequiredService<UserCache>().CachedUser)
     .AddScoped<UserCacheInitializer>()

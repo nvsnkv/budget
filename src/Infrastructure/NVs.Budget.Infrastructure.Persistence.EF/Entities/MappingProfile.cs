@@ -5,6 +5,7 @@ using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Entities;
 
@@ -22,7 +23,7 @@ internal class MappingProfile : Profile
         { typeof(TrackedTransfer), typeof(StoredTransfer) }
     };
 
-    public MappingProfile()
+    public MappingProfile(ReadableExpressionsParser parser)
     {
         CreateMap<Currency, CurrencyIsoCode>().ConvertUsing(c => c.IsoCode);
         CreateMap<CurrencyIsoCode, Currency>().ConstructUsing(c => Currency.Get(c));
@@ -31,7 +32,13 @@ internal class MappingProfile : Profile
         CreateMap<Tag, StoredTag>().ReverseMap();
 
         CreateMap<Owner, StoredOwner>().ReverseMap();
+        CreateMap<ReadableExpression<Func<TrackedOperation, bool>>, string>().ConstructUsing(r => r.ToString());
+        CreateMap<string, ReadableExpression<Func<TrackedOperation, bool>>>().ConstructUsing(r => parser.ParseUnaryPredicate<TrackedOperation>(r).Value);
+        CreateMap<ReadableExpression<Func<TrackedOperation, string>>, string>().ConstructUsing(r => r.ToString());
+        CreateMap<string, ReadableExpression<Func<TrackedOperation, string>>>().ConstructUsing(r => parser.ParseUnaryConversion<TrackedOperation>(r).Value);
+
         CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
+
         CreateMap<TransferCriterion, StoredTransferCriterion>().ReverseMap();
         CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
         CreateMap<Domain.Entities.Accounts.Budget, StoredBudget>().ReverseMap();

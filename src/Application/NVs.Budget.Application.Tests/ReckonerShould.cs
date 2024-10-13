@@ -18,6 +18,7 @@ using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
+using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
 
@@ -32,6 +33,7 @@ public class ReckonerShould
 
     public ReckonerShould()
     {
+        _fixture.Customizations.Add(new ReadableExpressionsBuilder());
         _currentOwner = _fixture.Create<Owner>();
         Mock<IUser> user = new();
         user.Setup(u => u.AsOwner()).Returns(_currentOwner);

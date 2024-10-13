@@ -23,6 +23,7 @@ public class BudgetManagerShould
 
     public BudgetManagerShould()
     {
+        _fixture.Customizations.Add(new ReadableExpressionsBuilder());
         _owner = _fixture.Create<Owner>();
         _user.Setup(u => u.AsOwner()).Returns(_owner);
         _manager = new BudgetManager(_repository, _user.Object);
@@ -165,6 +166,7 @@ public class BudgetManagerShould
     {
         var fixture = new Fixture();
         fixture.Customizations.Add(new NamedParameterBuilder<IEnumerable<Owner>>(nameof(owners), owners, false));
+        fixture.Customizations.Add(new ReadableExpressionsBuilder());
 
         return fixture.Create<Generator<TrackedBudget>>().Take(count);
     }

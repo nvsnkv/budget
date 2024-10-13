@@ -1,11 +1,13 @@
 using FluentResults;
 using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
+using NVs.Budget.Utilities.Expressions;
 using YamlDotNet.RepresentationModel;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
 
-internal class YamlBasedTaggingCriteriaReader : YamlReader, ITaggingCriteriaReader
+internal class YamlBasedTaggingCriteriaReader(ReadableExpressionsParser parser) : YamlReader, ITaggingCriteriaReader
 {
     public IAsyncEnumerable<Result<TaggingCriterion>> ReadFrom(StreamReader reader, CancellationToken ct)
     {
@@ -38,6 +40,13 @@ internal class YamlBasedTaggingCriteriaReader : YamlReader, ITaggingCriteriaRead
                 continue;
             }
 
+            var tagExpr = parser.ParseUnaryConversion<TrackedOperation>(tag.Value);
+            if (tagExpr.IsFailed)
+            {
+                yield return Result.Fail(new YamlParsingError("Failed to parse tagging expression", [tag.Value])).WithErrors(tagExpr.Errors);
+                continue;
+            }
+
             foreach (var criterionNode in criteria)
             {
                 var criterion = ReadString(criterionNode, [tag.Value]);
@@ -47,7 +56,14 @@ internal class YamlBasedTaggingCriteriaReader : YamlReader, ITaggingCriteriaRead
                 }
                 else
                 {
-                    yield return new TaggingCriterion(tag.Value, criterion.Value);
+                    var criterionExpr = parser.ParseUnaryPredicate<TrackedOperation>(criterion.Value);
+                    if (criterionExpr.IsFailed)
+                    {
+                        yield return Result.Fail(new YamlParsingError("Failed to parse tagging criterion", [tag.Value])).WithErrors(criterionExpr.Errors);
+                    }
+
+
+                    yield return new TaggingCriterion(tagExpr.Value, criterionExpr.Value);
                 }
             }
         }

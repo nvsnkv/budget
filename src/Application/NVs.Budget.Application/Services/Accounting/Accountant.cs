@@ -39,7 +39,7 @@ internal class Accountant(
             if (transactionResult.IsSuccess)
             {
                 var transaction = transactionResult.Value;
-                foreach (var tag in tagsManager.GetTags(transaction))
+                foreach (var tag in tagsManager.GetTagsFor(transaction))
                 {
                     transaction.Tag(tag);
                 }
@@ -113,7 +113,7 @@ internal class Accountant(
                 }
             }
 
-            var tags = tagsManager.GetTags(operation);
+            var tags = tagsManager.GetTagsFor(operation);
             foreach (var tag in tags.Except(operation.Tags))
             {
                 operation.Tag(tag);

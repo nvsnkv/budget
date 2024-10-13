@@ -6,6 +6,8 @@ namespace NVs.Budget.Utilities.Expressions;
 
 public class ReadableExpressionsParser : ExpressionParser
 {
+    public static readonly ReadableExpressionsParser Default = new();
+
     private static readonly Regex SingleParamRegex = new(@"^\(?\s*(\w)+\s*\)?\s*=>\s*(.*)$");
     private static readonly Regex TwoParamsRegex = new(@"^\(\s*(\s*\w+)\s*,\s*(\w+)\s*\)\s*=>\s*(.*)$");
 

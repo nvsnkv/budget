@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <ProjectReference Include="..\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
     </ItemGroup>
 
 </Project>

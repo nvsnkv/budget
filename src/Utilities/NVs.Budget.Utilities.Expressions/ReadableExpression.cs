@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace NVs.Budget.Utilities.Expressions;
 
-public sealed class ReadableExpression<T>
+public class ReadableExpression<T>
 {
     private readonly string _representation;
     private readonly Expression<T> _expression;
@@ -36,13 +36,11 @@ public sealed class ReadableExpression<T>
         return _representation;
     }
 
-    public static implicit operator Expression<T>(ReadableExpression<T> value)
-    {
-        return value._expression;
-    }
+    public T AsInvokable() => _compiled;
 
-    public static implicit operator T(ReadableExpression<T> value)
-    {
-        return value._compiled;
-    }
+    public Expression<T> AsExpression() => _expression;
+
+    public static implicit operator Expression<T>(ReadableExpression<T> value) => value.AsExpression();
+
+    public static implicit operator T(ReadableExpression<T> value) => value.AsInvokable();
 }

@@ -9,6 +9,7 @@ using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
+using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
@@ -21,9 +22,9 @@ public class MappingProfileShould
         { typeof(TrackedTransfer), SetupOperationsForTransfersTest }
     };
 
-    private readonly Fixture _fixture = new();
+    private readonly Fixture _fixture = new() { Customizations = { new ReadableExpressionsBuilder() }};
 
-    private readonly Mapper _mapper = new(new MapperConfiguration(config => config.AddProfile(new MappingProfile())));
+    private readonly Mapper _mapper = new(new MapperConfiguration(config => config.AddProfile(new MappingProfile(ReadableExpressionsParser.Default))));
 
     [Theory]
     [InlineData(typeof(Owner), typeof(StoredOwner))]

@@ -7,7 +7,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
 
 public class TestDataFixture
 {
-    public readonly Fixture Fixture = new();
+    public readonly Fixture Fixture = new() { Customizations = { new ReadableExpressionsBuilder() } };
 
     public IReadOnlyCollection<Owner> Owners { get; }
 
