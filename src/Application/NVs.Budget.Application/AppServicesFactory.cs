@@ -1,5 +1,4 @@
-﻿using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities;
+﻿using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting;
@@ -7,8 +6,6 @@ using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Accounting.Reckon;
 using NVs.Budget.Application.Services.Accounting.Results;
-using NVs.Budget.Application.Services.Accounting.Tags;
-using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
 using NVs.Budget.Infrastructure.Identity.Contracts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;

@@ -3,11 +3,12 @@ using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
+using NVs.Budget.Utilities.Expressions;
 using YamlDotNet.RepresentationModel;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
 
-internal class YamlBasedTransferCriteriaReader : YamlReader, ITransferCriteriaReader
+internal class YamlBasedTransferCriteriaReader(ReadableExpressionsParser parser) : YamlReader, ITransferCriteriaReader
 {
     private static readonly YamlScalarNode AccuracyKey = new("Accuracy");
     private static readonly YamlScalarNode CriterionKey = new("Criterion");
@@ -64,7 +65,13 @@ internal class YamlBasedTransferCriteriaReader : YamlReader, ITransferCriteriaRe
                 continue;
             }
 
-            yield return new TransferCriterion(accuracy, comment.Value, criterionVal.Value);
+            var expr = parser.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(criterionVal.Value);
+            if (criterionVal.IsFailed)
+            {
+                yield return Result.Fail(new YamlParsingError("Failed to parse criterion", [comment.Value, CriterionKey.ToString()])).WithReasons(criterionVal.Reasons);
+            }
+
+            yield return new TransferCriterion(accuracy, comment.Value, expr.Value);
         }
     }
 }

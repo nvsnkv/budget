@@ -10,22 +10,15 @@ namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
 internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
 {
-    private static readonly TransferCriteriaParser Parser = new();
-
-    private readonly Dictionary<TransferCriterion, Func<TrackedOperation, TrackedOperation, bool>> _functions = criteria.ToDictionary(
-        c => c,
-        c => Parser.ParseTransferCriteria(c.Criterion).Compile()
-    );
-
-    public Result<TrackedTransfer> Detect(TrackedOperation source, TrackedOperation sink)
+   public Result<TrackedTransfer> Detect(TrackedOperation source, TrackedOperation sink)
     {
         if (source.Amount.Amount >= 0) return Result.Fail(new SourceIsNotAWithdrawError(source));
         if (sink.Amount.Amount <= 0) return Result.Fail(new SinkIsNotAnIncomeError(sink));
         if (!source.Amount.HasSameCurrencyAs(sink.Amount)) return Result.Fail(new SourceAndSinkHaveDifferentCurrenciesError(source, sink));
 
-        foreach (var criterion in _functions.Keys)
+        foreach (var criterion in criteria)
         {
-            if (_functions[criterion](source, sink))
+            if (criterion.Criterion.AsInvokable()(source, sink))
             {
                 return new TrackedTransfer(source, sink, criterion.Comment)
                 {

@@ -4,7 +4,6 @@ using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 

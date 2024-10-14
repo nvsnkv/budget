@@ -7,10 +7,9 @@ using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Results;
-using NVs.Budget.Application.Services.Accounting.Tags;
-using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
@@ -47,9 +46,14 @@ public class AccountantShould
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
         _fixture.SetNamedParameter("taggingCriteria", Enumerable.Empty<TaggingCriterion>());
+
+        var criterion = ReadableExpressionsParser.Default.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(
+            "(l,r) => l.Amount.Amount == r.Amount.Amount * -1 && l.Timestamp.Date == r.Timestamp.Date && l.Description == r.Description"
+        );
+
         _fixture.SetNamedParameter("transferCriteria", (IEnumerable<TransferCriterion>)new[]
         {
-            new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer","l.Amount.Amount == r.Amount.Amount * -1 && l.Timestamp.Date == r.Timestamp.Date && l.Description == r.Description")
+            new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",criterion.Value)
         });
         var budget = _fixture.Create<TrackedBudget>();
         _storage.Budgets.Append([budget]);

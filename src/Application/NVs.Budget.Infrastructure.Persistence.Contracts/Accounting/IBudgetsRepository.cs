@@ -1,9 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.ValueObjects.Criteria;
 
 namespace NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 

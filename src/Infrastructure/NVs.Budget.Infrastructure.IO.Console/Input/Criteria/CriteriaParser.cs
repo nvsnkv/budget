@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Utilities.Expressions;
 

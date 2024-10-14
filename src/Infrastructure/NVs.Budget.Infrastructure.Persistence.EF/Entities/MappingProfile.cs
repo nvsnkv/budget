@@ -37,6 +37,11 @@ internal class MappingProfile : Profile
         CreateMap<ReadableExpression<Func<TrackedOperation, string>>, string>().ConstructUsing(r => r.ToString());
         CreateMap<string, ReadableExpression<Func<TrackedOperation, string>>>().ConstructUsing(r => parser.ParseUnaryConversion<TrackedOperation>(r).Value);
 
+        CreateMap<ReadableExpression<Func<TrackedOperation, TrackedOperation, bool>>, string>().ConstructUsing(r => r.ToString());
+        CreateMap<string, ReadableExpression<Func<TrackedOperation, TrackedOperation, bool>>>().ConstructUsing(
+            r => parser.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(r).Value
+        );
+
         CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
 
         CreateMap<TransferCriterion, StoredTransferCriterion>().ReverseMap();

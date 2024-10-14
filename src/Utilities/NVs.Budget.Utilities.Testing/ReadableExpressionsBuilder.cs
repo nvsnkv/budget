@@ -54,7 +54,7 @@ public class ReadableExpressionsBuilder : ISpecimenBuilder
                 false,
                 Expression.Parameter(argType));
 
-            representation = rep;
+            representation = "_ " + rep;
 
             return true;
         }
@@ -63,17 +63,17 @@ public class ReadableExpressionsBuilder : ISpecimenBuilder
         {
             var parms = expressionType.GetGenericArguments();
             var firstArg = parms[0];
-            var secondArg = parms[0];
-            var retVal = parms[1];
+            var secondArg = parms[1];
+            var retVal = parms[2];
 
-            var constant = Activator.CreateInstance(retVal);
+            var (rep, constant) = CreateConstant(retVal);
             expression = Expression.Lambda(
                 Expression.Constant(constant, retVal),
                 false,
                 Expression.Parameter(firstArg),
                 Expression.Parameter(secondArg));
 
-            representation = "(_,_) => default";
+            representation = "(_,__) " + rep;
 
             return true;
         }
@@ -88,14 +88,14 @@ public class ReadableExpressionsBuilder : ISpecimenBuilder
     {
         if (retVal == typeof(bool))
         {
-            return ("_ => false", false);
+            return ("=> false", false);
         }
 
         if (retVal == typeof(string))
         {
-            return ("_ => \"\"", string.Empty);
+            return ("=> \"\"", string.Empty);
         }
 
-        return ("_ => null", null);
+        return ("=> null", null);
     }
 }

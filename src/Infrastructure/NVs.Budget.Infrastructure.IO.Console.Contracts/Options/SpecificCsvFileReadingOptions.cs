@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace NVs.Budget.Infrastructure.IO.Console.Options;
 
 public class SpecificCsvFileReadingOptions(

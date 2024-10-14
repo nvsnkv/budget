@@ -4,6 +4,7 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Transfers;
+using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
@@ -19,10 +20,18 @@ public class TransferDetectorShould
         var sink = _fixture.CreateIncomes<TrackedOperation>(1).Single();
         var maybeSink = _fixture.CreateIncomes<TrackedOperation>(1).Single();
 
+        var exactCriterion = ReadableExpressionsParser.Default.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(
+            $"(l,r) => (l.Id == Guid.Parse(\"{source.Id}\")) && (r.Id == Guid.Parse(\"{sink.Id}\")) && (r.Amount.Amount > 0)"
+            );
+
+        var maybeCriterion = ReadableExpressionsParser.Default.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(
+            $"(l,r) => l.Id == Guid.Parse(\"{source.Id}\")"
+        );
+
         var criteria = new TransferCriterion[]
         {
-            new(DetectionAccuracy.Exact, "Exactly!", $"(l.Id == Guid.Parse(\"{source.Id}\")) && (r.Id == Guid.Parse(\"{sink.Id}\")) && (r.Amount.Amount > 0)"),
-            new(DetectionAccuracy.Likely, "Maybe", $"l.Id == Guid.Parse(\"{source.Id}\")")
+            new(DetectionAccuracy.Exact, "Exactly!", exactCriterion.Value),
+            new(DetectionAccuracy.Likely, "Maybe", maybeCriterion.Value)
         };
 
         var detector = new TransferDetector(criteria);
@@ -48,7 +57,10 @@ public class TransferDetectorShould
     [MemberData(nameof(GetBadOptions))]
     public void PreserveDomainInvariants(TrackedOperation source, TrackedOperation sink, string error)
     {
-        var criteria = new TransferCriterion[] { new(DetectionAccuracy.Exact, "For sure!", "true") };
+        var criteria = new TransferCriterion[]
+        {
+            new(DetectionAccuracy.Exact, "For sure!", ReadableExpressionsParser.Default.ParseBinaryPredicate<TrackedOperation, TrackedOperation>("(l,r) => true").Value)
+        };
         var detector = new TransferDetector(criteria);
 
         detector.Detect(source, sink).IsSuccess.Should().BeFalse($"Following error was not tracked: {error}");
