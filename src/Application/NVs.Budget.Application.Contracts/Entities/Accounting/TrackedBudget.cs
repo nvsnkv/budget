@@ -1,7 +1,7 @@
 ﻿using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Domain.Entities.Accounts;
 
-namespace NVs.Budget.Application.Contracts.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnumerable<TaggingCriterion> taggingCriteria, IEnumerable<TransferCriterion> transferCriteria, LogbookCriteria logbookCriteria)
     : Domain.Entities.Accounts.Budget(id, name, owners), ITrackableEntity<Guid>

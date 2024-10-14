@@ -48,6 +48,11 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
         bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(c => c.Budget);
         bBuilder.OwnsMany<StoredTransferCriterion>(b => b.TransferCriteria).WithOwner(c => c.Budget);
+        bBuilder.OwnsOne<StoredLogbookCriteria>(b => b.LogbookCriteria, d =>
+        {
+            d.ToJson();
+            d.OwnsMany<StoredTag>(c => c.Tags);
+        });
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);

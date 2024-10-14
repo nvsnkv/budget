@@ -1,8 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Moq;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
@@ -24,6 +25,7 @@ public class BudgetManagerShould
     public BudgetManagerShould()
     {
         _fixture.Customizations.Add(new ReadableExpressionsBuilder());
+        _fixture.Inject(LogbookCriteria.Universal);
         _owner = _fixture.Create<Owner>();
         _user.Setup(u => u.AsOwner()).Returns(_owner);
         _manager = new BudgetManager(_repository, _user.Object);
@@ -167,6 +169,7 @@ public class BudgetManagerShould
         var fixture = new Fixture();
         fixture.Customizations.Add(new NamedParameterBuilder<IEnumerable<Owner>>(nameof(owners), owners, false));
         fixture.Customizations.Add(new ReadableExpressionsBuilder());
+        fixture.Inject(LogbookCriteria.Universal);
 
         return fixture.Create<Generator<TrackedBudget>>().Take(count);
     }

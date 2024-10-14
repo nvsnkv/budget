@@ -1,10 +1,15 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
+using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
@@ -15,7 +20,7 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
     private readonly BudgetsRepository _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
 
     [Fact]
-    public async Task RegisterAnAccount()
+    public async Task RegisterAnBudget()
     {
         var owner = manager.TestData.Owners.First();
 
@@ -35,7 +40,7 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
     }
 
     [Fact]
-    public async Task GetAccount()
+    public async Task GetBudget()
     {
         var expected = manager.TestData.Budgets.Last();
         var collection = await _repo.Get(a => a.Id == expected.Id, CancellationToken.None);
@@ -44,7 +49,43 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
     }
 
     [Fact]
-    public async Task UpdateAccountIfVersionsAreTheSame()
+    public async Task UpdateLogbookCriteriaForBudget()
+    {
+        var expected = new LogbookCriteria(
+            manager.TestData.Fixture.Create<string>(),
+            [
+                new LogbookCriteria(
+                    manager.TestData.Fixture.Create<string>(),
+                    null,
+                    manager.TestData.Fixture.Create<TagBasedCriterionType>(),
+                    manager.TestData.Fixture.Create<Generator<Tag>>().Take(5).ToList().AsReadOnly(),
+                    null, null
+                ),
+                new LogbookCriteria(
+                    manager.TestData.Fixture.Create<string>(),
+                    null, null, null, manager.TestData.Fixture.Create<ReadableExpression<Func<Operation, string>>>(),
+                    null
+                )
+            ],
+            null, null, null, null
+        );
+
+        var id = manager.TestData.Budgets.First().Id;
+        var targets = await _repo.Get(b => b.Id == id, CancellationToken.None);
+        var target = targets.Single();
+        var updated = new TrackedBudget(target.Id, target.Name, target.Owners, target.TaggingCriteria, target.TransferCriteria, expected)
+        {
+            Version = target.Version
+        };
+
+        var result = await _repo.Update(updated, CancellationToken.None);
+        result.Should().BeSuccess();
+
+        result.Value.LogbookCriteria.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public async Task UpdateBudgetIfVersionsAreTheSame()
     {
         var id = manager.TestData.Budgets.First().Id;
         var targets = await _repo.Get(a => a.Id == id, CancellationToken.None);
@@ -71,7 +112,7 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
     }
 
     [Fact]
-    public async Task NotUpdateAccountIfVersionsAreDifferent()
+    public async Task NotUpdateBudgetIfVersionsAreDifferent()
     {
         var target = manager.TestData.Budgets.First();
         var fixture = manager.TestData.Fixture;

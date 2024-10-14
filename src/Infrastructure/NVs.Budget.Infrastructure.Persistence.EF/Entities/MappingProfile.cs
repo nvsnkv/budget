@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
@@ -25,6 +25,8 @@ internal class MappingProfile : Profile
 
     public MappingProfile(ReadableExpressionsParser parser)
     {
+        AllowNullCollections = true;
+
         CreateMap<Currency, CurrencyIsoCode>().ConvertUsing(c => c.IsoCode);
         CreateMap<CurrencyIsoCode, Currency>().ConstructUsing(c => Currency.Get(c));
         CreateMap<Money, StoredMoney>().ReverseMap();
@@ -35,13 +37,20 @@ internal class MappingProfile : Profile
         CreateMap<Operation, StoredOperation>().ReverseMap();
 
         CreateMap<ReadableExpression<Func<Operation, string>>, string>().ConstructUsing(r => r.ToString());
-        CreateMap<string, ReadableExpression<Func<Operation, Operation, bool>>>().ConstructUsing(
-            r => parser.ParseBinaryPredicate<Operation, Operation>(r).Value
+        CreateMap<string, ReadableExpression<Func<Operation, string>>>().ConstructUsing(
+            r => parser.ParseUnaryConversion<Operation>(r).Value
+        );
+        CreateMap<ReadableExpression<Func<Operation, bool>>, string>().ConstructUsing(r => r.ToString());
+        CreateMap<string, ReadableExpression<Func<Operation, bool>>>().ConstructUsing(
+            r => parser.ParseUnaryPredicate<Operation>(r).Value
         );
         CreateMap<ReadableExpression<Func<TrackedOperation, bool>>, string>().ConstructUsing(r => r.ToString());
         CreateMap<string, ReadableExpression<Func<TrackedOperation, bool>>>().ConstructUsing(r => parser.ParseUnaryPredicate<TrackedOperation>(r).Value);
         CreateMap<ReadableExpression<Func<TrackedOperation, string>>, string>().ConstructUsing(r => r.ToString());
         CreateMap<string, ReadableExpression<Func<TrackedOperation, string>>>().ConstructUsing(r => parser.ParseUnaryConversion<TrackedOperation>(r).Value);
+
+        CreateMap<ReadableExpression<Func<TrackedOperation, TrackedOperation, bool>>, string>().ConstructUsing(r => r.ToString());
+        CreateMap<string, ReadableExpression<Func<TrackedOperation, TrackedOperation, bool>>>().ConstructUsing(r => parser.ParseBinaryPredicate<TrackedOperation,TrackedOperation>(r).Value);
 
         CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
         CreateMap<TransferCriterion, StoredTransferCriterion>().ReverseMap();

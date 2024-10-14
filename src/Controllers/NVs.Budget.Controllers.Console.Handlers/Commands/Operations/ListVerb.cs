@@ -3,7 +3,7 @@ using CommandLine;
 using FluentResults;
 using MediatR;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Console.Contracts.Commands;

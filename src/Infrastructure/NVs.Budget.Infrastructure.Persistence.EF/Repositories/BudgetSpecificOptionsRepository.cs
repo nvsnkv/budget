@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;

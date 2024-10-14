@@ -1,7 +1,8 @@
 ﻿using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Utilities.Expressions;
@@ -12,6 +13,11 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 public class TypeReplacerShould
 {
     private readonly Fixture _fixture = new() { Customizations = { new ReadableExpressionsBuilder() }};
+
+    public TypeReplacerShould()
+    {
+        _fixture.Inject(LogbookCriteria.Universal);
+    }
 
     [Fact]
     public void ReplaceBudgetSuccessfully()
@@ -26,6 +32,7 @@ public class TypeReplacerShould
             .Without(b => b.CsvReadingOptions)
             .Without(b => b.TaggingCriteria)
             .Without(b => b.TransferCriteria)
+            .Without(b => b.LogbookCriteria)
             .Create();
 
         var predicate = converted.Compile();

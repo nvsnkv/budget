@@ -3,7 +3,7 @@ using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Utilities.Expressions;
 

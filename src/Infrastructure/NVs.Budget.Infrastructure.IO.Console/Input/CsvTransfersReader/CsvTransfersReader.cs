@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.IO.Console.Output.Operations;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 

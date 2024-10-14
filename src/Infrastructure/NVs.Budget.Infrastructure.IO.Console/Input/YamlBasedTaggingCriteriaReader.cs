@@ -1,6 +1,6 @@
 using FluentResults;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 using NVs.Budget.Utilities.Expressions;
 using YamlDotNet.RepresentationModel;

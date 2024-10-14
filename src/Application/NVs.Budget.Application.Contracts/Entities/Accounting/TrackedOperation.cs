@@ -2,7 +2,7 @@
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Contracts.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 public class  TrackedOperation(
     Guid id,

@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using CsvHelper;
 using FluentResults;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader.Errors;

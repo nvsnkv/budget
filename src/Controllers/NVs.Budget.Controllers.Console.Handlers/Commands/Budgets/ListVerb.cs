@@ -1,6 +1,6 @@
 using CommandLine;
 using MediatR;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Accounts;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Output;

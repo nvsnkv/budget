@@ -4,7 +4,7 @@ using CsvHelper.Configuration;
 using FluentResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;

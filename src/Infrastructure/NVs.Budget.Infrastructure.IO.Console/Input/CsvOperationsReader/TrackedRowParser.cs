@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using CsvHelper;
 using FluentResults;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.IO.Console.Converters;

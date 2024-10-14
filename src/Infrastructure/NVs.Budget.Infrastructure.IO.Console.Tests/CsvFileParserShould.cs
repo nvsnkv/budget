@@ -2,7 +2,8 @@ using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
 using NVs.Budget.Infrastructure.IO.Console.Tests.TestData.FileWithDotsInNumbersAndCyrillicAttributes;
@@ -46,6 +47,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     [Fact]
     public async Task ParseTrackedTransactionsFileSuccessfully()
     {
+        _fixture.Inject(LogbookCriteria.Universal);
         var budgets = _fixture.Create<Generator<TrackedBudget>>().Take(2).ToArray();
         var operations = new List<TrackedOperation>();
 

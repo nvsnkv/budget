@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Output.Owners;

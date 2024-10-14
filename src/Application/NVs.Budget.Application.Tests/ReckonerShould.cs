@@ -3,8 +3,9 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
 using NMoneys;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Services.Accounting;
@@ -34,6 +35,7 @@ public class ReckonerShould
     public ReckonerShould()
     {
         _fixture.Customizations.Add(new ReadableExpressionsBuilder());
+        _fixture.Inject(LogbookCriteria.Universal);
         _currentOwner = _fixture.Create<Owner>();
         Mock<IUser> user = new();
         user.Setup(u => u.AsOwner()).Returns(_currentOwner);

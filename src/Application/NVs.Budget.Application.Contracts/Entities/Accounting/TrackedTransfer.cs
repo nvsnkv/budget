@@ -2,7 +2,7 @@
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Entities.Transactions;
 
-namespace NVs.Budget.Application.Contracts.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 public class TrackedTransfer : Transfer
 {

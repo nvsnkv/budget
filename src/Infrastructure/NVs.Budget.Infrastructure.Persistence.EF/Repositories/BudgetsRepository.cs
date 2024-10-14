@@ -2,7 +2,7 @@
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
@@ -86,6 +86,8 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             criterion.Budget = target;
             target.TransferCriteria.Add(criterion);
         }
+
+        target.LogbookCriteria = mapper.Map<StoredLogbookCriteria>(updated.LogbookCriteria);
 
         await context.SaveChangesAsync(ct);
         return Result.Ok(target);

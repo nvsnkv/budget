@@ -2,7 +2,7 @@
 using Moq;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
@@ -25,6 +25,7 @@ public class AccountantShould
 
     public AccountantShould()
     {
+        _fixture.Inject(LogbookCriteria.Universal);
         _owner = _fixture.Create<Owner>();
         var user = new Mock<IUser>();
         user.Setup(u => u.AsOwner()).Returns(_owner);

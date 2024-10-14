@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using CommandLine;
 using FluentResults;
 using MediatR;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Input;

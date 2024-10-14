@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Domain.Entities.Operations;

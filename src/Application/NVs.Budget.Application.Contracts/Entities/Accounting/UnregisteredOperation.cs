@@ -1,6 +1,6 @@
 ﻿using NMoneys;
 
-namespace NVs.Budget.Application.Contracts.Entities.Accounting;
+namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 public record UnregisteredOperation(
     DateTime Timestamp,

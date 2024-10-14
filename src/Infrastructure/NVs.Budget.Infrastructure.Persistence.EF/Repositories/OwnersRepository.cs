@@ -3,7 +3,7 @@ using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
