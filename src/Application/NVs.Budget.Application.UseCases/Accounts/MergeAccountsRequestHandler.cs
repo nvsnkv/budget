@@ -11,19 +11,21 @@ internal class MergeAccountsRequestHandler(IBudgetManager manager, IReckoner rec
 {
     public async Task<Result> Handle(MergeAccountsRequest request, CancellationToken cancellationToken)
     {
-        var budgets = (await manager.GetOwnedBudgets(cancellationToken)).Where(b => request.BudgetIds.Contains(b.Id)).ToList();
-        var missedBudgets = request.BudgetIds.Except(budgets.Select(b => b.Id)).ToList();
+        var budgets = (await manager.GetOwnedBudgets(cancellationToken)).Where(b => request.BudgetIds.Contains(b.Id)).ToDictionary(x => x.Id);
+        var missedBudgets = request.BudgetIds.Except(budgets.Keys).ToList();
         if (missedBudgets.Any())
         {
             return Result.Fail(missedBudgets.Select(i => new BudgetDoesNotExistError(i)));
         }
 
-        var sink = budgets.Last();
+        var orderedBudgets = request.BudgetIds.Select(i => budgets[i]).ToList();
+
+        var sink = orderedBudgets.Last();
         var result = new Result();
 
         for (var i = 0; i < budgets.Count - 1; i++)
         {
-            var source = budgets[i];
+            var source = orderedBudgets[i];
 
             var operations = reckoner.GetOperations(new(o => o.Budget.Id == source.Id), cancellationToken)
                 .Select(o => new TrackedOperation(o.Id, o.Timestamp, o.Amount, o.Description, sink, o.Tags, o.Attributes.AsReadOnly()){ Version = o.Version });
