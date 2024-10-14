@@ -62,7 +62,7 @@ public class BudgetManagerShould
         IReadOnlyList<TrackedBudget> getOwnedBudgets = GenerateBudgets(1, _owner).ToList().AsReadOnly();
         _repository.Append(getOwnedBudgets);
 
-        var expected = new TrackedBudget(getOwnedBudgets[0].Id, getOwnedBudgets[0].Name, getOwnedBudgets[0].Owners, getOwnedBudgets[0].TaggingCriteria, getOwnedBudgets[0].TransferCriteria)
+        var expected = new TrackedBudget(getOwnedBudgets[0].Id, getOwnedBudgets[0].Name, getOwnedBudgets[0].Owners, getOwnedBudgets[0].TaggingCriteria, getOwnedBudgets[0].TransferCriteria, getOwnedBudgets[0].LogbookCriteria)
         {
             Version = getOwnedBudgets[0].Version
         };
@@ -141,7 +141,7 @@ public class BudgetManagerShould
         IReadOnlyList<TrackedBudget> budgets = GenerateBudgets(1, _owner).ToList().AsReadOnly();
         _repository.Append(budgets);
 
-        var expected = new TrackedBudget(budgets[0].Id, budgets[0].Name, budgets[0].Owners, budgets[0].TaggingCriteria, budgets[0].TransferCriteria)
+        var expected = new TrackedBudget(budgets[0].Id, budgets[0].Name, budgets[0].Owners, budgets[0].TaggingCriteria, budgets[0].TransferCriteria, budgets[0].LogbookCriteria)
         {
             Version = budgets[0].Version
         };

@@ -12,6 +12,4 @@ internal class StoredTransfer(string comment) : DbRecord
 
     public virtual StoredOperation Source { get; set; } = StoredOperation.Invalid;
     public virtual StoredOperation Sink { get; set; } = StoredOperation.Invalid;
-
-
 }

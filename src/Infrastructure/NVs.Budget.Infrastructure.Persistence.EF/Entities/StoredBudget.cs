@@ -22,4 +22,12 @@ internal class StoredBudget(Guid id, string name) : DbRecord, ITrackableEntity<G
     public virtual IList<StoredOperation> Operations { get; init; } = new List<StoredOperation>();
     public virtual IList<StoredTaggingCriterion> TaggingCriteria { get; init; } = new List<StoredTaggingCriterion>();
     public virtual IList<StoredTransferCriterion> TransferCriteria { get; init; } = new List<StoredTransferCriterion>();
+
+    public virtual StoredLogbookCriteria LogbookCriteria { get; init; } = StoredLogbookCriteria.Universal;
+}
+
+internal class StoredLogbookCriteria
+{
+    public string Description { get; init; } = string.Empty;
+    public
 }

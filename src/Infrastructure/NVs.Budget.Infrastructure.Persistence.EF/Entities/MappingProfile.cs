@@ -27,29 +27,28 @@ internal class MappingProfile : Profile
     {
         CreateMap<Currency, CurrencyIsoCode>().ConvertUsing(c => c.IsoCode);
         CreateMap<CurrencyIsoCode, Currency>().ConstructUsing(c => Currency.Get(c));
-
         CreateMap<Money, StoredMoney>().ReverseMap();
-        CreateMap<Tag, StoredTag>().ReverseMap();
 
+        CreateMap<Tag, StoredTag>().ReverseMap();
         CreateMap<Owner, StoredOwner>().ReverseMap();
+        CreateMap<Domain.Entities.Accounts.Budget, StoredBudget>().ReverseMap();
+        CreateMap<Operation, StoredOperation>().ReverseMap();
+
+        CreateMap<ReadableExpression<Func<Operation, string>>, string>().ConstructUsing(r => r.ToString());
+        CreateMap<string, ReadableExpression<Func<Operation, Operation, bool>>>().ConstructUsing(
+            r => parser.ParseBinaryPredicate<Operation, Operation>(r).Value
+        );
         CreateMap<ReadableExpression<Func<TrackedOperation, bool>>, string>().ConstructUsing(r => r.ToString());
         CreateMap<string, ReadableExpression<Func<TrackedOperation, bool>>>().ConstructUsing(r => parser.ParseUnaryPredicate<TrackedOperation>(r).Value);
         CreateMap<ReadableExpression<Func<TrackedOperation, string>>, string>().ConstructUsing(r => r.ToString());
         CreateMap<string, ReadableExpression<Func<TrackedOperation, string>>>().ConstructUsing(r => parser.ParseUnaryConversion<TrackedOperation>(r).Value);
 
-        CreateMap<ReadableExpression<Func<TrackedOperation, TrackedOperation, bool>>, string>().ConstructUsing(r => r.ToString());
-        CreateMap<string, ReadableExpression<Func<TrackedOperation, TrackedOperation, bool>>>().ConstructUsing(
-            r => parser.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(r).Value
-        );
-
         CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
-
         CreateMap<TransferCriterion, StoredTransferCriterion>().ReverseMap();
-        CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
-        CreateMap<Domain.Entities.Accounts.Budget, StoredBudget>().ReverseMap();
-        CreateMap<TrackedBudget, StoredBudget>().ReverseMap();
-        CreateMap<Operation, StoredOperation>().ReverseMap();
+        CreateMap<LogbookCriteria, StoredLogbookCriteria>().ReverseMap();
 
+        CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
+        CreateMap<TrackedBudget, StoredBudget>().ReverseMap();
         CreateMap<TrackedOperation, StoredOperation>()
             .ForMember(
                 s => s.Timestamp,
@@ -60,10 +59,7 @@ internal class MappingProfile : Profile
                 s => s.Timestamp,
                 c => c.ConvertUsing(FromUniversalTimeConverter.Instance)
             );
-
-
         CreateMap<TrackedTransfer, StoredTransfer>().ReverseMap();
-
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
     }
 

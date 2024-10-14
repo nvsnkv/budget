@@ -1,4 +1,5 @@
 using FluentResults;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
@@ -10,7 +11,7 @@ internal sealed class FakeBudgetsRepository : FakeRepository<TrackedBudget>, IBu
     public Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, Owner owner, CancellationToken ct)
     {
         var id = Guid.NewGuid();
-        var result = new TrackedBudget(id, newBudget.Name, new[] { owner }, [], [])
+        var result = new TrackedBudget(id, newBudget.Name, new[] { owner }, [], [], LogbookCriteria.Universal)
         {
             Version = Guid.NewGuid().ToString()
         };
