@@ -28,12 +28,16 @@ internal class UpdateVerb : AbstractVerb
 
     [Option("transfer-criteria", HelpText = "Path to YAML file with transfer criteria. If defined, transfer criteria will be updated")]
     public string? TransferCriteriaPath { get; [UsedImplicitly] set; }
+
+    [Option("logbook-criteria", HelpText = "Path to YAML file with logbook criteria. If defined, transfer criteria will be updated")]
+    public string? LogbookCriteriaPath { get; [UsedImplicitly] set; }
 }
 
 internal class UpdateVerbHandler(
     IInputStreamProvider input,
     ICsvReadingOptionsReader reader,
     ITransferCriteriaReader transferCriteriaReader,
+    ILogbookCriteriaReader logbookCriteriaReader,
     ITaggingCriteriaReader taggingCriteriaReader,
     IBudgetManager manager,
     IBudgetSpecificSettingsRepository repository,
@@ -73,6 +77,20 @@ internal class UpdateVerbHandler(
         hasChanges = hasChanges || changeTaggingCriteriaResult.Value;
 
         var changeTransferCriteriaResult = await TryChangeTransferCriteria(request, budget, cancellationToken);
+        if (changeTransferCriteriaResult.IsFailed)
+        {
+            return ExitCode.ArgumentsError;
+        }
+
+        hasChanges = hasChanges || changeTransferCriteriaResult.Value;
+
+        var changeLogbookCriteriaResult = await TryChangeLogbookCriteria(request, budget, cancellationToken);
+        if (changeLogbookCriteriaResult.IsFailed)
+        {
+            return ExitCode.ArgumentsError;
+        }
+
+        hasChanges = hasChanges || changeLogbookCriteriaResult.Value;
 
         if (hasChanges)
         {
@@ -116,6 +134,40 @@ internal class UpdateVerbHandler(
         }
 
         return ExitCode.Success;
+    }
+
+    private async Task<Result<bool>> TryChangeLogbookCriteria(UpdateVerb request, TrackedBudget budget, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(request.LogbookCriteriaPath))
+        {
+            return false;
+        }
+
+        if (!File.Exists(request.LogbookCriteriaPath))
+        {
+            var result = Result.Fail("Logbook criteria file does not exist");
+            await resultWriter.Write(result, cancellationToken);
+            return result;
+        }
+
+        var stream = await input.GetInput(request.LogbookCriteriaPath);
+        if (!stream.IsSuccess)
+        {
+            var result = stream.ToResult();
+            await resultWriter.Write(result, cancellationToken);
+            return result;
+        }
+
+        var criteria = await logbookCriteriaReader.ReadFrom(stream.Value, cancellationToken);
+        if (criteria.IsFailed)
+        {
+            var result = criteria.ToResult();
+            await resultWriter.Write(result, cancellationToken);
+            return result;
+        }
+
+        budget.SetLogbookCriteria(criteria.Value);
+        return true;
     }
 
     private async Task<Result<bool>> TryChangeTransferCriteria(UpdateVerb request, TrackedBudget budget, CancellationToken cancellationToken)

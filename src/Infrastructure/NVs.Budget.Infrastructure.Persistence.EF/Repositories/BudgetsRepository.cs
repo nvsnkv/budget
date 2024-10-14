@@ -87,7 +87,7 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             target.TransferCriteria.Add(criterion);
         }
 
-        target.LogbookCriteria = mapper.Map<StoredLogbookCriteria>(updated.LogbookCriteria);
+        target.LogbookCriteria = Mapper.Map<StoredLogbookCriteria>(updated.LogbookCriteria);
 
         await context.SaveChangesAsync(ct);
         return Result.Ok(target);

@@ -1,20 +1,17 @@
-using System.Linq.Expressions;
 using FluentResults;
+using MediatR;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Domain.Aggregates;
-using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands;
 
-internal abstract class StatisticsVerbHandlerBase<T, TCriteria>(
-    ICriteriaParser parser,
+internal abstract class StatisticsVerbHandlerBase<T>(
     ILogbookWriter logbookWriter,
     IResultWriter<Result> writer,
-    CronBasedNamedRangeSeriesBuilder seriesBuilder,
-    string criteriaParamName = "o") : CriteriaBasedVerbHandler<T, TCriteria>(parser, writer, criteriaParamName) where T: StatisticsVerb
+    CronBasedNamedRangeSeriesBuilder seriesBuilder) : IRequestHandler<T,ExitCode> where T : StatisticsVerb
 {
     private Result<IEnumerable<NamedRange>> GetRanges(DateTime from, DateTime till, string? schedule)
     {
@@ -23,16 +20,17 @@ internal abstract class StatisticsVerbHandlerBase<T, TCriteria>(
             : seriesBuilder.GetRanges(from, till, schedule);
     }
 
-    protected override async Task<ExitCode> HandleInternal(T request, Expression<Func<TCriteria, bool>> criteriaResultValue, CancellationToken cancellationToken)
+    public async Task<ExitCode> Handle(T request, CancellationToken cancellationToken)
     {
         var ranges = GetRanges(request.From, request.Till, request.Schedule);
-        await Writer.Write(ranges.ToResult(), cancellationToken);
+        await writer.Write(ranges.ToResult(), cancellationToken);
         if (!ranges.IsSuccess)
         {
             return ranges.ToExitCode();
         }
 
-        var result = await GetLogbook(request, criteriaResultValue, cancellationToken);
+        var result = await GetLogbook(request, cancellationToken);
+        await writer.Write(result.ToResult(), cancellationToken);
 
         await logbookWriter.Write(result.ValueOrDefault,
             new LogbookWritingOptions(
@@ -47,5 +45,5 @@ internal abstract class StatisticsVerbHandlerBase<T, TCriteria>(
         return result.ToExitCode();
     }
 
-    protected abstract Task<Result<CriteriaBasedLogbook>> GetLogbook(T request, Expression<Func<TCriteria, bool>> criteriaResultValue, CancellationToken ct);
+    protected abstract Task<Result<CriteriaBasedLogbook>> GetLogbook(T request, CancellationToken ct);
 }

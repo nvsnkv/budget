@@ -11,7 +11,7 @@ public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnu
 
     public IReadOnlyCollection<TaggingCriterion> TaggingCriteria => _taggingCriteria.AsReadOnly();
     public IReadOnlyList<TransferCriterion> TransferCriteria => _transferCriteria.AsReadOnly();
-    public LogbookCriteria LogbookCriteria { get; } = logbookCriteria;
+    public LogbookCriteria LogbookCriteria { get; private set; } = logbookCriteria;
     public string? Version { get; set; }
 
     public void SetTaggingCriteria(IEnumerable<TaggingCriterion> criteria)
@@ -24,6 +24,11 @@ public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnu
     {
         _transferCriteria.Clear();
         _transferCriteria.AddRange(Order(criteria));
+    }
+
+    public void SetLogbookCriteria(LogbookCriteria value)
+    {
+        LogbookCriteria = value;
     }
 
     private static IEnumerable<TaggingCriterion> Order(IEnumerable<TaggingCriterion> criteria) => criteria.OrderBy(r => r.Tag.ToString()).ThenBy(r => r.Condition.ToString());

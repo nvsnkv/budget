@@ -1,9 +1,9 @@
 using FluentResults;
-using NVs.Budget.Domain.ValueObjects.Criteria;
+using NVs.Budget.Application.Contracts.Criteria;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
 
 public interface ILogbookCriteriaReader
 {
-    Task<Result<Criterion>> ReadFrom(StreamReader reader, CancellationToken ct);
+    Task<Result<LogbookCriteria>> ReadFrom(StreamReader reader, CancellationToken ct);
 }

@@ -72,10 +72,7 @@ public static class ConsoleIOExtensions
             DetectDelimiter = true
         });
 
-        var criteriaParser = new CriteriaParser();
-        var substitutionsParser = new SubstitutionsParser(criteriaParser);
-
-        var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
+        var logbookCriteriaReader = new YamlLogbookRulesetReader(ReadableExpressionsParser.Default);
         services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);
 
         return services;

@@ -1,8 +1,9 @@
 using CommandLine;
+using NVs.Budget.Controllers.Console.Contracts.Commands;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands;
 
-internal class StatisticsVerb : CriteriaBasedVerb
+internal class StatisticsVerb : AbstractVerb
 {
     [Option('p', "logbook-path", Required = true, HelpText = "A path to logbook to write")]
     public string LogbookPath { get; set; } = string.Empty;

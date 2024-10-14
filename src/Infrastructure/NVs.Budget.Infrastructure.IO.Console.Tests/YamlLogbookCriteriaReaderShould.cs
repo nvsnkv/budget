@@ -2,15 +2,14 @@ using System.Text;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Domain.ValueObjects.Criteria;
-using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
+using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Tests;
 
 public class YamlLogbookRulesetReaderShould
 {
-    private static readonly CriteriaParser Parser = new();
-    private readonly YamlLogbookRulesetReader _reader = new(Parser, new(Parser));
+    private readonly YamlLogbookRulesetReader _reader = new(ReadableExpressionsParser.Default);
 
     [Fact]
     public async Task ParseValidYamlConfig()
@@ -20,7 +19,7 @@ odds:
   tags: [ odd ]
   subcriteria:
     incomes: 
-      predicate: o.Amount.Amount > 0
+      predicate: o=> o.Amount.Amount > 0
     else:
 evens:
   tags:
@@ -29,7 +28,7 @@ evens:
   mode: excluding
   subcriteria:
     subst:
-      substitution: Year ${o.Timestamp.Year.ToString()}   
+      substitution: o => ""Year"" + o.Timestamp.Year.ToString()   
 ";
         var bytes = Encoding.UTF8.GetBytes(yaml);
 
@@ -46,6 +45,6 @@ evens:
         using var streamReader = new StreamReader(new MemoryStream(bytes));
         var result = await _reader.ReadFrom(streamReader, CancellationToken.None);
         result.Should().BeSuccess();
-        result.Value.Should().BeEquivalentTo(expected);
+        result.Value.GetCriterion().Should().BeEquivalentTo(expected);
     }
 }

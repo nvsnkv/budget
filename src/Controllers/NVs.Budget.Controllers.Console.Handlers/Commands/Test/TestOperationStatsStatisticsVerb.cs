@@ -1,9 +1,10 @@
+using System.Text;
 using CommandLine;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
@@ -50,10 +51,24 @@ internal class TestOperationStatsStatisticsVerbHandler(
         return ExitCode.Success;
     }
 
-    private async Task WriteCriterion(StreamWriter output, Criterion criterion, string padding)
+    private async Task WriteCriterion(StreamWriter output, LogbookCriteria criterion, string padding)
     {
-        await output.WriteLineAsync($"Description: {criterion.Description} [{criterion.Description.GetType().Name}]");
-        foreach (var subCriteria in criterion.Subcriteria)
+        await output.WriteLineAsync($"{padding}Description: {criterion.Description}");
+        if (criterion.Tags != null)
+        {
+            await output.WriteLineAsync($"{padding}Tags: [" + criterion.Tags.Aggregate(new StringBuilder(), (a, v) => a.Append($"{v.Value} ")) + "]");
+            await output.WriteLineAsync($"{padding}Type: {criterion.Type}");
+        }
+        else if (criterion.Substitution != null)
+        {
+            await output.WriteLineAsync($"{padding}Substitution: {criterion.Substitution}");
+        }
+        else if (criterion.Criteria != null)
+        {
+            await output.WriteLineAsync($"{padding}Criteria: {criterion.Criteria}");
+        }
+
+        foreach (var subCriteria in criterion.Subcriteria ?? [])
         {
             await WriteCriterion(output, subCriteria, "  " + padding);
         }
