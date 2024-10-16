@@ -52,7 +52,10 @@ internal class UpdateVerbHandler(
             return ExitCode.ArgumentsError;
         }
 
-        if (string.IsNullOrEmpty(request.Name) && string.IsNullOrEmpty(request.CsvReadingOptionsPath) && string.IsNullOrEmpty(request.TaggingCriteriaPath))
+        if (string.IsNullOrEmpty(request.Name)
+            && string.IsNullOrEmpty(request.CsvReadingOptionsPath)
+            && string.IsNullOrEmpty(request.TaggingCriteriaPath)
+            && string.IsNullOrEmpty(request.TransferCriteriaPath))
         {
             await resultWriter.Write(Result.Fail("No options to update given"), cancellationToken);
             return ExitCode.ArgumentsError;
@@ -196,13 +199,19 @@ internal class UpdateVerbHandler(
         var errors = criteria.Where(r => r.IsFailed).SelectMany(r => r.Errors);
         var values = criteria.Where(r => r.IsSuccess).Select(r => r.Value).ToList();
 
+        Result<bool> hasChanges;
         if (values.Any())
         {
             budget.SetTransferCriteria(values);
-            return Result.Ok(true).WithErrors(errors);
+            hasChanges = Result.Ok(true).WithErrors(errors);
+        }
+        else
+        {
+            hasChanges = Result.Fail(errors);
         }
 
-        return Result.Fail(errors);
+        await resultWriter.Write(hasChanges.ToResult(), cancellationToken);
+        return hasChanges;
     }
 
     private async Task<Result<bool>> TryChangeTaggingCriteria(UpdateVerb request, TrackedBudget budget, CancellationToken cancellationToken)

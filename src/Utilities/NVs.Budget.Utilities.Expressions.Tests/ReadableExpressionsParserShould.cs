@@ -56,5 +56,17 @@ public class ReadableExpressionsParserShould
         testFn(value).Should().Be(expected);
     }
 
+    [Fact]
+    public void ParseMultilineBinaryPredicate()
+    {
+        var predicate = @"(l, r) => l.GetHashCode() == l.GetHashCode()
+                    && r.GetHashCode() != r.GetHashCode()";
+
+        var expr = _parser.ParseBinaryPredicate<object, object>(predicate);
+        expr.Should().BeSuccess();
+        Func<object, object, bool> testFn = expr.Value;
+        testFn(new object(), new object()).Should().BeFalse();
+    }
+
     public record TestRecord(string Value);
 }

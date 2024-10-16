@@ -8,15 +8,16 @@ public class ReadableExpressionsParser : ExpressionParser
 {
     public static readonly ReadableExpressionsParser Default = new();
 
-    private static readonly Regex SingleParamRegex = new(@"^\(?\s*(\w)+\s*\)?\s*=>\s*(.*)$");
-    private static readonly Regex TwoParamsRegex = new(@"^\(\s*(\s*\w+)\s*,\s*(\w+)\s*\)\s*=>\s*(.*)$");
+    private static readonly Regex NewLineRegex = new("\\n", RegexOptions.Compiled);
+    private static readonly Regex SingleParamRegex = new(@"^\(?\s*(\w)+\s*\)?\s*=>\s*(.*)$", RegexOptions.Compiled);
+    private static readonly Regex TwoParamsRegex = new(@"^\(\s*(\s*\w+)\s*,\s*(\w+)\s*\)\s*=>\s*(.*)$", RegexOptions.Compiled);
 
     public Result<ReadableExpression<Func<T,bool>>> ParseUnaryPredicate<T>(string input)
     {
         var parts = SingleParamRegex.Match(input);
         if (!parts.Success)
         {
-            return Result.Fail("Input string does not match function format (i.e (arg) => arg == 2 )");
+            return Result.Fail(new Error("Input string does not match function format (i.e (arg) => arg == 2 )").WithMetadata("Expression", input));
         }
 
         var argName = parts.Groups[1].Value;
@@ -35,10 +36,10 @@ public class ReadableExpressionsParser : ExpressionParser
 
     public Result<ReadableExpression<Func<T1,T2,bool>>> ParseBinaryPredicate<T1, T2>(string input)
     {
-        var parts = TwoParamsRegex.Match(input);
+        var parts = TwoParamsRegex.Match(NewLineRegex.Replace(input, " "));
         if (!parts.Success)
         {
-            return Result.Fail("Input string does not match function format (i.e (arg1, arg2) => arg1 != arg2 )");
+            return Result.Fail(new Error("Input string does not match function format (i.e (arg1, arg2) => arg1 != arg2 )").WithMetadata("Expression", input));
         }
 
         var firstArg = parts.Groups[1].Value;
@@ -52,7 +53,7 @@ public class ReadableExpressionsParser : ExpressionParser
         }
         catch (Exception e)
         {
-            return Result.Fail(new Error($"Unable to create expression: {e.Message}").CausedBy(e));
+            return Result.Fail(new Error($"Unable to create expression: {e.Message}").WithMetadata("Expression", input).CausedBy(e));
         }
     }
 
@@ -61,7 +62,7 @@ public class ReadableExpressionsParser : ExpressionParser
         var parts = SingleParamRegex.Match(input);
         if (!parts.Success)
         {
-            return Result.Fail("Input string does not match function format (i.e (arg) => arg.ToString() )");
+            return Result.Fail(new Error("Input string does not match function format (i.e (arg) => arg.ToString() )").WithMetadata("Expression", input));
         }
 
         var argName = parts.Groups[1].Value;
@@ -74,7 +75,7 @@ public class ReadableExpressionsParser : ExpressionParser
         }
         catch (Exception e)
         {
-            return Result.Fail(new Error($"Unable to create expression: {e.Message}").CausedBy(e));
+            return Result.Fail(new Error($"Unable to create expression: {e.Message}").WithMetadata("Expression", input).CausedBy(e));
         }
     }
 }

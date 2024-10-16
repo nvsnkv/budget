@@ -66,9 +66,10 @@ internal class YamlBasedTransferCriteriaReader(ReadableExpressionsParser parser)
             }
 
             var expr = parser.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(criterionVal.Value);
-            if (criterionVal.IsFailed)
+            if (expr.IsFailed)
             {
-                yield return Result.Fail(new YamlParsingError("Failed to parse criterion", [comment.Value, CriterionKey.ToString()])).WithReasons(criterionVal.Reasons);
+                yield return Result.Fail(new YamlParsingError("Failed to parse criterion", [comment.Value, CriterionKey.ToString()])).WithReasons(expr.Reasons);
+                continue;
             }
 
             yield return new TransferCriterion(accuracy, comment.Value, expr.Value);
