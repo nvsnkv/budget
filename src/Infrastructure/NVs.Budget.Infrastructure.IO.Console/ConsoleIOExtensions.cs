@@ -47,6 +47,7 @@ public static class ConsoleIOExtensions
         services.AddTransient<ICsvReadingOptionsReader, YamlBasedCsvReadingOptionsReader>();
         services.AddTransient<ITaggingCriteriaReader, YamlBasedTaggingCriteriaReader>();
         services.AddTransient<ITransferCriteriaReader, YamlBasedTransferCriteriaReader>();
+        services.AddTransient<ReadableExpressionsParser>();
 
         services.AddTransient<IInputStreamProvider, ConsoleInputStream>();
         

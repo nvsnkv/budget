@@ -164,6 +164,27 @@ public class BudgetManagerShould
         result.Errors.Single().Should().BeOfType<BudgetBelongsToMultipleOwnersError>();
     }
 
+    [Fact]
+    public async Task UpdateCriteria()
+    {
+        var budget = GenerateBudgets(1, _owner).Single();
+        _repository.Append(Enumerable.Repeat(budget, 1));
+
+        var newLogbook = _fixture.Create<LogbookCriteria>();
+        var newTransfers = _fixture.Create<Generator<TransferCriterion>>().Take(10).ToList();
+        var newTags = _fixture.Create<Generator<TaggingCriterion>>().Take(10).ToList();
+
+        budget.SetLogbookCriteria(newLogbook);
+        budget.SetTaggingCriteria(newTags);
+        budget.SetTransferCriteria(newTransfers);
+
+        var result = await _manager.Update(budget, CancellationToken.None);
+        result.IsSuccess.Should().BeTrue();
+
+        var actual = (await _manager.GetOwnedBudgets(CancellationToken.None)).Single();
+        actual.Should().BeEquivalentTo(budget);
+    }
+
     private IEnumerable<TrackedBudget> GenerateBudgets(int count, params Owner[] owners)
     {
         var fixture = new Fixture();

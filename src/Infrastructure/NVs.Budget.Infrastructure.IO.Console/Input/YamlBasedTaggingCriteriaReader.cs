@@ -60,6 +60,7 @@ internal class YamlBasedTaggingCriteriaReader(ReadableExpressionsParser parser) 
                     if (criterionExpr.IsFailed)
                     {
                         yield return Result.Fail(new YamlParsingError("Failed to parse tagging criterion", [tag.Value])).WithErrors(criterionExpr.Errors);
+                        continue;
                     }
 
 

@@ -39,7 +39,12 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
 
     protected override IQueryable<StoredBudget> GetData(Expression<Func<StoredBudget, bool>> expression)
     {
-        return context.Budgets.Include(a => a.Owners.Where(o => !o.Deleted)).Where(expression);
+        return context.Budgets
+            .Include(a => a.Owners.Where(o => !o.Deleted))
+            .Include(b => b.TaggingCriteria)
+            .Include(b => b.TransferCriteria)
+            .Include(b => b.LogbookCriteria)
+            .Where(expression);
     }
 
     protected override Task<StoredBudget?> GetTarget(TrackedBudget item, CancellationToken ct)
@@ -47,6 +52,8 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
         return context.Budgets
             .Include(b => b.Owners.Where(o => !o.Deleted))
             .Include(b => b.TaggingCriteria)
+            .Include(b => b.TransferCriteria)
+            .Include(b => b.LogbookCriteria)
             .Where(b => b.Id == item.Id)
             .FirstOrDefaultAsync(ct);
     }

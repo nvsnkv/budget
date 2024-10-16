@@ -29,7 +29,7 @@ public class ReadableExpressionsParser : ExpressionParser
         }
         catch (Exception e)
         {
-            return Result.Fail(new Error($"Unable to create expression: {e.Message}").CausedBy(e));
+            return Result.Fail(new Error($"Unable to create expression: {e.Message}").WithMetadata("Expression", input).CausedBy(e));
         }
     }
 

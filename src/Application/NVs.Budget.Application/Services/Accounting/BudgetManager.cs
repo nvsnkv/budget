@@ -59,6 +59,10 @@ internal class BudgetManager(IBudgetsRepository repository, IUser currentUser) :
         if (!found.Owners.Contains(_currentOwner)) return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError());
 
         found.Rename(budget.Name);
+        found.SetLogbookCriteria(budget.LogbookCriteria);
+        found.SetTaggingCriteria(budget.TaggingCriteria);
+        found.SetTransferCriteria(budget.TransferCriteria);
+
         var result = await repository.Update(found, ct);
         return result.ToResult();
     }
