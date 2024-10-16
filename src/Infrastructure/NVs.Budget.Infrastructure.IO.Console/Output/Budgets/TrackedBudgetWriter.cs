@@ -20,7 +20,7 @@ internal class TrackedBudgetWriter(IOutputStreamProvider streams, IOptionsSnapsh
             await writer.WriteLineAsync("| Tagging criteria");
             foreach (var rule in budget.TaggingCriteria)
             {
-                await writer.WriteLineAsync($"| {rule.Tag}{rule.Condition}");
+                await writer.WriteLineAsync($"| {rule.Tag} # {rule.Condition}");
             }
         }
 
