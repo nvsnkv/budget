@@ -16,6 +16,7 @@ using NVs.Budget.Infrastructure.Identity.Console;
 using NVs.Budget.Infrastructure.IO.Console;
 using NVs.Budget.Infrastructure.Persistence.EF;
 using NVs.Budget.Utilities.Expressions;
+using Serilog;
 
 Console.OutputEncoding = Encoding.UTF8;
 
@@ -50,8 +51,10 @@ var configuration = configurationBuilder
     .AddCommandLine(args)
     .Build();
 
+Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
+
 var collection = new ServiceCollection().AddConsoleIdentity()
-    .AddLogging(builder => builder.AddConfiguration(configuration).AddSimpleConsole())
+    .AddLogging(builder => builder.AddSerilog(dispose: true))
     .AddSingleton(configuration)
     .AddMediatR(c => c.RegisterServicesFromAssembly(typeof(AdminVerb).Assembly))
     .AddEfCorePersistence(
