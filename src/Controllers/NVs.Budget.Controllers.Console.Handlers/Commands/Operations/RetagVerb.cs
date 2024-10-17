@@ -17,7 +17,7 @@ internal class RetagVerb : CriteriaBasedVerb
     [Option('b', "budget", Required = true, HelpText = "ID of a budget to import operations to")]
     public string BudgetId { get; [UsedImplicitly] set; } = string.Empty;
 
-    [Option("--from-scratch", HelpText = "Clear old tags")]
+    [Option("from-scratch", HelpText = "Clear old tags")]
     public bool FromScratch { get; [UsedImplicitly] set; }
 }
 

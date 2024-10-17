@@ -107,7 +107,7 @@ internal class Accountant(
         {
             if (fromScratch)
             {
-                foreach (var tag in operation.Tags)
+                foreach (var tag in operation.Tags.ToList())
                 {
                     operation.Untag(tag);
                 }
