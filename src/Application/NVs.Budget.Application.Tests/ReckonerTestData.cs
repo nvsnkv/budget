@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Criteria;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Utilities.Testing;
 
@@ -9,13 +10,13 @@ internal class ReckonerTestData
 {
     public IReadOnlyList<TrackedOperation> OwnedTransactions { get; }
 
-    public IReadOnlyList<TrackedAccount> OwnedAccounts { get; }
+    public IReadOnlyList<TrackedBudget> OwnedBudgets { get; }
 
     public IReadOnlyList<TrackedOperation> NotOwnedTransactions { get; }
 
-    public IEnumerable<TrackedAccount> AllAccounts => OwnedAccounts
-        .Concat(OwnedTransactions.Select(t => t.Account as TrackedAccount))
-        .Concat(NotOwnedTransactions.Select(t => t.Account as TrackedAccount))
+    public IEnumerable<TrackedBudget> AllAccounts => OwnedBudgets
+        .Concat(OwnedTransactions.Select(t => t.Budget as TrackedBudget))
+        .Concat(NotOwnedTransactions.Select(t => t.Budget as TrackedBudget))
         .Where(a => a is not null)
         .Distinct()!;
 
@@ -23,17 +24,18 @@ internal class ReckonerTestData
 
     public ReckonerTestData(Owner owner, int ownedAccountsCount = 2, int ownedTransactionsPerAccount = 3, int notOwnedTransactionsCount = 5)
     {
-        var fixture = new Fixture();
-        OwnedAccounts = fixture
-            .CreateMany<TrackedAccount>()
+        var fixture = new Fixture() { Customizations = { new ReadableExpressionsBuilder() }};
+        fixture.Inject(LogbookCriteria.Universal);
+        OwnedBudgets = fixture
+            .CreateMany<TrackedBudget>()
             .Take(ownedAccountsCount)
             .ToList();
-        foreach (var account in OwnedAccounts)
+        foreach (var budget in OwnedBudgets)
         {
-            account.AddOwner(owner);
+            budget.AddOwner(owner);
         }
 
-        OwnedTransactions = OwnedAccounts.SelectMany((a, i) =>
+        OwnedTransactions = OwnedBudgets.SelectMany((a, i) =>
         {
             using (fixture.SetAccount(a))
             {

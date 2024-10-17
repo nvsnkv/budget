@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
@@ -8,14 +8,14 @@ namespace NVs.Budget.Application.Tests.Fakes;
 
 internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository
 {
-    public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
+    public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedBudget budget, CancellationToken ct)
     {
         var trackedTransaction = new TrackedOperation(
             Guid.NewGuid(),
             operation.Timestamp,
             operation.Amount,
             operation.Description,
-            account,
+            budget,
             Enumerable.Empty<Tag>(),
             operation.Attributes)
         {

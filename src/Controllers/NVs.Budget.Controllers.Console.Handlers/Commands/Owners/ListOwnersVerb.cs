@@ -2,11 +2,11 @@ using CommandLine;
 using FluentResults;
 using JetBrains.Annotations;
 using MediatR;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Owners;
 
@@ -17,10 +17,10 @@ internal class ListOwnersVerb : AbstractVerb
     public string ParamName { get; [UsedImplicitly] set; } = "o";
 
     [Value(0)] public IEnumerable<string>? Criteria { get; [UsedImplicitly] set; }
-};
+}
 
 [UsedImplicitly]
-internal class ListOwnersVerbHandler(IMediator mediator, CriteriaParser parser, IResultWriter<Result> resultWriter, IObjectWriter<TrackedOwner> writer) : IRequestHandler<ListOwnersVerb, ExitCode>
+internal class ListOwnersVerbHandler(IMediator mediator, ICriteriaParser parser, IResultWriter<Result> resultWriter, IObjectWriter<TrackedOwner> writer) : IRequestHandler<ListOwnersVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListOwnersVerb request, CancellationToken cancellationToken)
     {

@@ -1,4 +1,4 @@
-﻿using NVs.Budget.Application.Contracts.Entities.Accounting;
+﻿using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 
 namespace NVs.Budget.Application.Services.Accounting.Duplicates;
@@ -19,7 +19,7 @@ internal class DuplicatesDetector(DuplicatesDetectorOptions options)
 
             if (!duplicateFound)
             {
-                buckets.Add(new List<TrackedOperation>() { transaction });
+                buckets.Add(new List<TrackedOperation> { transaction });
             }
         }
 
@@ -30,7 +30,7 @@ internal class DuplicatesDetector(DuplicatesDetectorOptions options)
     }
 
     private bool CheckIsDuplicate(TrackedOperation left, TrackedOperation right) =>
-        left.Account == right.Account
+        left.Budget == right.Budget
         && left.Amount == right.Amount
         && left.Description == right.Description
         && left.Timestamp - right.Timestamp < options.Offset;

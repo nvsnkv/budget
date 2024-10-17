@@ -1,14 +1,16 @@
-﻿using FluentResults;
+﻿using System.Linq.Expressions;
+using FluentResults;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
 using NVs.Budget.Domain.Extensions;
+using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
 internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
 {
-    public Result<TrackedTransfer> Detect(TrackedOperation source, TrackedOperation sink)
+   public Result<TrackedTransfer> Detect(TrackedOperation source, TrackedOperation sink)
     {
         if (source.Amount.Amount >= 0) return Result.Fail(new SourceIsNotAWithdrawError(source));
         if (sink.Amount.Amount <= 0) return Result.Fail(new SinkIsNotAnIncomeError(sink));
@@ -16,7 +18,7 @@ internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
 
         foreach (var criterion in criteria)
         {
-            if (criterion.Criterion(source, sink))
+            if (criterion.Criterion.AsInvokable()(source, sink))
             {
                 return new TrackedTransfer(source, sink, criterion.Comment)
                 {
@@ -29,5 +31,15 @@ internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
             .WithMetadata(nameof(source), source.Id)
             .WithMetadata(nameof(sink), sink.Id));
     }
+}
 
+internal class TransferCriteriaParser : ExpressionParser
+{
+    public Expression<Func<TrackedOperation, TrackedOperation, bool>> ParseTransferCriteria(string expression) =>
+        Parse<Func<TrackedOperation, TrackedOperation, bool>>(
+            expression,
+            typeof(bool),
+            Expression.Parameter(typeof(TrackedOperation), "l"),
+            Expression.Parameter(typeof(TrackedOperation), "r")
+        );
 }

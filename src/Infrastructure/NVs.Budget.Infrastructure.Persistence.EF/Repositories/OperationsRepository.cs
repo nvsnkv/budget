@@ -2,7 +2,7 @@
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
@@ -13,7 +13,7 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator, AccountsFinder finder) :
+internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator, BudgetsFinder finder) :
     RepositoryBase<TrackedOperation, Guid, StoredOperation>(mapper, versionGenerator), IOperationsRepository
 {
     private readonly ExpressionSplitter _splitter = new();
@@ -25,7 +25,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
         var (queryable, enumerable) = _splitter.Split(expression);
         var query = context.Operations
-            .Include(t => t.Account)
+            .Include(t => t.Budget)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
             .Where(queryable);
 
@@ -42,15 +42,15 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
     protected override async Task<Result<StoredOperation>> Update(StoredOperation target, TrackedOperation updated, CancellationToken ct)
     {
-        if (target.Account.Id != updated.Account.Id)
+        if (target.Budget.Id != updated.Budget.Id)
         {
-            var changed = await finder.FindById(updated.Account.Id, ct);
+            var changed = await finder.FindById(updated.Budget.Id, ct);
             if (changed is null)
             {
-                return Result.Fail(new AccountDoesNotExistsError(updated.Account));
+                return Result.Fail(new BudgetDoesNotExistsError(updated.Budget));
             }
 
-            target.Account = changed;
+            target.Budget = changed;
         }
 
         target.Amount = Mapper.Map<StoredMoney>(updated.Amount);
@@ -88,17 +88,17 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         return context.SaveChangesAsync(ct);
     }
 
-    public async Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
+    public async Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedBudget budget, CancellationToken ct)
     {
-        var storedAccount = await finder.FindById(account.Id, ct);
+        var storedAccount = await finder.FindById(budget.Id, ct);
         if (storedAccount is null)
         {
-            return Result.Fail(new AccountDoesNotExistsError(account));
+            return Result.Fail(new BudgetDoesNotExistsError(budget));
         }
 
         var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp.ToUniversalTime(), operation.Description)
         {
-            Account = storedAccount,
+            Budget = storedAccount,
             Amount = Mapper.Map<StoredMoney>(operation.Amount),
             Attributes = new Dictionary<string, object>(operation.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
         };
