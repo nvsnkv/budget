@@ -14,5 +14,6 @@ public interface IOperationsRepository
 
 public interface IStreamingOperationRepository {
     IAsyncEnumerable<TrackedOperation> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct);
-    IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> updateStream, CancellationToken ct);
+    IAsyncEnumerable<Result<TrackedOperation>> Register(IAsyncEnumerable<UnregisteredOperation> operations,  TrackedBudget budget, CancellationToken ct);
+    IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct);
 }

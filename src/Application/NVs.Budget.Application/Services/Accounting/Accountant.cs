@@ -24,19 +24,19 @@ internal class Accountant(
     IBudgetManager manager,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, TrackedBudget budget, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> unregistered, TrackedBudget budget, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
 
         var transfersListBuilder = new TransfersListBuilder(new TransferDetector(budget.TransferCriteria));
         var tagsManager = new TagsManager(budget.TaggingCriteria);
 
-        await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
+        var imported = streamingOperationRepository.Register(unregistered, budget, ct);
+        var tagged = new List<TrackedOperation>();
+
+        await foreach (var transactionResult in imported)
         {
-
-            var transactionResult = await operationsRepository.Register(unregisteredTransaction, budget, ct);
             importResultBuilder.Append(transactionResult);
-
             if (transactionResult.IsSuccess)
             {
                 var transaction = transactionResult.Value;
@@ -47,19 +47,16 @@ internal class Accountant(
 
                 if (transaction.Tags.Count > 0)
                 {
-                    transactionResult = await operationsRepository.Update(transaction, ct);
-                    if (!transactionResult.IsSuccess)
-                    {
-                        importResultBuilder.Append(transactionResult);
-                    }
-                    else
-                    {
-                        transaction = transactionResult.Value;
-                    }
+                    tagged.Add(transaction);
                 }
 
                 transfersListBuilder.Add(transaction);
             }
+        }
+
+        await foreach (var tagResult in streamingOperationRepository.Update(tagged.ToAsyncEnumerable(), ct))
+        {
+            importResultBuilder.Append(tagResult);
         }
 
         foreach (var transfer in transfersListBuilder.ToList())
@@ -94,16 +91,13 @@ internal class Accountant(
         var errors = new List<IError>();
         var valid = operations.Where(o =>
         {
-            if (budgets.All(b => b.Id != o.Budget.Id))
-            {
-                errors.Add(new BudgetDoesNotBelongToCurrentOwnerError()
-                    .WithTransactionId(o)
-                    .WithOperationId(o.Budget));
+            if (budgets.Any(b => b.Id == o.Budget.Id)) return true;
+            errors.Add(new BudgetDoesNotBelongToCurrentOwnerError()
+                .WithTransactionId(o)
+                .WithOperationId(o.Budget));
 
-                return false;
-            }
+            return false;
 
-            return true;
         });
 
         var results = streamingOperationRepository.Update(valid, ct);

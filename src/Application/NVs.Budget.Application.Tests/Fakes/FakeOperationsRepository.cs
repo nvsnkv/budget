@@ -9,6 +9,8 @@ namespace NVs.Budget.Application.Tests.Fakes;
 
 internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository, IStreamingOperationRepository
 {
+
+
     public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedBudget budget, CancellationToken ct)
     {
         var trackedTransaction = new TrackedOperation(
@@ -39,10 +41,17 @@ internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOpe
     }
 
     IAsyncEnumerable<TrackedOperation> IStreamingOperationRepository.Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct) => DoGet(filter).Result.ToAsyncEnumerable();
-
-    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> updateStream, [EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<Result<TrackedOperation>> Register(IAsyncEnumerable<UnregisteredOperation> operations, TrackedBudget budget, [EnumeratorCancellation] CancellationToken ct)
     {
-        await foreach (var u in updateStream.WithCancellation(ct))
+        await foreach (var unregistered in operations.WithCancellation(ct))
+        {
+            yield return await Register(unregistered, budget, ct);
+        }
+    }
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var u in operations.WithCancellation(ct))
         {
             yield return await Update(u, ct);
         }

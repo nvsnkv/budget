@@ -23,13 +23,13 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
     public override async Task<IReadOnlyCollection<TrackedOperation>> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
     {
-        var items = await DoGet(filter, false, ct).ToListAsync(ct);
+        var items = await DoGet(filter, false).ToListAsync(ct);
         return items.AsReadOnly();
     }
 
-    IAsyncEnumerable<TrackedOperation> IStreamingOperationRepository.Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct) => DoGet(filter, true, ct);
+    IAsyncEnumerable<TrackedOperation> IStreamingOperationRepository.Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct) => DoGet(filter, true);
 
-    private IAsyncEnumerable<TrackedOperation> DoGet(Expression<Func<TrackedOperation, bool>> filter, bool trackItems, CancellationToken ct)
+    private IAsyncEnumerable<TrackedOperation> DoGet(Expression<Func<TrackedOperation, bool>> filter, bool trackItems)
     {
         var expression = filter.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
@@ -45,10 +45,10 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         return query.ToAsyncEnumerable().Where(enumerable).Select(Mapper.Map<TrackedOperation>);
     }
 
-    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> updateStream, [EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
     {
         var results = new Queue<Result<TrackedOperation>>();
-        await foreach (var updated in updateStream.WithCancellation(ct))
+        await foreach (var updated in operations.WithCancellation(ct))
         {
             var target = await GetTarget(updated, ct);
             if (target is null)
@@ -147,15 +147,15 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
     public async Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedBudget budget, CancellationToken ct)
     {
-        var storedAccount = await finder.FindById(budget.Id, ct);
-        if (storedAccount is null)
+        var storedBudget = await finder.FindById(budget.Id, ct);
+        if (storedBudget is null)
         {
             return Result.Fail(new BudgetDoesNotExistsError(budget));
         }
 
         var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp.ToUniversalTime(), operation.Description)
         {
-            Budget = storedAccount,
+            Budget = storedBudget,
             Amount = Mapper.Map<StoredMoney>(operation.Amount),
             Attributes = new Dictionary<string, object>(operation.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
         };
@@ -165,6 +165,48 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         await context.SaveChangesAsync(ct);
 
         return Mapper.Map<TrackedOperation>(storedTransaction);
+    }
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> Register(IAsyncEnumerable<UnregisteredOperation> operations, TrackedBudget budget, [EnumeratorCancellation] CancellationToken ct)
+    {
+        var results = new Queue<Result<TrackedOperation>>();
+        await foreach (var unregistered in operations.WithCancellation(ct))
+        {
+            var storedBudget = await finder.FindById(budget.Id, ct);
+            if (storedBudget is null)
+            {
+                results.Enqueue(Result.Fail(new BudgetDoesNotExistsError(budget)));
+                continue;
+            }
+
+            var storedTransaction = new StoredOperation(Guid.Empty, unregistered.Timestamp.ToUniversalTime(), unregistered.Description)
+            {
+                Budget = storedBudget,
+                Amount = Mapper.Map<StoredMoney>(unregistered.Amount),
+                Attributes = new Dictionary<string, object>(unregistered.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
+            };
+
+            BumpVersion(storedTransaction);
+            await context.Operations.AddAsync(storedTransaction, ct);
+            await context.SaveChangesAsync(ct);
+
+            results.Enqueue(Mapper.Map<TrackedOperation>(storedTransaction));
+
+            if (results.Count > BatchSize)
+            {
+                await context.SaveChangesAsync(ct);
+                while (results.TryDequeue(out var r))
+                {
+                    yield return r;
+                }
+            }
+        }
+
+        await context.SaveChangesAsync(ct);
+        while (results.TryDequeue(out var r))
+        {
+            yield return r;
+        }
     }
 
     protected override IQueryable<StoredOperation> GetData(Expression<Func<StoredOperation, bool>> expression)

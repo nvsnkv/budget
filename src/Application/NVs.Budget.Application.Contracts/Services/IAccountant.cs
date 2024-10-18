@@ -8,7 +8,7 @@ namespace NVs.Budget.Application.Contracts.Services;
 
 public interface IAccountant
 {
-    Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, TrackedBudget budget, ImportOptions options, CancellationToken ct);
+    Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> unregistered, TrackedBudget budget, ImportOptions options, CancellationToken ct);
     Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct);
     Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, bool fromScratch, CancellationToken ct);
     Task<Result> Remove(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct);
