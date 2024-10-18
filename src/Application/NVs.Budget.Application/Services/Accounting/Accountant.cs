@@ -107,13 +107,13 @@ internal class Accountant(
         });
 
         var results = streamingOperationRepository.Update(valid, ct);
-        var succeesses = new List<ISuccess>();
+        var successes = new List<ISuccess>();
 
         await foreach (var result in results)
         {
             if (result.IsSuccess)
             {
-                succeesses.Add(new OperationUpdated(result.Value));
+                successes.Add(new OperationUpdated(result.Value));
             }
             else
             {
@@ -121,7 +121,7 @@ internal class Accountant(
             }
         }
 
-        return new Result().WithSuccesses(succeesses).WithErrors(errors);
+        return new Result().WithSuccesses(successes).WithErrors(errors);
     }
 
     public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, bool fromScratch, CancellationToken ct)
