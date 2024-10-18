@@ -1,15 +1,16 @@
 using CommandLine;
 using FluentResults;
+using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Input;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Output;
-using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Test;
 
@@ -17,10 +18,15 @@ namespace NVs.Budget.Controllers.Console.Handlers.Commands.Test;
 internal class TestImportVerb : AbstractVerb
 {
     [Option('f', "file", Required = true, HelpText = "Incoming file to test")]
-    public string? FilePath { get; set; }
+    public string? FilePath { get; [UsedImplicitly] set; }
+
+    [Option('b', "budget", Required = true, HelpText = "ID of a budget to import operations to")]
+    public string BudgetId { get; [UsedImplicitly] set; } = string.Empty;
 }
 
 internal class TestImportVerbHandler(
+    IBudgetManager manager,
+    IBudgetSpecificSettingsRepository settingsRepository,
     IInputStreamProvider input,
     IOperationsReader reader,
     IOutputStreamProvider output,
@@ -39,10 +45,32 @@ internal class TestImportVerbHandler(
             return ExitCode.ArgumentsError;
         }
 
+        if (!Guid.TryParse(request.BudgetId, out var budgetId))
+        {
+            await resultWriter.Write(Result.Fail("Given ID is not a guid"), cancellationToken);
+            return ExitCode.ArgumentsError;
+        }
+
+        var budgets = await manager.GetOwnedBudgets(cancellationToken);
+        var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
+        if (budget is null)
+        {
+            await resultWriter.Write(Result.Fail("Budget with given id does not exists"), cancellationToken);
+            return ExitCode.ArgumentsError;
+        }
+
+        var settings = await settingsRepository.GetReadingOptionsFor(budget, cancellationToken);
+        var fileOptionsResult = settings.GetFileOptionsFor(filePath);
+        if (fileOptionsResult.IsFailed)
+        {
+            await resultWriter.Write(fileOptionsResult.ToResult(), cancellationToken);
+            return ExitCode.OperationError;
+        }
+
         var successes = new List<Operation>();
         var errors = new List<Result>();
 
-        var ops = reader.ReadUnregisteredOperations(streamResult.Value, filePath, cancellationToken);
+        var ops = reader.ReadUnregisteredOperations(streamResult.Value, fileOptionsResult.Value, cancellationToken);
 
         await foreach (var result in ops)
         {
@@ -78,7 +106,7 @@ internal class TestImportVerbHandler(
             unregistered.Timestamp,
             unregistered.Amount,
             unregistered.Description,
-            new Account(Guid.Empty, unregistered.Account.Name, unregistered.Account.Bank, [user.AsOwner()]),
+            new Domain.Entities.Accounts.Budget(Guid.Empty, "fake budget", [user.AsOwner()]),
             [],
             unregistered.Attributes
         );

@@ -1,7 +1,7 @@
 using FluentResults;
 using NCrontab;
 using NVs.Budget.Controllers.Console.Contracts.Errors;
-using NVs.Budget.Controllers.Console.Contracts.IO.Options;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Utils;
 

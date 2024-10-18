@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Results;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Results.Successes;
@@ -50,6 +50,4 @@ internal class ImportResultBuilder(DuplicatesDetector detector)
         var duplicates = detector.DetectDuplicates(_transactions);
         return new ImportResult(_transactions, _transfers, duplicates, _reasons);
     }
-
-    public void Append(Result<TrackedAccount> result) => _reasons.AddRange(result.Reasons);
 }

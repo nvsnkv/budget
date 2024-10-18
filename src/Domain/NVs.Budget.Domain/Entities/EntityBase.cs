@@ -31,7 +31,7 @@ public abstract class EntityBase<T> where T: struct
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        return obj.GetType().IsAssignableTo(this.GetType()) && Equals((EntityBase<T>)obj);
+        return obj.GetType().IsAssignableTo(GetType()) && Equals((EntityBase<T>)obj);
     }
 
     public override int GetHashCode()

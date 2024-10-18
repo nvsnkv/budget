@@ -3,6 +3,6 @@
 internal class Storage
 {
     public readonly FakeOperationsRepository Operations = new();
-    public readonly FakeAccountsRepository Accounts = new();
+    public readonly FakeBudgetsRepository Budgets = new();
     public readonly FakeTransfersRepository Transfers = new();
 }

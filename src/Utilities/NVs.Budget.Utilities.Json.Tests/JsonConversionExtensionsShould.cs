@@ -15,7 +15,7 @@ public class JsonConversionExtensionsShould
         expected[_fixture.Create<string>()] = _fixture.Create<decimal>();
         expected[_fixture.Create<string>()] = true;
         expected[_fixture.Create<string>()] = false;
-        expected[_fixture.Create<string>()] = new Dictionary<string, object>()
+        expected[_fixture.Create<string>()] = new Dictionary<string, object>
         {
             { _fixture.Create<string>(), _fixture.Create<string>() }
         };

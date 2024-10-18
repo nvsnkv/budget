@@ -4,9 +4,9 @@ namespace NVs.Budget.Controllers.Console.Contracts.Errors;
 
 public class ExceptionBasedError : IError
 {
-    public ExceptionBasedError(Exception e)
+    public ExceptionBasedError(Exception e, string? message = null)
     {
-        Message = e.Message;
+        Message = message ?? e.Message;
         Reasons = new List<IError>();
         Metadata = new Dictionary<string, object>();
 

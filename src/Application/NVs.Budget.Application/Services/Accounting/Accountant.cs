@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Results;
 using NVs.Budget.Application.Contracts.Services;
@@ -20,34 +20,26 @@ namespace NVs.Budget.Application.Services.Accounting;
 internal class Accountant(
     IOperationsRepository operationsRepository,
     ITransfersRepository transfersRepository,
-    IAccountManager manager,
-    TagsManager tagsManager,
-    TransfersListBuilder transfersListBuilder,
+    IBudgetManager manager,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, TrackedBudget budget, ImportOptions options, CancellationToken ct)
     {
         importResultBuilder.Clear();
-        transfersListBuilder.Clear();
 
-        var accounts = (await Manager.GetOwnedAccounts(ct)).ToList();
+        var transfersListBuilder = new TransfersListBuilder(new TransferDetector(budget.TransferCriteria));
+        var tagsManager = new TagsManager(budget.TaggingCriteria);
 
         await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
         {
-            var accountResult = await TryGetAccount(accounts, unregisteredTransaction.Account, options.RegisterAccounts, ct);
-            importResultBuilder.Append(accountResult);
-            if (!accountResult.IsSuccess)
-            {
-                continue;
-            }
 
-            var transactionResult = await operationsRepository.Register(unregisteredTransaction, accountResult.Value, ct);
+            var transactionResult = await operationsRepository.Register(unregisteredTransaction, budget, ct);
             importResultBuilder.Append(transactionResult);
 
             if (transactionResult.IsSuccess)
             {
                 var transaction = transactionResult.Value;
-                foreach (var tag in tagsManager.GetTags(transaction))
+                foreach (var tag in tagsManager.GetTagsFor(transaction))
                 {
                     transaction.Tag(tag);
                 }
@@ -97,30 +89,31 @@ internal class Accountant(
 
     public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedAccounts(ct);
+        var budgets = await Manager.GetOwnedBudgets(ct);
         var result = new Result();
         await foreach (var transaction in operations.WithCancellation(ct))
         {
-            var updateResult = await Update(transaction, accounts, ct);
+            var updateResult = await Update(transaction, budgets, ct);
             result.Reasons.AddRange(updateResult.Reasons);
         }
 
         return result;
     }
 
-    public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, bool fromScratch, CancellationToken ct)
+    public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, bool fromScratch, CancellationToken ct)
     {
+        var tagsManager = new TagsManager(budget.TaggingCriteria);
         var updated = operations.Select(operation =>
         {
             if (fromScratch)
             {
-                foreach (var tag in operation.Tags)
+                foreach (var tag in operation.Tags.ToList())
                 {
                     operation.Untag(tag);
                 }
             }
 
-            var tags = tagsManager.GetTags(operation);
+            var tags = tagsManager.GetTagsFor(operation);
             foreach (var tag in tags.Except(operation.Tags))
             {
                 operation.Tag(tag);
@@ -159,20 +152,20 @@ internal class Accountant(
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedAccounts(ct);
+        var budgets = await Manager.GetOwnedBudgets(ct);
         var result = new Result();
 
         await foreach (var transfer in transfers.WithCancellation(ct))
         {
-            if (accounts.All(a => a != transfer.Source.Account))
+            if (budgets.All(a => a != transfer.Source.Budget))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Account));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Budget));
                 continue;
             }
 
-            if (accounts.All(a => a != transfer.Sink.Account))
+            if (budgets.All(a => a != transfer.Sink.Budget))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Account));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Budget));
                 continue;
             }
 
@@ -208,42 +201,18 @@ internal class Accountant(
         return result;
     }
 
-    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedAccount> ownedAccounts, CancellationToken ct)
+    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedBudget> ownedAccounts, CancellationToken ct)
     {
-        if (ownedAccounts.All(a => operation.Account != a))
+        if (ownedAccounts.All(a => operation.Budget != a))
         {
-            return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError()
+            return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError()
                 .WithTransactionId(operation)
-                .WithAccountId(operation.Account));
+                .WithAccountId(operation.Budget));
         }
 
         var updateResult = await operationsRepository.Update(operation, ct);
         return updateResult.IsSuccess
             ? Result.Ok(updateResult.Value).WithReason(new OperationUpdated(updateResult.Value))
             : Result.Fail(updateResult.Errors);
-    }
-
-    private async Task<Result<TrackedAccount>> TryGetAccount(ICollection<TrackedAccount> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
-    {
-        var registeredAccount = accounts.FirstOrDefault(a => a.Name == account.Name && a.Bank == account.Bank);
-        if (registeredAccount is not null) return Result.Ok(registeredAccount);
-
-        if (!shouldRegister)
-        {
-            return Result.Fail(new AccountNotFoundError()
-                .WithMetadata(nameof(TrackedAccount.Name), account.Name)
-                .WithMetadata(nameof(TrackedAccount.Bank), account.Bank)
-            );
-        }
-        var result = await Manager.Register(account, ct);
-        if (!result.IsSuccess)
-        {
-            return Result.Fail(result.Errors);
-        }
-
-        registeredAccount = result.Value;
-        accounts.Add(registeredAccount);
-
-        return Result.Ok(registeredAccount).WithReason(new AccountAdded(registeredAccount));
     }
 }
