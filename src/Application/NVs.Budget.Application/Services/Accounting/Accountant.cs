@@ -19,6 +19,7 @@ namespace NVs.Budget.Application.Services.Accounting;
 /// </summary>
 internal class Accountant(
     IOperationsRepository operationsRepository,
+    IStreamingOperationRepository streamingOperationRepository,
     ITransfersRepository transfersRepository,
     IBudgetManager manager,
     ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
@@ -90,14 +91,37 @@ internal class Accountant(
     public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
     {
         var budgets = await Manager.GetOwnedBudgets(ct);
-        var result = new Result();
-        await foreach (var transaction in operations.WithCancellation(ct))
+        var errors = new List<IError>();
+        var valid = operations.Where(o =>
         {
-            var updateResult = await Update(transaction, budgets, ct);
-            result.Reasons.AddRange(updateResult.Reasons);
+            if (budgets.All(b => b.Id != o.Budget.Id))
+            {
+                errors.Add(new BudgetDoesNotBelongToCurrentOwnerError()
+                    .WithTransactionId(o)
+                    .WithOperationId(o.Budget));
+
+                return false;
+            }
+
+            return true;
+        });
+
+        var results = streamingOperationRepository.Update(valid, ct);
+        var succeesses = new List<ISuccess>();
+
+        await foreach (var result in results)
+        {
+            if (result.IsSuccess)
+            {
+                succeesses.Add(new OperationUpdated(result.Value));
+            }
+            else
+            {
+                errors.AddRange(result.Errors);
+            }
         }
 
-        return result;
+        return new Result().WithSuccesses(succeesses).WithErrors(errors);
     }
 
     public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, bool fromScratch, CancellationToken ct)
@@ -159,13 +183,13 @@ internal class Accountant(
         {
             if (budgets.All(a => a != transfer.Source.Budget))
             {
-                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Budget));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Source.Budget));
                 continue;
             }
 
             if (budgets.All(a => a != transfer.Sink.Budget))
             {
-                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Budget));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Sink.Budget));
                 continue;
             }
 
@@ -199,20 +223,5 @@ internal class Accountant(
         }
 
         return result;
-    }
-
-    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedBudget> ownedAccounts, CancellationToken ct)
-    {
-        if (ownedAccounts.All(a => operation.Budget != a))
-        {
-            return Result.Fail(new BudgetDoesNotBelongToCurrentOwnerError()
-                .WithTransactionId(operation)
-                .WithAccountId(operation.Budget));
-        }
-
-        var updateResult = await operationsRepository.Update(operation, ct);
-        return updateResult.IsSuccess
-            ? Result.Ok(updateResult.Value).WithReason(new OperationUpdated(updateResult.Value))
-            : Result.Fail(updateResult.Errors);
     }
 }

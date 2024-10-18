@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using FluentResults;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.ValueObjects;
@@ -6,7 +7,7 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Tests.Fakes;
 
-internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository
+internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository, IStreamingOperationRepository
 {
     public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedBudget budget, CancellationToken ct)
     {
@@ -35,5 +36,15 @@ internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOpe
         }
 
         return Task.FromResult(Result.Ok());
+    }
+
+    IAsyncEnumerable<TrackedOperation> IStreamingOperationRepository.Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct) => DoGet(filter).Result.ToAsyncEnumerable();
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> updateStream, [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var u in updateStream.WithCancellation(ct))
+        {
+            yield return await Update(u, ct);
+        }
     }
 }

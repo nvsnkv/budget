@@ -16,7 +16,7 @@ public static class ReasonExtensions
         return reason.WithMetadata($"{nameof(Operation)}.{nameof(Operation.Id)}", t.Id);
     }
 
-    public static T WithAccountId<T>(this T reason, Entities.Accounts.Budget a) where T : IReason
+    public static T WithOperationId<T>(this T reason, Entities.Accounts.Budget a) where T : IReason
     {
         return reason.WithMetadata($"{nameof(Entities.Accounts.Budget)}.{nameof(Entities.Accounts.Budget.Id)}", a.Id);
     }

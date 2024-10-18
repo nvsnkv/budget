@@ -22,6 +22,7 @@ public static class EfCorePersistenceExtensions
             .AddTransient<IBudgetSpecificSettingsRepository, BudgetSpecificSettingsRepository>()
             .AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>()
             .AddTransient<IOperationsRepository, OperationsRepository>()
+            .AddTransient<IStreamingOperationRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()
             .AddTransient<ITransfersRepository, TransfersRepository>()
             .AddTransient<IDbMigrator, PostgreSqlDbMigrator>()

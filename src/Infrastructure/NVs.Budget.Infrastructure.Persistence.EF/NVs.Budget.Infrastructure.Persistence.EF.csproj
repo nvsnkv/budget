@@ -21,6 +21,7 @@
       </PackageReference>
       <PackageReference Include="NMoneys" Version="7.3.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+      <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>

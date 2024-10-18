@@ -11,3 +11,8 @@ public interface IOperationsRepository
     Task<Result<TrackedOperation>> Update(TrackedOperation operation, CancellationToken ct);
     Task<Result> Remove(TrackedOperation operation, CancellationToken ct);
 }
+
+public interface IStreamingOperationRepository {
+    IAsyncEnumerable<TrackedOperation> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct);
+    IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> updateStream, CancellationToken ct);
+}
