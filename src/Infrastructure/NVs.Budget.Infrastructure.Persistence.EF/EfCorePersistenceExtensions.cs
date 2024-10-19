@@ -21,7 +21,6 @@ public static class EfCorePersistenceExtensions
         services.AddTransient<IBudgetsRepository, BudgetsRepository>()
             .AddTransient<IBudgetSpecificSettingsRepository, BudgetSpecificSettingsRepository>()
             .AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>()
-            .AddTransient<IOperationsRepository, OperationsRepository>()
             .AddTransient<IStreamingOperationRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()
             .AddTransient<ITransfersRepository, TransfersRepository>()

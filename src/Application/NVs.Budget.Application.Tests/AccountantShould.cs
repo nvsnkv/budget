@@ -36,7 +36,6 @@ public class AccountantShould
 
         _accountant = new(
             _storage.Operations,
-            _storage.Operations,
             _storage.Transfers,
             budgetManager,
             new ImportResultBuilder(duplicatesDetector)

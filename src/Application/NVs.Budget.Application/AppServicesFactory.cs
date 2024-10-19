@@ -14,7 +14,6 @@ namespace NVs.Budget.Application;
 
 public sealed class AppServicesFactory(
     IBudgetsRepository budgetsRepository,
-    IOperationsRepository operationsRepository,
     IStreamingOperationRepository streamingOperationRepository,
     ITransfersRepository transfersRepository,
     IExchangeRatesRepository ratesRepository,
@@ -25,7 +24,7 @@ public sealed class AppServicesFactory(
 
     public IBudgetManager CreateAccountManager() => new BudgetManager(budgetsRepository, userCache.CachedUser);
     public IReckoner CreateReckoner() => new Reckoner(streamingOperationRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
-    public IAccountant CreateAccountant() => new Accountant(operationsRepository, streamingOperationRepository, transfersRepository, CreateAccountManager(), new ImportResultBuilder(CreateDuplicatesDetector()));
+    public IAccountant CreateAccountant() => new Accountant(streamingOperationRepository, transfersRepository, CreateAccountManager(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
     private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, userCache.CachedUser);
     private DuplicatesDetector CreateDuplicatesDetector() => new(DuplicatesDetectorOptions);

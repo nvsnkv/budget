@@ -7,7 +7,7 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Tests.Fakes;
 
-internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository, IStreamingOperationRepository
+internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IStreamingOperationRepository
 {
 
 
@@ -54,6 +54,14 @@ internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOpe
         await foreach (var u in operations.WithCancellation(ct))
         {
             yield return await Update(u, ct);
+        }
+    }
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> Remove(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var v in operations.WithCancellation(ct))
+        {
+            yield return await Remove(v, ct);
         }
     }
 }

@@ -18,7 +18,6 @@ namespace NVs.Budget.Application.Services.Accounting;
 /// Manages transactions (register, update, delete etc)
 /// </summary>
 internal class Accountant(
-    IOperationsRepository operationsRepository,
     IStreamingOperationRepository streamingOperationRepository,
     ITransfersRepository transfersRepository,
     IBudgetManager manager,
@@ -149,12 +148,12 @@ internal class Accountant(
         var targets = streamingOperationRepository.Get(criteria, ct);
         var successes = new List<Success>();
         var errors = new List<IError>();
-        await foreach (var target in targets)
+
+        await foreach(var opResult in streamingOperationRepository.Remove(targets, ct))
         {
-            var opResult = await operationsRepository.Remove(target, ct);
             if (opResult.IsSuccess)
             {
-                successes.Add(new OperationRemoved(target));
+                successes.Add(new OperationRemoved(opResult.Value));
             }
             else
             {

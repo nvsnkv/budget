@@ -39,7 +39,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var budgets = await _budgetsRepo.Get(a => a.Id == budgetId, CancellationToken.None);
         var budget = budgets.Single();
 
-        var result = await _repo.Register(transaction, budget, CancellationToken.None);
+        var result = await _repo.Register(AsyncEnumerable.Repeat(transaction, 1), budget, CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
@@ -65,7 +65,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         updated.Version = target.Version;
 
-        var result = await _repo.Update(updated, CancellationToken.None);
+        var result = await _repo.Update(AsyncEnumerable.Repeat(updated,1), CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
         result.Value.Should().BeEquivalentTo(updated);
         result.Value.Version.Should().NotBe(updated.Version);
@@ -79,7 +79,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var budgets = await _budgetsRepo.Get(a => a.Id == budgetId, CancellationToken.None);
         var budget = budgets.Single();
 
-        var result = await _repo.Register(unregistered, budget, CancellationToken.None);
+        var result = await _repo.Register(AsyncEnumerable.Repeat(unregistered, 1), budget, CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
         var target = result.Value!;
         return target;
@@ -96,7 +96,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         transaction.Attributes[key] = value;
 
-        var result = await _repo.Update(transaction, CancellationToken.None);
+        var result = await _repo.Update(AsyncEnumerable.Repeat(transaction, 1), CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
 
         var items = await _repo.Get(t => ((string)t.Attributes[key]) == value, CancellationToken.None).ToListAsync();
@@ -114,7 +114,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var transaction = await AddTransaction();
         _ = await AddTransaction();
 
-        var result = await _repo.Remove(transaction, CancellationToken.None);
+        var result = await _repo.Remove(AsyncEnumerable.Repeat(transaction,1), CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
 
         var items = await _repo.Get(t => t.Id == transaction.Id, CancellationToken.None).ToListAsync();
