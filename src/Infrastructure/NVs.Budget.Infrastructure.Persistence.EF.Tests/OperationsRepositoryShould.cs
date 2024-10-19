@@ -99,7 +99,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var result = await _repo.Update(transaction, CancellationToken.None);
         result.Should().BeSuccess();
 
-        var items = await _repo.Get(t => ((string)t.Attributes[key]) == value, CancellationToken.None);
+        var items = await _repo.Get(t => ((string)t.Attributes[key]) == value, CancellationToken.None).ToListAsync();
         items.Should().HaveCount(1);
         items.Single().Should().BeEquivalentTo(transaction, s =>
             s.ComparingByMembers<TrackedOperation>()
@@ -117,7 +117,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var result = await _repo.Remove(transaction, CancellationToken.None);
         result.Should().BeSuccess();
 
-        var items = await _repo.Get(t => t.Id == transaction.Id, CancellationToken.None);
+        var items = await _repo.Get(t => t.Id == transaction.Id, CancellationToken.None).ToListAsync();
         items.Should().HaveCount(0);
     }
 

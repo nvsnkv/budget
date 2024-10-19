@@ -1,32 +1,56 @@
-﻿using NVs.Budget.Application.Contracts.Entities.Budgeting;
+﻿using System.Collections.ObjectModel;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 
 namespace NVs.Budget.Application.Services.Accounting.Duplicates;
 
 internal class DuplicatesDetector(DuplicatesDetectorOptions options)
 {
-    public IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>> DetectDuplicates(IEnumerable<TrackedOperation> transactions)
-    {
-        var buckets = new List<List<TrackedOperation>>();
-        foreach (var transaction in transactions)
-        {
-            var duplicateFound = false;
-            foreach (var bucket in buckets.Where(b => CheckIsDuplicate(b.First(), transaction)))
-            {
-                bucket.Add(transaction);
-                break;
-            }
+    private List<List<TrackedOperation>> _buckets = new();
 
-            if (!duplicateFound)
-            {
-                buckets.Add(new List<TrackedOperation> { transaction });
-            }
+    public async ValueTask<IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>>> DetectDuplicates(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
+    {
+        _buckets.Clear();
+        await foreach (var transaction in operations.WithCancellation(ct))
+        {
+            PlaceOperation(transaction);
         }
 
-        return buckets.Where(d => d.Count > 1)
+        return BuildDuplicatesLists();
+    }
+
+    public IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>> DetectDuplicates(IEnumerable<TrackedOperation> operations)
+    {
+        _buckets.Clear();
+        foreach (var transaction in operations)
+        {
+            PlaceOperation(transaction);
+        }
+
+        return BuildDuplicatesLists();
+    }
+
+    private ReadOnlyCollection<ReadOnlyCollection<TrackedOperation>> BuildDuplicatesLists()
+    {
+        return _buckets.Where(d => d.Count > 1)
             .Select(d => d.AsReadOnly())
             .ToList()
             .AsReadOnly();
+    }
+
+    private void PlaceOperation(TrackedOperation operation)
+    {
+        var duplicateFound = false;
+        foreach (var bucket in _buckets.Where(b => CheckIsDuplicate(b.First(), operation)))
+        {
+            bucket.Add(operation);
+            break;
+        }
+
+        if (!duplicateFound)
+        {
+            _buckets.Add(new List<TrackedOperation> { operation });
+        }
     }
 
     private bool CheckIsDuplicate(TrackedOperation left, TrackedOperation right) =>

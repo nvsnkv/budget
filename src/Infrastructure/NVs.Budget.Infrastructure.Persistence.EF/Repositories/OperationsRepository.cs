@@ -21,27 +21,18 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
     private static readonly int BatchSize = 1000;
     private readonly ExpressionSplitter _splitter = new();
 
-    public override async Task<IReadOnlyCollection<TrackedOperation>> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
-    {
-        var items = await DoGet(filter, false).ToListAsync(ct);
-        return items.AsReadOnly();
-    }
-
-    IAsyncEnumerable<TrackedOperation> IStreamingOperationRepository.Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct) => DoGet(filter, true);
-
-    private IAsyncEnumerable<TrackedOperation> DoGet(Expression<Func<TrackedOperation, bool>> filter, bool trackItems)
+    public new IAsyncEnumerable<TrackedOperation> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
     {
         var expression = filter.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
         var query = context.Operations
+            .AsTracking()
             .Include(t => t.Budget)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
             .Where(queryable);
-
-        query = !trackItems ? query.AsNoTracking() : query.AsTracking();
-
+        
         return query.ToAsyncEnumerable().Where(enumerable).Select(Mapper.Map<TrackedOperation>);
     }
 

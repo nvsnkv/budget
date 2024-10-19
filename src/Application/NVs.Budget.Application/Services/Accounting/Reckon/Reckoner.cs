@@ -16,7 +16,7 @@ namespace NVs.Budget.Application.Services.Accounting.Reckon;
 /// Reads transactions etc
 /// </summary>
 internal class Reckoner(
-    IOperationsRepository operationsRepo,
+    IStreamingOperationRepository operationsRepo,
     ITransfersRepository transfersRepo,
     MoneyConverter converter,
     DuplicatesDetector detector,
@@ -28,22 +28,27 @@ internal class Reckoner(
     {
         var criteria = await ExtendCriteria(query.Conditions, ct);
 
-        var transactions = await operationsRepo.Get(criteria, ct);
+        var transactions = operationsRepo.Get(criteria, ct);
 
         IReadOnlyCollection<TrackedTransfer> transfers = Empty;
         if (query.ExcludeTransfers)
         {
+            // I'm too lazy to write async-friendly algo here right now
+            // TODO: avoid materialization here (load all transfers maybe?)
+            var transactionsList = await transactions.ToListAsync(ct);
             var budgets = await Manager.GetOwnedBudgets(ct);
-            var ids = transactions.Select(t => t.Id).ToList();
+            var ids =  transactionsList.Select(t => t.Id).ToList();
             transfers = await transfersRepo.Get(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id), ct);
             transfers = transfers
                 .Where(t => budgets.Contains(t.Source.Budget) && budgets.Contains(t.Sink.Budget))
                 .ToList();
+
+            transactions = transactionsList.ToAsyncEnumerable();
         }
 
         var exclusions = transfers.SelectMany(t => t).Select(t => t.Id).ToHashSet();
 
-        foreach (var transaction in transactions.Where(t => !exclusions.Contains(t.Id)))
+        await foreach (var transaction in transactions.Where(t => !exclusions.Contains(t.Id)).WithCancellation(ct))
         {
             if (query.OutputCurrency is not null && query.OutputCurrency != transaction.Amount.GetCurrency())
             {
@@ -64,9 +69,9 @@ internal class Reckoner(
     public async Task<CriteriaBasedLogbook> GetLogbook(LogbookQuery query, CancellationToken ct)
     {
         var logbook = new CriteriaBasedLogbook(query.LogbookCriterion);
-        await foreach (var transaction in GetOperations(query, ct))
+        await foreach (var operation in GetOperations(query, ct))
         {
-            logbook.Register(transaction);
+            logbook.Register(operation);
         }
 
         return logbook;
@@ -75,8 +80,8 @@ internal class Reckoner(
     public async Task<IReadOnlyCollection<IReadOnlyCollection<TrackedOperation>>> GetDuplicates(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        var transactions = await operationsRepo.Get(criteria, ct);
-        return detector.DetectDuplicates(transactions);
+        var operations = operationsRepo.Get(criteria, ct);
+        return await detector.DetectDuplicates(operations, ct);
     }
 
     private TrackedOperation AsTrackedOperation(Operation operation) => new(operation.Id, operation.Timestamp, operation.Amount, operation.Description, AsTrackedAccount(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly());

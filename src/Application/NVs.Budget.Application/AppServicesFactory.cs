@@ -24,7 +24,7 @@ public sealed class AppServicesFactory(
     public DuplicatesDetectorOptions DuplicatesDetectorOptions { get; set; } = DuplicatesDetectorOptions.Default;
 
     public IBudgetManager CreateAccountManager() => new BudgetManager(budgetsRepository, userCache.CachedUser);
-    public IReckoner CreateReckoner() => new Reckoner(operationsRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
+    public IReckoner CreateReckoner() => new Reckoner(streamingOperationRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
     public IAccountant CreateAccountant() => new Accountant(operationsRepository, streamingOperationRepository, transfersRepository, CreateAccountManager(), new ImportResultBuilder(CreateDuplicatesDetector()));
 
     private MoneyConverter CreateMoneyConverter() => new(ratesRepository, ratesProvider, userCache.CachedUser);

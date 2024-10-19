@@ -11,13 +11,13 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.CsvTransfersReader;
 
-internal class TransferRowReader(IReader parser, CancellationToken cancellationToken, IOperationsRepository repository) : RowParser<UnregisteredTransfer, CsvTransfer>(parser, cancellationToken)
+internal class TransferRowReader(IReader parser, CancellationToken cancellationToken, IStreamingOperationRepository repository) : RowParser<UnregisteredTransfer, CsvTransfer>(parser, cancellationToken)
 {
     protected override async Task<Result<UnregisteredTransfer>> Convert(CsvTransfer row)
     {
         Guid[] ids = [row.SourceId, row.SinkId];
-        var ops = await repository.Get(o => ids.Contains(o.Id), CancellationToken);
-        var dict = ops.ToDictionary(o => o.Id);
+        var ops = repository.Get(o => ids.Contains(o.Id), CancellationToken);
+        var dict = await ops.ToDictionaryAsync(o => o.Id, CancellationToken);
 
         if (!dict.TryGetValue(row.SourceId, out TrackedOperation? source))
         {

@@ -8,7 +8,7 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.CsvTransfersReader;
 
-internal class CsvTransfersReader(CsvConfiguration configuration, IOperationsRepository repository) : ITransfersReader
+internal class CsvTransfersReader(CsvConfiguration configuration, IStreamingOperationRepository repository) : ITransfersReader
 {
     public async IAsyncEnumerable<Result<UnregisteredTransfer>> ReadUnregisteredTransfers(StreamReader input, [EnumeratorCancellation] CancellationToken ct)
     {

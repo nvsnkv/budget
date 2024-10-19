@@ -146,10 +146,10 @@ internal class Accountant(
     public async Task<Result> Remove(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        var targets = await operationsRepository.Get(criteria, ct);
+        var targets = streamingOperationRepository.Get(criteria, ct);
         var successes = new List<Success>();
         var errors = new List<IError>();
-        foreach (var target in targets)
+        await foreach (var target in targets)
         {
             var opResult = await operationsRepository.Remove(target, ct);
             if (opResult.IsSuccess)
@@ -190,17 +190,20 @@ internal class Accountant(
             transfer.Source.TagSource();
             transfer.Sink.TagSink();
 
-            var updateResult = await operationsRepository.Update(transfer.Source, ct);
-            if (!updateResult.IsSuccess)
+            await foreach (var r in streamingOperationRepository.Update(new[] { transfer.Source, transfer.Sink }.ToAsyncEnumerable(), ct))
             {
-                result.Reasons.Add(new UnableToTagTransferError(updateResult.Errors).WithTransactionId(transfer.Source));
-                continue;
+                if (!r.IsSuccess)
+                {
+                    var unableToTagTransferError = new UnableToTagTransferError(r.Errors)
+                        .WithMetadata(nameof(transfer.Source), transfer.Source.Id)
+                        .WithMetadata(nameof(transfer.Sink), transfer.Sink.Id);
+                    unableToTagTransferError.Reasons.AddRange(r.Errors);
+                    result.Reasons.Add(unableToTagTransferError);
+                }
             }
 
-            updateResult = await operationsRepository.Update(transfer.Sink, ct);
-            if (!updateResult.IsSuccess)
+            if (!result.IsSuccess)
             {
-                result.Reasons.Add(new UnableToTagTransferError(updateResult.Errors).WithTransactionId(transfer.Sink));
                 continue;
             }
 
