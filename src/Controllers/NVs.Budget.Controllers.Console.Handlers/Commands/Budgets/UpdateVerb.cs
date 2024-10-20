@@ -55,7 +55,8 @@ internal class UpdateVerbHandler(
         if (string.IsNullOrEmpty(request.Name)
             && string.IsNullOrEmpty(request.CsvReadingOptionsPath)
             && string.IsNullOrEmpty(request.TaggingCriteriaPath)
-            && string.IsNullOrEmpty(request.TransferCriteriaPath))
+            && string.IsNullOrEmpty(request.TransferCriteriaPath)
+            && string.IsNullOrEmpty(request.LogbookCriteriaPath))
         {
             await resultWriter.Write(Result.Fail("No options to update given"), cancellationToken);
             return ExitCode.ArgumentsError;
