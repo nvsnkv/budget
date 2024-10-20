@@ -41,10 +41,7 @@ internal class DetailsVerbHandler(
         await budgetWriter.Write(budget, cancellationToken);
 
         var config = await csvSettingsRepo.GetReadingOptionsFor(budget, cancellationToken);
-        if (config is not null)
-        {
-            await optionsWriter.Write(config, cancellationToken);
-        }
+        await optionsWriter.Write(config, cancellationToken);
 
         return ExitCode.Success;
     }
