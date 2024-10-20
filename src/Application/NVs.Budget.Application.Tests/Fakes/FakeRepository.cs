@@ -7,7 +7,9 @@ internal class FakeRepository<T>
 {
     protected readonly List<T> Data = new();
 
-    public Task<IReadOnlyCollection<T>> Get(Expression<Func<T, bool>> filter, CancellationToken ct)
+    public Task<IReadOnlyCollection<T>> Get(Expression<Func<T, bool>> filter, CancellationToken ct) => DoGet(filter);
+
+    protected Task<IReadOnlyCollection<T>> DoGet(Expression<Func<T, bool>> filter)
     {
         var predicate = filter.Compile();
         var result = Data.Where(predicate).ToList().AsReadOnly();

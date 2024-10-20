@@ -8,10 +8,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+      <PackageReference Include="GitVersion.MsBuild" Version="6.0.3">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>

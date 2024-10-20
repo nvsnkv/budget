@@ -9,24 +9,26 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="13.0.1" />
       <PackageReference Include="AutoMapper.Collection.EntityFrameworkCore" Version="10.0.0" />
-      <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
+      <PackageReference Include="GitVersion.MsBuild" Version="6.0.3">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
+      <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="NMoneys" Version="7.2.0" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+      <PackageReference Include="NMoneys" Version="7.3.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+      <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
       <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
+      <ProjectReference Include="..\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

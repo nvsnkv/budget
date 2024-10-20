@@ -8,7 +8,7 @@ using NVs.Budget.Infrastructure.Identity.Contracts;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Owners;
 
 [Verb("self-register")]
-internal class SelfRegisterVerb : AbstractVerb { }
+internal class SelfRegisterVerb : AbstractVerb;
 
 [UsedImplicitly]
 internal class SelfRegisterVerbHandler(IMediator mediator, IIdentityService identityService) : IRequestHandler<SelfRegisterVerb, ExitCode>

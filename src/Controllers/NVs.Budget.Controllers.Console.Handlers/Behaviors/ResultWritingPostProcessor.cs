@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MediatR;
 using MediatR.Pipeline;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Behaviors;
 

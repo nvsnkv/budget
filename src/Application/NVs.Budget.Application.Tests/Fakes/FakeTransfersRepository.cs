@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Tests.Fakes;

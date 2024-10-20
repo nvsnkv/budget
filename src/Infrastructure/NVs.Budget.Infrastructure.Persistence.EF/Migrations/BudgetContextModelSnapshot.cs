@@ -24,15 +24,11 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "currency_iso_code", new[] { "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bhd", "bif", "bmd", "bnd", "bob", "bov", "brl", "bsd", "btn", "bwp", "byn", "byr", "bzd", "cad", "cdf", "che", "chf", "chw", "clf", "clp", "cny", "cop", "cou", "crc", "cuc", "cup", "cve", "czk", "djf", "dkk", "dop", "dzd", "eek", "egp", "ern", "etb", "eur", "fjd", "fkp", "gbp", "gel", "ghs", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "iqd", "irr", "isk", "jmd", "jod", "jpy", "kes", "kgs", "khr", "kmf", "kpw", "krw", "kwd", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "ltl", "lvl", "lyd", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mro", "mru", "mur", "mvr", "mwk", "mxn", "mxv", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "omr", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sdg", "sek", "sgd", "shp", "sle", "sll", "sos", "srd", "ssp", "std", "stn", "svc", "syp", "szl", "thb", "tjs", "tmt", "tnd", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "usd", "usn", "uss", "uyi", "uyu", "uyw", "uzs", "ved", "vef", "ves", "vnd", "vuv", "wst", "xaf", "xag", "xau", "xba", "xbb", "xbc", "xbd", "xcd", "xdr", "xof", "xpd", "xpf", "xpt", "xsu", "xts", "xua", "xxx", "yer", "zar", "zmk", "zmw", "zwl" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Bank")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -52,7 +48,43 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Accounts", "budget");
+                    b.ToTable("Budgets", "budget");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BudgetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CultureInfo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DateTimeKind")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FileNamePattern")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BudgetId");
+
+                    b.ToTable("CsvFileReadingOptions", "budget");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
@@ -61,12 +93,12 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Attributes")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<Guid>("BudgetId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -95,7 +127,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("BudgetId");
 
                     b.HasIndex("SinkTransferId");
 
@@ -208,7 +240,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.ToTable("Transfers", "budget");
                 });
 
-            modelBuilder.Entity("StoredAccountStoredOwner", b =>
+            modelBuilder.Entity("StoredBudgetStoredOwner", b =>
                 {
                     b.Property<Guid>("AccountsId")
                         .HasColumnType("uuid");
@@ -220,14 +252,247 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasIndex("OwnersId");
 
-                    b.ToTable("StoredAccountStoredOwner", "budget");
+                    b.ToTable("StoredBudgetStoredOwner", "budget");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
+                {
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTaggingCriterion", "TaggingCriteria", b1 =>
+                        {
+                            b1.Property<Guid>("BudgetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Condition")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Tag")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BudgetId", "Id");
+
+                            b1.ToTable("StoredTaggingCriterion", "budget");
+
+                            b1.WithOwner("Budget")
+                                .HasForeignKey("BudgetId");
+
+                            b1.Navigation("Budget");
+                        });
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransferCriterion", "TransferCriteria", b1 =>
+                        {
+                            b1.Property<Guid>("BudgetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<int>("Accuracy")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Comment")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Criterion")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BudgetId", "Id");
+
+                            b1.ToTable("StoredTransferCriterion", "budget");
+
+                            b1.WithOwner("Budget")
+                                .HasForeignKey("BudgetId");
+
+                            b1.Navigation("Budget");
+                        });
+
+                    b.OwnsOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "LogbookCriteria", b1 =>
+                        {
+                            b1.Property<Guid>("StoredBudgetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Criteria")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Substitution")
+                                .HasColumnType("text");
+
+                            b1.Property<int?>("Type")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("StoredBudgetId");
+
+                            b1.ToTable("Budgets", "budget");
+
+                            b1.ToJson("LogbookCriteria");
+
+                            b1.WithOwner()
+                                .HasForeignKey("StoredBudgetId");
+
+                            b1.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b2 =>
+                                {
+                                    b2.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Value")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.HasKey("StoredLogbookCriteriaStoredBudgetId", "Id");
+
+                                    b2.ToTable("Budgets", "budget");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId");
+                                });
+
+                            b1.Navigation("Tags");
+                        });
+
+                    b.Navigation("LogbookCriteria")
+                        .IsRequired();
+
+                    b.Navigation("TaggingCriteria");
+
+                    b.Navigation("TransferCriteria");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
+                {
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
+                        .WithMany("CsvReadingOptions")
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredFieldConfiguration", "AttributesConfiguration", b1 =>
+                        {
+                            b1.Property<Guid>("FileReadingOptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Field")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Pattern")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("FileReadingOptionId", "Id");
+
+                            b1.ToTable("CsvFileReadingOptions_AttributesConfiguration", "budget");
+
+                            b1.WithOwner("FileReadingOption")
+                                .HasForeignKey("FileReadingOptionId");
+
+                            b1.Navigation("FileReadingOption");
+                        });
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredFieldConfiguration", "FieldConfigurations", b1 =>
+                        {
+                            b1.Property<Guid>("FileReadingOptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Field")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Pattern")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("FileReadingOptionId", "Id");
+
+                            b1.ToTable("CsvFileReadingOptions_FieldConfigurations", "budget");
+
+                            b1.WithOwner("FileReadingOption")
+                                .HasForeignKey("FileReadingOptionId");
+
+                            b1.Navigation("FileReadingOption");
+                        });
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredValidationRule", "ValidationRules", b1 =>
+                        {
+                            b1.Property<Guid>("FileReadingOptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<int>("Condition")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("FieldConfiguration")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("RuleName")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("FileReadingOptionId", "Id");
+
+                            b1.ToTable("StoredValidationRule", "budget");
+
+                            b1.WithOwner("FileReadingOption")
+                                .HasForeignKey("FileReadingOptionId");
+
+                            b1.Navigation("FileReadingOption");
+                        });
+
+                    b.Navigation("AttributesConfiguration");
+
+                    b.Navigation("Budget");
+
+                    b.Navigation("FieldConfigurations");
+
+                    b.Navigation("ValidationRules");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", "Account")
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
                         .WithMany("Operations")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("BudgetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -275,16 +540,16 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                             b1.HasKey("StoredOperationId", "Id");
 
-                            b1.ToTable("StoredTag", "budget");
+                            b1.ToTable("Operations_Tags", "budget");
 
                             b1.WithOwner()
                                 .HasForeignKey("StoredOperationId");
                         });
 
-                    b.Navigation("Account");
-
                     b.Navigation("Amount")
                         .IsRequired();
+
+                    b.Navigation("Budget");
 
                     b.Navigation("SinkTransfer");
 
@@ -345,9 +610,9 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Source");
                 });
 
-            modelBuilder.Entity("StoredAccountStoredOwner", b =>
+            modelBuilder.Entity("StoredBudgetStoredOwner", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", null)
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", null)
                         .WithMany()
                         .HasForeignKey("AccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -360,8 +625,10 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
                 {
+                    b.Navigation("CsvReadingOptions");
+
                     b.Navigation("Operations");
                 });
 #pragma warning restore 612, 618

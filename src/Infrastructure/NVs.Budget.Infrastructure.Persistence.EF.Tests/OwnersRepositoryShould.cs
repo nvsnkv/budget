@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;

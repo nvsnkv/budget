@@ -1,21 +1,24 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Application.Tests.Fakes;
 
-internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOperationsRepository
+internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IStreamingOperationRepository
 {
-    public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
+
+
+    public Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedBudget budget, CancellationToken ct)
     {
         var trackedTransaction = new TrackedOperation(
             Guid.NewGuid(),
             operation.Timestamp,
             operation.Amount,
             operation.Description,
-            account,
+            budget,
             Enumerable.Empty<Tag>(),
             operation.Attributes)
         {
@@ -35,5 +38,30 @@ internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IOpe
         }
 
         return Task.FromResult(Result.Ok());
+    }
+
+    IAsyncEnumerable<TrackedOperation> IStreamingOperationRepository.Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct) => DoGet(filter).Result.ToAsyncEnumerable();
+    public async IAsyncEnumerable<Result<TrackedOperation>> Register(IAsyncEnumerable<UnregisteredOperation> operations, TrackedBudget budget, [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var unregistered in operations.WithCancellation(ct))
+        {
+            yield return await Register(unregistered, budget, ct);
+        }
+    }
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var u in operations.WithCancellation(ct))
+        {
+            yield return await Update(u, ct);
+        }
+    }
+
+    public async IAsyncEnumerable<Result<TrackedOperation>> Remove(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var v in operations.WithCancellation(ct))
+        {
+            yield return await Remove(v, ct);
+        }
     }
 }

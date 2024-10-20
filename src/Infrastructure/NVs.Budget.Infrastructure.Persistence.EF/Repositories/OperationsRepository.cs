@@ -1,8 +1,10 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
@@ -13,61 +15,136 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator, AccountsFinder finder) :
-    RepositoryBase<TrackedOperation, Guid, StoredOperation>(mapper, versionGenerator), IOperationsRepository
+internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator generator, BudgetsFinder finder) : IStreamingOperationRepository
 {
+    private static readonly int BatchSize = 1000;
     private readonly ExpressionSplitter _splitter = new();
 
-    public override async Task<IReadOnlyCollection<TrackedOperation>> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
+    public IAsyncEnumerable<TrackedOperation> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
     {
         var expression = filter.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
         var query = context.Operations
-            .Include(t => t.Account)
+            .AsTracking()
+            .Include(t => t.Budget)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
             .Where(queryable);
 
-        var items = await query.AsNoTracking().ToListAsync(ct);
-        items = items.Where(enumerable).ToList();
-        return Mapper.Map<List<TrackedOperation>>(items).AsReadOnly();
+        return query.ToAsyncEnumerable().Where(enumerable).Select(mapper.Map<TrackedOperation>);
     }
 
-    protected override Task<StoredOperation?> GetTarget(TrackedOperation item, CancellationToken ct)
-    {
-        var id = item.Id;
-        return context.Operations.FirstOrDefaultAsync(t => t.Id == id, ct);
-    }
-
-    protected override async Task<Result<StoredOperation>> Update(StoredOperation target, TrackedOperation updated, CancellationToken ct)
-    {
-        if (target.Account.Id != updated.Account.Id)
+    public IAsyncEnumerable<Result<TrackedOperation>> Register(IAsyncEnumerable<UnregisteredOperation> operations, TrackedBudget budget, CancellationToken ct) =>
+        ProcessStream(operations, async u =>
         {
-            var changed = await finder.FindById(updated.Account.Id, ct);
-            if (changed is null)
+            var storedBudget = await finder.FindById(budget.Id, ct);
+            if (storedBudget is null)
             {
-                return Result.Fail(new AccountDoesNotExistsError(updated.Account));
+                return Result.Fail(new BudgetDoesNotExistsError(budget));
             }
 
-            target.Account = changed;
+            var storedTransaction = new StoredOperation(Guid.Empty, u.Timestamp.ToUniversalTime(), u.Description)
+            {
+                Budget = storedBudget,
+                Amount = mapper.Map<StoredMoney>(u.Amount),
+                Attributes = new Dictionary<string, object>(u.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
+            };
+
+            BumpVersion(storedTransaction);
+            await context.Operations.AddAsync(storedTransaction, ct);
+
+            return Result.Ok(mapper.Map<TrackedOperation>(storedTransaction));
+        }, ct);
+
+    public IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct) =>
+        ProcessStream(operations, async u =>
+        {
+            var target = await context.Operations
+                .Include(o => o.Budget)
+                .ThenInclude(o => o.Owners)
+                .Include(o => o.Tags)
+                .FirstOrDefaultAsync(t => t.Id == u.Id, ct);
+
+            if (target is null)
+            {
+                return Result.Fail(new EntityDoesNotExistError<TrackedOperation>(u));
+            }
+
+            if (target.Budget.Id != u.Budget.Id)
+            {
+                var changed = await finder.FindById(u.Budget.Id, ct);
+                if (changed is null)
+                {
+                    return Result.Fail(new BudgetDoesNotExistError(u.Budget.Id));
+                }
+
+                target.Budget = changed;
+            }
+
+            target.Amount = mapper.Map<StoredMoney>(u.Amount);
+            target.Timestamp = u.Timestamp;
+            target.Description = u.Description;
+
+            UpdateTags(target.Tags, u.Tags);
+            target.Attributes = u.Attributes.ToDictionary();
+            target.Version = generator.Next();
+
+            return mapper.Map<TrackedOperation>(target);
+        }, ct);
+
+    public IAsyncEnumerable<Result<TrackedOperation>> Remove(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct) =>
+        ProcessStream(operations, async v =>
+        {
+
+            var target = await context.Operations
+                .FirstOrDefaultAsync(t => t.Id == v.Id, ct);
+
+            if (target is null)
+            {
+                return Result.Fail(new EntityDoesNotExistError<TrackedOperation>(v));
+            }
+
+            target.Deleted = true;
+
+            return v;
+        }, ct);
+
+    private async IAsyncEnumerable<Result<TrackedOperation>> ProcessStream<T>(IAsyncEnumerable<T> source, Func<T, ValueTask<Result<TrackedOperation>>> processor, [EnumeratorCancellation] CancellationToken ct)
+    {
+        var results = new Queue<Result<TrackedOperation>>();
+        await foreach (var item in source.WithCancellation(ct))
+        {
+            var result = await processor(item);
+            if (result.IsSuccess)
+            {
+                results.Enqueue(result.Value);
+            }
+            else
+            {
+                results.Enqueue(result);
+            }
+
+            if (results.Count > BatchSize)
+            {
+                await context.SaveChangesAsync(ct);
+                while (results.TryDequeue(out var r))
+                {
+                    yield return r;
+                }
+            }
         }
 
-        target.Amount = Mapper.Map<StoredMoney>(updated.Amount);
-        target.Timestamp = updated.Timestamp;
-        target.Description = updated.Description;
-
-        UpdateTags(target.Tags, updated.Tags);
-        target.Attributes = updated.Attributes.ToDictionary();
-
         await context.SaveChangesAsync(ct);
-
-        return Result.Ok(target);
+        while (results.TryDequeue(out var r))
+        {
+            yield return r;
+        }
     }
 
     private void UpdateTags(IList<StoredTag> targetTags, IReadOnlyCollection<Tag> updatedTags)
     {
-        var updated = updatedTags.Select(t => Mapper.Map<StoredTag>(t)).ToList();
+        var updated = updatedTags.Select(t => mapper.Map<StoredTag>(t)).ToList();
         var toRemove = targetTags.Except(updated).ToList();
         var toAdd = updated.Except(targetTags).ToList();
 
@@ -82,36 +159,5 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         }
     }
 
-    protected override Task Remove(StoredOperation target, CancellationToken ct)
-    {
-        target.Deleted = true;
-        return context.SaveChangesAsync(ct);
-    }
-
-    public async Task<Result<TrackedOperation>> Register(UnregisteredOperation operation, TrackedAccount account, CancellationToken ct)
-    {
-        var storedAccount = await finder.FindById(account.Id, ct);
-        if (storedAccount is null)
-        {
-            return Result.Fail(new AccountDoesNotExistsError(account));
-        }
-
-        var storedTransaction = new StoredOperation(Guid.Empty, operation.Timestamp.ToUniversalTime(), operation.Description)
-        {
-            Account = storedAccount,
-            Amount = Mapper.Map<StoredMoney>(operation.Amount),
-            Attributes = new Dictionary<string, object>(operation.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
-        };
-
-        BumpVersion(storedTransaction);
-        await context.Operations.AddAsync(storedTransaction, ct);
-        await context.SaveChangesAsync(ct);
-
-        return Mapper.Map<TrackedOperation>(storedTransaction);
-    }
-
-    protected override IQueryable<StoredOperation> GetData(Expression<Func<StoredOperation, bool>> expression)
-    {
-        throw new NotImplementedException();
-    }
+    private void BumpVersion(StoredOperation target) => target.Version = generator.Next();
 }

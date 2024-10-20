@@ -33,7 +33,7 @@ public class TransferShould
         var transaction = transfer.AsTransaction();
 
         transaction.Amount.Should().Be(transfer.Fee);
-        transaction.Account.Should().Be(sink.Account);
+        transaction.Budget.Should().Be(sink.Budget);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class TransferShould
         var transaction = transfer.AsTransaction();
 
         transaction.Amount.Should().Be(transfer.Fee);
-        transaction.Account.Should().Be(source.Account);
+        transaction.Budget.Should().Be(source.Budget);
     }
 
     [Fact]

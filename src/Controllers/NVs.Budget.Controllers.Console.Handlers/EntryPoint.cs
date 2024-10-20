@@ -4,9 +4,9 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Input;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Output;
+using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 using Error = CommandLine.Error;
 
 namespace NVs.Budget.Controllers.Console.Handlers;
@@ -32,10 +32,24 @@ internal class EntryPoint(
                 return (int)ExitCode.ArgumentsError;
             }
 
-            var line = await reader.Value.ReadLineAsync(ct);
-            args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+            do
+            {
+                var line = await reader.Value.ReadLineAsync(ct);
+                if (ct.IsCancellationRequested)
+                {
+                    return (int)ExitCode.Cancelled;
+                }
+
+                args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+                await ProcessArgs(args, ct);
+            } while (!ct.IsCancellationRequested);
         }
 
+        return await ProcessArgs(args, ct);
+    }
+
+    private async Task<int> ProcessArgs(string[] args, CancellationToken ct)
+    {
         var parsedResult = parser.ParseArguments(args, SuperVerbTypes);
         return await parsedResult.MapResult(async obj =>
             {
