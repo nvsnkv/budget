@@ -12,6 +12,4 @@ internal class StoredLogbookCriteria
     public IList<StoredTag>? Tags { get; init; }
     public string? Substitution { get; init; }
     public string? Criteria { get; init; }
-
-
 }

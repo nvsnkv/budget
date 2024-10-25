@@ -130,4 +130,38 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
         result.Should().HaveReason<VersionDoesNotMatchError<TrackedBudget, Guid>>("Version of entity differs from recorded entity!");
     }
 
+    [Fact]
+    public async Task UpdateLogbookCriteriaWithChildren()
+    {
+        var id = manager.TestData.Budgets.First().Id;
+        var targets = await _repo.Get(a => a.Id == id, CancellationToken.None);
+        var target = targets.Single();
+
+        var fixture = manager.TestData.Fixture;
+        TrackedBudget updated;
+        using(fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
+        using (fixture.SetNamedParameter(nameof(target.Owners).ToLower(), manager.TestData.Owners.AsEnumerable()))
+        {
+            updated = fixture.Create<TrackedBudget>();
+        }
+
+        updated.Version = target.Version;
+
+        var criteria = new LogbookCriteria("Universal", [
+            new LogbookCriteria("odds", [
+                new LogbookCriteria("subst", null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(), null)
+            ], TagBasedCriterionType.Including, [new("Odd")], null, null),
+            new LogbookCriteria("evens", null, TagBasedCriterionType.Including, [new("Evens")], null, null)
+            ],
+            null, null, null, null
+        );
+
+        updated.SetLogbookCriteria(criteria);
+
+        var result = await _repo.Update(updated, CancellationToken.None);
+        result.Should().BeSuccess();
+        var red = (await _repo.Get(a => a.Id == id, CancellationToken.None)).Single();
+        red.LogbookCriteria.Should().BeEquivalentTo(criteria);
+    }
+
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NMoneys;
 using NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -52,6 +53,7 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         {
             d.ToJson();
             d.OwnsMany<StoredTag>(c => c.Tags);
+            d.OwnsMany<StoredLogbookCriteria>(c => c.Subcriteria, c => ConfigureSubcriteria(c));
         });
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
@@ -73,5 +75,16 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
         tBuilder.HasOne(t => t.Sink);
 
         base.OnModelCreating(modelBuilder);
+    }
+
+    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredLogbookCriteria, StoredLogbookCriteria> s, int recursion = 10)
+    {
+        s.OwnsMany<StoredTag>(e => e.Tags);
+        var remainingDepth = recursion - 1;
+        if (remainingDepth > 0)
+        {
+            s.OwnsMany<StoredLogbookCriteria>(e => e.Subcriteria, e => ConfigureSubcriteria(e, remainingDepth));
+        }
+
     }
 }
