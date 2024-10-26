@@ -14,7 +14,7 @@ public class Operation : EntityBase<Guid>
 
     public IReadOnlyCollection<Tag> Tags => _tags.AsReadOnly();
 
-    public IDictionary<string, object> Attributes { get; } = new Dictionary<string, object>();
+    public IDictionary<string, object> Attributes { get; } = new AttributesDictionary(new Dictionary<string, object>());
 
     public Operation(Guid id, DateTime timestamp, Money amount, string description, Accounts.Budget budget, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
     {

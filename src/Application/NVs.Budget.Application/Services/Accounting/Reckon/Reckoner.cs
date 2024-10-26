@@ -22,15 +22,13 @@ internal class Reckoner(
     DuplicatesDetector detector,
     IBudgetManager manager) : ReckonerBase(manager), IReckoner
 {
-    private static readonly TrackedTransfer[] Empty = [];
-
     public async IAsyncEnumerable<TrackedOperation> GetOperations(OperationQuery query, [EnumeratorCancellation] CancellationToken ct)
     {
         var criteria = await ExtendCriteria(query.Conditions, ct);
 
         var transactions = operationsRepo.Get(criteria, ct);
 
-        IReadOnlyCollection<TrackedTransfer> transfers = Empty;
+        IReadOnlyCollection<TrackedTransfer> transfers = [];
         if (query.ExcludeTransfers)
         {
             // I'm too lazy to write async-friendly algo here right now

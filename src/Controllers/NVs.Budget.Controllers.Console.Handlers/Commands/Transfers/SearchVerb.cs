@@ -21,11 +21,11 @@ internal class SearchVerb : CriteriaBasedVerb
     [Option('b', "budget-id", Required = false, HelpText = "ID of a budget. Optional if user has only one budget, otherwise required")]
     public string BudgetId { get; [UsedImplicitly] set; } = string.Empty;
 
-    [Option('c', "confidence", HelpText = "Register found transfers that matches confidence level")]
+    [Option('c', "confidence", Required = false, HelpText = "Register found transfers that matches confidence level")]
     public string? ConfidenceLevel { get; [UsedImplicitly] set; }
 }
 
-internal class SearchVerbHandler(IMediator mediator, IBudgetManager manager, ICriteriaParser parser, IResultWriter<Result> writer, IObjectWriter<Transfer> transfersWriter)
+internal class SearchVerbHandler(IMediator mediator, IBudgetManager manager, ICriteriaParser parser, IResultWriter<Result> writer, IObjectWriter<TrackedTransfer> transfersWriter)
     : CriteriaBasedVerbHandler<SearchVerb, TrackedOperation>(parser, writer)
 {
     protected override async Task<ExitCode> HandleInternal(SearchVerb request, Expression<Func<TrackedOperation, bool>> criteriaResultValue, CancellationToken ct)

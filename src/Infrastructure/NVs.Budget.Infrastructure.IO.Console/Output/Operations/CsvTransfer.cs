@@ -11,6 +11,6 @@ internal class CsvTransfer
     public DetectionAccuracy Accuracy { get; init; }
     public string? Comment { get; init; }
 
-    public CsvTrackedOperation? Source { get; init; }
-    public CsvTrackedOperation? Sink { get; init; }
+    public CsvOperation? Source { get; init; }
+    public CsvOperation? Sink { get; init; }
 }

@@ -19,6 +19,10 @@ internal class RetagOperationsCommandHandler(IReckoner reckoner, IAccountant acc
         }
 
         var items = reckoner.GetOperations(new(request.Criteria), cancellationToken);
+
+        //HACK: materializing operations to avoid "A command is already in progress" error
+        items = (await items.ToListAsync(cancellationToken)).ToAsyncEnumerable();
+
         var mode = request.FromScratch ? TaggingMode.FromScratch : TaggingMode.Append;
         return await accountant.Update(items, budget, new(null, mode), cancellationToken);
     }

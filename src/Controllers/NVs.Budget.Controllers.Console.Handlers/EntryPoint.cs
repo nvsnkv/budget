@@ -35,19 +35,31 @@ internal class EntryPoint(
 
             do
             {
-                var output = await streams.GetOutput(options.Value.OutputStreamName);
-                await output.WriteAsync("> ");
-                await output.FlushAsync(ct);
+                try
+                {
+                    var output = await streams.GetOutput(options.Value.OutputStreamName);
+                    await output.WriteAsync("> ");
+                    await output.FlushAsync(ct);
 
-                var line = await reader.Value.ReadLineAsync(ct);
-                if (ct.IsCancellationRequested)
+                    var line = await reader.Value.ReadLineAsync(ct);
+                    if (ct.IsCancellationRequested)
+                    {
+                        return (int)ExitCode.Cancelled;
+                    }
+
+                    args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+                    await ProcessArgs(args, ct);
+                    await streams.ReleaseStreamsAsync();
+                }
+                catch(OperationCanceledException)
                 {
                     return (int)ExitCode.Cancelled;
                 }
-
-                args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
-                await ProcessArgs(args, ct);
-                await streams.ReleaseStreamsAsync();
+                catch (Exception e)
+                {
+                    await resultWriter.Write(Result.Fail(new ExceptionalError(e)), ct);
+                    return (int)ExitCode.UnexpectedResult;
+                }
 
             } while (!ct.IsCancellationRequested);
         }
