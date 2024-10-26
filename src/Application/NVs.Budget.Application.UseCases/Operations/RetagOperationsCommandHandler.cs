@@ -1,6 +1,7 @@
 using FluentResults;
 using MediatR;
 using NVs.Budget.Application.Contracts.Errors.Accounting;
+using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 
@@ -18,6 +19,7 @@ internal class RetagOperationsCommandHandler(IReckoner reckoner, IAccountant acc
         }
 
         var items = reckoner.GetOperations(new(request.Criteria), cancellationToken);
-        return await accountant.Retag(items, budget, request.FromScratch, cancellationToken);
+        var mode = request.FromScratch ? TaggingMode.FromScratch : TaggingMode.Append;
+        return await accountant.Update(items, budget, new(null, mode), cancellationToken);
     }
 }

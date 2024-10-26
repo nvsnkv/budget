@@ -2,6 +2,7 @@ using FluentResults;
 using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Errors.Accounting;
+using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Accounts;
 
@@ -30,7 +31,7 @@ internal class MergeAccountsRequestHandler(IBudgetManager manager, IReckoner rec
             var operations = reckoner.GetOperations(new(o => o.Budget.Id == source.Id), cancellationToken)
                 .Select(o => new TrackedOperation(o.Id, o.Timestamp, o.Amount, o.Description, sink, o.Tags, o.Attributes.AsReadOnly()){ Version = o.Version });
 
-            var updateRes = await accountant.Update(operations, cancellationToken);
+            var updateRes = await accountant.Update(operations, sink, new(null, TaggingMode.Skip), cancellationToken);
             result.Reasons.AddRange(updateRes.Reasons);
             if (!updateRes.IsFailed && request.PurgeEmptyBudgets)
             {

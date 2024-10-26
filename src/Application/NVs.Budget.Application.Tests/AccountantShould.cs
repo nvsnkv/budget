@@ -38,7 +38,7 @@ public class AccountantShould
             _storage.Operations,
             _storage.Transfers,
             budgetManager,
-            new ImportResultBuilder(duplicatesDetector)
+            duplicatesDetector
         );
     }
 
