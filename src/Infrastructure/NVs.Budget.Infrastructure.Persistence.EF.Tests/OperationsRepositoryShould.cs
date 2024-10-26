@@ -121,6 +121,15 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         items.Should().HaveCount(0);
     }
 
+    [Fact]
+    public async Task NotChangeVersionIfThereWereNoChanges()
+    {
+        var transaction = await AddTransaction();
+        var result = await _repo.Update(AsyncEnumerable.Repeat(transaction, 1), CancellationToken.None).SingleAsync();
+        result.Should().BeSuccess();
+        result.Value.Version.Should().Be(transaction.Version);
+    }
+
     public void Dispose()
     {
         var targets = _fixture.Customizations.Where(c => c is UtcRandomDateTimeSequenceGenerator).ToList();
