@@ -11,7 +11,9 @@ namespace NVs.Budget.Controllers.Console.Handlers.Commands;
 internal abstract class StatisticsVerbHandlerBase<T>(
     ILogbookWriter logbookWriter,
     IResultWriter<Result> writer,
-    CronBasedNamedRangeSeriesBuilder seriesBuilder) : IRequestHandler<T,ExitCode> where T : StatisticsVerb
+    CronBasedNamedRangeSeriesBuilder seriesBuilder,
+    IOutputStreamProvider outputs,
+    OutputOptions options) : IRequestHandler<T,ExitCode> where T : StatisticsVerb
 {
     private Result<IEnumerable<NamedRange>> GetRanges(DateTime from, DateTime till, string? schedule)
     {
@@ -22,12 +24,17 @@ internal abstract class StatisticsVerbHandlerBase<T>(
 
     public async Task<ExitCode> Handle(T request, CancellationToken cancellationToken)
     {
+
+
         var ranges = GetRanges(request.From, request.Till, request.Schedule);
         await writer.Write(ranges.ToResult(), cancellationToken);
         if (!ranges.IsSuccess)
         {
             return ranges.ToExitCode();
         }
+
+        var output = await outputs.GetOutput(options.OutputStreamName);
+        await output.WriteLineAsync($"Logbook: {request.LogbookPath}");
 
         var result = await GetLogbook(request, cancellationToken);
         await writer.Write(result.ToResult(), cancellationToken);
@@ -36,7 +43,6 @@ internal abstract class StatisticsVerbHandlerBase<T>(
             new LogbookWritingOptions(
                 request.LogbookPath,
                 request.WithCounts,
-                request.WithAmounts,
                 request.WithOperations,
                 ranges.Value),
             cancellationToken

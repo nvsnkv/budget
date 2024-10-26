@@ -4,4 +4,5 @@ public interface IOutputStreamProvider
 {
     Task<StreamWriter> GetOutput(string name = "");
     Task<StreamWriter> GetError(string name = "");
+    Task ReleaseStreamsAsync();
 }

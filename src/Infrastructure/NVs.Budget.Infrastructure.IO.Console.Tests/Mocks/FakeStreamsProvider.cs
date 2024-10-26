@@ -41,4 +41,10 @@ public class FakeStreamsProvider : IInputStreamProvider, IOutputStreamProvider, 
         await _iStream.DisposeAsync();
         await _oStream.DisposeAsync();
     }
+
+    public async Task ReleaseStreamsAsync()
+    {
+        await _iStream.FlushAsync();
+        await _oStream.FlushAsync();
+    }
 }

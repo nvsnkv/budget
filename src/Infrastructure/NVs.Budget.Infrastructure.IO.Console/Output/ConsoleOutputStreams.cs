@@ -49,4 +49,20 @@ internal class ConsoleOutputStreams : IOutputStreamProvider, IAsyncDisposable
             await writer.DisposeAsync();
         }
     }
+
+    public async Task ReleaseStreamsAsync()
+    {
+        var keys = _outputs.Keys.Concat(_errors.Keys).ToArray();
+        foreach (var key in keys)
+        {
+            if (_outputs.TryRemove(key, out var writer))
+            {
+                await writer.DisposeAsync();
+            }
+            else if (_errors.TryRemove(key, out writer))
+            {
+                await writer.DisposeAsync();
+            }
+        }
+    }
 }

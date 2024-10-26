@@ -22,14 +22,11 @@ internal class CriteriaBasedXLLogbook
         _ranges = options.Ranges;
         _workbook = new XLWorkbook();
 
+        _amountsSheet = new AmountsWriter(_workbook.AddWorksheet("Amounts"));
+
         if (options.WriteCounts)
         {
             _countSheet = new OperationCountsWriter(_workbook.AddWorksheet("Counts"));
-        }
-
-        if (options.WriteAmounts)
-        {
-            _amountsSheet = new AmountsWriter(_workbook.AddWorksheet("Amounts"));
         }
 
         if (options.WriteOperations)

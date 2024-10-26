@@ -48,4 +48,6 @@ public class LogbookCriteria(
             ? new UniversalCriterion(Description, subcriteria)
             : new UniversalCriterion(Description);
     }
+
+    public override string ToString() => $"{GetType().Name}: {Description}";
 }

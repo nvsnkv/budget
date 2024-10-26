@@ -35,6 +35,11 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
         _criteriaDepth = offset > _criteriaDepth ? offset : _criteriaDepth;
         foreach (var (criterion, logbook) in children)
         {
+            if (criterion is UniversalCriterion && string.IsNullOrEmpty(criterion.Description) && logbook.IsEmpty)
+            {
+                continue;
+            }
+
             _colNum = offset;
             WriteCriterion(criterion);
             WriteCriteriaNames(logbook.Children, offset + 1);
@@ -59,6 +64,11 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
 
     public void WriteValue(CriteriaBasedLogbook logbook, NamedRange range)
     {
+        if (logbook is { IsEmpty: true, Criterion: UniversalCriterion } && string.IsNullOrEmpty(logbook.Criterion.Description))
+        {
+            return;
+        }
+
         var rowNum = _criterionPositions[logbook.Criterion];
         var xlCell = worksheet.Cell(rowNum, _colNum);
 
