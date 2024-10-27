@@ -19,45 +19,46 @@ internal class TrackedBudgetWriter(IOutputStreamProvider streams, IOptionsSnapsh
     {
         await writer.WriteLineAsync($"Tagging criteria: {budget.TaggingCriteria.Count}");
         await writer.WriteLineAsync($"Transfer criteria: {budget.TransferCriteria.Count}");
-        await writer.WriteLineAsync($"Logbook criteria: {budget.LogbookCriteria.GetType().Name}");
 
-        var subcriteria = CountSubcriteria(budget.LogbookCriteria).Aggregate("", (acc, count) => $"{acc}, {count}");
-        await writer.WriteLineAsync($"Logbook subcriteria: {subcriteria}");
+        var subcriteria = CountSubcriteria(budget.LogbookCriteria).Aggregate("Logbook criteria", (acc, count) => $"{acc}: {count}");
+        await writer.WriteLineAsync(subcriteria);
 
         return false;
     }
 
     private IEnumerable<int> CountSubcriteria(LogbookCriteria criteria)
     {
-        if ((criteria.Subcriteria?.Count ?? 0) == 0)
+        Queue<LogbookCriteria> current = new();
+        Queue<LogbookCriteria> children = new();
+
+        current.Enqueue(criteria);
+
+        int value = 0;
+        while (current.Count > 0)
         {
-            yield break;
-        }
-
-        yield return criteria.Subcriteria!.Count;
-
-        var childResults = criteria.Subcriteria.Select(subcriteria => CountSubcriteria(subcriteria).ToList()).ToList();
-
-        int? counts;
-        int i = 0;
-        do
-        {
-            counts = null;
-            foreach (var result in childResults)
+            var currentCriteria = current.Dequeue();
+            if (currentCriteria.Subcriteria != null)
             {
-                if (result.Count <= i) {
-                    continue;
+                value += currentCriteria.Subcriteria.Count;
+
+                foreach (var subcriteria in currentCriteria.Subcriteria)
+                {
+                    children.Enqueue(subcriteria);
+                }
+            }
+
+            if (current.Count == 0)
+            {
+                if (value != 0)
+                {
+                    yield return value;
                 }
 
-                counts += result[i];
+                current = children;
+                children = new();
+
+                value = 0;
             }
-
-            if (counts.HasValue)
-            {
-                yield return counts.Value;
-
-            }
-
-        } while (counts.HasValue);
+        }
     }
 }
