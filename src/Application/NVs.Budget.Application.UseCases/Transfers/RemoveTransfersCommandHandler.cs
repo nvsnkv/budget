@@ -10,7 +10,7 @@ internal class RemoveTransfersCommandHandler(ITransfersRepository repository) : 
     public async Task<Result> Handle(RemoveTransfersCommand request, CancellationToken cancellationToken)
     {
         var result = new Result();
-        var targets = await repository.Get(t => request.SourceIds.Contains(t.Source.Id), cancellationToken);
+        var targets = await repository.Get(t => request.SourceIds.Contains(t.Source.Id), cancellationToken).ToListAsync(cancellationToken);
 
         foreach (var target in targets)
         {

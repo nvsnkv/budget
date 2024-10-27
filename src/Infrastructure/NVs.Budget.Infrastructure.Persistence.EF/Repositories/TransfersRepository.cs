@@ -17,20 +17,21 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
 {
     private readonly ExpressionSplitter _splitter = new();
 
-    public async Task<IReadOnlyCollection<TrackedTransfer>> Get(Expression<Func<TrackedTransfer, bool>> filter, CancellationToken ct)
+    public IAsyncEnumerable<TrackedTransfer> Get(Expression<Func<TrackedTransfer, bool>> filter, CancellationToken ct)
     {
         var expression = filter.ConvertTypes<TrackedTransfer, StoredTransfer>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
-        var query = context.Transfers.Include(t => t.Source).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
+        return context.Transfers
+            .Include(t => t.Fee)
+            .Include(t => t.Source).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
             .Include(t => t.Sink).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
-            .Where(queryable);
-
-        var items = await query.AsNoTracking().ToListAsync(ct);
-        items = items.Where(enumerable).ToList();
-
-        return mapper.Map<List<TrackedTransfer>>(items).AsReadOnly();
+            .Where(queryable)
+            .AsSplitQuery()
+            .AsAsyncEnumerable()
+            .Where(enumerable)
+            .Select(mapper.Map<TrackedTransfer>);
     }
 
     public async Task<IEnumerable<Result>> Register(IReadOnlyCollection<TrackedTransfer> transfers, CancellationToken ct)

@@ -1,8 +1,10 @@
-﻿using NMoneys;
+﻿using System.Diagnostics;
+using NMoneys;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Domain.Entities.Operations;
 
+[DebuggerDisplay("{Timestamp}: {Amount} {Description}")]
 public class Operation : EntityBase<Guid>
 {
     private readonly List<Tag> _tags;

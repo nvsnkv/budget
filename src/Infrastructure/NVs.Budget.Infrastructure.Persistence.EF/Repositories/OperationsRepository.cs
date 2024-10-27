@@ -18,7 +18,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
 internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator generator, BudgetsFinder finder) : IStreamingOperationRepository
 {
-    private static readonly int BatchSize = 1000;
+    private static readonly int BatchSize = 2000;
     private readonly ExpressionSplitter _splitter = new();
 
     public IAsyncEnumerable<TrackedOperation> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)

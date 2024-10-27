@@ -155,7 +155,7 @@ internal class Accountant(
         var budgets = (await Manager.GetOwnedBudgets(ct)).Select(a => a.Id).ToList();
         var result = new Result();
 
-        var batchSize = 1000;
+        var batchSize = 2000;
         var opsQueue = new Queue<TrackedOperation>();
         var xfersQueue = new Queue<TrackedTransfer>();
 

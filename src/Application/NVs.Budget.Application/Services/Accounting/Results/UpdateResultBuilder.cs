@@ -34,7 +34,7 @@ internal class UpdateResultBuilder
         if (result.IsSuccess)
         {
             Operations.Add(result.Value);
-            Reasons.Add(new OperationAdded(result.Value));
+            Reasons.Add(new OperationUpdated(result.Value));
         }
         else
         {

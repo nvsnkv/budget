@@ -6,6 +6,7 @@ using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
+using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
@@ -28,25 +29,30 @@ internal class Reckoner(
 
         var transactions = operationsRepo.Get(criteria, ct);
 
-        IReadOnlyCollection<TrackedTransfer> transfers = [];
+        var sourceIds = new List<Guid>();
+        var sinkIds = new List<Guid>();
+
         if (query.ExcludeTransfers)
         {
-            // I'm too lazy to write async-friendly algo here right now
-            // TODO: avoid materialization here (load all transfers maybe?)
-            var transactionsList = await transactions.ToListAsync(ct);
-            var budgets = await Manager.GetOwnedBudgets(ct);
-            var ids =  transactionsList.Select(t => t.Id).ToList();
-            transfers = await transfersRepo.Get(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id), ct);
-            transfers = transfers
-                .Where(t => budgets.Contains(t.Source.Budget) && budgets.Contains(t.Sink.Budget))
-                .ToList();
+            transactions = transactions.Where(t =>
+            {
+                if (t.Tags.Contains(TransferTags.Source))
+                {
+                    sourceIds.Add(t.Id);
+                    return false;
+                }
 
-            transactions = transactionsList.ToAsyncEnumerable();
+                if (t.Tags.Contains(TransferTags.Sink))
+                {
+                    sinkIds.Add(t.Id);
+                    return false;
+                }
+
+                return true;
+            });
         }
 
-        var exclusions = transfers.SelectMany(t => t).Select(t => t.Id).ToHashSet();
-
-        await foreach (var transaction in transactions.Where(t => !exclusions.Contains(t.Id)).WithCancellation(ct))
+        await foreach (var transaction in transactions.WithCancellation(ct))
         {
             if (query.OutputCurrency is not null && query.OutputCurrency != transaction.Amount.GetCurrency())
             {
@@ -58,7 +64,8 @@ internal class Reckoner(
             }
         }
 
-        foreach (var transfer in transfers.Where(t => !t.Fee.IsZero()))
+        var transfers = transfersRepo.Get(t => (sourceIds.Contains(t.Source.Id) || sinkIds.Contains(t.Sink.Id)) && t.Fee.Amount != 0, ct);
+        await foreach (var transfer in transfers.Where(t => !t.Fee.IsZero()).WithCancellation(ct))
         {
             yield return AsTrackedOperation(transfer.AsTransaction());
         }
@@ -82,7 +89,17 @@ internal class Reckoner(
         return await detector.DetectDuplicates(operations, ct);
     }
 
-    private TrackedOperation AsTrackedOperation(Operation operation) => new(operation.Id, operation.Timestamp, operation.Amount, operation.Description, AsTrackedAccount(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly());
+    private TrackedOperation AsTrackedOperation(Operation operation)
+    {
+        var result = new TrackedOperation(
+            operation.Id, operation.Timestamp, operation.Amount, operation.Description,
+            AsTrackedAccount(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly()
+        );
+
+        result.TagEphemeral();
+        result.Version = null;
+        return result;
+    }
 
     private TrackedBudget AsTrackedAccount(Domain.Entities.Accounts.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
 

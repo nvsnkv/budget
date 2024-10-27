@@ -10,9 +10,10 @@ internal class SearchTransfersCommandHandler(IReckoner reckoner, IAccountant acc
 {
     public async Task<IReadOnlyCollection<TrackedTransfer>> Handle(SearchTransfersCommand request, CancellationToken cancellationToken)
     {
-        var operations = reckoner.GetOperations(new(request.Criteria), cancellationToken);
-        //HACK: materializing operations to avoid "A command is already in progress" error
-        operations = (await operations.ToListAsync(cancellationToken)).ToAsyncEnumerable();
+        var operations = reckoner.GetOperations(new(request.Criteria, null, true), cancellationToken);
+        //HACK: materializing operations to avoid "A command is already in progress" error using OrderBy
+        operations = operations.OrderBy(o => o.Timestamp)
+            .Where(o => o.IsRegistered);
 
         var results = await accountant.Update(operations, request.Budget, new(request.Accuracy, TaggingMode.Skip), cancellationToken);
         return results.Transfers;

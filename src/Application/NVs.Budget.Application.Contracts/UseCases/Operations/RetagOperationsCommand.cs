@@ -5,4 +5,4 @@ using NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 namespace NVs.Budget.Application.Contracts.UseCases.Operations;
 
-public record RetagOperationsCommand(Expression<Func<TrackedOperation, bool>> Criteria, Guid BudgetId, bool FromScratch) : IRequest<Result>;
+public record RetagOperationsCommand(Expression<Func<TrackedOperation, bool>> Criteria, TrackedBudget Budget, bool FromScratch) : IRequest<Result>;

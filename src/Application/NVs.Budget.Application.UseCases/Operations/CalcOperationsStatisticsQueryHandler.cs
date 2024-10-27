@@ -12,7 +12,7 @@ internal class CalcOperationsStatisticsQueryHandler(IReckoner reckoner) : IReque
     {
         var reasons = new List<IReason>();
 
-        var operations = reckoner.GetOperations(new(request.OperationsFilter), cancellationToken);
+        var operations = reckoner.GetOperations(new(request.OperationsFilter, null, true), cancellationToken);
         var logbook = new CriteriaBasedLogbook(request.Criterion);
 
         await foreach (var operation in operations)

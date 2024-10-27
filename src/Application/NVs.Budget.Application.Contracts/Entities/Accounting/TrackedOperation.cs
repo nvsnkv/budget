@@ -15,4 +15,5 @@ public class  TrackedOperation(
     : Operation(id, timestamp, amount, description, budget, tags, attributes), ITrackableEntity<Guid>
 {
     public string? Version { get; set; }
+    public bool IsRegistered  => !string.IsNullOrEmpty(Version);
 }
