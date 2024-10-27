@@ -44,6 +44,7 @@ internal class YamlBasedLogbookCriteriaWriter(IOutputStreamProvider streams, IOp
 
         public object? ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
         {
+            // this is a one-way converter, so Read is not implemented
             throw new NotImplementedException();
         }
 
