@@ -10,12 +10,12 @@ using Tag = NVs.Budget.Domain.ValueObjects.Tag;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 
-internal class YamlLogbookRulesetReader(ReadableExpressionsParser parser) : ILogbookCriteriaReader
+internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) : ILogbookCriteriaReader
 {
     private static readonly string[] EmptyPath = [];
-    private static readonly YamlScalarNode PredicateKey = new("predicate");
+    private static readonly YamlScalarNode CriteriaKey = new("criteria");
     private static readonly YamlScalarNode TagsKey = new("tags");
-    private static readonly YamlScalarNode TagsModeKey = new("mode");
+    private static readonly YamlScalarNode TagsModeKey = new("type");
     private static readonly YamlScalarNode SubcriteriaKey = new("subcriteria");
     private static readonly YamlScalarNode SubstitutionKey = new("substitution");
 
@@ -34,23 +34,7 @@ internal class YamlLogbookRulesetReader(ReadableExpressionsParser parser) : ILog
 
         var document = stream.Documents.Single();
 
-        var subcriteria = ParseSubcriteria(document.RootNode, EmptyPath).ToList();
-        var errors = subcriteria.Where(c => c.IsFailed).SelectMany(c => c.Errors);
-
-        var validCriteria = subcriteria.Where(c => c.IsSuccess).ToList();
-        if (validCriteria.Count == 0)
-        {
-            var error = new YamlParsingError("No valid criterion found!", EmptyPath);
-
-            error.Reasons.AddRange(errors);
-            error.Metadata["Key"] = string.Empty;
-            var failure = Result.Fail<LogbookCriteria>(error);
-            return Task.FromResult(failure);
-        }
-
-        var result = Result.Ok(new LogbookCriteria(string.Empty, validCriteria.Select(v => v.Value).ToList().AsReadOnly(), null,null,null,null));
-        result.WithErrors(errors);
-
+        var result = ParseCriterion(string.Empty, document.RootNode, EmptyPath);
         return Task.FromResult(result);
     }
 
@@ -116,8 +100,13 @@ internal class YamlLogbookRulesetReader(ReadableExpressionsParser parser) : ILog
             }
         }
 
+        if (validCriteria.Count == 0)
+        {
+            validCriteria = null;
+        }
+
         Result<LogbookCriteria> result;
-        if (mapping.Children.ContainsKey(PredicateKey))
+        if (mapping.Children.ContainsKey(CriteriaKey))
         {
             result = ParsePredicate(description, mapping, validCriteria, path);
         }
@@ -138,9 +127,9 @@ internal class YamlLogbookRulesetReader(ReadableExpressionsParser parser) : ILog
         return result;
     }
 
-    private Result<LogbookCriteria> ParseSubstitution(string description, YamlMappingNode mapping, List<LogbookCriteria> validCriteria, ICollection<string> path)
+    private Result<LogbookCriteria> ParseSubstitution(string description, YamlMappingNode mapping, List<LogbookCriteria>? validCriteria, ICollection<string> path)
     {
-        if (validCriteria.Any())
+        if (validCriteria?.Any() ?? false)
         {
             return Result.Fail(new YamlParsingError("Substitution node cannot have subcriteria", path.Append(description)));
         }
@@ -161,7 +150,7 @@ internal class YamlLogbookRulesetReader(ReadableExpressionsParser parser) : ILog
         return new LogbookCriteria(description, null, null, null, substitution.Value, null);
     }
 
-    private Result<LogbookCriteria> ParseTags(string description, YamlMappingNode mapping, List<LogbookCriteria> validCriteria, ICollection<string> path)
+    private Result<LogbookCriteria> ParseTags(string description, YamlMappingNode mapping, List<LogbookCriteria>? validCriteria, ICollection<string> path)
     {
         var tags = ParseTagsList(mapping.Children[TagsKey], path.Append(description));
         var validTags = new List<Tag>();
@@ -227,10 +216,10 @@ internal class YamlLogbookRulesetReader(ReadableExpressionsParser parser) : ILog
         }
     }
 
-    private Result<LogbookCriteria> ParsePredicate(string description, YamlMappingNode mapping, List<LogbookCriteria> subcriteria, ICollection<string> path)
+    private Result<LogbookCriteria> ParsePredicate(string description, YamlMappingNode mapping, List<LogbookCriteria>? subcriteria, ICollection<string> path)
     {
-        var predicateNode = mapping.Children[PredicateKey];
-        var predicateNodePath = path.Append(description).Append(PredicateKey.Value!).ToList();
+        var predicateNode = mapping.Children[CriteriaKey];
+        var predicateNodePath = path.Append(description).Append(CriteriaKey.Value!).ToList();
         if (predicateNode is not YamlScalarNode scalarNode)
         {
             return Result.Fail(new UnexpectedNodeTypeError(predicateNode.GetType(), typeof(YamlScalarNode), predicateNodePath));

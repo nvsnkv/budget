@@ -13,24 +13,10 @@ using NVs.Budget.Infrastructure.IO.Console.Output;
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Budgets;
 
 [Verb("update", HelpText = "Updates budget-specific settings")]
-internal class UpdateVerb : AbstractVerb
+internal class UpdateVerb : BudgetDetailsVerb
 {
-    [Value(0, Required = true, MetaName = "Budget id")] public string Id { get; set; } = string.Empty;
-
     [Option('n', "name", HelpText = "New name. If set, budget will be renamed")]
     public string? Name { get; [UsedImplicitly] set; }
-
-    [Option("csv-reading-options", HelpText = "Path to YAML file with CSV reading options. If defined, options will be updated")]
-    public string? CsvReadingOptionsPath { get; [UsedImplicitly] set; }
-
-    [Option("tagging-criteria", HelpText = "Path to YAML file with tagging criteria. If defined, tagging criteria will be updated")]
-    public string? TaggingCriteriaPath { get; [UsedImplicitly] set; }
-
-    [Option("transfer-criteria", HelpText = "Path to YAML file with transfer criteria. If defined, transfer criteria will be updated")]
-    public string? TransferCriteriaPath { get; [UsedImplicitly] set; }
-
-    [Option("logbook-criteria", HelpText = "Path to YAML file with logbook criteria. If defined, transfer criteria will be updated")]
-    public string? LogbookCriteriaPath { get; [UsedImplicitly] set; }
 }
 
 internal class UpdateVerbHandler(

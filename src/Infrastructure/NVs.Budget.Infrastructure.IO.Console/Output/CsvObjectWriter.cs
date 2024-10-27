@@ -16,13 +16,17 @@ internal abstract class CsvObjectWriter<T, TRow, TMap>(
     protected IOutputStreamProvider Streams { get; } = streams;
     protected IOptionsSnapshot<OutputOptions> Options { get; } = options;
 
-    public Task Write(T obj, CancellationToken ct) => Write([obj], ct);
+    public Task Write(T obj, CancellationToken ct) => Write([obj], Options.Value.OutputStreamName, ct);
 
-    public virtual Task Write(IEnumerable<T> collection, CancellationToken ct) => DoWrite(collection, (_, _) => Task.FromResult(false), ct);
+    public Task Write(T obj, string streamName, CancellationToken ct) => Write([obj], streamName, ct);
 
-    protected async Task DoWrite(IEnumerable<T> collection, Func<T, CancellationToken, Task<bool>> func, CancellationToken ct)
+    public Task Write(IEnumerable<T> collection, CancellationToken ct) => Write(collection, Options.Value.OutputStreamName, ct);
+
+    public virtual Task Write(IEnumerable<T> collection, string streamName, CancellationToken ct) => DoWrite(collection, streamName, (_, _, _) => Task.FromResult(false), ct);
+
+    protected async Task DoWrite(IEnumerable<T> collection, string streamName, Func<StreamWriter, T, CancellationToken, Task<bool>> func, CancellationToken ct)
     {
-        var writer = await Streams.GetOutput(Options.Value.OutputStreamName);
+        var writer = await Streams.GetOutput(streamName);
         var csvWriter = new CsvWriter(writer, config, true);
         csvWriter.Context.RegisterClassMap<TMap>();
 
@@ -34,7 +38,7 @@ internal abstract class CsvObjectWriter<T, TRow, TMap>(
             csvWriter.WriteRecord(row);
             await csvWriter.NextRecordAsync();
 
-            var newLineNeeded = await func(t, ct);
+            var newLineNeeded = await func(writer, t, ct);
             if (newLineNeeded)
             {
                 await writer.WriteLineAsync();

@@ -7,11 +7,13 @@ namespace NVs.Budget.Infrastructure.IO.Console.Output.Budgets;
 public class YamlBasedCsvReadingOptionsWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options) : IObjectWriter<CsvReadingOptions>
 {
     private static readonly Regex UnsafeCharsPattern = new("[{} ]", RegexOptions.Compiled);
-    public async Task Write(CsvReadingOptions obj, CancellationToken ct)
+
+    public Task Write(CsvReadingOptions criterion, CancellationToken ct) => Write(criterion, options.Value.OutputStreamName, ct);
+    public async Task Write(CsvReadingOptions criterion, string streamName, CancellationToken ct)
     {
-        var writer = await streams.GetOutput(options.Value.OutputStreamName);
+        var writer = await streams.GetOutput(streamName);
         await writer.WriteLineAsync("CsvReadingOptions:");
-        foreach (var (pattern, fileOpts) in obj.Snapshot)
+        foreach (var (pattern, fileOpts) in criterion.Snapshot)
         {
             await writer.WriteLineAsync($"  {Encode(pattern.ToString())}:");
             await writer.WriteLineAsync("    CultureCode: " + fileOpts.CultureInfo.Name);
@@ -56,11 +58,12 @@ public class YamlBasedCsvReadingOptionsWriter(IOutputStreamProvider streams, IOp
         return value;
     }
 
-    public async Task Write(IEnumerable<CsvReadingOptions> collection, CancellationToken ct)
+    public Task Write(IEnumerable<CsvReadingOptions> collection, CancellationToken ct) => Write(collection, options.Value.OutputStreamName, ct);
+    public async Task Write(IEnumerable<CsvReadingOptions> collection, string streamName, CancellationToken ct)
     {
         foreach (var option in collection)
         {
-            await Write(option, ct);
+            await Write(option, streamName, ct);
         }
     }
 }

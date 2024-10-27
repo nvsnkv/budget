@@ -11,9 +11,9 @@ namespace NVs.Budget.Infrastructure.IO.Console.Output.Operations;
 internal class TransfersWriter(IOutputStreamProvider streams, IOptionsSnapshot<OutputOptions> options, IMapper mapper, CsvConfiguration config, IObjectWriter<Operation> opWriter)
     : CsvObjectWriter<TrackedTransfer, CsvTransfer, CsvTrackedOperationClassMap>(streams, options, mapper, config)
 {
-    public override Task Write(IEnumerable<TrackedTransfer> collection, CancellationToken ct) => DoWrite(collection, WriteOperations, ct);
+    public override Task Write(IEnumerable<TrackedTransfer> collection, string streamName, CancellationToken ct) => DoWrite(collection, streamName, WriteOperations, ct);
 
-    private async Task<bool> WriteOperations(TrackedTransfer transfer, CancellationToken ct)
+    private async Task<bool> WriteOperations(StreamWriter _, TrackedTransfer transfer, CancellationToken ct)
     {
         await opWriter.Write(transfer.Source, ct);
         await opWriter.Write(transfer.Sink, ct);

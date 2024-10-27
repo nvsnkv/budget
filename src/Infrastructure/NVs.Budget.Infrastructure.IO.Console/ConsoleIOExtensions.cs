@@ -4,6 +4,7 @@ using CsvHelper.Configuration;
 using FluentResults;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.IO.Console.Input;
@@ -34,6 +35,9 @@ public static class ConsoleIOExtensions
         services.AddTransient<IObjectWriter<Operation>, OperationsWriter>();
         services.AddTransient<IObjectWriter<TrackedBudget>, TrackedBudgetWriter>();
         services.AddTransient<IObjectWriter<CsvReadingOptions>, YamlBasedCsvReadingOptionsWriter>();
+        services.AddTransient<IObjectWriter<TransferCriterion>, YamlBasedTransferCriteriaWriter>();
+        services.AddTransient<IObjectWriter<TaggingCriterion>, YamlBasedTaggingCriteriaWriter>();
+        services.AddTransient<IObjectWriter<LogbookCriteria>, YamlBasedLogbookCriteriaWriter>();
 
         services.AddTransient(typeof(IResultWriter<>), typeof(GenericResultWriter<>));
         services.AddTransient<IResultWriter<Result<TrackedOwner>>, OwnerResultWriter>();
@@ -73,7 +77,7 @@ public static class ConsoleIOExtensions
             DetectDelimiter = true
         });
 
-        var logbookCriteriaReader = new YamlLogbookRulesetReader(ReadableExpressionsParser.Default);
+        var logbookCriteriaReader = new YamlBasedLogbookCriteriaReader(ReadableExpressionsParser.Default);
         services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);
 
         return services;
