@@ -152,18 +152,22 @@ internal class Accountant(
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
     {
-        var budgets = await Manager.GetOwnedBudgets(ct);
+        var budgets = (await Manager.GetOwnedBudgets(ct)).Select(a => a.Id).ToList();
         var result = new Result();
+
+        var batchSize = 1000;
+        var opsQueue = new Queue<TrackedOperation>();
+        var xfersQueue = new Queue<TrackedTransfer>();
 
         await foreach (var transfer in transfers.WithCancellation(ct))
         {
-            if (budgets.All(a => a != transfer.Source.Budget))
+            if (budgets.All(a => a != transfer.Source.Budget.Id))
             {
                 result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Source.Budget));
                 continue;
             }
 
-            if (budgets.All(a => a != transfer.Sink.Budget))
+            if (budgets.All(a => a != transfer.Sink.Budget.Id))
             {
                 result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Sink.Budget));
                 continue;
@@ -172,33 +176,28 @@ internal class Accountant(
             transfer.Source.TagSource();
             transfer.Sink.TagSink();
 
-            await foreach (var r in streamingOperationRepository.Update(new[] { transfer.Source, transfer.Sink }.ToAsyncEnumerable(), ct))
-            {
-                if (!r.IsSuccess)
-                {
-                    var unableToTagTransferError = new UnableToTagTransferError(r.Errors)
-                        .WithMetadata(nameof(transfer.Source), transfer.Source.Id)
-                        .WithMetadata(nameof(transfer.Sink), transfer.Sink.Id);
-                    unableToTagTransferError.Reasons.AddRange(r.Errors);
-                    result.Reasons.Add(unableToTagTransferError);
-                }
-            }
+            opsQueue.Enqueue(transfer.Source);
+            opsQueue.Enqueue(transfer.Sink);
 
-            if (!result.IsSuccess)
-            {
-                continue;
-            }
+            xfersQueue.Enqueue(new TrackedTransfer(transfer.Source, transfer.Sink, transfer.Fee, transfer.Comment) {Accuracy = transfer.Accuracy});
 
-            var trackedTransfer = new TrackedTransfer(transfer.Source, transfer.Sink, transfer.Fee, transfer.Comment) {Accuracy = transfer.Accuracy};
-            var registrationResult = await transfersRepository.Register(trackedTransfer, ct);
-            if (registrationResult.IsSuccess)
+            if (xfersQueue.Count > batchSize)
             {
-                result.Reasons.Add(new TransferTracked(trackedTransfer));
+                var results = await streamingOperationRepository.Update(opsQueue.ToAsyncEnumerable(), ct).ToListAsync(ct);
+                result.Reasons.AddRange(results.SelectMany(r => r.Reasons));
+
+                var regResults = await transfersRepository.Register(xfersQueue, ct);
+                result.Reasons.AddRange(regResults.SelectMany(r => r.Reasons));
             }
-            else
-            {
-                result.Reasons.AddRange(registrationResult.Errors);
-            }
+        }
+
+        if (xfersQueue.Count > 0)
+        {
+            var results = await streamingOperationRepository.Update(opsQueue.ToAsyncEnumerable(), ct).ToListAsync(ct);
+            result.Reasons.AddRange(results.SelectMany(r => r.Reasons));
+
+            var regResults = await transfersRepository.Register(xfersQueue, ct);
+            result.Reasons.AddRange(regResults.SelectMany(r => r.Reasons));
         }
 
         return result;

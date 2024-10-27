@@ -11,4 +11,15 @@ internal class FakeTransfersRepository : FakeRepository<TrackedTransfer>, ITrans
         Data.Add(transfer);
         return Task.FromResult(Result.Ok());
     }
+
+    public async Task<IEnumerable<Result>> Register(IReadOnlyCollection<TrackedTransfer> transfer, CancellationToken ct)
+    {
+        var results = new List<Result>();
+        foreach (var t in transfer)
+        {
+            results.Add(await Register(t, ct));
+        }
+
+        return results;
+    }
 }

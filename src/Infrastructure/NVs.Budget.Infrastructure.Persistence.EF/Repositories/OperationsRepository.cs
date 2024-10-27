@@ -31,6 +31,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             .AsTracking()
             .Include(t => t.Budget)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
+            .AsSplitQuery()
             .Where(queryable);
 
         return query.ToAsyncEnumerable().Where(enumerable).Select(mapper.Map<TrackedOperation>);
@@ -58,19 +59,54 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             return Result.Ok(mapper.Map<TrackedOperation>(storedTransaction));
         }, ct);
 
-    public IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct) =>
-        ProcessStream(operations, async u =>
+    public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
+    {
+        var queue = new Queue<TrackedOperation>();
+        await foreach (var u in operations.WithCancellation(ct))
         {
-            var target = await context.Operations
-                .Include(o => o.Amount)
-                .Include(o => o.Budget)
-                .ThenInclude(o => o.Owners)
-                .Include(o => o.Tags)
-                .FirstOrDefaultAsync(t => t.Id == u.Id, ct);
+            queue.Enqueue(u);
+            if (queue.Count > BatchSize)
+            {
+                foreach (var result in await UpdateItems(queue, ct))
+                {
+                    yield return result;
+                }
+            }
+        }
+
+        foreach (var result in await UpdateItems(queue, ct))
+        {
+            yield return result;
+        }
+    }
+
+    private async Task<IEnumerable<Result<TrackedOperation>>> UpdateItems(Queue<TrackedOperation> queue, CancellationToken ct)
+    {
+        var ids = queue.Select(q => q.Id).ToArray();
+        var targets = await context.Operations
+            .Include(o => o.Amount)
+            .Include(o => o.Budget)
+            .Include(o => o.Tags)
+            .AsSplitQuery()
+            .Where(o => ids.Contains(o.Id))
+            .ToDictionaryAsync(o => o.Id, ct);
+
+        var results = new List<Result<TrackedOperation>>();
+
+        while (queue.TryDequeue(out var u))
+        {
+            var target = targets.GetValueOrDefault(u.Id);
 
             if (target is null)
             {
-                return Result.Fail(new EntityDoesNotExistError<TrackedOperation>(u));
+                results.Add(Result.Fail(new EntityDoesNotExistError<TrackedOperation>(u)));
+                continue;
+            }
+
+            if (u.Version != target.Version)
+            {
+                results.Add(Result.Fail(new VersionDoesNotMatchError<TrackedOperation, Guid>(u)));
+                continue;
             }
 
             var hasChanges = false;
@@ -80,7 +116,8 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 var changed = await finder.FindById(u.Budget.Id, ct);
                 if (changed is null)
                 {
-                    return Result.Fail(new BudgetDoesNotExistError(u.Budget.Id));
+                    results.Add(Result.Fail(new BudgetDoesNotExistError(u.Budget.Id)));
+                    continue;
                 }
 
                 target.Budget = changed;
@@ -113,8 +150,13 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 target.Version = generator.Next();
             }
 
-            return mapper.Map<TrackedOperation>(target);
-        }, ct);
+            results.Add(mapper.Map<TrackedOperation>(target));
+        }
+
+        await context.SaveChangesAsync(ct);
+        return results;
+    }
+
 
     private bool UpdateDictionary(Dictionary<string, object> targetAttributes, IDictionary<string, object> argAttributes)
     {
@@ -178,15 +220,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         var results = new Queue<Result<TrackedOperation>>();
         await foreach (var item in source.WithCancellation(ct))
         {
-            var result = await processor(item);
-            if (result.IsSuccess)
-            {
-                results.Enqueue(result.Value);
-            }
-            else
-            {
-                results.Enqueue(result);
-            }
+            results.Enqueue(await processor(item));
 
             if (results.Count > BatchSize)
             {

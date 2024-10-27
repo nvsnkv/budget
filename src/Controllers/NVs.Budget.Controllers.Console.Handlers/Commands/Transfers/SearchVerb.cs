@@ -70,7 +70,7 @@ internal class SearchVerbHandler(IMediator mediator, IBudgetManager manager, ICr
         }
 
         var found = await mediator.Send(new SearchTransfersCommand(budget, criteriaResultValue, accuracy), ct);
-        await transfersWriter.Write(found, ct);
+        await transfersWriter.Write(found, request.OutputPath ?? string.Empty, ct);
 
         return ExitCode.Success;
     }

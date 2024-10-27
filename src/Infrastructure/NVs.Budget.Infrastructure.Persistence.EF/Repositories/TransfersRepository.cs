@@ -33,35 +33,50 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
         return mapper.Map<List<TrackedTransfer>>(items).AsReadOnly();
     }
 
-    public async Task<Result> Register(TrackedTransfer transfer, CancellationToken ct)
+    public async Task<IEnumerable<Result>> Register(IReadOnlyCollection<TrackedTransfer> transfers, CancellationToken ct)
     {
-        var source = await context.Operations.Where(o => o.Id == transfer.Source.Id).FirstOrDefaultAsync(ct);
-        if (source is null)
-        {
-            return Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Source));
-        }
+        var ids = transfers.SelectMany(t => t).Select(t => t.Id).ToList();
+        var operations = await context.Operations.Where(o => ids.Contains(o.Id)).ToListAsync(ct);
+        var existing = await context.Transfers
+            .Where(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id))
+            .ToDictionaryAsync(t => (t.Source.Id, t.Sink.Id), ct);
 
-        var sink = await context.Operations.Where(o => o.Id == transfer.Sink.Id).FirstOrDefaultAsync(ct);
-        if (sink is null)
-        {
-            return Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Sink));
-        }
+        var results = new List<Result>();
 
-        var existing = await context.Transfers.Where(t => t.Source.Id == transfer.Source.Id && t.Sink.Id == transfer.Sink.Id).FirstOrDefaultAsync(ct);
-        if (existing is not null)
+        foreach (var transfer in transfers)
         {
-            return Result.Fail(new TransferAlreadyRegisteredError(transfer));
-        }
+            var source = operations.FirstOrDefault(o => o.Id == transfer.Source.Id);
+            if (source is null)
+            {
+                results.Add(Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Source)));
+                continue;
+            }
 
-        await context.Transfers.AddAsync(new StoredTransfer(transfer.Comment)
-        {
-            Fee = mapper.Map<StoredMoney>(transfer.Fee),
-            Source = source,
-            Sink = sink
-        }, ct);
+            var sink = operations.FirstOrDefault(o => o.Id == transfer.Sink.Id);
+            if (sink is null)
+            {
+                results.Add(Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Sink)));
+                continue;
+            }
+
+            if (existing.ContainsKey((source.Id, sink.Id)))
+            {
+                results.Add(Result.Fail(new TransferAlreadyRegisteredError(transfer)));
+                continue;
+            }
+
+            context.Transfers.Add(new StoredTransfer(transfer.Comment)
+            {
+                Fee = mapper.Map<StoredMoney>(transfer.Fee),
+                Source = source,
+                Sink = sink
+            });
+
+            results.Add(Result.Ok());
+        }
 
         await context.SaveChangesAsync(ct);
-        return Result.Ok();
+        return results;
     }
 
     public async Task<Result> Remove(TrackedTransfer transfer, CancellationToken ct)

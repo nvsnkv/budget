@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Options;
 
-internal class OutputOptionsChanger(IConfiguration configuration, IOptionsMonitor<OutputOptions> monitor) : IOutputOptionsChanger
+internal class OutputOptionsChanger(IConfiguration configuration) : IOutputOptionsChanger
 {
     public void SetOutputStreamName(string output)
     {
