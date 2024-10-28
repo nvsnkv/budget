@@ -94,11 +94,7 @@ internal class Accountant(
             {
                 if (mode == TaggingMode.FromScratch)
                 {
-                    var targets = operation.Tags;
-                    foreach (var target in targets)
-                    {
-                        operation.Untag(target);
-                    }
+                   operation.UntagAll();
                 }
 
                 var tags = manager.GetTagsFor(operation);

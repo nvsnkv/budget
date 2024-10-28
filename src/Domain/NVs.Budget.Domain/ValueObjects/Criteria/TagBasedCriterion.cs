@@ -31,6 +31,9 @@ public class TagBasedCriterion : Criterion
             case TagBasedCriterionType.Including:
                 return _tags.All(tag => t.Tags.Contains(tag));
 
+            case TagBasedCriterionType.OneOf:
+                return _tags.Any(tag => t.Tags.Contains(tag));
+
             case TagBasedCriterionType.Excluding:
                 return !_tags.Any(tag => t.Tags.Contains(tag));
 

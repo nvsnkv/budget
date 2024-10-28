@@ -53,7 +53,6 @@ internal class DetailsVerbHandler(
         await logbookWriter.Write(budget.LogbookCriteria, request.LogbookCriteriaPath!, cancellationToken);
         await transferWriter.Write(budget.TransferCriteria, request.TransferCriteriaPath!, cancellationToken);
         await taggingWriter.Write(budget.TaggingCriteria, request.TaggingCriteriaPath!, cancellationToken);
-        await taggingWriter.Write(budget.TaggingCriteria, request.TaggingCriteriaPath!, cancellationToken);
 
         var config = await csvSettingsRepo.GetReadingOptionsFor(budget, cancellationToken);
         await optionsWriter.Write(config, request.CsvReadingOptionsPath!, cancellationToken);
