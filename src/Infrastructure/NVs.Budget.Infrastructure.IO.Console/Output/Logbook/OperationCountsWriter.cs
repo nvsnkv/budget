@@ -33,7 +33,7 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
     private void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children, int offset)
     {
         _criteriaDepth = offset > _criteriaDepth ? offset : _criteriaDepth;
-        foreach (var (criterion, logbook) in children)
+        foreach (var (criterion, logbook) in children.OrderBy(c => c.Key.Description))
         {
             if (criterion is UniversalCriterion && string.IsNullOrEmpty(criterion.Description) && logbook.IsEmpty)
             {
