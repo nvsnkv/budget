@@ -1,4 +1,6 @@
-﻿using AutoFixture;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
+using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
@@ -12,6 +14,7 @@ using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Accounting.Reckon;
+using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
@@ -117,9 +120,9 @@ public class ReckonerShould
     [Fact]
     public async Task ExcludeTransfersIfRequestedAndReplaceThemWithVirtualTransactions()
     {
-        var accessibleTransferWithFee = new TrackedTransfer(_data.OwnedTransactions.First(), _data.OwnedTransactions.Last(), new Money(-5, _data.OwnedTransactions.First().Amount.CurrencyCode), _fixture.Create<string>());
-        var accessibleTransferWithoutFee = new TrackedTransfer(_data.OwnedTransactions.Skip(1).First(), _data.OwnedTransactions.Reverse().Skip(1).First(), Money.Zero(), _fixture.Create<string>());
-        var inaccessibleTransfer = new TrackedTransfer(_data.OwnedTransactions.Skip(2).First(), _data.NotOwnedTransactions.Last(), Money.Zero(), _fixture.Create<string>());
+        var accessibleTransferWithFee = new TrackedTransfer(_data.OwnedTransactions.First().TagSource(), _data.OwnedTransactions.Last().TagSink(), new Money(-5, _data.OwnedTransactions.First().Amount.CurrencyCode), _fixture.Create<string>());
+        var accessibleTransferWithoutFee = new TrackedTransfer(_data.OwnedTransactions.Skip(1).First().TagSource(), _data.OwnedTransactions.Reverse().Skip(1).First().TagSink(), Money.Zero(), _fixture.Create<string>());
+        var inaccessibleTransfer = new TrackedTransfer(_data.OwnedTransactions.Skip(2).First().TagSource(), _data.NotOwnedTransactions.Last().TagSink(), Money.Zero(), _fixture.Create<string>());
 
         _storage.Transfers.Append(new[] {accessibleTransferWithFee, inaccessibleTransfer, accessibleTransferWithoutFee});
 
@@ -127,7 +130,7 @@ public class ReckonerShould
 
         using var scope = new AssertionScope
         {
-            FormattingOptions = { MaxLines = 10000 }
+            FormattingOptions = { MaxLines = 100000, MaxDepth = 2 }
         };
 
         actual.Should().NotContain(accessibleTransferWithFee.Cast<TrackedOperation>());

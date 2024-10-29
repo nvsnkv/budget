@@ -64,10 +64,31 @@ internal class Reckoner(
             }
         }
 
-        var transfers = transfersRepo.Get(t => (sourceIds.Contains(t.Source.Id) || sinkIds.Contains(t.Sink.Id)) && t.Fee.Amount != 0, ct);
-        await foreach (var transfer in transfers.Where(t => !t.Fee.IsZero()).WithCancellation(ct))
+        if (sourceIds.Count > 0 || sinkIds.Count > 0)
         {
-            yield return AsTrackedOperation(transfer.AsTransaction());
+            var budgets = await Manager.GetOwnedBudgets(ct);
+            var ids = budgets.Select(b => b.Id).ToHashSet();
+
+            var transfers = transfersRepo.Get(t => sourceIds.Contains(t.Source.Id) || sinkIds.Contains(t.Sink.Id), ct);
+            await foreach (var transfer in transfers)
+            {
+                if (ids.Contains(transfer.Source.Budget.Id) && ids.Contains(transfer.Sink.Budget.Id))
+                {
+                    if (!transfer.Fee.IsZero())
+                    {
+                        yield return AsTrackedOperation(transfer.AsTransaction());
+                    }
+                }
+
+                else if (ids.Contains(transfer.Source.Budget.Id))
+                {
+                    yield return transfer.Source as TrackedOperation ?? AsTrackedOperation(transfer.Source);
+                }
+                else if(ids.Contains(transfer.Sink.Budget.Id))
+                {
+                    yield return transfer.Sink as TrackedOperation ?? AsTrackedOperation(transfer.Sink);
+                }
+            }
         }
     }
 
