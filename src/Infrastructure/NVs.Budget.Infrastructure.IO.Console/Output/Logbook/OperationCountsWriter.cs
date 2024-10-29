@@ -30,10 +30,15 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
         _colNum = _criteriaDepth + 1;
     }
 
-    private void WriteCriteriaNames(IReadOnlyDictionary<Criterion, CriteriaBasedLogbook> children, int offset)
+    private void WriteCriteriaNames(IEnumerable<KeyValuePair<Criterion, CriteriaBasedLogbook>> children, int offset, bool orderChildren = false)
     {
         _criteriaDepth = offset > _criteriaDepth ? offset : _criteriaDepth;
-        foreach (var (criterion, logbook) in children.OrderBy(c => c.Key.Description))
+        if (orderChildren)
+        {
+            children = children.OrderBy(c => c.Key.Description);
+        }
+
+        foreach (var (criterion, logbook) in children)
         {
             if (criterion is UniversalCriterion && string.IsNullOrEmpty(criterion.Description) && logbook.IsEmpty)
             {
@@ -42,7 +47,7 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
 
             _colNum = offset;
             WriteCriterion(criterion);
-            WriteCriteriaNames(logbook.Children, offset + 1);
+            WriteCriteriaNames(logbook.Children, offset + 1, criterion is SubstitutionBasedCriterion);
         }
     }
 
