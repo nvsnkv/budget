@@ -3,6 +3,7 @@ using FluentResults;
 using JetBrains.Annotations;
 using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
@@ -10,19 +11,20 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
+using Error = FluentResults.Error;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("import", HelpText = "Import operations from files")]
 internal class ImportVerb : AbstractVerb
 {
-    [Option('b', "budget", Required = true, HelpText = "ID of a budget to import operations to")]
+    [Option('b', "budget-id", Required = false, HelpText = "ID of a budget. Optional if user has only one budget, otherwise required")]
     public string BudgetId { get; [UsedImplicitly] set; } = string.Empty;
 
     [Option('d', "dir", Required = true, HelpText = "Directory with files to import")]
     public string? DirectoryPath { get; [UsedImplicitly] set; }
 
-    [Option("transfers-confidence", Required = false, Default = DetectionAccuracy.Exact, HelpText = "Transfers detection accuracy (Exact or Likely)")]
+    [Option("confidence", Required = false, Default = DetectionAccuracy.Exact, HelpText = "Transfers detection accuracy (Exact or Likely)")]
     public DetectionAccuracy DetectionAccuracy { get; [UsedImplicitly] set; }
 }
 
@@ -44,18 +46,29 @@ internal class ImportVerbHandler(
 
         var exitCodes = new HashSet<ExitCode> { ExitCode.Success };
 
-        if (!Guid.TryParse(request.BudgetId, out var budgetId))
-        {
-            await resultWriter.Write(Result.Fail("Given ID is not a guid"), cancellationToken);
-            return ExitCode.ArgumentsError;
-        }
-
+        TrackedBudget? budget;
         var budgets = await manager.GetOwnedBudgets(cancellationToken);
-        var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
-        if (budget is null)
+        if (string.IsNullOrEmpty(request.BudgetId) && budgets.Count == 1)
         {
-            await resultWriter.Write(Result.Fail("Budget with given id does not exists"), cancellationToken);
-            return ExitCode.ArgumentsError;
+            budget = budgets.Single();
+        }
+        else
+        {
+            if (!Guid.TryParse(request.BudgetId, out var id))
+            {
+                await resultWriter.Write(Result.Fail(new Error("Given budget id is not a guid").WithMetadata("Value", request.BudgetId)), cancellationToken);
+                return ExitCode.ArgumentsError;
+
+            }
+
+            budget = budgets.FirstOrDefault(b => b.Id == id);
+
+            if (budget is null)
+            {
+                var fail = Result.Fail(new BudgetDoesNotExistError(id));
+                await resultWriter.Write(fail, cancellationToken);
+                return fail.ToExitCode();
+            }
         }
 
         var csvOptions = await settingsRepo.GetReadingOptionsFor(budget, cancellationToken);
