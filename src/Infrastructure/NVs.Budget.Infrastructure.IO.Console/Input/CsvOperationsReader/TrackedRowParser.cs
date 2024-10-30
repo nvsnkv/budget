@@ -70,7 +70,10 @@ internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsReposi
             budget,
             tags,
             attributes
-        );
+        )
+        {
+            Version = row.Version
+        };
     }
 
     private async Task<TrackedBudget?> GetBudget(Guid id)

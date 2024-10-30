@@ -87,7 +87,7 @@ internal class UpdateVerbHandler(IMediator mediator, IBudgetManager manager, IIn
             return null;
         }).Where(o => o is not null);
 
-        var result = await mediator.Send(new UpdateOperationsCommand(operations!, budget, new(accuracy, TaggingMode.FromScratch)), ct);
+        var result = await mediator.Send(new UpdateOperationsCommand(operations!, budget, new(accuracy, TaggingMode.Skip)), ct);
         exitCodes.Add(result.ToExitCode());
 
         return exitCodes.Aggregate((r, e) => r | e);

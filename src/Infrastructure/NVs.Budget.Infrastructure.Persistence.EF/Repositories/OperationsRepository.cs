@@ -85,7 +85,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
         var ids = queue.Select(q => q.Id).ToArray();
         var targets = await context.Operations
             .Include(o => o.Amount)
-            .Include(o => o.Budget)
+            .Include(o => o.Budget).ThenInclude(o => o.Owners)
             .Include(o => o.Tags)
             .AsSplitQuery()
             .Where(o => ids.Contains(o.Id))
