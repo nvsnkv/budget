@@ -1,5 +1,7 @@
+using System.Linq.Expressions;
 using FluentResults;
 using MediatR;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Transfers;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
@@ -10,11 +12,16 @@ internal class RemoveTransfersCommandHandler(ITransfersRepository repository) : 
     public async Task<Result> Handle(RemoveTransfersCommand request, CancellationToken cancellationToken)
     {
         var result = new Result();
-        var targets = await repository.Get(t => request.SourceIds.Contains(t.Source.Id), cancellationToken).ToListAsync(cancellationToken);
+        Expression<Func<TrackedTransfer,bool>> filter = request.All
+            ? t => true :
+            t => request.SourceIds.Contains(t.Source.Id);
 
-        foreach (var target in targets)
+        var targets = repository.Get(filter, cancellationToken);
+        var items = await targets.ToListAsync(cancellationToken);
+
+        foreach (var item in items)
         {
-            var r = await repository.Remove(target, cancellationToken);
+            var r = await repository.Remove(item, cancellationToken);
             result.WithReasons(r.Reasons);
         }
 
