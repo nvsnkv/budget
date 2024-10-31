@@ -44,7 +44,7 @@ internal class LogbookOperationsWriter(IXLWorksheet worksheet, IMapper mapper)
             worksheet.Cell(_rowNum, _colNum + 10).SetValue(nameof(CsvTrackedOperation.Bank));
             _rowNum++;
 
-            foreach (var operation in logbook.Operations.Select(mapper.Map<CsvTrackedOperation>))
+            foreach (var operation in logbook[range.From, range.Till].Operations.Select(mapper.Map<CsvTrackedOperation>))
             {
                 worksheet.Cell(_rowNum, _colNum).SetValue("|");
                 worksheet.Cell(_rowNum, _colNum + 1).SetValue(operation.Id.ToString());
