@@ -99,6 +99,7 @@ internal class OperationCountsWriter (IXLWorksheet worksheet)
 
     public void NextCol()
     {
+        worksheet.Column(_colNum).Width = 12;
         _colNum++;
     }
 }

@@ -9,6 +9,7 @@ using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Console.Handlers;
+using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Hosts.Console;
 using NVs.Budget.Hosts.Console.Commands;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
@@ -52,6 +53,8 @@ var configuration = configurationBuilder
     .Build();
 
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
+
+ReadableExpressionsParser.Default.RegisterAdditionalTypes(typeof(Tag));
 
 var collection = new ServiceCollection().AddConsoleIdentity()
     .AddLogging(builder => builder.AddSerilog(dispose: true))

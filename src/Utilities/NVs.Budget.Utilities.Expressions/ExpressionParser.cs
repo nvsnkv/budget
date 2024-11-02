@@ -6,12 +6,22 @@ using NMoneys;
 
 namespace NVs.Budget.Utilities.Expressions;
 
-public class ExpressionParser
+public class ExpressionParser(params Type[] additionalTypes)
 {
-    private readonly ParsingConfig _config = new()
+    private ParsingConfig _config = new()
     {
-        CustomTypeProvider = new TypesProvider()
+        CustomTypeProvider = new TypesProvider(additionalTypes)
     };
+
+    public virtual ExpressionParser RegisterAdditionalTypes(params Type[] additionalTypes)
+    {
+        _config = new()
+        {
+            CustomTypeProvider = new TypesProvider(additionalTypes)
+        };
+
+        return this;
+    }
 
     public Expression<Func<T, bool>> ParsePredicate<T>(string expression, string paramName = "arg") => ParseConversion<T, bool>(expression, paramName);
 
@@ -27,6 +37,14 @@ public class ExpressionParser
     {
         private readonly Dictionary<Type, List<MethodInfo>> _extensionMethods = new();
         private readonly HashSet<Type> _customTypes = [typeof(Money)];
+
+        public TypesProvider(Type[] additionalTypes)
+        {
+            foreach (var type in additionalTypes)
+            {
+                _customTypes.Add(type);
+            }
+        }
 
         public HashSet<Type> GetCustomTypes() => _customTypes;
 

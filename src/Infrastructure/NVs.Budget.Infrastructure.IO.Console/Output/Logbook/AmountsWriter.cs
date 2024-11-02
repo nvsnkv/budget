@@ -13,6 +13,6 @@ internal class AmountsWriter(IXLWorksheet worksheet) : OperationCountsWriter(wor
         }
 
         xlCell.SetValue(value);
-        xlCell.Style.NumberFormat.SetNumberFormatId(2);
+        xlCell.Style.NumberFormat.Format = "# ###0,00\" \"[$\u20bd-419]";
     }
 }

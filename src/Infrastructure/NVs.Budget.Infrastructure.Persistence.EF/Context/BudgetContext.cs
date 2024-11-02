@@ -56,6 +56,9 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
             d.OwnsMany<StoredLogbookCriteria>(c => c.Subcriteria, c => ConfigureSubcriteria(c));
         });
 
+        var tBuilder = modelBuilder.Entity<StoredTransfer>();
+        tBuilder.OwnsOne(t => t.Fee);
+
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);
         oBuilder.OwnsMany(t => t.Tags).WithOwner();
@@ -66,13 +69,16 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
                 v => v.ToDictionary(),
                 new ShallowDictionaryComparer()
             );
-        oBuilder.HasOne<StoredTransfer>(o => o.SourceTransfer);
-        oBuilder.HasOne<StoredTransfer>(o => o.SinkTransfer);
+        oBuilder.HasOne(o => o.SourceTransfer)
+            .WithOne(t => t.Source)
+            .HasForeignKey<StoredTransfer>("SourceId");
 
-        var tBuilder = modelBuilder.Entity<StoredTransfer>();
-        tBuilder.OwnsOne(t => t.Fee);
-        tBuilder.HasOne(t => t.Source);
-        tBuilder.HasOne(t => t.Sink);
+        oBuilder.HasOne(o => o.SinkTransfer)
+            .WithOne(t => t.Sink)
+            .HasForeignKey<StoredTransfer>("SinkId");
+
+
+
 
         base.OnModelCreating(modelBuilder);
     }

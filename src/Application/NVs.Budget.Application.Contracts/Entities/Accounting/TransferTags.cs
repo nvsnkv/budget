@@ -10,7 +10,7 @@ public static class TransferTags
     public static readonly Tag Sink = new(nameof(Domain.Entities.Transactions.Transfer.Sink));
     public static readonly Tag Ephemeral = new(nameof(Ephemeral));
 
-    internal static Operation TagSource(this Operation operation)
+    public static T TagSource<T>(this T operation) where T:Operation
     {
         operation.Tag(Transfer);
         operation.Tag(Source);
@@ -18,7 +18,7 @@ public static class TransferTags
         return operation;
     }
 
-    internal static Operation TagEphemeral(this Operation operation)
+    public static T TagEphemeral<T>(this T operation) where T:Operation
     {
         operation.Tag(Transfer);
         operation.Tag(Ephemeral);
@@ -28,10 +28,19 @@ public static class TransferTags
         return operation;
     }
 
-    internal static Operation TagSink(this Operation operation)
+    public static T TagSink<T>(this T operation) where T:Operation
     {
         operation.Tag(Transfer);
         operation.Tag(Sink);
+
+        return operation;
+    }
+
+    public static T Untag<T>(this T operation) where T:Operation
+    {
+        operation.Untag(Transfer);
+        operation.Untag(Source);
+        operation.Untag(Sink);
 
         return operation;
     }

@@ -7,7 +7,6 @@ namespace NVs.Budget.Application.Services.Accounting.Tags;
 
 internal class TagsManager
 {
-    private static readonly ExpressionParser Parser = new();
     private readonly IReadOnlyCollection<TaggingCriterion> _criteria;
 
     public TagsManager(IEnumerable<TaggingCriterion> criteria)

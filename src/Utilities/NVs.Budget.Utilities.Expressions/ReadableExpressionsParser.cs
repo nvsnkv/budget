@@ -78,4 +78,10 @@ public class ReadableExpressionsParser : ExpressionParser
             return Result.Fail(new Error($"Unable to create expression: {e.Message}").WithMetadata("Expression", input).CausedBy(e));
         }
     }
+
+    public override ReadableExpressionsParser RegisterAdditionalTypes(params Type[] additionalTypes)
+    {
+        base.RegisterAdditionalTypes(additionalTypes);
+        return this;
+    }
 }

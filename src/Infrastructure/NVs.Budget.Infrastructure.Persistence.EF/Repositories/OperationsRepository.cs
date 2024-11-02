@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Errors.Accounting;
+using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
@@ -31,10 +32,27 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             .AsTracking()
             .Include(t => t.Budget)
             .ThenInclude(a => a.Owners.Where(o => !o.Deleted))
+            .Include(o => o.SourceTransfer)
+            .Include(o => o.SinkTransfer)
             .AsSplitQuery()
+            .AsNoTracking()
             .Where(queryable);
 
-        return query.ToAsyncEnumerable().Where(enumerable).Select(mapper.Map<TrackedOperation>);
+        return query.ToAsyncEnumerable().Where(enumerable).Select(o =>
+        {
+            var operation = mapper.Map<TrackedOperation>(o);
+            if (o.SourceTransfer != null)
+            {
+                operation.TagSource();
+            }
+            else if (o.SinkTransfer != null)
+            {
+                operation.TagSink();
+            }
+
+            return operation;
+
+        });
     }
 
     public IAsyncEnumerable<Result<TrackedOperation>> Register(IAsyncEnumerable<UnregisteredOperation> operations, TrackedBudget budget, CancellationToken ct) =>
@@ -62,7 +80,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
     public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
     {
         var queue = new Queue<TrackedOperation>();
-        await foreach (var u in operations.WithCancellation(ct))
+        await foreach (var u in operations.Select(TransferTags.Untag).WithCancellation(ct))
         {
             queue.Enqueue(u);
             if (queue.Count > BatchSize)

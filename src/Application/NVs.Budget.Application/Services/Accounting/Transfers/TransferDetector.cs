@@ -38,14 +38,3 @@ internal class TransferDetector(IReadOnlyList<TransferCriterion> criteria)
                 .WithMetadata(nameof(sink), sink.Id));
     }
 }
-
-internal class TransferCriteriaParser : ExpressionParser
-{
-    public Expression<Func<TrackedOperation, TrackedOperation, bool>> ParseTransferCriteria(string expression) =>
-        Parse<Func<TrackedOperation, TrackedOperation, bool>>(
-            expression,
-            typeof(bool),
-            Expression.Parameter(typeof(TrackedOperation), "l"),
-            Expression.Parameter(typeof(TrackedOperation), "r")
-        );
-}
