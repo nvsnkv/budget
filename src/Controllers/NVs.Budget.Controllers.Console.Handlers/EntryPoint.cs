@@ -25,18 +25,18 @@ internal class EntryPoint(
     {
         if (args.Length == 0)
         {
-            var reader = await inputs.GetInput();
-
-            if (reader.IsFailed)
-            {
-                await resultWriter.Write(reader.ToResult(), ct);
-                return (int)ExitCode.ArgumentsError;
-            }
-
             do
             {
                 try
                 {
+                    var reader = await inputs.GetInput();
+
+                    if (reader.IsFailed)
+                    {
+                        await resultWriter.Write(reader.ToResult(), ct);
+                        return (int)ExitCode.ArgumentsError;
+                    }
+
                     var output = await streams.GetOutput(options.Value.OutputStreamName);
                     await output.WriteAsync("> ");
                     await output.FlushAsync(ct);
@@ -50,6 +50,7 @@ internal class EntryPoint(
                     args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
                     await ProcessArgs(args, ct);
                     await streams.ReleaseStreamsAsync();
+                    await inputs.ReleaseStreamsAsync();
                 }
                 catch(OperationCanceledException)
                 {

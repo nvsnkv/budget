@@ -53,7 +53,7 @@ public static class ConsoleIOExtensions
         services.AddTransient<ITransferCriteriaReader, YamlBasedTransferCriteriaReader>();
         services.AddTransient<ReadableExpressionsParser>();
 
-        services.AddTransient<IInputStreamProvider, ConsoleInputStream>();
+        services.AddSingleton<IInputStreamProvider, ConsoleInputStream>();
         
         return services;
     }

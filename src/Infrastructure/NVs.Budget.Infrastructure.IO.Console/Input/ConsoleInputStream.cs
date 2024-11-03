@@ -38,6 +38,23 @@ internal class ConsoleInputStream : IInputStreamProvider, IDisposable
         return new StreamReader(stream);
     }
 
+    public async Task ReleaseStreamsAsync()
+    {
+        var keys = _readers.Keys.ToArray();
+        foreach (var key in keys)
+        {
+            if (_readers.TryRemove(key, out var reader))
+            {
+                if (reader.BaseStream is FileStream fs)
+                {
+                    await fs.DisposeAsync();
+                }
+
+                reader.Dispose();
+            }
+        }
+    }
+
     public void Dispose()
     {
         _disposed = true;
