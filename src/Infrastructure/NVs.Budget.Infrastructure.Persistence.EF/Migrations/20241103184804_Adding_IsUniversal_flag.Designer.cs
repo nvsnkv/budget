@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 {
     [DbContext(typeof(BudgetContext))]
-    partial class BudgetContextModelSnapshot : ModelSnapshot
+    [Migration("20241103184804_Adding_IsUniversal_flag")]
+    partial class Adding_IsUniversal_flag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,7 +325,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<bool?>("IsUniversal")
+                            b1.Property<bool>("IsUniversal")
                                 .HasColumnType("boolean");
 
                             b1.Property<string>("Substitution")

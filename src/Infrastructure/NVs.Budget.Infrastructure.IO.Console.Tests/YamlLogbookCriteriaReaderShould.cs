@@ -74,20 +74,20 @@ evens:
             [
                 new("odds", [
                     new LogbookCriteria("incomes", null, null, null,  null,
-                        ReadableExpressionsParser.Default.ParseUnaryPredicate<Operation>("o=> o.Amount.Amount > 0").Value),
-                    new LogbookCriteria("else", null, null, null, null, null)
+                        ReadableExpressionsParser.Default.ParseUnaryPredicate<Operation>("o=> o.Amount.Amount > 0").Value, null),
+                    new LogbookCriteria("else", null, null, null, null, null, true)
                 ],
                 TagBasedCriterionType.Including, [new("odd")],
-                null, null),
+                null, null, null),
                 new LogbookCriteria("evens",
                     [
                         new LogbookCriteria("subst", null, null, null,
                             ReadableExpressionsParser.Default.ParseUnaryConversion<Operation>("o => \"Year\" + o.Timestamp.Year.ToString()").Value,
-                            null)
+                            null, null)
                     ],
-                    TagBasedCriterionType.Excluding, [new("odd"), new("excluded")], null, null)
+                    TagBasedCriterionType.Excluding, [new("odd"), new("excluded")], null, null, null)
             ],
-            null, null, null, null);
+            null, null, null, null, true);
 
         await _writer.Write(logbook, CancellationToken.None);
 

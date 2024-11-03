@@ -18,6 +18,7 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
     private static readonly YamlScalarNode TagsModeKey = new("type");
     private static readonly YamlScalarNode SubcriteriaKey = new("subcriteria");
     private static readonly YamlScalarNode SubstitutionKey = new("substitution");
+    private static readonly YamlScalarNode UniversalKey = new("universal");
 
     public Task<Result<LogbookCriteria>> ReadFrom(StreamReader reader, CancellationToken ct)
     {
@@ -70,7 +71,7 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
 
         if (value is YamlScalarNode scalar && string.IsNullOrEmpty(scalar.Value))
         {
-            return new LogbookCriteria(description, null, null, null, null, null);
+            return new LogbookCriteria(description, null, null, null, null, null, null);
         }
 
         if (value is not YamlMappingNode mapping)
@@ -120,7 +121,21 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
         }
         else
         {
-            result = Result.Ok(new LogbookCriteria(description, validCriteria, null,null, null, null));
+            if (mapping.Children.TryGetValue(UniversalKey, out var isUniversalNode) && isUniversalNode is YamlScalarNode isUniversal)
+            {
+                if (bool.TryParse(isUniversal.Value, out var isUniversalValue))
+                {
+                    result = Result.Ok(new LogbookCriteria(description, validCriteria, null, null, null, null, isUniversalValue));
+                }
+                else
+                {
+                    result = Result.Fail(new YamlParsingError("Cannot parse boolean value", path.Append(description).Append(UniversalKey.ToString())).WithMetadata("Value", isUniversal.Value));
+                }
+            }
+            else
+            {
+                result = Result.Ok(new LogbookCriteria(description, validCriteria, null,null, null, null, false));
+            }
         }
 
         result.WithErrors(errors);
@@ -147,7 +162,7 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
             return substitution.ToResult();
         }
 
-        return new LogbookCriteria(description, null, null, null, substitution.Value, null);
+        return new LogbookCriteria(description, null, null, null, substitution.Value, null, null);
     }
 
     private Result<LogbookCriteria> ParseTags(string description, YamlMappingNode mapping, List<LogbookCriteria>? validCriteria, ICollection<string> path)
@@ -185,7 +200,7 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
             type = parsed;
         }
 
-        var criterion = new LogbookCriteria(description, validCriteria, type, validTags, null, null);
+        var criterion = new LogbookCriteria(description, validCriteria, type, validTags, null, null, null);
         return Result.Ok(criterion).WithErrors(errors);
     }
 
@@ -236,7 +251,7 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
             return Result.Fail(new YamlParsingError("Failed to parse predicate value", predicateNodePath)).WithReasons(parseResult.Errors);
         }
 
-        return new LogbookCriteria(description, subcriteria, null, null, null, parseResult.Value);
+        return new LogbookCriteria(description, subcriteria, null, null, null, parseResult.Value, null);
     }
 }
 
