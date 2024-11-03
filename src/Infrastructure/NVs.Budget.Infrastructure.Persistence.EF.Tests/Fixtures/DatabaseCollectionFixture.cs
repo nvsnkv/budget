@@ -3,6 +3,7 @@ using AutoMapper.EquivalencyExpression;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
+using NVs.Budget.Utilities.Expressions;
 using Testcontainers.PostgreSql;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
@@ -18,7 +19,7 @@ public class DbContextManager : IAsyncLifetime
     public readonly TestDataFixture TestData = new();
     public readonly IMapper Mapper = new Mapper(new MapperConfiguration(c =>
     {
-        c.AddProfile<MappingProfile>();
+        c.AddProfile(new MappingProfile(ReadableExpressionsParser.Default));
         c.AddCollectionMappers();
     }));
 
@@ -29,18 +30,18 @@ public class DbContextManager : IAsyncLifetime
         await new PostgreSqlDbMigrator(context).MigrateAsync(CancellationToken.None);
 
         var owners = Mapper.Map<IEnumerable<StoredOwner>>(TestData.Owners).ToList().ToDictionary(o => o.Id);
-        var accounts = Mapper.Map<IEnumerable<StoredAccount>>(TestData.Accounts).ToList();
+        var budgets = Mapper.Map<IEnumerable<StoredBudget>>(TestData.Budgets).ToList();
 
-        foreach (var account in accounts)
+        foreach (var budget in budgets)
         {
-            var storedOwners = account.Owners.Select(o => owners[o.Id]).ToList();
-            account.Owners.Clear();
+            var storedOwners = budget.Owners.Select(o => owners[o.Id]).ToList();
+            budget.Owners.Clear();
             foreach (var owner in storedOwners)
             {
-                account.Owners.Add(owner);
+                budget.Owners.Add(owner);
             }
 
-            await context.Accounts.AddAsync(account);
+            await context.Budgets.AddAsync(budget);
         }
 
         await context.SaveChangesAsync();

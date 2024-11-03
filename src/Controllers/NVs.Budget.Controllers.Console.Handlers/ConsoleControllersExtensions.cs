@@ -5,11 +5,8 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Input;
 using NVs.Budget.Controllers.Console.Handlers.Behaviors;
 using NVs.Budget.Controllers.Console.Handlers.Commands;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
-using NVs.Budget.Controllers.Console.Handlers.Criteria.Logbook;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Utilities.MediatR;
 
@@ -31,7 +28,7 @@ public static class ConsoleControllersExtensions
 
         services.AddTransient<IEntryPoint, EntryPoint>();
         services.AddTransient<Parser>();
-        services.AddTransient<CriteriaParser>();
+
         services.AddTransient<CronBasedNamedRangeSeriesBuilder>();
 
         return services;
@@ -51,19 +48,6 @@ public static class ConsoleControllersExtensions
             settings.ParsingCulture = culture;
             settings.EnableDashDash = true;
         });
-
-        var criteriaParser = new CriteriaParser();
-        var substitutionsParser = new SubstitutionsParser(criteriaParser);
-        var criteriaListReader = new CriteriaListReader(criteriaParser, substitutionsParser, configuration);
-
-        var transferCriteria = criteriaListReader.GetTransferCriteria();
-        services.AddSingleton(transferCriteria);
-
-        var taggingCriteria = criteriaListReader.GetTaggingCriteria();
-        services.AddSingleton(taggingCriteria);
-
-        var logbookCriteriaReader = new YamlLogbookRulesetReader(criteriaParser, substitutionsParser);
-        services.AddSingleton<ILogbookCriteriaReader>(logbookCriteriaReader);
 
         return services;
     }

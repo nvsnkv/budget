@@ -1,8 +1,7 @@
 ﻿using System.Linq.Expressions;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Domain.Aggregates;
-using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Application.Contracts.Services;
 

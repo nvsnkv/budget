@@ -20,6 +20,8 @@ public class TagBasedCriterion : Criterion
         if (!_tags.Any()) throw new ArgumentException("No tags provided!", nameof(tags));
     }
 
+    public IReadOnlyCollection<Tag> Tags => _tags;
+
     public TagBasedCriterionType Type { get; }
 
     public override bool Matched(Operation t)
@@ -28,6 +30,9 @@ public class TagBasedCriterion : Criterion
         {
             case TagBasedCriterionType.Including:
                 return _tags.All(tag => t.Tags.Contains(tag));
+
+            case TagBasedCriterionType.OneOf:
+                return _tags.Any(tag => t.Tags.Contains(tag));
 
             case TagBasedCriterionType.Excluding:
                 return !_tags.Any(tag => t.Tags.Contains(tag));

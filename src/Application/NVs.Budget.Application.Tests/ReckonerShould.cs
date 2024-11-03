@@ -1,16 +1,20 @@
-﻿using AutoFixture;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
+using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
 using NMoneys;
+using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Accounting.Reckon;
+using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
 using NVs.Budget.Domain.Entities.Operations;
@@ -18,6 +22,7 @@ using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
+using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
 
@@ -32,13 +37,15 @@ public class ReckonerShould
 
     public ReckonerShould()
     {
+        _fixture.Customizations.Add(new ReadableExpressionsBuilder());
+        _fixture.Inject(LogbookCriteria.Universal);
         _currentOwner = _fixture.Create<Owner>();
         Mock<IUser> user = new();
         user.Setup(u => u.AsOwner()).Returns(_currentOwner);
 
 
         var converter = new MoneyConverter(new Mock<IExchangeRatesRepository>().Object, _ratesProvider.Object, user.Object);
-        var manager = new AccountManager(_storage.Accounts, user.Object);
+        var manager = new BudgetManager(_storage.Budgets, user.Object);
 
         _reckoner = new Reckoner(
             _storage.Operations,
@@ -48,7 +55,7 @@ public class ReckonerShould
             manager);
 
         _data = new ReckonerTestData(_currentOwner, 2, 4, 6);
-        _storage.Accounts.Append(_data.AllAccounts);
+        _storage.Budgets.Append(_data.AllAccounts);
         _storage.Operations.Append(_data.AllTransactions);
 
     }
@@ -67,7 +74,7 @@ public class ReckonerShould
         var actual = await _reckoner.GetOperations(query, CancellationToken.None).ToListAsync();
 
         actual.Should().BeEquivalentTo(expectedTransactions);
-        actual.Select(a => a.Account).Should().AllSatisfy(a => a.Owners.Contains(_currentOwner).Should().BeTrue());
+        actual.Select(a => a.Budget).Should().AllSatisfy(a => a.Owners.Contains(_currentOwner).Should().BeTrue());
     }
 
     [Fact]
@@ -113,9 +120,9 @@ public class ReckonerShould
     [Fact]
     public async Task ExcludeTransfersIfRequestedAndReplaceThemWithVirtualTransactions()
     {
-        var accessibleTransferWithFee = new TrackedTransfer(_data.OwnedTransactions.First(), _data.OwnedTransactions.Last(), new Money(-5, _data.OwnedTransactions.First().Amount.CurrencyCode), _fixture.Create<string>());
-        var accessibleTransferWithoutFee = new TrackedTransfer(_data.OwnedTransactions.Skip(1).First(), _data.OwnedTransactions.Reverse().Skip(1).First(), Money.Zero(), _fixture.Create<string>());
-        var inaccessibleTransfer = new TrackedTransfer(_data.OwnedTransactions.Skip(2).First(), _data.NotOwnedTransactions.Last(), Money.Zero(), _fixture.Create<string>());
+        var accessibleTransferWithFee = new TrackedTransfer(_data.OwnedTransactions.First().TagSource(), _data.OwnedTransactions.Last().TagSink(), new Money(-5, _data.OwnedTransactions.First().Amount.CurrencyCode), _fixture.Create<string>());
+        var accessibleTransferWithoutFee = new TrackedTransfer(_data.OwnedTransactions.Skip(1).First().TagSource(), _data.OwnedTransactions.Reverse().Skip(1).First().TagSink(), Money.Zero(), _fixture.Create<string>());
+        var inaccessibleTransfer = new TrackedTransfer(_data.OwnedTransactions.Skip(2).First().TagSource(), _data.NotOwnedTransactions.Last().TagSink(), Money.Zero(), _fixture.Create<string>());
 
         _storage.Transfers.Append(new[] {accessibleTransferWithFee, inaccessibleTransfer, accessibleTransferWithoutFee});
 
@@ -123,13 +130,13 @@ public class ReckonerShould
 
         using var scope = new AssertionScope
         {
-            FormattingOptions = { MaxLines = 10000 }
+            FormattingOptions = { MaxLines = 100000, MaxDepth = 2 }
         };
 
         actual.Should().NotContain(accessibleTransferWithFee.Cast<TrackedOperation>());
         actual.Should().NotContain(accessibleTransferWithoutFee.Cast<TrackedOperation>());
-        actual.Should().Contain(inaccessibleTransfer.Where(t => t.Account.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
-        actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Account.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
+        actual.Should().Contain(inaccessibleTransfer.Where(t => t.Budget.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
+        actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Budget.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
         actual.Any(a =>CheckIfTheSameTransactions(a, accessibleTransferWithFee.AsTransaction())).Should().BeTrue();
         actual.Any(a => CheckIfTheSameTransactions(a, inaccessibleTransfer.AsTransaction())).Should().BeFalse();
         actual.Any(a => CheckIfTheSameTransactions(a, accessibleTransferWithoutFee.AsTransaction())).Should().BeFalse();
@@ -165,6 +172,6 @@ public class ReckonerShould
         return left.Amount == right.Amount
                && left.Description == right.Description
                && left.Timestamp == right.Timestamp
-               && left.Account == right.Account;
+               && left.Budget == right.Budget;
     }
 }

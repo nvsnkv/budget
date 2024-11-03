@@ -2,7 +2,7 @@
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
@@ -17,51 +17,68 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
 {
     private readonly ExpressionSplitter _splitter = new();
 
-    public async Task<IReadOnlyCollection<TrackedTransfer>> Get(Expression<Func<TrackedTransfer, bool>> filter, CancellationToken ct)
+    public IAsyncEnumerable<TrackedTransfer> Get(Expression<Func<TrackedTransfer, bool>> filter, CancellationToken ct)
     {
         var expression = filter.ConvertTypes<TrackedTransfer, StoredTransfer>(MappingProfile.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
-        var query = context.Transfers.Include(t => t.Source).ThenInclude(o => o.Account).ThenInclude(a => a.Owners)
-            .Include(t => t.Sink).ThenInclude(o => o.Account).ThenInclude(a => a.Owners)
-            .Where(queryable);
-
-        var items = await query.AsNoTracking().ToListAsync(ct);
-        items = items.Where(enumerable).ToList();
-
-        return mapper.Map<List<TrackedTransfer>>(items).AsReadOnly();
+        return context.Transfers
+            .Include(t => t.Fee)
+            .Include(t => t.Source).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
+            .Include(t => t.Sink).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
+            .AsNoTracking()
+            .Where(queryable)
+            .AsSplitQuery()
+            .AsAsyncEnumerable()
+            .Where(enumerable)
+            .Select(mapper.Map<TrackedTransfer>);
     }
 
-    public async Task<Result> Register(TrackedTransfer transfer, CancellationToken ct)
+    public async Task<IEnumerable<Result>> Register(IReadOnlyCollection<TrackedTransfer> transfers, CancellationToken ct)
     {
-        var source = await context.Operations.Where(o => o.Id == transfer.Source.Id).FirstOrDefaultAsync(ct);
-        if (source is null)
-        {
-            return Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Source));
-        }
+        var ids = transfers.SelectMany(t => t).Select(t => t.Id).ToList();
+        var operations = await context.Operations.Where(o => ids.Contains(o.Id)).ToListAsync(ct);
+        var existing = await context.Transfers
+            .Where(t => ids.Contains(t.Source.Id) || ids.Contains(t.Sink.Id))
+            .ToDictionaryAsync(t => (t.Source.Id, t.Sink.Id), ct);
 
-        var sink = await context.Operations.Where(o => o.Id == transfer.Sink.Id).FirstOrDefaultAsync(ct);
-        if (sink is null)
-        {
-            return Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Sink));
-        }
+        var results = new List<Result>();
 
-        var existing = await context.Transfers.Where(t => t.Source.Id == transfer.Source.Id && t.Sink.Id == transfer.Sink.Id).FirstOrDefaultAsync(ct);
-        if (existing is not null)
+        foreach (var transfer in transfers)
         {
-            return Result.Fail(new TransferAlreadyRegisteredError(transfer));
-        }
+            var source = operations.FirstOrDefault(o => o.Id == transfer.Source.Id);
+            if (source is null)
+            {
+                results.Add(Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Source)));
+                continue;
+            }
 
-        await context.Transfers.AddAsync(new StoredTransfer(transfer.Comment)
-        {
-            Fee = mapper.Map<StoredMoney>(transfer.Fee),
-            Source = source,
-            Sink = sink
-        }, ct);
+            var sink = operations.FirstOrDefault(o => o.Id == transfer.Sink.Id);
+            if (sink is null)
+            {
+                results.Add(Result.Fail(new EntityDoesNotExistError<Operation>(transfer.Sink)));
+                continue;
+            }
+
+            if (existing.ContainsKey((source.Id, sink.Id)))
+            {
+                results.Add(Result.Fail(new TransferAlreadyRegisteredError(transfer)));
+                continue;
+            }
+
+            context.Transfers.Add(new StoredTransfer(transfer.Comment)
+            {
+                Fee = mapper.Map<StoredMoney>(transfer.Fee),
+                Source = source,
+                Sink = sink
+            });
+
+            results.Add(Result.Ok());
+        }
 
         await context.SaveChangesAsync(ct);
-        return Result.Ok();
+        return results;
     }
 
     public async Task<Result> Remove(TrackedTransfer transfer, CancellationToken ct)

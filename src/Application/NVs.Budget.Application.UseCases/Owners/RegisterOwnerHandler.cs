@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MediatR;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 

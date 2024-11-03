@@ -1,13 +1,26 @@
 ﻿using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Application.Services.Accounting.Tags;
 
-internal class TagsManager(IReadOnlyCollection<TaggingCriterion> criteria)
+internal class TagsManager
 {
-    public IReadOnlyCollection<Tag> GetTags(TrackedOperation operation)
+    private readonly IReadOnlyCollection<TaggingCriterion> _criteria;
+
+    public TagsManager(IEnumerable<TaggingCriterion> criteria)
     {
-        return criteria.Where(c => c.Criterion(operation)).Select(c => c.Tag(operation)).ToList().AsReadOnly();
+        _criteria = criteria
+            .ToList()
+            .AsReadOnly();
+    }
+
+    public IReadOnlyCollection<Tag> GetTagsFor(TrackedOperation operation)
+    {
+        return _criteria.Where(c => c.Condition.AsInvokable()(operation))
+            .Select(c => new Tag(c.Tag.AsInvokable()(operation)))
+            .ToList()
+            .AsReadOnly();
     }
 }

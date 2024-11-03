@@ -1,8 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
@@ -15,7 +14,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 {
     private readonly Fixture _fixture;
     private readonly OperationsRepository _repo;
-    private readonly AccountsRepository _accountsRepo;
+    private readonly BudgetsRepository _budgetsRepo;
     private readonly TestDataFixture _testData;
 
     public OperationsRepositoryShould(DbContextManager manager)
@@ -27,8 +26,8 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         }
 
         var context = manager.GetDbBudgetContext();
-        _repo = new(manager.Mapper, context, new VersionGenerator(), new AccountsFinder(context));
-        _accountsRepo = new(manager.Mapper, context, new VersionGenerator());
+        _repo = new(manager.Mapper, context, new VersionGenerator(), new BudgetsFinder(context));
+        _budgetsRepo = new(manager.Mapper, context, new VersionGenerator());
         _testData = manager.TestData;
     }
 
@@ -36,17 +35,17 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task RegisterTransactionSuccessfully()
     {
         var transaction = _fixture.Create<UnregisteredOperation>();
-        var accountId = _testData.Accounts.First().Id;
-        var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
-        var account = accounts.Single();
+        var budgetId = _testData.Budgets.First().Id;
+        var budgets = await _budgetsRepo.Get(a => a.Id == budgetId, CancellationToken.None);
+        var budget = budgets.Single();
 
-        var result = await _repo.Register(transaction, account, CancellationToken.None);
+        var result = await _repo.Register(AsyncEnumerable.Repeat(transaction, 1), budget, CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
-        trackedTransaction.Should().BeEquivalentTo(transaction, c => c.Excluding(t => t.Account));
+        trackedTransaction.Should().BeEquivalentTo(transaction);
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
-        trackedTransaction.Account.Should().BeEquivalentTo((Account)account, c => c.ComparingByMembers<Account>());
+        trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Accounts.Budget)budget, c => c.ComparingByMembers<Domain.Entities.Accounts.Budget>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -54,11 +53,11 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task UpdateTransactionSuccessfully()
     {
         var target = await AddTransaction();
-        var newAccount = _testData.Accounts.First(a => a.Id != target.Account.Id);
+        var newAccount = _testData.Budgets.First(a => a.Id != target.Budget.Id);
 
         TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
-        using (_fixture.SetNamedParameter(nameof(target.Account).ToLower(), (Account)newAccount))
+        using (_fixture.SetNamedParameter(nameof(target.Budget).ToLower(), (Domain.Entities.Accounts.Budget)newAccount))
         using (_fixture.SetNamedParameter(nameof(target.Tags).ToLower(), _fixture.Create<Generator<Tag>>().Take(3)))
         {
             updated = _fixture.Create<TrackedOperation>();
@@ -66,7 +65,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         updated.Version = target.Version;
 
-        var result = await _repo.Update(updated, CancellationToken.None);
+        var result = await _repo.Update(AsyncEnumerable.Repeat(updated,1), CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
         result.Value.Should().BeEquivalentTo(updated);
         result.Value.Version.Should().NotBe(updated.Version);
@@ -75,12 +74,12 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     private async Task<TrackedOperation> AddTransaction()
     {
         var unregistered = _fixture.Create<UnregisteredOperation>();
-        var accountId = _testData.Accounts.First().Id;
+        var budgetId = _testData.Budgets.First().Id;
 
-        var accounts = await _accountsRepo.Get(a => a.Id == accountId, CancellationToken.None);
-        var account = accounts.Single();
+        var budgets = await _budgetsRepo.Get(a => a.Id == budgetId, CancellationToken.None);
+        var budget = budgets.Single();
 
-        var result = await _repo.Register(unregistered, account, CancellationToken.None);
+        var result = await _repo.Register(AsyncEnumerable.Repeat(unregistered, 1), budget, CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
         var target = result.Value!;
         return target;
@@ -97,10 +96,10 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         transaction.Attributes[key] = value;
 
-        var result = await _repo.Update(transaction, CancellationToken.None);
+        var result = await _repo.Update(AsyncEnumerable.Repeat(transaction, 1), CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
 
-        var items = await _repo.Get(t => ((string)t.Attributes[key]) == value, CancellationToken.None);
+        var items = await _repo.Get(t => ((string)t.Attributes[key]) == value, CancellationToken.None).ToListAsync();
         items.Should().HaveCount(1);
         items.Single().Should().BeEquivalentTo(transaction, s =>
             s.ComparingByMembers<TrackedOperation>()
@@ -115,11 +114,20 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         var transaction = await AddTransaction();
         _ = await AddTransaction();
 
-        var result = await _repo.Remove(transaction, CancellationToken.None);
+        var result = await _repo.Remove(AsyncEnumerable.Repeat(transaction,1), CancellationToken.None).SingleAsync();
         result.Should().BeSuccess();
 
-        var items = await _repo.Get(t => t.Id == transaction.Id, CancellationToken.None);
+        var items = await _repo.Get(t => t.Id == transaction.Id, CancellationToken.None).ToListAsync();
         items.Should().HaveCount(0);
+    }
+
+    [Fact]
+    public async Task NotChangeVersionIfThereWereNoChanges()
+    {
+        var transaction = await AddTransaction();
+        var result = await _repo.Update(AsyncEnumerable.Repeat(transaction, 1), CancellationToken.None).SingleAsync();
+        result.Should().BeSuccess();
+        result.Value.Version.Should().Be(transaction.Version);
     }
 
     public void Dispose()

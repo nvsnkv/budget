@@ -18,21 +18,17 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("budget")
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "currency_iso_code", new[] { "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bhd", "bif", "bmd", "bnd", "bob", "bov", "brl", "bsd", "btn", "bwp", "byn", "byr", "bzd", "cad", "cdf", "che", "chf", "chw", "clf", "clp", "cny", "cop", "cou", "crc", "cuc", "cup", "cve", "czk", "djf", "dkk", "dop", "dzd", "eek", "egp", "ern", "etb", "eur", "fjd", "fkp", "gbp", "gel", "ghs", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "iqd", "irr", "isk", "jmd", "jod", "jpy", "kes", "kgs", "khr", "kmf", "kpw", "krw", "kwd", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "ltl", "lvl", "lyd", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mro", "mru", "mur", "mvr", "mwk", "mxn", "mxv", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "omr", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sdg", "sek", "sgd", "shp", "sle", "sll", "sos", "srd", "ssp", "std", "stn", "svc", "syp", "szl", "thb", "tjs", "tmt", "tnd", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "usd", "usn", "uss", "uyi", "uyu", "uyw", "uzs", "ved", "vef", "ves", "vnd", "vuv", "wst", "xaf", "xag", "xau", "xba", "xbb", "xbc", "xbd", "xcd", "xdr", "xof", "xpd", "xpf", "xpt", "xsu", "xts", "xua", "xxx", "yer", "zar", "zmk", "zmw", "zwl" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "currency_iso_code", new[] { "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bhd", "bif", "bmd", "bnd", "bob", "bov", "brl", "bsd", "btn", "bwp", "byn", "byr", "bzd", "cad", "cdf", "che", "chf", "chw", "clf", "clp", "cny", "cop", "cou", "crc", "cuc", "cup", "cve", "czk", "djf", "dkk", "dop", "dzd", "eek", "egp", "ern", "etb", "eur", "fjd", "fkp", "gbp", "gel", "ghs", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "iqd", "irr", "isk", "jmd", "jod", "jpy", "kes", "kgs", "khr", "kmf", "kpw", "krw", "kwd", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "ltl", "lvl", "lyd", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mro", "mru", "mur", "mvr", "mwk", "mxn", "mxv", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "omr", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sdg", "sek", "sgd", "shp", "sle", "sll", "sos", "srd", "ssp", "std", "stn", "svc", "syp", "szl", "thb", "tjs", "tmt", "tnd", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "usd", "usn", "uss", "uyi", "uyu", "uyw", "uzs", "ved", "vef", "ves", "vnd", "vuv", "wst", "xaf", "xag", "xau", "xba", "xbb", "xbc", "xbd", "xcd", "xdr", "xof", "xpd", "xpf", "xpt", "xsu", "xts", "xua", "xxx", "yer", "zar", "zmk", "zmw", "zwg", "zwl" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Bank")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -52,7 +48,43 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Accounts", "budget");
+                    b.ToTable("Budgets", "budget");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BudgetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CultureInfo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DateTimeKind")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FileNamePattern")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BudgetId");
+
+                    b.ToTable("CsvFileReadingOptions", "budget");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
@@ -61,12 +93,12 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Attributes")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<Guid>("BudgetId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -77,12 +109,6 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid?>("SinkTransferId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("SourceTransferId")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
@@ -95,11 +121,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("SinkTransferId");
-
-                    b.HasIndex("SourceTransferId");
+                    b.HasIndex("BudgetId");
 
                     b.ToTable("Operations", "budget");
                 });
@@ -201,14 +223,16 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SinkId");
+                    b.HasIndex("SinkId")
+                        .IsUnique();
 
-                    b.HasIndex("SourceId");
+                    b.HasIndex("SourceId")
+                        .IsUnique();
 
                     b.ToTable("Transfers", "budget");
                 });
 
-            modelBuilder.Entity("StoredAccountStoredOwner", b =>
+            modelBuilder.Entity("StoredBudgetStoredOwner", b =>
                 {
                     b.Property<Guid>("AccountsId")
                         .HasColumnType("uuid");
@@ -220,24 +244,1099 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                     b.HasIndex("OwnersId");
 
-                    b.ToTable("StoredAccountStoredOwner", "budget");
+                    b.ToTable("StoredBudgetStoredOwner", "budget");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
+                {
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTaggingCriterion", "TaggingCriteria", b1 =>
+                        {
+                            b1.Property<Guid>("BudgetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Condition")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Tag")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BudgetId", "Id");
+
+                            b1.ToTable("StoredTaggingCriterion", "budget");
+
+                            b1.WithOwner("Budget")
+                                .HasForeignKey("BudgetId");
+
+                            b1.Navigation("Budget");
+                        });
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransferCriterion", "TransferCriteria", b1 =>
+                        {
+                            b1.Property<Guid>("BudgetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<int>("Accuracy")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Comment")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Criterion")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BudgetId", "Id");
+
+                            b1.ToTable("StoredTransferCriterion", "budget");
+
+                            b1.WithOwner("Budget")
+                                .HasForeignKey("BudgetId");
+
+                            b1.Navigation("Budget");
+                        });
+
+                    b.OwnsOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "LogbookCriteria", b1 =>
+                        {
+                            b1.Property<Guid>("StoredBudgetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Criteria")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Substitution")
+                                .HasColumnType("text");
+
+                            b1.Property<int?>("Type")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("StoredBudgetId");
+
+                            b1.ToTable("Budgets", "budget");
+
+                            b1.ToJson("LogbookCriteria");
+
+                            b1.WithOwner()
+                                .HasForeignKey("StoredBudgetId");
+
+                            b1.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b2 =>
+                                {
+                                    b2.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Value")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.HasKey("StoredLogbookCriteriaStoredBudgetId", "Id");
+
+                                    b2.ToTable("Budgets", "budget");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId");
+                                });
+
+                            b1.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria.Subcriteria#StoredLogbookCriteria", "Subcriteria", b2 =>
+                                {
+                                    b2.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Criteria")
+                                        .HasColumnType("text");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.Property<string>("Substitution")
+                                        .HasColumnType("text");
+
+                                    b2.Property<int?>("Type")
+                                        .HasColumnType("integer");
+
+                                    b2.HasKey("StoredLogbookCriteriaStoredBudgetId", "Id");
+
+                                    b2.ToTable("Budgets", "budget");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId");
+
+                                    b2.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b3 =>
+                                        {
+                                            b3.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                .HasColumnType("uuid");
+
+                                            b3.Property<int>("StoredLogbookCriteriaId")
+                                                .HasColumnType("integer");
+
+                                            b3.Property<int>("Id")
+                                                .ValueGeneratedOnAdd()
+                                                .HasColumnType("integer");
+
+                                            b3.Property<string>("Criteria")
+                                                .HasColumnType("text");
+
+                                            b3.Property<string>("Description")
+                                                .IsRequired()
+                                                .HasColumnType("text");
+
+                                            b3.Property<string>("Substitution")
+                                                .HasColumnType("text");
+
+                                            b3.Property<int?>("Type")
+                                                .HasColumnType("integer");
+
+                                            b3.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "Id");
+
+                                            b3.ToTable("Budgets", "budget");
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId");
+
+                                            b3.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b4 =>
+                                                {
+                                                    b4.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                        .HasColumnType("uuid");
+
+                                                    b4.Property<int>("StoredLogbookCriteriaId")
+                                                        .HasColumnType("integer");
+
+                                                    b4.Property<int>("StoredLogbookCriteriaId1")
+                                                        .HasColumnType("integer");
+
+                                                    b4.Property<int>("Id")
+                                                        .ValueGeneratedOnAdd()
+                                                        .HasColumnType("integer");
+
+                                                    b4.Property<string>("Criteria")
+                                                        .HasColumnType("text");
+
+                                                    b4.Property<string>("Description")
+                                                        .IsRequired()
+                                                        .HasColumnType("text");
+
+                                                    b4.Property<string>("Substitution")
+                                                        .HasColumnType("text");
+
+                                                    b4.Property<int?>("Type")
+                                                        .HasColumnType("integer");
+
+                                                    b4.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "Id");
+
+                                                    b4.ToTable("Budgets", "budget");
+
+                                                    b4.WithOwner()
+                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1");
+
+                                                    b4.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b5 =>
+                                                        {
+                                                            b5.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                .HasColumnType("uuid");
+
+                                                            b5.Property<int>("StoredLogbookCriteriaId")
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<int>("StoredLogbookCriteriaId1")
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<int>("StoredLogbookCriteriaId2")
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<int>("Id")
+                                                                .ValueGeneratedOnAdd()
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<string>("Criteria")
+                                                                .HasColumnType("text");
+
+                                                            b5.Property<string>("Description")
+                                                                .IsRequired()
+                                                                .HasColumnType("text");
+
+                                                            b5.Property<string>("Substitution")
+                                                                .HasColumnType("text");
+
+                                                            b5.Property<int?>("Type")
+                                                                .HasColumnType("integer");
+
+                                                            b5.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "Id");
+
+                                                            b5.ToTable("Budgets", "budget");
+
+                                                            b5.WithOwner()
+                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2");
+
+                                                            b5.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b6 =>
+                                                                {
+                                                                    b6.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                        .HasColumnType("uuid");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId1")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId2")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId3")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("Id")
+                                                                        .ValueGeneratedOnAdd()
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<string>("Criteria")
+                                                                        .HasColumnType("text");
+
+                                                                    b6.Property<string>("Description")
+                                                                        .IsRequired()
+                                                                        .HasColumnType("text");
+
+                                                                    b6.Property<string>("Substitution")
+                                                                        .HasColumnType("text");
+
+                                                                    b6.Property<int?>("Type")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "Id");
+
+                                                                    b6.ToTable("Budgets", "budget");
+
+                                                                    b6.WithOwner()
+                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3");
+
+                                                                    b6.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b7 =>
+                                                                        {
+                                                                            b7.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                .HasColumnType("uuid");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId1")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId2")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId3")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId4")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("Id")
+                                                                                .ValueGeneratedOnAdd()
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<string>("Criteria")
+                                                                                .HasColumnType("text");
+
+                                                                            b7.Property<string>("Description")
+                                                                                .IsRequired()
+                                                                                .HasColumnType("text");
+
+                                                                            b7.Property<string>("Substitution")
+                                                                                .HasColumnType("text");
+
+                                                                            b7.Property<int?>("Type")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "Id");
+
+                                                                            b7.ToTable("Budgets", "budget");
+
+                                                                            b7.WithOwner()
+                                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4");
+
+                                                                            b7.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b8 =>
+                                                                                {
+                                                                                    b8.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                        .HasColumnType("uuid");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId1")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId2")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId3")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId4")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId5")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("Id")
+                                                                                        .ValueGeneratedOnAdd()
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<string>("Criteria")
+                                                                                        .HasColumnType("text");
+
+                                                                                    b8.Property<string>("Description")
+                                                                                        .IsRequired()
+                                                                                        .HasColumnType("text");
+
+                                                                                    b8.Property<string>("Substitution")
+                                                                                        .HasColumnType("text");
+
+                                                                                    b8.Property<int?>("Type")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "Id");
+
+                                                                                    b8.ToTable("Budgets", "budget");
+
+                                                                                    b8.WithOwner()
+                                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5");
+
+                                                                                    b8.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b9 =>
+                                                                                        {
+                                                                                            b9.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                .HasColumnType("uuid");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("Id")
+                                                                                                .ValueGeneratedOnAdd()
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<string>("Criteria")
+                                                                                                .HasColumnType("text");
+
+                                                                                            b9.Property<string>("Description")
+                                                                                                .IsRequired()
+                                                                                                .HasColumnType("text");
+
+                                                                                            b9.Property<string>("Substitution")
+                                                                                                .HasColumnType("text");
+
+                                                                                            b9.Property<int?>("Type")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "Id");
+
+                                                                                            b9.ToTable("Budgets", "budget");
+
+                                                                                            b9.WithOwner()
+                                                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6");
+
+                                                                                            b9.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b10 =>
+                                                                                                {
+                                                                                                    b10.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                        .HasColumnType("uuid");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId7")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("Id")
+                                                                                                        .ValueGeneratedOnAdd()
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<string>("Criteria")
+                                                                                                        .HasColumnType("text");
+
+                                                                                                    b10.Property<string>("Description")
+                                                                                                        .IsRequired()
+                                                                                                        .HasColumnType("text");
+
+                                                                                                    b10.Property<string>("Substitution")
+                                                                                                        .HasColumnType("text");
+
+                                                                                                    b10.Property<int?>("Type")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "Id");
+
+                                                                                                    b10.ToTable("Budgets", "budget");
+
+                                                                                                    b10.WithOwner()
+                                                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7");
+
+                                                                                                    b10.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredLogbookCriteria", "Subcriteria", b11 =>
+                                                                                                        {
+                                                                                                            b11.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                                .HasColumnType("uuid");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId7")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId8")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("Id")
+                                                                                                                .ValueGeneratedOnAdd()
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<string>("Criteria")
+                                                                                                                .HasColumnType("text");
+
+                                                                                                            b11.Property<string>("Description")
+                                                                                                                .IsRequired()
+                                                                                                                .HasColumnType("text");
+
+                                                                                                            b11.Property<string>("Substitution")
+                                                                                                                .HasColumnType("text");
+
+                                                                                                            b11.Property<int?>("Type")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "StoredLogbookCriteriaId8", "Id");
+
+                                                                                                            b11.ToTable("Budgets", "budget");
+
+                                                                                                            b11.WithOwner()
+                                                                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "StoredLogbookCriteriaId8");
+
+                                                                                                            b11.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b12 =>
+                                                                                                                {
+                                                                                                                    b12.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                                        .HasColumnType("uuid");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId7")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId8")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("StoredLogbookCriteriaId9")
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<int>("Id")
+                                                                                                                        .ValueGeneratedOnAdd()
+                                                                                                                        .HasColumnType("integer");
+
+                                                                                                                    b12.Property<string>("Value")
+                                                                                                                        .IsRequired()
+                                                                                                                        .HasColumnType("text");
+
+                                                                                                                    b12.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "StoredLogbookCriteriaId8", "StoredLogbookCriteriaId9", "Id");
+
+                                                                                                                    b12.ToTable("Budgets", "budget");
+
+                                                                                                                    b12.WithOwner()
+                                                                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "StoredLogbookCriteriaId8", "StoredLogbookCriteriaId9");
+                                                                                                                });
+
+                                                                                                            b11.Navigation("Tags");
+                                                                                                        });
+
+                                                                                                    b10.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b11 =>
+                                                                                                        {
+                                                                                                            b11.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                                .HasColumnType("uuid");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId7")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("StoredLogbookCriteriaId8")
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<int>("Id")
+                                                                                                                .ValueGeneratedOnAdd()
+                                                                                                                .HasColumnType("integer");
+
+                                                                                                            b11.Property<string>("Value")
+                                                                                                                .IsRequired()
+                                                                                                                .HasColumnType("text");
+
+                                                                                                            b11.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "StoredLogbookCriteriaId8", "Id");
+
+                                                                                                            b11.ToTable("Budgets", "budget");
+
+                                                                                                            b11.WithOwner()
+                                                                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "StoredLogbookCriteriaId8");
+                                                                                                        });
+
+                                                                                                    b10.Navigation("Subcriteria");
+
+                                                                                                    b10.Navigation("Tags");
+                                                                                                });
+
+                                                                                            b9.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b10 =>
+                                                                                                {
+                                                                                                    b10.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                        .HasColumnType("uuid");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("StoredLogbookCriteriaId7")
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<int>("Id")
+                                                                                                        .ValueGeneratedOnAdd()
+                                                                                                        .HasColumnType("integer");
+
+                                                                                                    b10.Property<string>("Value")
+                                                                                                        .IsRequired()
+                                                                                                        .HasColumnType("text");
+
+                                                                                                    b10.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7", "Id");
+
+                                                                                                    b10.ToTable("Budgets", "budget");
+
+                                                                                                    b10.WithOwner()
+                                                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "StoredLogbookCriteriaId7");
+                                                                                                });
+
+                                                                                            b9.Navigation("Subcriteria");
+
+                                                                                            b9.Navigation("Tags");
+                                                                                        });
+
+                                                                                    b8.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b9 =>
+                                                                                        {
+                                                                                            b9.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                                .HasColumnType("uuid");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId1")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId2")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId3")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId4")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId5")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("StoredLogbookCriteriaId6")
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<int>("Id")
+                                                                                                .ValueGeneratedOnAdd()
+                                                                                                .HasColumnType("integer");
+
+                                                                                            b9.Property<string>("Value")
+                                                                                                .IsRequired()
+                                                                                                .HasColumnType("text");
+
+                                                                                            b9.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6", "Id");
+
+                                                                                            b9.ToTable("Budgets", "budget");
+
+                                                                                            b9.WithOwner()
+                                                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "StoredLogbookCriteriaId6");
+                                                                                        });
+
+                                                                                    b8.Navigation("Subcriteria");
+
+                                                                                    b8.Navigation("Tags");
+                                                                                });
+
+                                                                            b7.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b8 =>
+                                                                                {
+                                                                                    b8.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                        .HasColumnType("uuid");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId1")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId2")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId3")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId4")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("StoredLogbookCriteriaId5")
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<int>("Id")
+                                                                                        .ValueGeneratedOnAdd()
+                                                                                        .HasColumnType("integer");
+
+                                                                                    b8.Property<string>("Value")
+                                                                                        .IsRequired()
+                                                                                        .HasColumnType("text");
+
+                                                                                    b8.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5", "Id");
+
+                                                                                    b8.ToTable("Budgets", "budget");
+
+                                                                                    b8.WithOwner()
+                                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "StoredLogbookCriteriaId5");
+                                                                                });
+
+                                                                            b7.Navigation("Subcriteria");
+
+                                                                            b7.Navigation("Tags");
+                                                                        });
+
+                                                                    b6.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b7 =>
+                                                                        {
+                                                                            b7.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                                .HasColumnType("uuid");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId1")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId2")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId3")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("StoredLogbookCriteriaId4")
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<int>("Id")
+                                                                                .ValueGeneratedOnAdd()
+                                                                                .HasColumnType("integer");
+
+                                                                            b7.Property<string>("Value")
+                                                                                .IsRequired()
+                                                                                .HasColumnType("text");
+
+                                                                            b7.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4", "Id");
+
+                                                                            b7.ToTable("Budgets", "budget");
+
+                                                                            b7.WithOwner()
+                                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "StoredLogbookCriteriaId4");
+                                                                        });
+
+                                                                    b6.Navigation("Subcriteria");
+
+                                                                    b6.Navigation("Tags");
+                                                                });
+
+                                                            b5.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b6 =>
+                                                                {
+                                                                    b6.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                        .HasColumnType("uuid");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId1")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId2")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("StoredLogbookCriteriaId3")
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<int>("Id")
+                                                                        .ValueGeneratedOnAdd()
+                                                                        .HasColumnType("integer");
+
+                                                                    b6.Property<string>("Value")
+                                                                        .IsRequired()
+                                                                        .HasColumnType("text");
+
+                                                                    b6.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3", "Id");
+
+                                                                    b6.ToTable("Budgets", "budget");
+
+                                                                    b6.WithOwner()
+                                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "StoredLogbookCriteriaId3");
+                                                                });
+
+                                                            b5.Navigation("Subcriteria");
+
+                                                            b5.Navigation("Tags");
+                                                        });
+
+                                                    b4.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b5 =>
+                                                        {
+                                                            b5.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                                .HasColumnType("uuid");
+
+                                                            b5.Property<int>("StoredLogbookCriteriaId")
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<int>("StoredLogbookCriteriaId1")
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<int>("StoredLogbookCriteriaId2")
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<int>("Id")
+                                                                .ValueGeneratedOnAdd()
+                                                                .HasColumnType("integer");
+
+                                                            b5.Property<string>("Value")
+                                                                .IsRequired()
+                                                                .HasColumnType("text");
+
+                                                            b5.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2", "Id");
+
+                                                            b5.ToTable("Budgets", "budget");
+
+                                                            b5.WithOwner()
+                                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "StoredLogbookCriteriaId2");
+                                                        });
+
+                                                    b4.Navigation("Subcriteria");
+
+                                                    b4.Navigation("Tags");
+                                                });
+
+                                            b3.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b4 =>
+                                                {
+                                                    b4.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                        .HasColumnType("uuid");
+
+                                                    b4.Property<int>("StoredLogbookCriteriaId")
+                                                        .HasColumnType("integer");
+
+                                                    b4.Property<int>("StoredLogbookCriteriaId1")
+                                                        .HasColumnType("integer");
+
+                                                    b4.Property<int>("Id")
+                                                        .ValueGeneratedOnAdd()
+                                                        .HasColumnType("integer");
+
+                                                    b4.Property<string>("Value")
+                                                        .IsRequired()
+                                                        .HasColumnType("text");
+
+                                                    b4.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1", "Id");
+
+                                                    b4.ToTable("Budgets", "budget");
+
+                                                    b4.WithOwner()
+                                                        .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "StoredLogbookCriteriaId1");
+                                                });
+
+                                            b3.Navigation("Subcriteria");
+
+                                            b3.Navigation("Tags");
+                                        });
+
+                                    b2.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTag", "Tags", b3 =>
+                                        {
+                                            b3.Property<Guid>("StoredLogbookCriteriaStoredBudgetId")
+                                                .HasColumnType("uuid");
+
+                                            b3.Property<int>("StoredLogbookCriteriaId")
+                                                .HasColumnType("integer");
+
+                                            b3.Property<int>("Id")
+                                                .ValueGeneratedOnAdd()
+                                                .HasColumnType("integer");
+
+                                            b3.Property<string>("Value")
+                                                .IsRequired()
+                                                .HasColumnType("text");
+
+                                            b3.HasKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId", "Id");
+
+                                            b3.ToTable("Budgets", "budget");
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("StoredLogbookCriteriaStoredBudgetId", "StoredLogbookCriteriaId");
+                                        });
+
+                                    b2.Navigation("Subcriteria");
+
+                                    b2.Navigation("Tags");
+                                });
+
+                            b1.Navigation("Subcriteria");
+
+                            b1.Navigation("Tags");
+                        });
+
+                    b.Navigation("LogbookCriteria")
+                        .IsRequired();
+
+                    b.Navigation("TaggingCriteria");
+
+                    b.Navigation("TransferCriteria");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
+                {
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
+                        .WithMany("CsvReadingOptions")
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredFieldConfiguration", "AttributesConfiguration", b1 =>
+                        {
+                            b1.Property<Guid>("FileReadingOptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Field")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Pattern")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("FileReadingOptionId", "Id");
+
+                            b1.ToTable("CsvFileReadingOptions_AttributesConfiguration", "budget");
+
+                            b1.WithOwner("FileReadingOption")
+                                .HasForeignKey("FileReadingOptionId");
+
+                            b1.Navigation("FileReadingOption");
+                        });
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredFieldConfiguration", "FieldConfigurations", b1 =>
+                        {
+                            b1.Property<Guid>("FileReadingOptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Field")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Pattern")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("FileReadingOptionId", "Id");
+
+                            b1.ToTable("CsvFileReadingOptions_FieldConfigurations", "budget");
+
+                            b1.WithOwner("FileReadingOption")
+                                .HasForeignKey("FileReadingOptionId");
+
+                            b1.Navigation("FileReadingOption");
+                        });
+
+                    b.OwnsMany("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredValidationRule", "ValidationRules", b1 =>
+                        {
+                            b1.Property<Guid>("FileReadingOptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<int>("Condition")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("FieldConfiguration")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("RuleName")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("FileReadingOptionId", "Id");
+
+                            b1.ToTable("StoredValidationRule", "budget");
+
+                            b1.WithOwner("FileReadingOption")
+                                .HasForeignKey("FileReadingOptionId");
+
+                            b1.Navigation("FileReadingOption");
+                        });
+
+                    b.Navigation("AttributesConfiguration");
+
+                    b.Navigation("Budget");
+
+                    b.Navigation("FieldConfigurations");
+
+                    b.Navigation("ValidationRules");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", "Account")
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
                         .WithMany("Operations")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("BudgetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransfer", "SinkTransfer")
-                        .WithMany()
-                        .HasForeignKey("SinkTransferId");
-
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransfer", "SourceTransfer")
-                        .WithMany()
-                        .HasForeignKey("SourceTransferId");
 
                     b.OwnsOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredMoney", "Amount", b1 =>
                         {
@@ -275,20 +1374,16 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
 
                             b1.HasKey("StoredOperationId", "Id");
 
-                            b1.ToTable("StoredTag", "budget");
+                            b1.ToTable("Operations_Tags", "budget");
 
                             b1.WithOwner()
                                 .HasForeignKey("StoredOperationId");
                         });
 
-                    b.Navigation("Account");
-
                     b.Navigation("Amount")
                         .IsRequired();
 
-                    b.Navigation("SinkTransfer");
-
-                    b.Navigation("SourceTransfer");
+                    b.Navigation("Budget");
 
                     b.Navigation("Tags");
                 });
@@ -307,14 +1402,14 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransfer", b =>
                 {
                     b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", "Sink")
-                        .WithMany()
-                        .HasForeignKey("SinkId")
+                        .WithOne("SinkTransfer")
+                        .HasForeignKey("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransfer", "SinkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", "Source")
-                        .WithMany()
-                        .HasForeignKey("SourceId")
+                        .WithOne("SourceTransfer")
+                        .HasForeignKey("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredTransfer", "SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -345,9 +1440,9 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("Source");
                 });
 
-            modelBuilder.Entity("StoredAccountStoredOwner", b =>
+            modelBuilder.Entity("StoredBudgetStoredOwner", b =>
                 {
-                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", null)
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", null)
                         .WithMany()
                         .HasForeignKey("AccountsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -360,9 +1455,18 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredAccount", b =>
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", b =>
                 {
+                    b.Navigation("CsvReadingOptions");
+
                     b.Navigation("Operations");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredOperation", b =>
+                {
+                    b.Navigation("SinkTransfer");
+
+                    b.Navigation("SourceTransfer");
                 });
 #pragma warning restore 612, 618
         }

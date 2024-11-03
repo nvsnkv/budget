@@ -1,5 +1,5 @@
-﻿using NVs.Budget.Application.Contracts.Entities.Accounting;
+﻿using NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 namespace NVs.Budget.Application.Contracts.Options;
 
-public record ImportOptions(bool RegisterAccounts, DetectionAccuracy? TransferConfidenceLevel);
+public record ImportOptions(DetectionAccuracy? TransferConfidenceLevel);

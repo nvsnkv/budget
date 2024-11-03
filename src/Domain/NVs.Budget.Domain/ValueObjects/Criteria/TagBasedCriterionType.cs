@@ -3,5 +3,6 @@
 public enum TagBasedCriterionType
 {
     Including,
-    Excluding
+    Excluding,
+    OneOf
 }

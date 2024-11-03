@@ -1,49 +1,65 @@
-using System.Linq.Expressions;
 using CommandLine;
 using FluentResults;
+using JetBrains.Annotations;
 using MediatR;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using Microsoft.Extensions.Options;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Errors.Accounting;
+using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
-using NVs.Budget.Controllers.Console.Contracts.IO.Input;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
 using NVs.Budget.Controllers.Console.Handlers.Utils;
 using NVs.Budget.Domain.Aggregates;
+using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.IO.Console.Output;
+using Error = FluentResults.Error;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
 [Verb("stats", HelpText = "Produces aggregated statistic using predefined set of aggregation rules")]
 internal class OperationsStatisticsVerb : StatisticsVerb
 {
-    [Option('r', "ruleset", Required = true, HelpText = "Path to ruleset used for aggregation")]
-    public string Ruleset { get; set; } = "";
+    [Option('b', "budget-id", Required = false, HelpText = "ID of a budget. Optional if user has only one budget, otherwise required")]
+    public string BudgetId { get; [UsedImplicitly] set; } = string.Empty;
 }
 
 internal class OperationsStatisticsVerbHandler(
     IMediator mediator,
-    IInputStreamProvider inputStreamProvider,
-    ILogbookCriteriaReader criteriaReader,
-    CriteriaParser parser,
+    IBudgetManager manager,
     ILogbookWriter logbookWriter,
     IResultWriter<Result> writer,
+    IOutputStreamProvider outputs,
+    IOptionsSnapshot<OutputOptions> options,
     CronBasedNamedRangeSeriesBuilder seriesBuilder
-) : StatisticsVerbHandlerBase<OperationsStatisticsVerb, TrackedOperation>(parser, logbookWriter, writer, seriesBuilder)
+) : StatisticsVerbHandlerBase<OperationsStatisticsVerb>(logbookWriter, writer, seriesBuilder, outputs, options.Value)
 {
-    protected override async Task<Result<CriteriaBasedLogbook>> GetLogbook(OperationsStatisticsVerb request, Expression<Func<TrackedOperation, bool>> criteriaResultValue, CancellationToken ct)
+    protected override async Task<Result<CriteriaBasedLogbook>> GetLogbook(OperationsStatisticsVerb request,  CancellationToken ct)
     {
-        var input = await inputStreamProvider.GetInput(request.Ruleset);
-        if (input.IsFailed)
+        TrackedBudget? budget;
+        var budgets = await manager.GetOwnedBudgets(ct);
+        if (budgets.Count == 1)
         {
-            return input.ToResult();
+            budget = budgets.Single();
+        }
+        else
+        {
+            if (!Guid.TryParse(request.BudgetId, out var id))
+            {
+                return Result.Fail(new Error("Given budget id is not a guid").WithMetadata("Value", request.BudgetId));
+            }
+
+            budget = budgets.FirstOrDefault(b => b.Id == id);
+
+            if (budget is null)
+            {
+                return Result.Fail(new BudgetDoesNotExistError(id));
+            }
         }
 
-        var criterion = await criteriaReader.ReadFrom(input.Value, ct);
-        if (criterion.IsFailed)
-        {
-            return criterion.ToResult();
-        }
+        var query = new CalcOperationsStatisticsQuery(budget.LogbookCriteria.GetCriterion(), o =>
+            o.Timestamp >= request.From.ToUniversalTime()
+            && o.Timestamp < request.Till.ToUniversalTime()
+            && o.Budget.Id == budget.Id);
 
-        var query = new CalcOperationsStatisticsQuery(criterion.Value, criteriaResultValue);
         return await mediator.Send(query, ct);
     }
 }

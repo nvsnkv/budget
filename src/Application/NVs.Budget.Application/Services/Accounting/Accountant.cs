@@ -1,9 +1,11 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Results;
 using NVs.Budget.Application.Contracts.Services;
+using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
 using NVs.Budget.Application.Services.Accounting.Results.Successes;
@@ -18,132 +20,119 @@ namespace NVs.Budget.Application.Services.Accounting;
 /// Manages transactions (register, update, delete etc)
 /// </summary>
 internal class Accountant(
-    IOperationsRepository operationsRepository,
+    IStreamingOperationRepository streamingOperationRepository,
     ITransfersRepository transfersRepository,
-    IAccountManager manager,
-    TagsManager tagsManager,
-    TransfersListBuilder transfersListBuilder,
-    ImportResultBuilder importResultBuilder) :ReckonerBase(manager), IAccountant
+    IBudgetManager manager,
+    DuplicatesDetector detector) :ReckonerBase(manager), IAccountant
 {
-    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> transactions, ImportOptions options, CancellationToken ct)
+    public async Task<ImportResult> ImportOperations(IAsyncEnumerable<UnregisteredOperation> unregistered, TrackedBudget budget, ImportOptions options, CancellationToken ct)
     {
-        importResultBuilder.Clear();
-        transfersListBuilder.Clear();
+        var importResultBuilder = new ImportResultBuilder(detector);
 
-        var accounts = (await Manager.GetOwnedAccounts(ct)).ToList();
+        var imported = streamingOperationRepository.Register(unregistered, budget, ct);
+        var operations = imported
+            .Select(r => importResultBuilder.Append(r))
+            .Where(r => r.IsSuccess)
+            .Select(r => r.Value);
 
-        await foreach (var unregisteredTransaction in transactions.WithCancellation(ct))
-        {
-            var accountResult = await TryGetAccount(accounts, unregisteredTransaction.Account, options.RegisterAccounts, ct);
-            importResultBuilder.Append(accountResult);
-            if (!accountResult.IsSuccess)
-            {
-                continue;
-            }
-
-            var transactionResult = await operationsRepository.Register(unregisteredTransaction, accountResult.Value, ct);
-            importResultBuilder.Append(transactionResult);
-
-            if (transactionResult.IsSuccess)
-            {
-                var transaction = transactionResult.Value;
-                foreach (var tag in tagsManager.GetTags(transaction))
-                {
-                    transaction.Tag(tag);
-                }
-
-                if (transaction.Tags.Count > 0)
-                {
-                    transactionResult = await operationsRepository.Update(transaction, ct);
-                    if (!transactionResult.IsSuccess)
-                    {
-                        importResultBuilder.Append(transactionResult);
-                    }
-                    else
-                    {
-                        transaction = transactionResult.Value;
-                    }
-                }
-
-                transfersListBuilder.Add(transaction);
-            }
-        }
-
-        foreach (var transfer in transfersListBuilder.ToList())
-        {
-            importResultBuilder.Append(transfer);
-        }
-
-        var result = importResultBuilder.Build();
-
-        if (options.TransferConfidenceLevel is not null)
-        {
-            var transfers = result.Transfers
-                .Where(t => t.Accuracy >= options.TransferConfidenceLevel)
-                .Select(t => new UnregisteredTransfer(
-                    t.Source as TrackedOperation ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithOperationId(t.Source),
-                    t.Sink as TrackedOperation ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithOperationId(t.Sink),
-                    t.Fee,
-                    t.Comment,
-                    t.Accuracy))
-                .ToAsyncEnumerable();
-
-            var registrationResult = await RegisterTransfers(transfers, ct);
-            result.Reasons.AddRange(registrationResult.Reasons);
-        }
-
-        return new ImportResult(result.Operations, result.Transfers, result.Duplicates, result.Reasons);
+        var result = await Update(operations, budget, new(options.TransferConfidenceLevel, TaggingMode.Append), ct);
+        importResultBuilder.Append(result);
+        return importResultBuilder.Build();
     }
 
-    public async Task<Result> Update(IAsyncEnumerable<TrackedOperation> operations, CancellationToken ct)
+    public async Task<UpdateResult> Update(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, UpdateOptions options, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedAccounts(ct);
-        var result = new Result();
-        await foreach (var transaction in operations.WithCancellation(ct))
-        {
-            var updateResult = await Update(transaction, accounts, ct);
-            result.Reasons.AddRange(updateResult.Reasons);
-        }
+        var budgets = await Manager.GetOwnedBudgets(ct);
+        var errors = new List<IError>();
+        var resultBuilder = new UpdateResultBuilder();
 
-        return result;
+        var valid = operations
+            .Where(o =>
+            {
+                if (budgets.Any(b => b.Id == o.Budget.Id)) return true;
+                errors.Add(new BudgetDoesNotBelongToCurrentOwnerError()
+                    .WithTransactionId(o)
+                    .WithOperationId(o.Budget));
+
+                return false;
+            });
+
+        var tagged = Retag(valid, budget, options.TaggingMode, ct);
+
+        var saved = streamingOperationRepository.Update(tagged, ct)
+            .Select(r => resultBuilder.Append(r))
+            .Where(r => r.IsSuccess)
+            .Select(r => r.Value);
+
+
+        var transfers = GetTransfers(saved, budget, ct)
+            .Select(t => resultBuilder.Append(t))
+            .Select(r => r.Value);
+
+        var confident = transfers
+            .Where(v => options.TransferConfidenceLevel != null && v.Accuracy >= options.TransferConfidenceLevel)
+            .Select(t => new UnregisteredTransfer(
+                t.Source as TrackedOperation ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithOperationId(t.Source),
+                t.Sink as TrackedOperation ?? throw new InvalidOperationException("Attempt was made to register transfer with unregistered transaction!").WithOperationId(t.Sink),
+                t.Fee,
+                t.Comment,
+                t.Accuracy));
+
+        var registrationResult = await RegisterTransfers(confident, ct);
+        resultBuilder.Append(registrationResult.Reasons);
+
+        resultBuilder.Append(errors);
+        return resultBuilder.Build();
     }
 
-    public Task<Result> Retag(IAsyncEnumerable<TrackedOperation> operations, bool fromScratch, CancellationToken ct)
+    private async IAsyncEnumerable<TrackedOperation> Retag(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, TaggingMode mode, [EnumeratorCancellation] CancellationToken ct)
     {
-        var updated = operations.Select(operation =>
+        var manager = new TagsManager(budget.TaggingCriteria);
+        await foreach (var operation in operations.WithCancellation(ct))
         {
-            if (fromScratch)
+            if (mode != TaggingMode.Skip)
             {
-                foreach (var tag in operation.Tags)
+                if (mode == TaggingMode.FromScratch)
                 {
-                    operation.Untag(tag);
+                   operation.UntagAll();
+                }
+
+                var tags = manager.GetTagsFor(operation);
+                foreach (var tag in tags)
+                {
+                    operation.Tag(tag);
                 }
             }
 
-            var tags = tagsManager.GetTags(operation);
-            foreach (var tag in tags.Except(operation.Tags))
+            yield return operation;
+        }
+    }
+
+    private async IAsyncEnumerable<TrackedTransfer> GetTransfers(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, [EnumeratorCancellation] CancellationToken ct)
+    {
+        var builder = new TransfersListBuilder(new TransferDetector(budget.TransferCriteria));
+        await foreach (var operation in operations.WithCancellation(ct))
+        {
+            var transfer = builder.Add(operation);
+            if (transfer is not null)
             {
-                operation.Tag(tag);
+                yield return transfer;
             }
-
-            return operation;
-        });
-
-        return Update(updated, ct);
+        }
     }
 
     public async Task<Result> Remove(Expression<Func<TrackedOperation, bool>> criteria, CancellationToken ct)
     {
         criteria = await ExtendCriteria(criteria, ct);
-        var targets = await operationsRepository.Get(criteria, ct);
+        var targets = streamingOperationRepository.Get(criteria, ct);
         var successes = new List<Success>();
         var errors = new List<IError>();
-        foreach (var target in targets)
+
+        await foreach(var opResult in streamingOperationRepository.Remove(targets, ct))
         {
-            var opResult = await operationsRepository.Remove(target, ct);
             if (opResult.IsSuccess)
             {
-                successes.Add(new OperationRemoved(target));
+                successes.Add(new OperationRemoved(opResult.Value));
             }
             else
             {
@@ -159,91 +148,54 @@ internal class Accountant(
 
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
     {
-        var accounts = await Manager.GetOwnedAccounts(ct);
+        var budgets = (await Manager.GetOwnedBudgets(ct)).Select(a => a.Id).ToList();
         var result = new Result();
+
+        var batchSize = 2000;
+        var opsQueue = new Queue<TrackedOperation>();
+        var xfersQueue = new Queue<TrackedTransfer>();
 
         await foreach (var transfer in transfers.WithCancellation(ct))
         {
-            if (accounts.All(a => a != transfer.Source.Account))
+            if (budgets.All(a => a != transfer.Source.Budget.Id))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Source.Account));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Source.Budget));
                 continue;
             }
 
-            if (accounts.All(a => a != transfer.Sink.Account))
+            if (budgets.All(a => a != transfer.Sink.Budget.Id))
             {
-                result.Reasons.Add(new AccountDoesNotBelongToCurrentOwnerError().WithAccountId(transfer.Sink.Account));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Sink.Budget));
                 continue;
             }
 
             transfer.Source.TagSource();
             transfer.Sink.TagSink();
 
-            var updateResult = await operationsRepository.Update(transfer.Source, ct);
-            if (!updateResult.IsSuccess)
-            {
-                result.Reasons.Add(new UnableToTagTransferError(updateResult.Errors).WithTransactionId(transfer.Source));
-                continue;
-            }
+            opsQueue.Enqueue(transfer.Source);
+            opsQueue.Enqueue(transfer.Sink);
 
-            updateResult = await operationsRepository.Update(transfer.Sink, ct);
-            if (!updateResult.IsSuccess)
-            {
-                result.Reasons.Add(new UnableToTagTransferError(updateResult.Errors).WithTransactionId(transfer.Sink));
-                continue;
-            }
+            xfersQueue.Enqueue(new TrackedTransfer(transfer.Source, transfer.Sink, transfer.Fee, transfer.Comment) {Accuracy = transfer.Accuracy});
 
-            var trackedTransfer = new TrackedTransfer(transfer.Source, transfer.Sink, transfer.Fee, transfer.Comment) {Accuracy = transfer.Accuracy};
-            var registrationResult = await transfersRepository.Register(trackedTransfer, ct);
-            if (registrationResult.IsSuccess)
+            if (xfersQueue.Count > batchSize)
             {
-                result.Reasons.Add(new TransferTracked(trackedTransfer));
+                var results = await streamingOperationRepository.Update(opsQueue.ToAsyncEnumerable(), ct).ToListAsync(ct);
+                result.Reasons.AddRange(results.SelectMany(r => r.Reasons));
+
+                var regResults = await transfersRepository.Register(xfersQueue, ct);
+                result.Reasons.AddRange(regResults.SelectMany(r => r.Reasons));
             }
-            else
-            {
-                result.Reasons.AddRange(registrationResult.Errors);
-            }
+        }
+
+        if (xfersQueue.Count > 0)
+        {
+            var results = await streamingOperationRepository.Update(opsQueue.ToAsyncEnumerable(), ct).ToListAsync(ct);
+            result.Reasons.AddRange(results.SelectMany(r => r.Reasons));
+
+            var regResults = await transfersRepository.Register(xfersQueue, ct);
+            result.Reasons.AddRange(regResults.SelectMany(r => r.Reasons));
         }
 
         return result;
-    }
-
-    private async Task<Result<TrackedOperation>> Update(TrackedOperation operation, IReadOnlyCollection<TrackedAccount> ownedAccounts, CancellationToken ct)
-    {
-        if (ownedAccounts.All(a => operation.Account != a))
-        {
-            return Result.Fail(new AccountDoesNotBelongToCurrentOwnerError()
-                .WithTransactionId(operation)
-                .WithAccountId(operation.Account));
-        }
-
-        var updateResult = await operationsRepository.Update(operation, ct);
-        return updateResult.IsSuccess
-            ? Result.Ok(updateResult.Value).WithReason(new OperationUpdated(updateResult.Value))
-            : Result.Fail(updateResult.Errors);
-    }
-
-    private async Task<Result<TrackedAccount>> TryGetAccount(ICollection<TrackedAccount> accounts, UnregisteredAccount account, bool shouldRegister, CancellationToken ct)
-    {
-        var registeredAccount = accounts.FirstOrDefault(a => a.Name == account.Name && a.Bank == account.Bank);
-        if (registeredAccount is not null) return Result.Ok(registeredAccount);
-
-        if (!shouldRegister)
-        {
-            return Result.Fail(new AccountNotFoundError()
-                .WithMetadata(nameof(TrackedAccount.Name), account.Name)
-                .WithMetadata(nameof(TrackedAccount.Bank), account.Bank)
-            );
-        }
-        var result = await Manager.Register(account, ct);
-        if (!result.IsSuccess)
-        {
-            return Result.Fail(result.Errors);
-        }
-
-        registeredAccount = result.Value;
-        accounts.Add(registeredAccount);
-
-        return Result.Ok(registeredAccount).WithReason(new AccountAdded(registeredAccount));
     }
 }

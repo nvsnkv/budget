@@ -2,14 +2,9 @@ using CommandLine;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using NMoneys;
-using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Output;
-using NVs.Budget.Domain.Entities.Accounts;
-using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 namespace NVs.Budget.Hosts.Console.Commands;
@@ -19,11 +14,9 @@ internal class ListEffectiveSettingsVerb : AbstractVerb;
 
 internal class ListEffectiveSettingsVerbHandler(
     IOutputStreamProvider streams,
-    IOptionsSnapshot<OutputOptions> outputOptions,
+    IOptions<OutputOptions> outputOptions,
     IConfigurationRoot configuration,
-    IDbConnectionInfo dbConnectionInfo,
-    IReadOnlyList<TransferCriterion> transferCriteria,
-    IReadOnlyCollection<TaggingCriterion> taggingCriteria
+    IDbConnectionInfo dbConnectionInfo
 ) : IRequestHandler<ListEffectiveSettingsVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListEffectiveSettingsVerb request, CancellationToken cancellationToken)
@@ -52,36 +45,7 @@ internal class ListEffectiveSettingsVerbHandler(
         await writer.WriteLineAsync($"{nameof(dbConnectionInfo.Database)}: {dbConnectionInfo.Database}");
         await writer.WriteLineAsync();
 
-        await writer.WriteLineAsync("4. Transfer criteria");
-        foreach (var criterion in transferCriteria)
-        {
-            await writer.WriteLineAsync($"{criterion.Comment} - {criterion.Accuracy}");
-        }
-
-        await writer.WriteLineAsync();
-
-        await writer.WriteLineAsync("5. Tagging criteria ($ sign and zeroes indicate substitution)");
-        var testOperation = new TrackedOperation(
-            Guid.Empty,
-            DateTime.UtcNow,
-            Money.Zero(),
-            "$Description",
-            new(Guid.Empty, "$Account.Name", "$Account.Bank",[new(Guid.Empty, "$Account.Owner")]),
-            [new Tag("$Tag")],
-            new Dictionary<string, object>()
-            {
-                {"Category", "$Attrbutes[\"Category\"]" },
-                {"Comment", "$Attrbutes[\"Comment\"]" },
-            }
-            );
-        foreach (var criterion in taggingCriteria)
-        {
-            await writer.WriteLineAsync(criterion.Tag(testOperation).ToString());
-        }
-
-        await writer.WriteLineAsync();
-
-        await writer.WriteLineAsync("6. Parsing rules");
+        await writer.WriteLineAsync("4. Parsing rules");
         await writer.WriteLineAsync($"CultureCode: {configuration.GetValue<string>("CultureCode") ?? "not specified"}");
         await writer.WriteLineAsync("Known input types:");
         foreach (var section in configuration.GetSection("CsvReadingOptions").GetChildren())

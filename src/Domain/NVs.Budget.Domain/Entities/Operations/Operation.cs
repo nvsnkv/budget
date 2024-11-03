@@ -1,9 +1,10 @@
-﻿using NMoneys;
-using NVs.Budget.Domain.Entities.Accounts;
+﻿using System.Diagnostics;
+using NMoneys;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Domain.Entities.Operations;
 
+[DebuggerDisplay("{Timestamp}: {Amount} {Description}")]
 public class Operation : EntityBase<Guid>
 {
     private readonly List<Tag> _tags;
@@ -11,18 +12,18 @@ public class Operation : EntityBase<Guid>
     public DateTime Timestamp { get; }
     public Money Amount { get; }
     public string Description { get; }
-    public Account Account { get; }
+    public Accounts.Budget Budget { get; }
 
     public IReadOnlyCollection<Tag> Tags => _tags.AsReadOnly();
 
-    public IDictionary<string, object> Attributes { get; } = new Dictionary<string, object>();
+    public IDictionary<string, object> Attributes { get; } = new AttributesDictionary(new Dictionary<string, object>());
 
-    public Operation(Guid id, DateTime timestamp, Money amount, string description, Account account, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
+    public Operation(Guid id, DateTime timestamp, Money amount, string description, Accounts.Budget budget, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
     {
         Timestamp = timestamp;
         Amount = amount;
         Description = description;
-        Account = account;
+        Budget = budget;
 
         if (attributes != null)
         {
@@ -44,4 +45,6 @@ public class Operation : EntityBase<Guid>
     }
 
     public void Untag(Tag value) => _tags.Remove(value);
+
+    public void UntagAll() => _tags.Clear();
 }

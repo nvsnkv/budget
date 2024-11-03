@@ -1,4 +1,4 @@
-﻿namespace NVs.Budget.Application.Contracts.Entities.Accounting;
+﻿namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 public enum DetectionAccuracy
 {

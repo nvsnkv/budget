@@ -7,8 +7,8 @@ namespace NVs.Budget.Application.UseCases.Operations;
 
 internal class ImportOperationsCommandHandler(IAccountant accountant) : IRequestHandler<ImportOperationsCommand, ImportResult>
 {
-    public Task<ImportResult> Handle(ImportOperationsCommand request, CancellationToken cancellationToken)
+    public async Task<ImportResult> Handle(ImportOperationsCommand request, CancellationToken cancellationToken)
     {
-        return accountant.ImportOperations(request.Operations, request.Options, cancellationToken);
+        return await accountant.ImportOperations(request.Operations, request.Budget, request.Options, cancellationToken);
     }
 }

@@ -2,15 +2,14 @@
 using Moq;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Results;
-using NVs.Budget.Application.Services.Accounting.Tags;
-using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Tests.Fakes;
 using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Application.Tests;
@@ -26,33 +25,20 @@ public class AccountantShould
 
     public AccountantShould()
     {
+        _fixture.Inject(LogbookCriteria.Universal);
         _owner = _fixture.Create<Owner>();
         var user = new Mock<IUser>();
         user.Setup(u => u.AsOwner()).Returns(_owner);
 
-        var accountManager = new AccountManager(_storage.Accounts, user.Object);
-
-        var exactTransferCriterion = new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",
-            (src, snk) => src.Amount == snk.Amount * -1
-                          && src.Timestamp.Date == snk.Timestamp.Date
-                          && src.Description == snk.Description);
-        var transferDetector = new TransferDetector(new[]
-        {
-            exactTransferCriterion
-        });
+        var budgetManager = new BudgetManager(_storage.Budgets, user.Object);
 
         var duplicatesDetector = new DuplicatesDetector(DuplicatesDetectorOptions.Default);
-
-        var tagMeCriterion = new TaggingCriterion(_ => new("TagMe!"), t => t.Description == "Tag me!");
-        var tagsManager = new TagsManager(new[] { tagMeCriterion });
 
         _accountant = new(
             _storage.Operations,
             _storage.Transfers,
-            accountManager,
-            tagsManager,
-            new TransfersListBuilder(transferDetector),
-            new ImportResultBuilder(duplicatesDetector)
+            budgetManager,
+            duplicatesDetector
         );
     }
 
@@ -60,13 +46,23 @@ public class AccountantShould
     public async Task ImportIncomingTransactions()
     {
         _fixture.SetNamedParameter("owners", Enumerable.Repeat(_owner, 1));
-        var account = _fixture.Create<TrackedAccount>();
-        _storage.Accounts.Append([account]);
+        _fixture.SetNamedParameter("taggingCriteria", Enumerable.Empty<TaggingCriterion>());
+
+        var criterion = ReadableExpressionsParser.Default.ParseBinaryPredicate<TrackedOperation, TrackedOperation>(
+            "(l,r) => l.Amount.Amount == r.Amount.Amount * -1 && l.Timestamp.Date == r.Timestamp.Date && l.Description == r.Description"
+        );
+
+        _fixture.SetNamedParameter("transferCriteria", (IEnumerable<TransferCriterion>)new[]
+        {
+            new TransferCriterion(DetectionAccuracy.Exact, "Exact transfer",criterion.Value)
+        });
+        var budget = _fixture.Create<TrackedBudget>();
+        _storage.Budgets.Append([budget]);
         _fixture.ResetNamedParameter<IEnumerable<Owner>>("owners");
 
-        var data = new ImportTestData(_fixture, [account], _owner);
+        var data = new ImportTestData(_fixture, [budget]);
 
-        var result = await _accountant.ImportOperations(data.Operations, new ImportOptions(true, DetectionAccuracy.Exact), CancellationToken.None);
+        var result = await _accountant.ImportOperations(data.Operations, budget, new ImportOptions(DetectionAccuracy.Exact), CancellationToken.None);
 
         data.VerifyResult(result);
     }

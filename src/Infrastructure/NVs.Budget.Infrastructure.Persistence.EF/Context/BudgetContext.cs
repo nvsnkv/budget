@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NMoneys;
 using NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -10,13 +11,15 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<StoredOwner> Owners { get; init; } = null!;
 
-    public DbSet<StoredAccount> Accounts { get; init; } = null!;
+    public DbSet<StoredBudget> Budgets { get; init; } = null!;
 
     public DbSet<StoredOperation> Operations { get; init; } = null!;
 
     public DbSet<StoredRate> Rates { get; init; } = null!;
 
     public DbSet<StoredTransfer> Transfers { get; init; } = null!;
+
+    public DbSet<StoredCsvFileReadingOption> CsvFileReadingOptions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,13 +35,29 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
 
         ownBuilder.HasIndex(o => o.UserId);
 
+        var sBuilder = modelBuilder.Entity<StoredCsvFileReadingOption>();
+        sBuilder.OwnsMany<StoredFieldConfiguration>(o => o.FieldConfigurations);
+        sBuilder.OwnsMany<StoredFieldConfiguration>(o => o.AttributesConfiguration);
+        sBuilder.OwnsMany<StoredValidationRule>(o => o.ValidationRules);
+
         var rBuilder = modelBuilder.Entity<StoredRate>();
         rBuilder.HasOne(r => r.Owner).WithMany()
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<StoredAccount>()
-            .HasMany(a => a.Operations)
-            .WithOne(t => t.Account);
+        var bBuilder = modelBuilder.Entity<StoredBudget>();
+        bBuilder.HasMany(b => b.Operations).WithOne(t => t.Budget);
+        bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
+        bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(c => c.Budget);
+        bBuilder.OwnsMany<StoredTransferCriterion>(b => b.TransferCriteria).WithOwner(c => c.Budget);
+        bBuilder.OwnsOne<StoredLogbookCriteria>(b => b.LogbookCriteria, d =>
+        {
+            d.ToJson();
+            d.OwnsMany<StoredTag>(c => c.Tags);
+            d.OwnsMany<StoredLogbookCriteria>(c => c.Subcriteria, c => ConfigureSubcriteria(c));
+        });
+
+        var tBuilder = modelBuilder.Entity<StoredTransfer>();
+        tBuilder.OwnsOne(t => t.Fee);
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);
@@ -50,14 +69,28 @@ internal class BudgetContext(DbContextOptions options) : DbContext(options)
                 v => v.ToDictionary(),
                 new ShallowDictionaryComparer()
             );
-        oBuilder.HasOne<StoredTransfer>(o => o.SourceTransfer);
-        oBuilder.HasOne<StoredTransfer>(o => o.SinkTransfer);
+        oBuilder.HasOne(o => o.SourceTransfer)
+            .WithOne(t => t.Source)
+            .HasForeignKey<StoredTransfer>("SourceId");
 
-        var tBuilder = modelBuilder.Entity<StoredTransfer>();
-        tBuilder.OwnsOne(t => t.Fee);
-        tBuilder.HasOne(t => t.Source);
-        tBuilder.HasOne(t => t.Sink);
+        oBuilder.HasOne(o => o.SinkTransfer)
+            .WithOne(t => t.Sink)
+            .HasForeignKey<StoredTransfer>("SinkId");
+
+
+
 
         base.OnModelCreating(modelBuilder);
+    }
+
+    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredLogbookCriteria, StoredLogbookCriteria> s, int recursion = 10)
+    {
+        s.OwnsMany<StoredTag>(e => e.Tags);
+        var remainingDepth = recursion - 1;
+        if (remainingDepth > 0)
+        {
+            s.OwnsMany<StoredLogbookCriteria>(e => e.Subcriteria, e => ConfigureSubcriteria(e, remainingDepth));
+        }
+
     }
 }

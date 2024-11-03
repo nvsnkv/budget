@@ -4,9 +4,9 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Input;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.IO.Output;
+using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 using Error = CommandLine.Error;
 
 namespace NVs.Budget.Controllers.Console.Handlers;
@@ -25,17 +25,51 @@ internal class EntryPoint(
     {
         if (args.Length == 0)
         {
-            var reader = await inputs.GetInput();
-            if (reader.IsFailed)
+            do
             {
-                await resultWriter.Write(reader.ToResult(), ct);
-                return (int)ExitCode.ArgumentsError;
-            }
+                try
+                {
+                    var reader = await inputs.GetInput();
 
-            var line = await reader.Value.ReadLineAsync(ct);
-            args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+                    if (reader.IsFailed)
+                    {
+                        await resultWriter.Write(reader.ToResult(), ct);
+                        return (int)ExitCode.ArgumentsError;
+                    }
+
+                    var output = await streams.GetOutput(options.Value.OutputStreamName);
+                    await output.WriteAsync("> ");
+                    await output.FlushAsync(ct);
+
+                    var line = await reader.Value.ReadLineAsync(ct);
+                    if (ct.IsCancellationRequested)
+                    {
+                        return (int)ExitCode.Cancelled;
+                    }
+
+                    args = line?.Split(' ').Where(s => !string.IsNullOrEmpty(s)).ToArray() ?? args;
+                    await ProcessArgs(args, ct);
+                    await streams.ReleaseStreamsAsync();
+                    await inputs.ReleaseStreamsAsync();
+                }
+                catch(OperationCanceledException)
+                {
+                    return (int)ExitCode.Cancelled;
+                }
+                catch (Exception e)
+                {
+                    await resultWriter.Write(Result.Fail(new ExceptionalError(e)), ct);
+                    return (int)ExitCode.UnexpectedResult;
+                }
+
+            } while (!ct.IsCancellationRequested);
         }
 
+        return await ProcessArgs(args, ct);
+    }
+
+    private async Task<int> ProcessArgs(string[] args, CancellationToken ct)
+    {
         var parsedResult = parser.ParseArguments(args, SuperVerbTypes);
         return await parsedResult.MapResult(async obj =>
             {

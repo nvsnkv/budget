@@ -3,12 +3,12 @@ using CommandLine;
 using FluentResults;
 using MediatR;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.IO.Output;
-using NVs.Budget.Controllers.Console.Handlers.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
+using NVs.Budget.Infrastructure.IO.Console.Output;
 
 namespace NVs.Budget.Controllers.Console.Handlers.Commands.Operations;
 
@@ -25,7 +25,7 @@ internal class ListVerb : CriteriaBasedVerb
 internal class ListVerbHandler(
     IMediator mediator,
     IObjectWriter<TrackedOperation> objectWriter,
-    CriteriaParser criteriaParser,
+    ICriteriaParser criteriaParser,
     IResultWriter<Result> resultWriter
 ) : CriteriaBasedVerbHandler<ListVerb, TrackedOperation>(criteriaParser, resultWriter)
 {
