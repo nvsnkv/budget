@@ -11,9 +11,10 @@ public class LogbookCriteria(
     TagBasedCriterionType? type,
     IReadOnlyCollection<Tag>? tags,
     ReadableExpression<Func<Operation, string>>? substitution,
-    ReadableExpression<Func<Operation, bool>>? criteria)
+    ReadableExpression<Func<Operation, bool>>? criteria,
+    bool? isUniversal)
 {
-    public static readonly LogbookCriteria Universal = new(string.Empty, null, null, null, null, null);
+    public static readonly LogbookCriteria Universal = new(string.Empty, null, null, null, null, null, true);
 
     public string Description { get; } = description;
     public IReadOnlyCollection<LogbookCriteria>? Subcriteria { get; } = subcriteria;
@@ -21,6 +22,7 @@ public class LogbookCriteria(
     public IReadOnlyCollection<Tag>? Tags { get; } = tags;
     public ReadableExpression<Func<Operation, string>>? Substitution { get; } = substitution;
     public ReadableExpression<Func<Operation, bool>>? Criteria { get; } = criteria;
+    public bool? IsUniversal { get; } = isUniversal;
 
     public Criterion GetCriterion()
     {
@@ -44,9 +46,14 @@ public class LogbookCriteria(
                 : new TagBasedCriterion(Description, Tags, Type.Value);
         }
 
-        return subcriteria is not null
-            ? new UniversalCriterion(Description, subcriteria)
-            : new UniversalCriterion(Description);
+        if (subcriteria is not null)
+        {
+            return IsUniversal.HasValue && IsUniversal.Value
+                ? new UniversalCriterion(Description, subcriteria)
+                : new SubcriteriaDrivenCriterion(Description, subcriteria);
+        }
+
+        return new UniversalCriterion(Description);
     }
 
     public override string ToString() => $"{GetType().Name}: {Description}";

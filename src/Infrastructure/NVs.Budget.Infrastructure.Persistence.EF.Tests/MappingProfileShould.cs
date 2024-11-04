@@ -63,14 +63,14 @@ public class MappingProfileShould
                 null,
                 fixture.Create<TagBasedCriterionType>(),
                 fixture.Create<Generator<Tag>>().Take(5).ToList().AsReadOnly(),
-                null, null
+                null, null, null
                     ),
             new LogbookCriteria(
                 fixture.Create<string>(),
                 null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(),
-                null
+                null, null
                 )],
-            null, null, null, null
+            null, null, null, null, true
             ));
     }
 

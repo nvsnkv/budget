@@ -59,6 +59,12 @@ internal class YamlBasedLogbookCriteriaWriter(IOutputStreamProvider streams, IOp
                     emitter.Emit(new Scalar(null, criteria.Criteria.ToString()));
                 }
 
+                if (criteria.IsUniversal.HasValue)
+                {
+                    emitter.Emit(new Scalar(null, "universal"));
+                    emitter.Emit(new Scalar(null, criteria.IsUniversal.Value.ToString().ToLower()));
+                }
+
                 if (criteria.Substitution != null)
                 {
                     emitter.Emit(new Scalar(null, "substitution"));

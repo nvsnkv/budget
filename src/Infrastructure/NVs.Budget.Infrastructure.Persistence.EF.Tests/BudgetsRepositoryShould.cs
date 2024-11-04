@@ -59,15 +59,15 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
                     null,
                     manager.TestData.Fixture.Create<TagBasedCriterionType>(),
                     manager.TestData.Fixture.Create<Generator<Tag>>().Take(5).ToList().AsReadOnly(),
-                    null, null
+                    null, null, null
                 ),
                 new LogbookCriteria(
                     manager.TestData.Fixture.Create<string>(),
                     null, null, null, manager.TestData.Fixture.Create<ReadableExpression<Func<Operation, string>>>(),
-                    null
+                    null, null
                 )
             ],
-            null, null, null, null
+            null, null, null, null, true
         );
 
         var id = manager.TestData.Budgets.First().Id;
@@ -149,11 +149,11 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
 
         var criteria = new LogbookCriteria("Universal", [
             new LogbookCriteria("odds", [
-                new LogbookCriteria("subst", null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(), null)
-            ], TagBasedCriterionType.Including, [new("Odd")], null, null),
-            new LogbookCriteria("evens", null, TagBasedCriterionType.Including, [new("Evens")], null, null)
+                new LogbookCriteria("subst", null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(), null, null)
+            ], TagBasedCriterionType.Including, [new("Odd")], null, null, null),
+            new LogbookCriteria("evens", null, TagBasedCriterionType.Including, [new("Evens")], null, null, null)
             ],
-            null, null, null, null
+            null, null, null, null, true
         );
 
         updated.SetLogbookCriteria(criteria);
