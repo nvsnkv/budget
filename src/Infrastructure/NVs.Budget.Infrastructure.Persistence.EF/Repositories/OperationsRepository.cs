@@ -64,17 +64,17 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 return Result.Fail(new BudgetDoesNotExistsError(budget));
             }
 
-            var storedTransaction = new StoredOperation(Guid.Empty, u.Timestamp.ToUniversalTime(), u.Description)
+            var storedOperation = new StoredOperation(Guid.Empty, u.Timestamp.ToUniversalTime(), u.Description)
             {
                 Budget = storedBudget,
                 Amount = mapper.Map<StoredMoney>(u.Amount),
                 Attributes = new Dictionary<string, object>(u.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
             };
 
-            BumpVersion(storedTransaction);
-            await context.Operations.AddAsync(storedTransaction, ct);
+            BumpVersion(storedOperation);
+            await context.Operations.AddAsync(storedOperation, ct);
 
-            return Result.Ok(mapper.Map<TrackedOperation>(storedTransaction));
+            return Result.Ok(mapper.Map<TrackedOperation>(storedOperation));
         }, ct);
 
     public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
@@ -148,9 +148,10 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 hasChanges = true;
             }
 
-            if (target.Timestamp != u.Timestamp)
+            var utcTimestamp = u.Timestamp.ToUniversalTime();
+            if (target.Timestamp != utcTimestamp)
             {
-                target.Timestamp = u.Timestamp;
+                target.Timestamp = utcTimestamp;
                 hasChanges = true;
             }
 

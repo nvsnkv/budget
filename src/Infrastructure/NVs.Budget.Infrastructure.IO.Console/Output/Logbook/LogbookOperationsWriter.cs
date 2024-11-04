@@ -62,7 +62,9 @@ internal class LogbookOperationsWriter(IXLWorksheet worksheet, IMapper mapper)
             {
                 worksheet.Cell(_rowNum, _colNum).SetValue("|");
                 worksheet.Cell(_rowNum, _colNum + 1).SetValue(operation.Id.ToString());
-                worksheet.Cell(_rowNum, _colNum + 2).SetValue(operation.Timestamp);
+                var timestampCell = worksheet.Cell(_rowNum, _colNum + 2);
+                timestampCell.Style.NumberFormat.Format = "yyyy-MM-dd HH:mm:ss";
+                timestampCell.SetValue(operation.Timestamp);
                 worksheet.Cell(_rowNum, _colNum + 3).SetValue(operation.Amount);
                 worksheet.Cell(_rowNum, _colNum + 4).SetValue(operation.Description);
                 worksheet.Cell(_rowNum, _colNum + 5).SetValue(operation.Version);

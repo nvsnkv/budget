@@ -64,7 +64,7 @@ internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsReposi
 
         return new TrackedOperation(
             row.Id,
-            row.Timestamp,
+            DateTime.SpecifyKind(row.Timestamp, DateTimeKind.Local),
             amount,
             row.Description ?? string.Empty,
             budget,

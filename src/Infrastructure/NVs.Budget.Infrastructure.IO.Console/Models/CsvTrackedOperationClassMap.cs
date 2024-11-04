@@ -15,6 +15,5 @@ internal sealed class CsvTrackedOperationClassMap : ClassMap<CsvTrackedOperation
         Map(m => m.Attributes).Index(6);
         Map(m => m.BudgetId).Index(7);
         Map(m => m.Budget).Index(8);
-        Map(m => m.Bank).Index(9);
     }
 }
