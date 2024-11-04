@@ -18,10 +18,11 @@ jobs:
         working-directory: ./src
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - uses: actions/setup-gitversion@v1.0.0
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
