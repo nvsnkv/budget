@@ -21,8 +21,8 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     {
         testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
         var parser = testBed.GetCsvParser();
-        var options = await testBed.GetOptionsFrom("TestData\\ValidFile\\validFileConfig.yml");
-        var stream = File.OpenRead("TestData\\ValidFile\\validFile.csv");
+        var options = await testBed.GetOptionsFrom("TestData/ValidFile/validFileConfig.yml");
+        var stream = File.OpenRead("TestData/ValidFile/validFile.csv");
 
         var name = "validFile.csv";
         var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), options.GetFileOptionsFor(name).Value, CancellationToken.None).ToListAsync();
@@ -35,8 +35,8 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     {
         testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
         var parser = testBed.GetCsvParser();
-        var options = await testBed.GetOptionsFrom("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.yml");
-        var stream = File.OpenRead("TestData\\FileWithDotsInNumbersAndCyrillicAttributes\\file.csv");
+        var options = await testBed.GetOptionsFrom("TestData/FileWithDotsInNumbersAndCyrillicAttributes/file.yml");
+        var stream = File.OpenRead("TestData/FileWithDotsInNumbersAndCyrillicAttributes/file.csv");
 
         var name = "file.csv";
         var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), options.GetFileOptionsFor(name).Value, CancellationToken.None).ToListAsync();
