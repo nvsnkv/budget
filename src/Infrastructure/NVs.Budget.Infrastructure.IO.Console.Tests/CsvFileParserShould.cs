@@ -26,7 +26,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
 
         var name = "validFile.csv";
         var operations = await parser.ReadUnregisteredOperations(new StreamReader(stream), options.GetFileOptionsFor(name).Value, CancellationToken.None).ToListAsync();
-        operations.Should().AllSatisfy(r => r.Should().BeSuccess());
+        operations.Should().AllSatisfy(r => r.Should().BeSuccess($"{r.PrintoutReasons()}"));
         operations.Select(o => o.Value).Should().BeEquivalentTo(ValidFile.Operations);
     }
 
