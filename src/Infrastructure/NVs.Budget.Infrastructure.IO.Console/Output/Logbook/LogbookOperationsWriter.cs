@@ -1,5 +1,6 @@
 using AutoMapper;
 using ClosedXML.Excel;
+using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Domain.ValueObjects.Criteria;
@@ -25,7 +26,17 @@ internal class LogbookOperationsWriter(IXLWorksheet worksheet, IMapper mapper)
         worksheet.Cell(_rowNum, _colNum + 1).SetValue(range.Name);
         worksheet.Cell(_rowNum, _colNum + 2).SetValue(range.From);
         worksheet.Cell(_rowNum, _colNum + 3).SetValue(range.Till);
+        worksheet.Cell(_rowNum, _colNum + 4).SetValue(logbook.Criterion.Description);
+
+        var ranged = logbook[range.From, range.Till];
+
+        var sumCell = worksheet.Cell(_rowNum, _colNum + 4);
+        sumCell.SetValue(ranged.Sum.Amount);
+        sumCell.Style.NumberFormat.Format = "# ###0,00\" \"[$\u20bd-419]";
+
         _rowNum++;
+
+
 
         var logbooks = logbook.Children;
         if (logbooks.Any())
@@ -55,24 +66,27 @@ internal class LogbookOperationsWriter(IXLWorksheet worksheet, IMapper mapper)
             worksheet.Cell(_rowNum, _colNum + 7).SetValue(nameof(CsvTrackedOperation.Attributes));
             worksheet.Cell(_rowNum, _colNum + 8).SetValue(nameof(CsvTrackedOperation.BudgetId));
             worksheet.Cell(_rowNum, _colNum + 9).SetValue(nameof(CsvTrackedOperation.Budget));
-            worksheet.Cell(_rowNum, _colNum + 10).SetValue(nameof(CsvTrackedOperation.Bank));
             _rowNum++;
 
-            foreach (var operation in logbook[range.From, range.Till].Operations.Select(mapper.Map<CsvTrackedOperation>))
+            foreach (var operation in ranged.Operations.Cast<TrackedOperation>())
             {
+                var converted = mapper.Map<CsvTrackedOperation>(operation);
+
                 worksheet.Cell(_rowNum, _colNum).SetValue("|");
                 worksheet.Cell(_rowNum, _colNum + 1).SetValue(operation.Id.ToString());
                 var timestampCell = worksheet.Cell(_rowNum, _colNum + 2);
                 timestampCell.Style.NumberFormat.Format = "yyyy-MM-dd HH:mm:ss";
                 timestampCell.SetValue(operation.Timestamp);
-                worksheet.Cell(_rowNum, _colNum + 3).SetValue(operation.Amount);
+
+                var amountCell = worksheet.Cell(_rowNum, _colNum + 3);
+                amountCell.SetValue(operation.Amount.Amount);
+                amountCell.Style.NumberFormat.Format = "# ###0,00\" \"[$\u20bd-419]";
                 worksheet.Cell(_rowNum, _colNum + 4).SetValue(operation.Description);
                 worksheet.Cell(_rowNum, _colNum + 5).SetValue(operation.Version);
-                worksheet.Cell(_rowNum, _colNum + 6).SetValue(operation.Tags);
-                worksheet.Cell(_rowNum, _colNum + 7).SetValue(operation.Attributes);
-                worksheet.Cell(_rowNum, _colNum + 8).SetValue(operation.BudgetId.ToString());
-                worksheet.Cell(_rowNum, _colNum + 9).SetValue(operation.Budget);
-                worksheet.Cell(_rowNum, _colNum + 10).SetValue(operation.Bank);
+                worksheet.Cell(_rowNum, _colNum + 6).SetValue(converted.Tags);
+                worksheet.Cell(_rowNum, _colNum + 7).SetValue(converted.Attributes);
+                worksheet.Cell(_rowNum, _colNum + 8).SetValue(converted.BudgetId.ToString());
+                worksheet.Cell(_rowNum, _colNum + 9).SetValue(converted.Budget);
 
                 _rowNum++;
             }

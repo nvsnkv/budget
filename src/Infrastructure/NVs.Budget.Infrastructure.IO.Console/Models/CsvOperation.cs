@@ -8,5 +8,4 @@ internal class CsvOperation
     public string? Tags { get; init; }
     public string? Attributes { get; init; }
     public string? Budget { get; init; }
-    public string? Bank { get; init; }
 }
