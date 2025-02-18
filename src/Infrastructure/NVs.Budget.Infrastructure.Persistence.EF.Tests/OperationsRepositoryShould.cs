@@ -20,10 +20,6 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public OperationsRepositoryShould(DbContextManager manager)
     {
         _fixture = manager.TestData.Fixture;
-        if (!_fixture.Customizations.Any(c => c is UtcRandomDateTimeSequenceGenerator))
-        {
-            _fixture.Customizations.Add(new UtcRandomDateTimeSequenceGenerator());
-        }
 
         var context = manager.GetDbBudgetContext();
         _repo = new(manager.Mapper, context, new VersionGenerator(), new BudgetsFinder(context));
