@@ -59,8 +59,8 @@ public class ReadableExpressionsParserShould
     [Fact]
     public void ParseMultilineBinaryPredicate()
     {
-        var predicate = @"(l, r) => l.GetHashCode() == l.GetHashCode()
-                    && r.GetHashCode() != r.GetHashCode()";
+        var predicate = @"(l, r) => l == l
+                    && r != r";
 
         var expr = _parser.ParseBinaryPredicate<object, object>(predicate);
         expr.Should().BeSuccess();

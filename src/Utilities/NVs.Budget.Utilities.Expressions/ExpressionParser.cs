@@ -10,7 +10,8 @@ public class ExpressionParser(params Type[] additionalTypes)
 {
     private ParsingConfig _config = new()
     {
-        CustomTypeProvider = new TypesProvider(additionalTypes)
+        CustomTypeProvider = new TypesProvider(additionalTypes),
+        AllowEqualsAndToStringMethodsOnObject = true,
     };
 
     public virtual ExpressionParser RegisterAdditionalTypes(params Type[] additionalTypes)
@@ -33,7 +34,7 @@ public class ExpressionParser(params Type[] additionalTypes)
         return Expression.Lambda<T>(body, args);
     }
 
-    private class TypesProvider : IDynamicLinkCustomTypeProvider
+    private class TypesProvider : IDynamicLinqCustomTypeProvider
     {
         private readonly Dictionary<Type, List<MethodInfo>> _extensionMethods = new();
         private readonly HashSet<Type> _customTypes = [typeof(Money)];
