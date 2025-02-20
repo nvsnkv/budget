@@ -1,10 +1,11 @@
 ﻿using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
-namespace NVs.Budget.Infrastructure.Persistence.EF.Context;
+namespace NVs.Budget.Infrastructure.Persistence.EF.Common;
 
-internal class PostgreSqlDbMigrator(BudgetContext context) : IDbMigrator
+public class PostgreSqlDbMigrator(DbContext context) : IDbMigrator
 {
     public async Task MigrateAsync(CancellationToken ct)
     {

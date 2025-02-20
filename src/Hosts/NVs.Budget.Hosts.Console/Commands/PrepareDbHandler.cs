@@ -9,19 +9,23 @@ using NVs.Budget.Infrastructure.Persistence.EF.Context;
 namespace NVs.Budget.Hosts.Console.Commands;
 
 [UsedImplicitly]
-internal class PrepareDbHandler(IDbMigrator migrator, IResultWriter<Result> writer) : IRequestHandler<PrepareDbVerb, ExitCode>
+internal class PrepareDbHandler(IEnumerable<IDbMigrator> migrators, IResultWriter<Result> writer) : IRequestHandler<PrepareDbVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(PrepareDbVerb request, CancellationToken cancellationToken)
     {
-        try
+        foreach (var migrator in migrators)
         {
-            await migrator.MigrateAsync(cancellationToken);
-            return ExitCode.Success;
+            try
+            {
+                await migrator.MigrateAsync(cancellationToken);
+            }
+            catch (Exception e)
+            {
+                await writer.Write(Result.Fail(new ExceptionBasedError(e)), cancellationToken);
+                return ExitCode.OperationError;
+            }
         }
-        catch (Exception e)
-        {
-            await writer.Write(Result.Fail(new ExceptionBasedError(e)), cancellationToken);
-            return ExitCode.OperationError;
-        }
+
+        return ExitCode.Success;
     }
 }

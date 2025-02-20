@@ -1,0 +1,6 @@
+﻿services:
+  nvs.budget.hosts.web:
+    image: nvs.budget.hosts.web
+    build:
+      context: .
+      dockerfile: Hosts/NVs.Budget.Hosts.Web/Dockerfile

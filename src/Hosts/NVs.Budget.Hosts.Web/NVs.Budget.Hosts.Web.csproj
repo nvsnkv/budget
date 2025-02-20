@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Application\NVs.Budget.Application.UseCases\NVs.Budget.Application.UseCases.csproj" />
+      <ProjectReference Include="..\..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
+      <ProjectReference Include="..\..\Controllers\NVs.Budget.Controllers.Web.AspNetCore.Identity\NVs.Budget.Controllers.Web.AspNetCore.Identity.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.ExchangeRates.CBRF\NVs.Budget.Infrastructure.ExchangeRates.CBRF.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.Persistence.EF.AspNetCore.Identity\NVs.Budget.Infrastructure.Persistence.EF.AspNetCore.Identity.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj" />
+    </ItemGroup>
+
+</Project>

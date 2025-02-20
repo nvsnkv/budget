@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
+using NVs.Budget.Infrastructure.Persistence.EF.Common;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;
@@ -24,8 +25,8 @@ public static class EfCorePersistenceExtensions
             .AddTransient<IStreamingOperationRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()
             .AddTransient<ITransfersRepository, TransfersRepository>()
-            .AddTransient<IDbMigrator, PostgreSqlDbMigrator>()
-            .AddTransient<IDbConnectionInfo, DbConnectionInfo>();
+            .AddTransient<IDbMigrator>(s => new PostgreSqlDbMigrator(s.GetRequiredService<BudgetContext>()))
+            .AddTransient<IDbConnectionInfo>(s => new DbConnectionInfo(s.GetRequiredService<BudgetContext>()));
 
         return services;
     }

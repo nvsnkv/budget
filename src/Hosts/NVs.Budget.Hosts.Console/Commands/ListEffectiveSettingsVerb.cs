@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
+using NVs.Budget.Infrastructure.Persistence.EF.Common;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 namespace NVs.Budget.Hosts.Console.Commands;
@@ -16,7 +17,7 @@ internal class ListEffectiveSettingsVerbHandler(
     IOutputStreamProvider streams,
     IOptions<OutputOptions> outputOptions,
     IConfigurationRoot configuration,
-    IDbConnectionInfo dbConnectionInfo
+    IEnumerable<IDbConnectionInfo> dbConnectionInfos
 ) : IRequestHandler<ListEffectiveSettingsVerb, ExitCode>
 {
     public async Task<ExitCode> Handle(ListEffectiveSettingsVerb request, CancellationToken cancellationToken)
@@ -41,9 +42,13 @@ internal class ListEffectiveSettingsVerbHandler(
         await writer.WriteLineAsync();
 
         await writer.WriteLineAsync("3. EF Core: Database");
-        await writer.WriteLineAsync($"{nameof(dbConnectionInfo.DataSource)}: {dbConnectionInfo.DataSource}");
-        await writer.WriteLineAsync($"{nameof(dbConnectionInfo.Database)}: {dbConnectionInfo.Database}");
-        await writer.WriteLineAsync();
+        foreach (var dbConnectionInfo in dbConnectionInfos)
+        {
+            await writer.WriteLineAsync($"{nameof(dbConnectionInfo.Context)}: {dbConnectionInfo.Context}");
+            await writer.WriteLineAsync($"{nameof(dbConnectionInfo.DataSource)}: {dbConnectionInfo.DataSource}");
+            await writer.WriteLineAsync($"{nameof(dbConnectionInfo.Database)}: {dbConnectionInfo.Database}");
+            await writer.WriteLineAsync();
+        }
 
         await writer.WriteLineAsync("4. Parsing rules");
         await writer.WriteLineAsync($"CultureCode: {configuration.GetValue<string>("CultureCode") ?? "not specified"}");
