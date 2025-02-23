@@ -9,11 +9,16 @@ using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
 
-internal class Oauth2BasedIdentityService(HttpContext httpContext, UserMappingContext mappingContext, IOwnersRepository ownersRepo) : IIdentityService
+internal class Oauth2BasedIdentityService(IHttpContextAccessor accessor, UserMappingContext mappingContext, IOwnersRepository ownersRepo) : IIdentityService
 {
     public async Task<IUser> GetCurrentUser(CancellationToken ct)
     {
-        var result = await httpContext.AuthenticateAsync();
+        if (accessor.HttpContext is null)
+        {
+            throw new InvalidOperationException("HttpContext is null!");
+        }
+
+        var result = await accessor.HttpContext.AuthenticateAsync();
         if (result.Succeeded)
         {
             var userId = result.Principal.FindFirst(ClaimTypes.Email)?.Value;

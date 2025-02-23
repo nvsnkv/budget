@@ -6,30 +6,34 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Infrastructure.Identity.Contracts;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.Mapping;
+using NVs.Budget.Infrastructure.Persistence.EF.Common;
+using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using OpenIddict.Client.WebIntegration;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
 
 public static class WebIdentityExtensions
 {
-    internal static class URIs
+    private static class URIs
     {
-        public static string YandexRedirectUri = "callback/login/yandex";
+        public static readonly string YandexRedirectUri = "callback/login/yandex";
     }
 
     public static IServiceCollection AddYandexAuth(this IServiceCollection services, YandexAuthConfig config, string connectionString)
     {
         services.AddScoped<IIdentityService, Oauth2BasedIdentityService>();
 
-        services.AddDbContext<UserMappingContext>();
+        services.AddDbContext<UserMappingContext>(ops => ops.UseNpgsql(connectionString));
         services.AddAuthentication();
         services.AddAuthorization();
+        services.AddHttpContextAccessor();
 
         services.AddDbContext<UserMappingContext>(ops =>
         {
             ops.UseNpgsql(connectionString);
             ops.UseOpenIddict();
         });
+        services.AddTransient<IDbMigrator, PostgreSqlDbMigrator<UserMappingContext>>();
 
         services.AddOpenIddict().AddCore(opts => opts.UseEntityFrameworkCore().UseDbContext<UserMappingContext>());
 

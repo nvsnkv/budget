@@ -28,7 +28,7 @@ public class DbContextManager : IAsyncLifetime
     {
         await _postgreSqlContainer.StartAsync();
         var context = GetDbBudgetContext();
-        await new PostgreSqlDbMigrator(context).MigrateAsync(CancellationToken.None);
+        await new PostgreSqlDbMigrator<BudgetContext>(context).MigrateAsync(CancellationToken.None);
 
         var owners = Mapper.Map<IEnumerable<StoredOwner>>(TestData.Owners).ToList().ToDictionary(o => o.Id);
         var budgets = Mapper.Map<IEnumerable<StoredBudget>>(TestData.Budgets).ToList();

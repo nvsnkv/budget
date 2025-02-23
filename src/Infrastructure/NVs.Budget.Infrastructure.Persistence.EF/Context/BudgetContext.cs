@@ -7,7 +7,7 @@ using NVs.Budget.Utilities.Json;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Context;
 
-internal class BudgetContext(DbContextOptions options) : DbContext(options)
+internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContext(options)
 {
     public DbSet<StoredOwner> Owners { get; init; } = null!;
 

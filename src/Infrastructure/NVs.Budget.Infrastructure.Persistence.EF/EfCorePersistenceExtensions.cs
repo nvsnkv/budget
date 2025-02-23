@@ -25,7 +25,7 @@ public static class EfCorePersistenceExtensions
             .AddTransient<IStreamingOperationRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()
             .AddTransient<ITransfersRepository, TransfersRepository>()
-            .AddTransient<IDbMigrator>(s => new PostgreSqlDbMigrator(s.GetRequiredService<BudgetContext>()))
+            .AddTransient<IDbMigrator, PostgreSqlDbMigrator<BudgetContext>>()
             .AddTransient<IDbConnectionInfo>(s => new DbConnectionInfo(s.GetRequiredService<BudgetContext>()));
 
         return services;

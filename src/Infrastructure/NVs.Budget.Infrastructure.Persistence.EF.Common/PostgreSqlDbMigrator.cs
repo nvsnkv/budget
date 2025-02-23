@@ -5,7 +5,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Common;
 
-public class PostgreSqlDbMigrator(DbContext context) : IDbMigrator
+public class PostgreSqlDbMigrator<T>(T context) : IDbMigrator where T : DbContext
 {
     public async Task MigrateAsync(CancellationToken ct)
     {
