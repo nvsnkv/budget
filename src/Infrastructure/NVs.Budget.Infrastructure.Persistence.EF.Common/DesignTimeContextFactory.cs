@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Common;
 
-internal sealed class DesignTimeContextFactory<T> : IDesignTimeDbContextFactory<T> where T: DbContext, new()
+public class DesignTimeContextFactory<T> : IDesignTimeDbContextFactory<T> where T: DbContext
 {
     public T CreateDbContext(string[] args)
     {

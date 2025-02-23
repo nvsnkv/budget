@@ -4,5 +4,5 @@ namespace NVs.Budget.Infrastructure.Identity.Contracts;
 
 public interface IIdentityService
 {
-    public Task<IUser> GetCurrentUser(CancellationToken ct);
+    Task<IUser> GetCurrentUser(CancellationToken ct);
 }
