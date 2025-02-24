@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj" />
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
       <ProjectReference Include="..\NVs.Budget.Infrastructure.Persistence.EF.Common\NVs.Budget.Infrastructure.Persistence.EF.Common.csproj" />

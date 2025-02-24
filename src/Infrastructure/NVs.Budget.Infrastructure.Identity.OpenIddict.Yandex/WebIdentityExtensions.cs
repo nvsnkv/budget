@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NVs.Budget.Application;
 using NVs.Budget.Infrastructure.Identity.Contracts;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.Mapping;
+using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.Persistence;
 using NVs.Budget.Infrastructure.Persistence.EF.Common;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using OpenIddict.Abstractions;
@@ -66,6 +68,7 @@ public static class WebIdentityExtensions
 
         services.AddHttpContextAccessor();
 
+
        return services;
     }
 
@@ -73,6 +76,8 @@ public static class WebIdentityExtensions
     {
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.UseMiddleware<UserCacheInitializationMiddleware>();
 
         app.MapGet("challenge", () =>
         {
@@ -95,12 +100,12 @@ public static class WebIdentityExtensions
             return Results.BadRequest(result.Failure?.Message);
         });
 
-        app.MapGet("whoami", async (HttpContext context) =>
+        app.MapGet("whoami", async (HttpContext context, UserCache cache) =>
         {
             var result = await context.AuthenticateAsync();
             return Results.Text(result is not { Succeeded: true }
                 ? "You're not logged in."
-                : $"You are {result.Principal.FindFirst(ClaimTypes.Name)!.Value}.");
+                : $"You are {result.Principal.FindFirst(ClaimTypes.Name)!.Value}. Associated owner id: {cache.CachedUser.AsOwner().Id}");
         });
 
         return app;
