@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +10,8 @@ using NVs.Budget.Infrastructure.Identity.Contracts;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.Mapping;
 using NVs.Budget.Infrastructure.Persistence.EF.Common;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
+using OpenIddict.Abstractions;
+using OpenIddict.Client.AspNetCore;
 using OpenIddict.Client.WebIntegration;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
@@ -23,16 +27,12 @@ public static class WebIdentityExtensions
     {
         services.AddScoped<IIdentityService, Oauth2BasedIdentityService>();
 
-        services.AddDbContext<UserMappingContext>(ops => ops.UseNpgsql(connectionString));
-        services.AddAuthentication();
-        services.AddAuthorization();
-        services.AddHttpContextAccessor();
-
         services.AddDbContext<UserMappingContext>(ops =>
         {
             ops.UseNpgsql(connectionString);
             ops.UseOpenIddict();
         });
+
         services.AddTransient<IDbMigrator, PostgreSqlDbMigrator<UserMappingContext>>();
 
         services.AddOpenIddict().AddCore(opts => opts.UseEntityFrameworkCore().UseDbContext<UserMappingContext>());
@@ -44,7 +44,10 @@ public static class WebIdentityExtensions
                     .AddDevelopmentEncryptionCertificate()
                     .AddDevelopmentSigningCertificate();
 
-                opts.UseAspNetCore().EnableRedirectionEndpointPassthrough();
+                opts.UseAspNetCore()
+                    .EnableRedirectionEndpointPassthrough();
+
+                opts.UseSystemNetHttp();
 
                 opts.UseWebProviders()
                     .AddYandex(yopts =>
@@ -55,6 +58,14 @@ public static class WebIdentityExtensions
                     });
             });
 
+        services.AddAuthorization();
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o =>
+        {
+            o.ForwardChallenge = OpenIddictClientAspNetCoreDefaults.AuthenticationScheme;
+        });
+
+        services.AddHttpContextAccessor();
+
        return services;
     }
 
@@ -63,11 +74,25 @@ public static class WebIdentityExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("challenge", () => Results.Challenge(properties: null, authenticationSchemes: [OpenIddictClientWebIntegrationConstants.Providers.Yandex]));
+        app.MapGet("challenge", () =>
+        {
+            var properties = new AuthenticationProperties(new Dictionary<string, string?>
+            {
+                [OpenIddictClientAspNetCoreConstants.Properties.ProviderName] = OpenIddictClientWebIntegrationConstants.Providers.Yandex
+            });
+
+            return Results.Challenge(properties, authenticationSchemes: [OpenIddictClientAspNetCoreDefaults.AuthenticationScheme]);
+        });
         app.MapMethods(URIs.YandexRedirectUri, [HttpMethods.Get, HttpMethods.Post], async (HttpContext context) =>
         {
-            var result = await context.AuthenticateAsync(OpenIddictClientWebIntegrationConstants.Providers.Yandex);
-            return !result.Succeeded ? Results.BadRequest(result.Failure?.Message) : Results.Redirect(authRedirectUri);
+            var result = await context.AuthenticateAsync(OpenIddictClientAspNetCoreDefaults.AuthenticationScheme);
+            if (result.Succeeded)
+            {
+                await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, result.Principal);
+                return Results.Redirect(authRedirectUri);
+            }
+
+            return Results.BadRequest(result.Failure?.Message);
         });
 
         app.MapGet("whoami", async (HttpContext context) =>
