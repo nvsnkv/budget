@@ -15,6 +15,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using OpenIddict.Abstractions;
 using OpenIddict.Client.AspNetCore;
 using OpenIddict.Client.WebIntegration;
+using OpenIddict.Server;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
 
@@ -22,7 +23,9 @@ public static class WebIdentityExtensions
 {
     private static class URIs
     {
-        public static readonly string YandexRedirectUri = "callback/login/yandex";
+        public static readonly string YandexRedirectUri = "auth/callback/login/yandex";
+        public static readonly string ChallengeUrl = "auth/challenge";
+        public static readonly string WhoamiUrl = "auth/whoami";
     }
 
     public static IServiceCollection AddYandexAuth(this IServiceCollection services, YandexAuthConfig config, string connectionString)
@@ -79,7 +82,7 @@ public static class WebIdentityExtensions
 
         app.UseMiddleware<UserCacheInitializationMiddleware>();
 
-        app.MapGet("challenge", () =>
+        app.MapGet(URIs.ChallengeUrl, () =>
         {
             var properties = new AuthenticationProperties(new Dictionary<string, string?>
             {
@@ -88,6 +91,7 @@ public static class WebIdentityExtensions
 
             return Results.Challenge(properties, authenticationSchemes: [OpenIddictClientAspNetCoreDefaults.AuthenticationScheme]);
         });
+
         app.MapMethods(URIs.YandexRedirectUri, [HttpMethods.Get, HttpMethods.Post], async (HttpContext context) =>
         {
             var result = await context.AuthenticateAsync(OpenIddictClientAspNetCoreDefaults.AuthenticationScheme);
@@ -100,12 +104,12 @@ public static class WebIdentityExtensions
             return Results.BadRequest(result.Failure?.Message);
         });
 
-        app.MapGet("whoami", async (HttpContext context, UserCache cache) =>
+        app.MapGet(URIs.WhoamiUrl, async (HttpContext context, UserCache cache) =>
         {
             var result = await context.AuthenticateAsync();
-            return Results.Text(result is not { Succeeded: true }
-                ? "You're not logged in."
-                : $"You are {result.Principal.FindFirst(ClaimTypes.Name)!.Value}. Associated owner id: {cache.CachedUser.AsOwner().Id}");
+            return result.Succeeded
+                ? Results.Ok(new WhoamiResponse(true, cache.CachedUser))
+                : Results.Ok(new WhoamiResponse(false, null));
         });
 
         return app;
