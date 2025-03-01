@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -12,20 +10,21 @@ using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.Mapping;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.Persistence;
 using NVs.Budget.Infrastructure.Persistence.EF.Common;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
-using OpenIddict.Abstractions;
 using OpenIddict.Client.AspNetCore;
 using OpenIddict.Client.WebIntegration;
-using OpenIddict.Server;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
 
 public static class WebIdentityExtensions
 {
+    // ReSharper disable once InconsistentNaming
     private static class URIs
     {
-        public static readonly string YandexRedirectUri = "auth/callback/login/yandex";
-        public static readonly string ChallengeUrl = "auth/challenge";
-        public static readonly string WhoamiUrl = "auth/whoami";
+        public static readonly string YandexRedirectUri = "/auth/callback/login/yandex";
+        public static readonly string ChallengeUrl = "/auth/challenge";
+        public static readonly string WhoamiUrl = "/auth/whoami";
+        public static readonly string LogoutUri = "/auth/logout";
+        public static readonly string LoginUrl = "/auth/login";
     }
 
     public static IServiceCollection AddYandexAuth(this IServiceCollection services, YandexAuthConfig config, string connectionString)
@@ -75,6 +74,7 @@ public static class WebIdentityExtensions
        return services;
     }
 
+    // ReSharper disable once UnusedMethodReturnValue.Global
     public static WebApplication UseYandexAuth(this WebApplication app, string authRedirectUri)
     {
         app.UseAuthentication();
@@ -111,6 +111,14 @@ public static class WebIdentityExtensions
                 ? Results.Ok(new WhoamiResponse(true, cache.CachedUser))
                 : Results.Ok(new WhoamiResponse(false, null));
         });
+
+        app.MapGet(URIs.LogoutUri, async (HttpContext context) =>
+        {
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Results.Redirect(authRedirectUri);
+        });
+
+        app.MapGet(URIs.LoginUrl,  (HttpContext _) => Results.Redirect(URIs.ChallengeUrl));
 
         return app;
     }
