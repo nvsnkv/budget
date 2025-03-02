@@ -16,8 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLogging(b => b.AddSerilog(dispose: true));
 var identityConnectionString = builder.Configuration.GetConnectionString("IdentityContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!");
 var contentConnectionString = builder.Configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!");
-
 var yandexAuthConfig = builder.Configuration.GetSection("Auth:Yandex").Get<YandexAuthConfig>() ?? throw new InvalidOperationException("No Auth config found for Yandex provider!");
+var frontendUrl = builder.Configuration.GetSection("FrontendUrl").Get<string>() ?? throw new InvalidOperationException("No FrontendUrl config found!");
+
 builder.Services
     .AddEfCorePersistence(
         contentConnectionString,
@@ -34,18 +35,18 @@ builder.Services
     .AddSingleton(new Factory().CreateProvider())
     .AddCors(opts =>
     {
-        if (builder.Environment.IsDevelopment())
-        {
-            opts.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-        }
+        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string>() ?? string.Empty;
+        opts.AddDefaultPolicy(b => b.WithOrigins(allowedOrigins.Split(';')).AllowCredentials().AllowAnyHeader().AllowAnyMethod());
     })
+
     .AddWebControllers();
 
 
+
 var app = builder.Build();
-app.UseYandexAuth("/");
+app.UseYandexAuth(frontendUrl);
 app.UseCors();
-app.MapGet("/", () => "OK");
+app.MapGet("/", () => Results.Redirect(frontendUrl));
 app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, CancellationToken ct) =>
 {
     foreach (var migrator in migrators)

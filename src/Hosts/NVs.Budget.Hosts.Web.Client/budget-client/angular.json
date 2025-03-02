@@ -71,7 +71,12 @@
               "buildTarget": "budget-client:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "ssl": true,
+            "sslCert": "./certificates/dev/nginx.crt",
+            "sslKey": "./certificates/dev/nginx.key"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"

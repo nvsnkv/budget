@@ -19,11 +19,11 @@ export class AuthService {
   }
 
   whoAmI(): Observable<AuthResponse> {
-    return this.http.get<AuthResponse>(this.buildUrl('auth/whoami'));
+    return this.http.get<AuthResponse>(this.buildUrl('auth/whoami'), { withCredentials: true });
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(this.buildUrl('auth/logout'), {});
+    return this.http.get<void>(this.buildUrl('auth/logout'), { withCredentials: true });
   }
 
   private buildUrl(endpoint: string): string {

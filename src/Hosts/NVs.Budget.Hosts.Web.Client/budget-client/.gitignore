@@ -40,3 +40,5 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+/certificates/dev/nginx.crt
+/certificates/dev/nginx.key

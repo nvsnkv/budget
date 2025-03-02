@@ -33,11 +33,4 @@ export class AuthComponent implements OnInit {
       this.isAuthenticated = response.isAuthenticated;
     });
   }
-
-  logout() {
-    this.authService.logout().subscribe(() => {
-      this.router.navigate(['/']); // Переходим на главную страницу
-      window.location.reload(); // Перезагружаем страницу после выхода
-    });
-  }
 }
