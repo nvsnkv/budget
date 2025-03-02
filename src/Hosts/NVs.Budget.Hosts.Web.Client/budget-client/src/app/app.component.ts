@@ -1,8 +1,9 @@
+import { TuiButton, TuiRoot } from "@taiga-ui/core";
+import { TuiBlockStatus, TuiNavigation } from "@taiga-ui/layout"
 import { Component, enableProdMode } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthComponent } from './auth/auth/auth.component';
 import { environment } from '../environments/environment';
-import { AuthService } from './auth/auth/auth.service';
 
 if (environment.production) {
   enableProdMode();
@@ -10,7 +11,7 @@ if (environment.production) {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, AuthComponent],
+  imports: [RouterOutlet, AuthComponent, TuiRoot, TuiNavigation, TuiBlockStatus, TuiButton],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -1,6 +1,6 @@
 <div *ngIf="isAuthenticated">
-    <a href="{{BaseUrl + '/auth/logout'}}">Выйти</a>
+    <a tuiLink href="{{BaseUrl + '/auth/logout'}}">Выйти</a>
 </div>
 <div *ngIf="!isAuthenticated">
-    <a href="{{BaseUrl + '/auth/login'}}">Войти</a>
+    <a tuiLink href="{{BaseUrl + '/auth/login'}}">Войти</a>
 </div>

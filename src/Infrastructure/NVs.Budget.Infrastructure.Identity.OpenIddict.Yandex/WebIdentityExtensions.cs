@@ -110,8 +110,8 @@ public static class WebIdentityExtensions
         {
             var result = await context.AuthenticateAsync();
             return result.Succeeded
-                ? Results.Ok(new WhoamiResponse(true, cache.CachedUser))
-                : Results.Ok(new WhoamiResponse(false, null));
+                ? Results.Ok(new WhoamiResponse(true, cache.CachedUser, cache.CachedUser.AsOwner()))
+                : Results.Ok(new WhoamiResponse(false, null, null));
         });
 
         app.MapGet(URIs.LogoutUri, async (HttpContext context) =>

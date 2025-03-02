@@ -1,2 +1,23 @@
-<app-auth></app-auth>
-<router-outlet />
+<tui-root>
+    <header tuiNavigationHeader>
+        <span tuiNavigationLogo> The Budget.</span>
+        <app-auth class="authLink"></app-auth>
+    </header>
+    <main tuiNavigationMain>
+        <tui-block-status size="m">
+            <h4>Work in progress</h4>
+         
+            <span>We'll have content here, at some point...</span>
+         
+            <button
+                appearance="secondary"
+                size="s"
+                tuiButton
+                type="button"
+            >
+                OK
+            </button>
+        </tui-block-status>
+        <router-outlet />
+    </main>
+</tui-root>

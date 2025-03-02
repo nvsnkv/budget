@@ -22,10 +22,6 @@ export class AuthService {
     return this.http.get<AuthResponse>(this.buildUrl('auth/whoami'), { withCredentials: true });
   }
 
-  logout(): Observable<void> {
-    return this.http.get<void>(this.buildUrl('auth/logout'), { withCredentials: true });
-  }
-
   private buildUrl(endpoint: string): string {
     return `${this.baseUrl}/${endpoint}`;
   }
