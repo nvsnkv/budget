@@ -32,12 +32,19 @@ builder.Services
     .AddTransient<IReckoner>(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
     .AddApplicationUseCases()
     .AddSingleton(new Factory().CreateProvider())
+    .AddCors(opts =>
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            opts.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+        }
+    })
     .AddWebControllers();
 
 
 var app = builder.Build();
 app.UseYandexAuth("/");
-
+app.UseCors();
 app.MapGet("/", () => "OK");
 app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, CancellationToken ct) =>
 {

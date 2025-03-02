@@ -65,6 +65,8 @@ public static class WebIdentityExtensions
         services.AddAuthorization();
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o =>
         {
+            o.Cookie.HttpOnly = false;
+            o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             o.ForwardChallenge = OpenIddictClientAspNetCoreDefaults.AuthenticationScheme;
         });
 
