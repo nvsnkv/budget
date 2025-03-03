@@ -1,7 +1,12 @@
 <tui-root>
-    <header tuiNavigationHeader>
+    <header tuiNavigationHeader [class]="'flex-space-between'">
         <span tuiNavigationLogo> The Budget.</span>
-        <app-auth class="authLink"></app-auth>
+        <span>
+            <span *ngIf="isAuthenticated$ | async">
+                <span>{{ownerName$ | async}}</span>
+            </span>
+            <app-auth></app-auth>
+        </span>
     </header>
     <main tuiNavigationMain>
         <tui-block-status size="m">

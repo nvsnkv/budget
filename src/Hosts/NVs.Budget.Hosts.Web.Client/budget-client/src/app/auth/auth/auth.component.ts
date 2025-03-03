@@ -10,7 +10,7 @@ import { TuiLink } from '@taiga-ui/core';
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
-  styleUrls: ['./auth.component.css'],
+  styleUrls: ['./auth.component.less'],
   imports: [CommonModule, TuiLink],
 })
 export class AuthComponent implements OnInit {
