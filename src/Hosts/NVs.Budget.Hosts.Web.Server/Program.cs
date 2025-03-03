@@ -39,12 +39,14 @@ builder.Services
         opts.AddDefaultPolicy(b => b.WithOrigins(allowedOrigins.Split(';')).AllowCredentials().AllowAnyHeader().AllowAnyMethod());
     })
 
-    .AddWebControllers();
+    .AddWebControllers(ReadableExpressionsParser.Default);
 
 
 
 var app = builder.Build();
 app.UseYandexAuth(frontendUrl);
+app.UseWebControllers(app.Environment.IsDevelopment());
+
 app.UseCors();
 app.MapGet("/", () => Results.Redirect(frontendUrl));
 app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, CancellationToken ct) =>
