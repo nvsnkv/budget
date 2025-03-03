@@ -1,6 +1,9 @@
 <tui-root>
     <header tuiNavigationHeader [class]="'flex-space-between'">
-        <span tuiNavigationLogo> The Budget.</span>
+        <span [class]="'flex'">
+            <span tuiNavigationLogo> <a routerLink="/" tuiLink>The Budget.</a></span>
+            <span [class]="'flex'"><a tuiLink routerLink="/budget/new"> + </a></span>
+        </span>
         <span>
             <span *ngIf="isAuthenticated$ | async">
                 <span>{{ownerName$ | async}}</span>
@@ -9,20 +12,6 @@
         </span>
     </header>
     <main tuiNavigationMain>
-        <tui-block-status size="m">
-            <h4>Work in progress</h4>
-         
-            <span>We'll have content here, at some point...</span>
-         
-            <button
-                appearance="secondary"
-                size="s"
-                tuiButton
-                type="button"
-            >
-                OK
-            </button>
-        </tui-block-status>
         <router-outlet />
     </main>
 </tui-root>

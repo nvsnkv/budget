@@ -1,7 +1,9 @@
+using System.Net;
 using Asp.Versioning;
 using AutoMapper;
 using FluentResults;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
@@ -13,7 +15,7 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 
 [Authorize]
 [ApiVersion("0.1")]
-[Route("api/{version:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class BudgetController(
     IBudgetManager manager,
     IMapper mapper,
@@ -36,14 +38,18 @@ public class BudgetController(
         return mapper.Map<BudgetResponse?>(budgets.FirstOrDefault(b => b.Id == id));
     }
 
-    [HttpPost]
+    [HttpPost,
+     ProducesResponseType<BudgetResponse>(StatusCodes.Status200OK),
+     ProducesResponseType<IEnumerable<IError>>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateBudget([FromBody] CreateBudgetRequest request, CancellationToken ct)
     {
         var result = await manager.Register(new(request.Name), ct);
         return result.IsSuccess ? Ok(mapper.Map<BudgetResponse>(result.Value)) : BadRequest(result.Errors);
     }
 
-    [HttpPut]
+    [HttpPut,
+     ProducesResponseType(StatusCodes.Status204NoContent),
+     ProducesResponseType<IEnumerable<IError>>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateBudget([FromBody] UpdateBudgetRequest request, CancellationToken ct)
     {
         var budget = (await manager.GetOwnedBudgets(ct)).FirstOrDefault(b => b.Id == request.Id);

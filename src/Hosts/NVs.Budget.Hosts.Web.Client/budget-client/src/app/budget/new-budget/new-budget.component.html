@@ -1,0 +1,29 @@
+<div class="container">
+    <h2 tuiTextHeader>Создание нового бюджета</h2>
+  
+    <!-- Отображение ошибок -->
+    <tui-notification
+      *ngIf="errorMessage"
+      appearance="warning"
+    >
+      {{ errorMessage }}
+    </tui-notification>
+  
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group" [formGroup]="nameGroup">
+        <label tuiLabel for="budgetName">Название бюджета:</label>
+        <tui-textfield>
+          <input tuiTextField
+          formControlName="name"
+          [placeholder]="'Введите название бюджета'" />
+        </tui-textfield>
+        <button tuiButton
+            type="submit"
+            [appearance]="'primary'"
+            [disabled]="!nameGroup.valid"
+        >
+        Создать
+      </button>
+      </div>
+    </form>
+  </div>

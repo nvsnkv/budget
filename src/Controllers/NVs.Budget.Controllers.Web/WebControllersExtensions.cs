@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Reflection;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using NVs.Budget.Utilities.Expressions;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace NVs.Budget.Controllers.Web;
 
@@ -13,7 +17,33 @@ public static class WebControllersExtensions
         services.AddAutoMapper(m => m.AddProfile(new MappingProfile(parser)));
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(o =>
+        {
+            o.SwaggerDoc("v0.1", new OpenApiInfo { Title = "Budget API", Version = "v0.1" });
+            o.DocInclusionPredicate((docName, apiDesc) =>
+            {
+                if (!apiDesc.TryGetMethodInfo(out MethodInfo methodInfo))
+                    return false;
+                var versions = methodInfo.DeclaringType!
+                    .GetCustomAttributes(true)
+                    .OfType<ApiVersionAttribute>()
+                    .SelectMany(attr => attr.Versions);
+                var versionMatched = versions.Any(v => $"v{v}" == docName);
+                if (versionMatched)
+                {
+                    if (apiDesc.RelativePath?.StartsWith("api/v{version}/") == true)
+                    {
+                        apiDesc.RelativePath = apiDesc.RelativePath.Replace("api/v{version}/", $"api/{docName}/");
+                        var versionParam = apiDesc.ParameterDescriptions
+                            .SingleOrDefault(p => p.Name == "version" && p.Source.Id == "Path");
+                        if (versionParam != null)
+                            apiDesc.ParameterDescriptions.Remove(versionParam);
+                    }
+                }
+
+                return versionMatched;
+            });
+        });
 
         var assembly = typeof(WebControllersExtensions).Assembly;
         var part = new AssemblyPart(assembly);
@@ -32,7 +62,7 @@ public static class WebControllersExtensions
         if (useSwagger)
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(o => o.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Budget API v0.1"));
         }
         
         return app;
