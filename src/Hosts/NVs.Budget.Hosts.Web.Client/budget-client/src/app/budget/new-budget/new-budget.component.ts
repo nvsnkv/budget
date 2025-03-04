@@ -3,13 +3,17 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { BudgetApiService } from '../budget-api.service';
 import { CreateBudgetRequest } from '../models';
 import { CommonModule } from '@angular/common';
-import { TuiButton, TuiNotification, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiError, TuiNotification, TuiTextfield } from '@taiga-ui/core';
+import { TuiFieldErrorPipe, tuiValidationErrorsProvider } from '@taiga-ui/kit';
+import { TuiForm } from '@taiga-ui/layout';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-budget',
   templateUrl: './new-budget.component.html',
   styleUrls: ['./new-budget.component.less'],
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiTextfield, TuiButton],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiTextfield, TuiButton, TuiError, TuiFieldErrorPipe, TuiForm],
+  providers: [tuiValidationErrorsProvider({required: 'Пожалуйста, введите название бюджета'})]
 })
 export class NewBudgetComponent {
   nameGroup = new FormGroup({
@@ -18,7 +22,7 @@ export class NewBudgetComponent {
 
   errorMessage: string | null = null;
 
-  constructor(private budgetService: BudgetApiService) {}
+  constructor(private budgetService: BudgetApiService, private router: Router) {}
 
   onSubmit() {
     if (!this.nameGroup.controls.name.valid) {
@@ -32,8 +36,8 @@ export class NewBudgetComponent {
 
     this.budgetService.createBudget(request).subscribe({
       next: (response) => {
-        alert(`Бюджет успешно создан: ${response.id}`);
         this.resetForm();
+        this.router.navigate(['/budget', response.id]);
       },
       error: (error) => {
         this.handleError(error);
