@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BudgetApiService as BudgetApiService } from '../budget-api.service';
 import { BudgetResponse } from '../models';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { TuiButton, TuiDataList, TuiDropdown, TuiDropdownOpen, TuiLink } from '@taiga-ui/core';
-import { TuiChevron, TuiTile } from '@taiga-ui/kit'
+import { TuiButton, TuiDataList, TuiDropdown, TuiLink } from '@taiga-ui/core';
+import { TuiChevron } from '@taiga-ui/kit'
 import { BehaviorSubject, filter, Observable, Subscription } from 'rxjs';
 import { AsyncPipe, CommonModule } from '@angular/common';
 
@@ -11,7 +11,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
   selector: 'app-budget-selector',
   templateUrl: './budget-selector.component.html',
   styleUrls: ['./budget-selector.component.less'],
-  imports: [CommonModule, TuiDataList, TuiDropdown, TuiDropdownOpen, TuiButton, TuiChevron, TuiLink, RouterLink, AsyncPipe]
+  imports: [CommonModule, TuiButton, TuiChevron, TuiDataList, TuiDropdown, RouterLink, AsyncPipe]
 })
 export class BudgetSelectorComponent implements OnInit, OnDestroy {
   private budgetIdPattern = new RegExp("^/budget/([^/]*)$");

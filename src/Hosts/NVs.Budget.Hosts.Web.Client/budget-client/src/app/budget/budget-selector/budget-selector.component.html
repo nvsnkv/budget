@@ -7,14 +7,14 @@
 </button>
 
 <ng-template #content>
-    <tui-data-list role="menu">
+    <tui-data-list role="menu" [emptyContent]="">
         <tui-opt-group>
-            <a tuiLink *ngFor="let budget of budgetsSnapshot" [routerLink]="['/budget/', budget.id]" role="menuitem">
+            <a tuiOption *ngFor="let budget of budgetsSnapshot" [routerLink]="['/budget/', budget.id]" role="menuitem">
                 {{budget.name}}
             </a>
         </tui-opt-group>
         <tui-opt-group>
-            <a tuiLink [routerLink]="['/budget/new']" role="menuitem">
+            <a tuiOption [routerLink]="['/budget/new']" role="menuitem">
                 Добавить новый бюджет
             </a>
         </tui-opt-group>
