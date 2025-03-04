@@ -2,7 +2,7 @@
     <header tuiNavigationHeader [class]="'flex-space-between'">
         <span [class]="'flex'">
             <span tuiNavigationLogo> <a routerLink="/" tuiLink>The Budget.</a></span>
-            <span [class]="'flex'"><a tuiLink routerLink="/budget/new"> + </a></span>
+            <app-budget-selector *ngIf="isAuthenticated$ | async"/>
         </span>
         <span>
             <span *ngIf="isAuthenticated$ | async">

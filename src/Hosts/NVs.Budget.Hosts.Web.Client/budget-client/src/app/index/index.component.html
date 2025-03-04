@@ -1,0 +1,6 @@
+<div tuiGroup>
+    <ol>
+        <li [class.strikethrough]="(isAuthenticated$ | async)">Нажми "Войти", чтобы начать</li>
+        <li *ngIf="isAuthenticated$ | async">Выбери бюджет</li>
+    </ol>
+</div>
