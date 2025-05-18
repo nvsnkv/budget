@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class BudgetApiService {
-  private baseUrl = environment.apiUrl + '/api/v0.1'; // Ваш базовый URL для запросов
+  public readonly baseUrl = environment.apiUrl + '/api/v0.1'; // Ваш базовый URL для запросов
   private refresh$ = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {}

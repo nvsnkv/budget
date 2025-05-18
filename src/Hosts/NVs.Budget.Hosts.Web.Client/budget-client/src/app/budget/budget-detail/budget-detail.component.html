@@ -1,1 +1,8 @@
 <p>BudgetId: {{budgetId$ | async}}</p>
+<a 
+      [href]="baseUrl + '/budget/' + (budgetId$ | async) + '.yaml'"
+      class="download-link"
+      download
+    >
+      Download as YAML
+    </a>

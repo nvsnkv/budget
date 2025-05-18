@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using NVs.Budget.Controllers.Web.Formatters;
 using NVs.Budget.Utilities.Expressions;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 [assembly: InternalsVisibleTo("NVs.Budget.Controllers.Web.Tests")]
 
@@ -16,8 +19,12 @@ public static class WebControllersExtensions
 {
     public static IServiceCollection AddWebControllers(this IServiceCollection services, ReadableExpressionsParser parser)
     {
-        services.AddAutoMapper(m => m.AddProfile(new MappingProfile(parser)));
+        services.AddSingleton(new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build());
 
+        services.AddAutoMapper(m => m.AddProfile(new MappingProfile(parser)));
+        services.AddSingleton<Converter>();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>
         {
@@ -50,7 +57,15 @@ public static class WebControllersExtensions
         var assembly = typeof(WebControllersExtensions).Assembly;
         var part = new AssemblyPart(assembly);
         services
-            .AddControllersWithViews()
+            .AddControllersWithViews(opts =>
+            {
+                var serializer = new SerializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .Build();
+                
+                opts.OutputFormatters.Add(new YamlOutputFormatter(serializer));
+                opts.FormatterMappings.SetMediaTypeMappingForFormat("yaml", "application/yaml");
+            })
             .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
 
         services.AddApiVersioning();
