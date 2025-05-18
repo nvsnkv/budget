@@ -1,12 +1,14 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Utilities.Expressions;
 using Swashbuckle.AspNetCore.SwaggerGen;
+
+[assembly: InternalsVisibleTo("NVs.Budget.Controllers.Web.Tests")]
 
 namespace NVs.Budget.Controllers.Web;
 

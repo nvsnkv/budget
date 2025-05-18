@@ -81,6 +81,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Hosts.Web.Client", "Hosts\NVs.Budget.Hosts.Web.Client\NVs.Budget.Hosts.Web.Client.csproj", "{8F054687-62ED-4A70-88FC-5D868673758F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web.Tests", "Controllers\NVs.Budget.Controllers.Web.Tests\NVs.Budget.Controllers.Web.Tests.csproj", "{28534653-368D-47F5-8C29-44D7D92C9AAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,7 @@ Global
 		{6E2847D7-0B1C-4609-BB15-0AEA262B1123} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{EB175F71-CAA9-496A-839A-6597EC28CE7D} = {8FBC3B88-0C56-4282-BBF3-607292E95F91}
 		{8F054687-62ED-4A70-88FC-5D868673758F} = {ABCBF4A8-F237-4243-9A07-27D6B361CCCB}
+		{28534653-368D-47F5-8C29-44D7D92C9AAA} = {8FBC3B88-0C56-4282-BBF3-607292E95F91}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -245,5 +248,9 @@ Global
 		{8F054687-62ED-4A70-88FC-5D868673758F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F054687-62ED-4A70-88FC-5D868673758F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F054687-62ED-4A70-88FC-5D868673758F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28534653-368D-47F5-8C29-44D7D92C9AAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28534653-368D-47F5-8C29-44D7D92C9AAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28534653-368D-47F5-8C29-44D7D92C9AAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28534653-368D-47F5-8C29-44D7D92C9AAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
