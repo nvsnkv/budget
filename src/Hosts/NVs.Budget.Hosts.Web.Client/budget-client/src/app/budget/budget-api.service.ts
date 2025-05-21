@@ -46,4 +46,23 @@ export class BudgetApiService {
   getBudgetById(id: string): Observable<BudgetResponse> {
     return this.http.get<BudgetResponse>(`${this.baseUrl}/budget/${id}`, { withCredentials: true });
   }
+
+  /**
+   * Download budget configuration as YAML
+   */
+  downloadBudgetYaml(id: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/budget/${id}.yaml`, {
+      responseType: 'blob',
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Upload budget configuration from YAML file
+   */
+  uploadBudgetYaml(file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.put<void>(`${this.baseUrl}/budget/:upload`, formData, { withCredentials: true });
+  }
 }
