@@ -120,7 +120,7 @@ public class BudgetController(
         }
         catch (Exception ex)
         {
-            return BadRequest($"Invalid YAML format: {ex.Message}");
+            return BadRequest(Result.Fail(ex.Message).Errors);
         }
     }
 }

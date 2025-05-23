@@ -95,7 +95,7 @@ export class BudgetSelectorComponent implements OnInit, OnDestroy {
           }
           this.dialogService.open(errorMessage, {
             label: 'Ошибка загрузки',
-            size: 's',
+            size: 'm',
             closeable: true,
             dismissible: true,
           }).subscribe();
