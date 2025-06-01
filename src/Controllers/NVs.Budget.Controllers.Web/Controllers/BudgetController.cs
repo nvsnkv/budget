@@ -178,7 +178,7 @@ public class BudgetController(
     [Produces("application/yaml")]
     [ProducesResponseType<CsvReadingOptions>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CsvReadingOptions>> GetCsvReadingOptions(Guid id, CancellationToken ct)
+    public async Task<ActionResult<IDictionary<string, CsvFileReadingConfiguration>>> GetCsvReadingOptions(Guid id, CancellationToken ct)
     {
         // Find existing budget
         var budget = (await manager.GetOwnedBudgets(ct)).FirstOrDefault(b => b.Id == id);
@@ -188,6 +188,7 @@ public class BudgetController(
         }
 
         // Get and return options - will be automatically serialized to YAML
-        return await settingsRepository.GetReadingOptionsFor(budget, ct);
+        var options = await settingsRepository.GetReadingOptionsFor(budget, ct);
+        return Ok(mapper.Map<IDictionary<string, CsvFileReadingConfiguration>>(options.Snapshot));
     }
 }
