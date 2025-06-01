@@ -65,4 +65,23 @@ export class BudgetApiService {
     formData.append('file', file);
     return this.http.put<void>(`${this.baseUrl}/budget/:upload`, formData, { withCredentials: true });
   }
+
+  /**
+   * Download CSV reading options as YAML
+   */
+  downloadCsvOptionsYaml(id: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/budget/${id}/csv-options.yaml`, {
+      responseType: 'blob',
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Upload CSV reading options from YAML file
+   */
+  uploadCsvOptionsYaml(id: string, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/csv-options`, formData, { withCredentials: true });
+  }
 }

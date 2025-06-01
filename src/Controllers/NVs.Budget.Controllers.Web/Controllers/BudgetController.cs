@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Web.Models;
+using NVs.Budget.Infrastructure.IO.Console.Input;
+using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Utilities.Expressions;
 using YamlDotNet.Serialization;
 
@@ -18,7 +20,9 @@ public class BudgetController(
     IBudgetManager manager,
     IMapper mapper,
     ReadableExpressionsParser parser,
-    IDeserializer yamlDeserializer
+    IDeserializer yamlDeserializer,
+    ICsvReadingOptionsReader csvOptionsReader,
+    IBudgetSpecificSettingsRepository settingsRepository
 ) : Controller
 {
     [HttpGet]
@@ -122,5 +126,68 @@ public class BudgetController(
         {
             return BadRequest(Result.Fail(ex.Message).Errors);
         }
+    }
+
+    [HttpPut("{id:guid}/csv-options")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<IEnumerable<IError>>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateCsvReadingOptions(
+        Guid id,
+        IFormFile file,
+        CancellationToken ct)
+    {
+        // Validate file
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("No file uploaded");
+        }
+
+        if (!file.FileName.EndsWith(".yaml") && !file.FileName.EndsWith(".yml"))
+        {
+            return BadRequest("Only YAML files are supported");
+        }
+
+        try
+        {
+            // Find existing budget
+            var budget = (await manager.GetOwnedBudgets(ct)).FirstOrDefault(b => b.Id == id);
+            if (budget == null)
+            {
+                return BadRequest("Budget not found");
+            }
+
+            // Read and parse options
+            using var streamReader = new StreamReader(file.OpenReadStream());
+            var result = await csvOptionsReader.ReadFrom(streamReader, ct);
+            if (result.IsFailed)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            // Update options
+            var updateResult = await settingsRepository.UpdateReadingOptionsFor(budget, result.Value, ct);
+            return updateResult.IsSuccess ? NoContent() : BadRequest(updateResult.Errors);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(Result.Fail(ex.Message).Errors);
+        }
+    }
+
+    [HttpGet("{id:guid}/csv-options.yaml")]
+    [Produces("application/yaml")]
+    [ProducesResponseType<CsvReadingOptions>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CsvReadingOptions>> GetCsvReadingOptions(Guid id, CancellationToken ct)
+    {
+        // Find existing budget
+        var budget = (await manager.GetOwnedBudgets(ct)).FirstOrDefault(b => b.Id == id);
+        if (budget == null)
+        {
+            return NotFound("Budget not found");
+        }
+
+        // Get and return options - will be automatically serialized to YAML
+        return await settingsRepository.GetReadingOptionsFor(budget, ct);
     }
 }

@@ -28,6 +28,28 @@
         (change)="onFileSelected($event)">
 </button>
 
+<button tuiButton
+    type="button"
+    class="download-button"
+    [disabled]="!(selectedBudget$ | async)"
+    (click)="downloadCsvOptions()">
+    📊⬇️
+</button>
+
+<button tuiButton
+    type="button"
+    class="upload-button">
+    <label for="csv-options-upload" style="cursor: pointer; margin: 0;">
+        📊⬆️
+    </label>
+    <input
+        id="csv-options-upload"
+        type="file"
+        accept=".yaml,.yml"
+        style="display: none;"
+        (change)="onCsvOptionsFileSelected($event)">
+</button>
+
 <ng-template #content>
     <tui-data-list role="menu" [emptyContent]="">
         <tui-opt-group>

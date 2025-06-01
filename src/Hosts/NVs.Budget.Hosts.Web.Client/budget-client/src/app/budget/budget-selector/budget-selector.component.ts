@@ -103,4 +103,48 @@ export class BudgetSelectorComponent implements OnInit, OnDestroy {
       });
     }
   }
+
+  downloadCsvOptions() {
+    if (this.selectedBudgetId) {
+      this.budgetApiService.downloadCsvOptionsYaml(this.selectedBudgetId).subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `csv-options-${this.selectedBudgetId}.yaml`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      });
+    }
+  }
+
+  onCsvOptionsFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0 && this.selectedBudgetId) {
+      const file = input.files[0];
+      this.budgetApiService.uploadCsvOptionsYaml(this.selectedBudgetId, file).subscribe({
+        next: () => {
+          this.dialogService.open('CSV options updated successfully', {
+            label: 'Success',
+            size: 'm',
+            closeable: true,
+            dismissible: true,
+          }).subscribe();
+        },
+        error: (error) => {
+          let errorMessage = 'Error uploading CSV options.';
+          if (error.status === 400 && error.error instanceof Array) {
+            errorMessage = error.error.map((err: any) => err.message).join(', ');
+          }
+          this.dialogService.open(errorMessage, {
+            label: 'Upload Error',
+            size: 'm',
+            closeable: true,
+            dismissible: true,
+          }).subscribe();
+        }
+      });
+    }
+  }
 }
