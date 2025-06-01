@@ -1,7 +1,6 @@
-version: "3.9"
 services:
   postgres:
-    image: postgres:13
+    image: postgres:17
     environment:
       POSTGRES_DB: "budgetdb"
       POSTGRES_USER: "postgres"
