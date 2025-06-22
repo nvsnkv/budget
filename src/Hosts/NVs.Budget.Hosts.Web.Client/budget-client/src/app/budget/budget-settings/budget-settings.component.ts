@@ -1,8 +1,9 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable, map, switchMap, catchError, of } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
+import { BudgetResponse } from '../models';
 import { TuiButton, TuiDialogService } from '@taiga-ui/core';
 
 @Component({
@@ -14,7 +15,9 @@ import { TuiButton, TuiDialogService } from '@taiga-ui/core';
 
 export class BudgetSettingsComponent implements OnInit {
   budgetId$?: Observable<string>;
+  budget$?: Observable<BudgetResponse | null>;
   budgetId: string | null = null;
+  budget: BudgetResponse | null = null;
 
   constructor(
     private route: ActivatedRoute, 
@@ -28,8 +31,29 @@ export class BudgetSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.budgetId$ = this.route.params.pipe(map(params => params['budgetId']));
-    this.budgetId$.subscribe(id => {
-      this.budgetId = id;
+    
+    // Fetch budget details when budgetId changes
+    this.budget$ = this.budgetId$.pipe(
+      switchMap(id => {
+        this.budgetId = id;
+        return this.apiService.getBudgetById(id).pipe(
+          catchError(error => {
+            console.error('Error fetching budget:', error);
+            this.dialogService.open('Failed to load budget details', {
+              label: 'Error',
+              size: 'm',
+              closeable: true,
+              dismissible: true,
+            }).subscribe();
+            return of(null);
+          })
+        );
+      })
+    );
+
+    // Subscribe to budget$ to store the budget data
+    this.budget$.subscribe(budget => {
+      this.budget = budget;
     });
   }
 
