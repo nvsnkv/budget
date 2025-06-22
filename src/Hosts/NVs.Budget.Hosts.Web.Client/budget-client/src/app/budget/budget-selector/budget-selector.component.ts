@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BudgetApiService as BudgetApiService } from '../budget-api.service';
 import { BudgetResponse } from '../models';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { TuiButton, TuiDataList, TuiDropdown, TuiLink, TuiDialogService } from '@taiga-ui/core';
+import { TuiButton, TuiDataList, TuiDropdown } from '@taiga-ui/core';
 import { TuiChevron } from '@taiga-ui/kit'
 import { BehaviorSubject, filter, Observable, Subscription } from 'rxjs';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -25,9 +25,9 @@ export class BudgetSelectorComponent implements OnInit, OnDestroy {
   
   constructor(
     private budgetApiService: BudgetApiService, 
-    private router: Router,
-    private dialogService: TuiDialogService
+    private router: Router
   ) {}
+  
   ngOnDestroy(): void {
     console.log('destroying budget selector component');
     this.budgetSub?.unsubscribe();
@@ -61,90 +61,6 @@ export class BudgetSelectorComponent implements OnInit, OnDestroy {
       this.selectedBudget$.next(selectedBudget);
     } else {
       this.selectedBudget$.next(undefined);
-    }
-  }
-
-  downloadBudget() {
-    if (this.selectedBudgetId) {
-      this.budgetApiService.downloadBudgetYaml(this.selectedBudgetId).subscribe(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `budget-${this.selectedBudgetId}.yaml`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      });
-    }
-  }
-
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.budgetApiService.uploadBudgetYaml(file).subscribe({
-        next: () => {
-          // Refresh the budget list after successful upload
-          this.budgets$ = this.budgetApiService.getAllBudgets();
-        },
-        error: (error) => {
-          let errorMessage = 'Произошла ошибка при загрузке файла.';
-          if (error.status === 400 && error.error instanceof Array) {
-            errorMessage = error.error.map((err: any) => err.message).join(', ');
-          }
-          this.dialogService.open(errorMessage, {
-            label: 'Ошибка загрузки',
-            size: 'm',
-            closeable: true,
-            dismissible: true,
-          }).subscribe();
-        }
-      });
-    }
-  }
-
-  downloadCsvOptions() {
-    if (this.selectedBudgetId) {
-      this.budgetApiService.downloadCsvOptionsYaml(this.selectedBudgetId).subscribe(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `csv-options-${this.selectedBudgetId}.yaml`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      });
-    }
-  }
-
-  onCsvOptionsFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0 && this.selectedBudgetId) {
-      const file = input.files[0];
-      this.budgetApiService.uploadCsvOptionsYaml(this.selectedBudgetId, file).subscribe({
-        next: () => {
-          this.dialogService.open('CSV options updated successfully', {
-            label: 'Success',
-            size: 'm',
-            closeable: true,
-            dismissible: true,
-          }).subscribe();
-        },
-        error: (error) => {
-          let errorMessage = 'Error uploading CSV options.';
-          if (error.status === 400 && error.error instanceof Array) {
-            errorMessage = error.error.map((err: any) => err.message).join(', ');
-          }
-          this.dialogService.open(errorMessage, {
-            label: 'Upload Error',
-            size: 'm',
-            closeable: true,
-            dismissible: true,
-          }).subscribe();
-        }
-      });
     }
   }
 }

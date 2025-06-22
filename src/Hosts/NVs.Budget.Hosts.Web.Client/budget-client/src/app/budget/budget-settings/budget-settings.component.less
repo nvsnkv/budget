@@ -1,1 +1,38 @@
-// Budget settings component styles 
+.budget-settings-container {
+  height: 100%;
+  padding: 2rem;
+  
+  .budget-id {
+    margin-bottom: 2rem;
+    color: var(--tui-text-03);
+    font-size: 1rem;
+  }
+}
+
+.settings-section {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--tui-base-03);
+  border-radius: var(--tui-radius-m);
+  background: var(--tui-base-01);
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  
+  button {
+    min-width: 200px;
+  }
+}
+
+.download-link {
+  text-decoration: none;
+  display: inline-block;
+} 

@@ -1,8 +1,60 @@
-<p>BudgetId: {{budgetId$ | async}}</p>
-<a 
-      [href]="baseUrl + '/budget/' + (budgetId$ | async) + '.yaml'"
-      class="download-link"
-      download
-    >
-      Download as YAML
-    </a> 
+<div tuiCardLarge class="budget-settings-container">
+  <h2 tuiTitle size="l" class="tui-space_bottom-4">Budget Settings</h2>
+  <p class="budget-id">Budget ID: {{budgetId$ | async}}</p>
+  
+  <div class="settings-section">
+    <h3 tuiTitle size="m" class="tui-space_bottom-3">Budget Configuration</h3>
+    <div class="button-group">
+      <button tuiButton
+        type="button"
+        appearance="primary"
+        size="l"
+        (click)="downloadBudget()">
+        ⬇️ Download Budget YAML
+      </button>
+      
+      <button tuiButton
+        type="button"
+        appearance="secondary"
+        size="l">
+        <label for="budget-file-upload" style="cursor: pointer; margin: 0;">
+          ⬆️ Upload Budget YAML
+        </label>
+        <input
+          id="budget-file-upload"
+          type="file"
+          accept=".yaml,.yml"
+          style="display: none;"
+          (change)="onFileSelected($event)">
+      </button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3 tuiTitle size="m" class="tui-space_bottom-3">CSV Import Options</h3>
+    <div class="button-group">
+      <button tuiButton
+        type="button"
+        appearance="primary"
+        size="l"
+        (click)="downloadCsvOptions()">
+        📊⬇️ Download CSV Options
+      </button>
+      
+      <button tuiButton
+        type="button"
+        appearance="secondary"
+        size="l">
+        <label for="csv-options-upload" style="cursor: pointer; margin: 0;">
+          📊⬆️ Upload CSV Options
+        </label>
+        <input
+          id="csv-options-upload"
+          type="file"
+          accept=".yaml,.yml"
+          style="display: none;"
+          (change)="onCsvOptionsFileSelected($event)">
+      </button>
+    </div>
+  </div>
+</div> 
