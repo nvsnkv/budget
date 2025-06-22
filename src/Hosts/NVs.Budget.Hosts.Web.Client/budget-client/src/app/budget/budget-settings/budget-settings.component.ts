@@ -5,13 +5,13 @@ import { Observable, map } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
 
 @Component({
-  selector: 'app-budget-detail',
+  selector: 'app-budget-settings',
   imports: [AsyncPipe],
-  templateUrl: './budget-detail.component.html',
-  styleUrl: './budget-detail.component.less'
+  templateUrl: './budget-settings.component.html',
+  styleUrl: './budget-settings.component.less'
 })
 
-export class BudgetDetailComponent implements OnInit {
+export class BudgetSettingsComponent implements OnInit {
   budgetId$?: Observable<string>;
 
   constructor(private route: ActivatedRoute, apiService: BudgetApiService) {
@@ -23,4 +23,4 @@ export class BudgetDetailComponent implements OnInit {
   ngOnInit(): void {
     this.budgetId$ = this.route.params.pipe(map(params => params['budgetId']));
   }
-}
+} 

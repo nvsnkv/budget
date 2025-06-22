@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BudgetDetailComponent } from './budget-detail.component';
+import { BudgetSettingsComponent } from './budget-settings.component';
 
-describe('BudgetDetailComponent', () => {
-  let component: BudgetDetailComponent;
-  let fixture: ComponentFixture<BudgetDetailComponent>;
+describe('BudgetSettingsComponent', () => {
+  let component: BudgetSettingsComponent;
+  let fixture: ComponentFixture<BudgetSettingsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BudgetDetailComponent]
+      imports: [BudgetSettingsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BudgetDetailComponent);
+    fixture = TestBed.createComponent(BudgetSettingsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -20,4 +20,4 @@ describe('BudgetDetailComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-});
+}); 
