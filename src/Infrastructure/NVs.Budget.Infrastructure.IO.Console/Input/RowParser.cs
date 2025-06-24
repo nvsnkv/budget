@@ -1,6 +1,5 @@
 using CsvHelper;
 using FluentResults;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Input.Errors;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
@@ -39,7 +38,7 @@ internal abstract class RowParser<T, TRow>(IReader parser, CancellationToken can
         }
         catch (Exception e)
         {
-            return Result.Fail(new RowNotParsedError(_row, [new ExceptionBasedError(e)]));
+            return Result.Fail(new RowNotParsedError(_row, [new ExceptionalError(e)]));
         }
 
         return await Convert(row);

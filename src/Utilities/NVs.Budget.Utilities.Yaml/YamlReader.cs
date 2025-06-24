@@ -1,18 +1,16 @@
 using FluentResults;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
-using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
-namespace NVs.Budget.Infrastructure.IO.Console.Input;
+namespace NVs.Budget.Utilities.Yaml;
 
-internal abstract class YamlReader
+public abstract class YamlReader
 {
     protected static readonly string[] EmptyPath = [];
     protected Result<YamlMappingNode> LoadRootNodeFrom(StreamReader reader)
     {
         var stream = new YamlStream();
-        try { stream.Load(reader); } catch(YamlException e) { return Result.Fail(new ExceptionBasedError(e, e.ToString())); }
+        try { stream.Load(reader); } catch(YamlException e) { return Result.Fail(new ExceptionalError(e)); }
 
         var count = stream.Documents.Count;
         if (count != 1)

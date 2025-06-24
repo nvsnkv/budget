@@ -2,7 +2,6 @@ using CsvHelper;
 using FluentResults;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Converters;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvTransfersReader.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Input.Errors;
@@ -36,7 +35,7 @@ internal class TransferRowReader(IReader parser, CancellationToken cancellationT
         }
         catch (Exception e)
         {
-            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Fee)), new ExceptionBasedError(e)]));
+            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Fee)), new ExceptionalError(e)]));
         }
 
         return new UnregisteredTransfer(source, sink, fee, row.Comment ?? string.Empty, row.Accuracy);

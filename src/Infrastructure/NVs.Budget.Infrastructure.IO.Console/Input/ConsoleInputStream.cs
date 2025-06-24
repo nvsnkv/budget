@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using FluentResults;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input;
 
@@ -25,7 +24,7 @@ internal class ConsoleInputStream : IInputStreamProvider, IDisposable
         }
         catch (Exception e)
         {
-            return Task.FromResult(Result.Fail<StreamReader>(new ExceptionBasedError(e)));
+            return Task.FromResult(Result.Fail<StreamReader>(new ExceptionalError(e)));
         }
     }
 

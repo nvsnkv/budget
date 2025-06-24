@@ -3,7 +3,6 @@ using CsvHelper;
 using FluentResults;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.IO.Console.Converters;
 using NVs.Budget.Infrastructure.IO.Console.Input.CsvOperationsReader.Errors;
@@ -38,7 +37,7 @@ internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsReposi
         }
         catch (Exception e)
         {
-            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Amount)), new ExceptionBasedError(e)]));
+            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Amount)), new ExceptionalError(e)]));
         }
 
         IReadOnlyCollection<Tag> tags;
@@ -48,7 +47,7 @@ internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsReposi
         }
         catch (Exception e)
         {
-            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Tags)), new ExceptionBasedError(e)]));
+            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Tags)), new ExceptionalError(e)]));
         }
 
         IReadOnlyDictionary<string, object> attributes;
@@ -58,7 +57,7 @@ internal class TrackedRowParser(IReader parser, IBudgetsRepository budgetsReposi
         }
         catch (Exception e)
         {
-            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Attributes)), new ExceptionBasedError(e)]));
+            return Result.Fail(new RowNotParsedError(Row, [new AttributeParsingError(nameof(row.Attributes)), new ExceptionalError(e)]));
         }
 
 

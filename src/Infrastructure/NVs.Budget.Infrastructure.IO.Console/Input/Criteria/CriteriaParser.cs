@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using FluentResults;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
@@ -19,7 +18,7 @@ internal class CriteriaParser : ExpressionParser, ICriteriaParser
         }
         catch (Exception e)
         {
-            return Result.Fail(new ExceptionBasedError(e));
+            return Result.Fail(new ExceptionalError(e));
         }
     }
 }

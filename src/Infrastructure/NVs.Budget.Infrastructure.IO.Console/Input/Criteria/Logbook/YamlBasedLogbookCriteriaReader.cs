@@ -1,10 +1,10 @@
 using FluentResults;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Utilities.Expressions;
+using NVs.Budget.Utilities.Yaml;
 using YamlDotNet.RepresentationModel;
 using Tag = NVs.Budget.Domain.ValueObjects.Tag;
 
@@ -23,7 +23,7 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
     public Task<Result<LogbookCriteria>> ReadFrom(StreamReader reader, CancellationToken ct)
     {
         var stream = new YamlStream();
-        try { stream.Load(reader); } catch(Exception e) { return Task.FromResult(Result.Fail<LogbookCriteria>(new ExceptionBasedError(e))); }
+        try { stream.Load(reader); } catch(Exception e) { return Task.FromResult(Result.Fail<LogbookCriteria>(new ExceptionalError(e))); }
 
         var count = stream.Documents.Count;
         if (count != 1)
@@ -252,23 +252,5 @@ internal class YamlBasedLogbookCriteriaReader(ReadableExpressionsParser parser) 
         }
 
         return new LogbookCriteria(description, subcriteria, null, null, null, parseResult.Value, null);
-    }
-}
-
-
-internal class YamlParsingError(string reason, IEnumerable<string> path) : IError
-{
-    public string Message { get; } = reason;
-    public Dictionary<string, object> Metadata { get; } = new() { {"Path", string.Join('.', path) } };
-    public List<IError> Reasons { get; } = new();
-}
-
-internal class UnexpectedNodeTypeError : YamlParsingError
-{
-    public UnexpectedNodeTypeError(Type type, Type expected, ICollection<string> path) : base("Unexpected node type found", path)
-    {
-        Metadata.Add("Key", path.LastOrDefault() ?? string.Empty);
-        Metadata.Add("Expected", expected.Name);
-        Metadata.Add("Type", type.Name);
     }
 }

@@ -2,7 +2,6 @@ using FluentResults;
 using JetBrains.Annotations;
 using MediatR;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Controllers.Console.Contracts.Errors;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
@@ -21,7 +20,7 @@ internal class PrepareDbHandler(IEnumerable<IDbMigrator> migrators, IResultWrite
             }
             catch (Exception e)
             {
-                await writer.Write(Result.Fail(new ExceptionBasedError(e)), cancellationToken);
+                await writer.Write(Result.Fail(new ExceptionalError(e)), cancellationToken);
                 return ExitCode.OperationError;
             }
         }
