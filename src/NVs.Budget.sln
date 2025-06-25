@@ -18,10 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.Expres
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Infrastructure", "2. Infrastructure", "{BBC78D28-4FE0-4044-8540-5E026D8BACB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF", "Infrastructure\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj", "{8BE1189F-A57A-4904-B167-675F3E4EBA3E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF.Tests", "Infrastructure\NVs.Budget.Infrastructure.Persistence.EF.Tests\NVs.Budget.Infrastructure.Persistence.EF.Tests.csproj", "{C955D374-83C1-43CC-9778-5A58EFFCF949}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.Contracts", "Application\NVs.Budget.Application.Contracts\NVs.Budget.Application.Contracts.csproj", "{68893284-DE40-4B39-A8EE-ED851DC5116B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.Contracts", "Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj", "{8CD10A15-F1DD-40EC-87F4-9983ED589B07}"
@@ -45,9 +41,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Application.UseCases", "Application\NVs.Budget.Application.UseCases\NVs.Budget.Application.UseCases.csproj", "{AE89B9CE-525A-4C62-84D7-E546E78BA4E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Hosts", "4. Hosts", "{ABCBF4A8-F237-4243-9A07-27D6B361CCCB}"
-	ProjectSection(SolutionItems) = preProject
-		Hosts\docker-compose.yml = Hosts\docker-compose.yml
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Hosts.Console", "Hosts\NVs.Budget.Hosts.Console\NVs.Budget.Hosts.Console.csproj", "{1DD67B12-0D3F-4CB6-9096-FCB1C341CB76}"
 EndProject
@@ -75,8 +68,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex", "Infrastructure\NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex\NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.csproj", "{A090F5DB-DD45-4A1F-844B-EF529B0E56A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF.Common", "Infrastructure\NVs.Budget.Infrastructure.Persistence.EF.Common\NVs.Budget.Infrastructure.Persistence.EF.Common.csproj", "{6E2847D7-0B1C-4609-BB15-0AEA262B1123}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web", "Controllers\NVs.Budget.Controllers.Web\NVs.Budget.Controllers.Web.csproj", "{EB175F71-CAA9-496A-839A-6597EC28CE7D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Hosts.Web.Client", "Hosts\NVs.Budget.Hosts.Web.Client\NVs.Budget.Hosts.Web.Client.csproj", "{8F054687-62ED-4A70-88FC-5D868673758F}"
@@ -84,6 +75,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web.Tests", "Controllers\NVs.Budget.Controllers.Web.Tests\NVs.Budget.Controllers.Web.Tests.csproj", "{28534653-368D-47F5-8C29-44D7D92C9AAA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Utilities.Yaml", "Utilities\NVs.Budget.Utilities.Yaml\NVs.Budget.Utilities.Yaml.csproj", "{7E970918-EA3C-4794-B36F-E546521FA8A3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence", "{63CCE4A9-0671-4691-845F-55D1AC1F2F9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF", "Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj", "{D07E9C5C-3FDB-4458-8E88-D4DCF867ECD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF.Common", "Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF.Common\NVs.Budget.Infrastructure.Persistence.EF.Common.csproj", "{48989170-0B67-4D0C-984C-898C23CDF732}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Persistence.EF.Tests", "Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF.Tests\NVs.Budget.Infrastructure.Persistence.EF.Tests.csproj", "{6DB6B15D-837E-4B88-8234-CE79811D6CCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,8 +94,6 @@ Global
 		{FB25F31F-C6D4-4A28-94A1-06E859713387} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{74A76BDE-3BE1-40A8-A8BA-C4CD9716DBBF} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
 		{DFAB3D6A-026F-4A5C-B845-CB8CEC6CE9DC} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
-		{8BE1189F-A57A-4904-B167-675F3E4EBA3E} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
-		{C955D374-83C1-43CC-9778-5A58EFFCF949} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{68893284-DE40-4B39-A8EE-ED851DC5116B} = {4D906D63-8704-470A-B3BF-64A314A8B1A3}
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C} = {DBF42B89-D4A0-4968-8C98-1ED3283B4188}
 		{923B5464-1067-433F-9DD2-38183F146C83} = {DBF42B89-D4A0-4968-8C98-1ED3283B4188}
@@ -120,11 +117,14 @@ Global
 		{7D3E1EE7-0B18-4C90-AFAB-DB5A6D6D433B} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
 		{A129265C-EC73-4D2B-A4E8-E7DB6578D7B5} = {ABCBF4A8-F237-4243-9A07-27D6B361CCCB}
 		{A090F5DB-DD45-4A1F-844B-EF529B0E56A6} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
-		{6E2847D7-0B1C-4609-BB15-0AEA262B1123} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
 		{EB175F71-CAA9-496A-839A-6597EC28CE7D} = {8FBC3B88-0C56-4282-BBF3-607292E95F91}
 		{8F054687-62ED-4A70-88FC-5D868673758F} = {ABCBF4A8-F237-4243-9A07-27D6B361CCCB}
 		{28534653-368D-47F5-8C29-44D7D92C9AAA} = {8FBC3B88-0C56-4282-BBF3-607292E95F91}
 		{7E970918-EA3C-4794-B36F-E546521FA8A3} = {52A892E9-EDF9-4297-9447-58C343C4EAF4}
+		{63CCE4A9-0671-4691-845F-55D1AC1F2F9C} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
+		{D07E9C5C-3FDB-4458-8E88-D4DCF867ECD7} = {63CCE4A9-0671-4691-845F-55D1AC1F2F9C}
+		{48989170-0B67-4D0C-984C-898C23CDF732} = {63CCE4A9-0671-4691-845F-55D1AC1F2F9C}
+		{6DB6B15D-837E-4B88-8234-CE79811D6CCF} = {63CCE4A9-0671-4691-845F-55D1AC1F2F9C}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -151,14 +151,6 @@ Global
 		{DFAB3D6A-026F-4A5C-B845-CB8CEC6CE9DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFAB3D6A-026F-4A5C-B845-CB8CEC6CE9DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFAB3D6A-026F-4A5C-B845-CB8CEC6CE9DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BE1189F-A57A-4904-B167-675F3E4EBA3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BE1189F-A57A-4904-B167-675F3E4EBA3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BE1189F-A57A-4904-B167-675F3E4EBA3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BE1189F-A57A-4904-B167-675F3E4EBA3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C955D374-83C1-43CC-9778-5A58EFFCF949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C955D374-83C1-43CC-9778-5A58EFFCF949}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C955D374-83C1-43CC-9778-5A58EFFCF949}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C955D374-83C1-43CC-9778-5A58EFFCF949}.Release|Any CPU.Build.0 = Release|Any CPU
 		{68893284-DE40-4B39-A8EE-ED851DC5116B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{68893284-DE40-4B39-A8EE-ED851DC5116B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68893284-DE40-4B39-A8EE-ED851DC5116B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -239,10 +231,6 @@ Global
 		{A090F5DB-DD45-4A1F-844B-EF529B0E56A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A090F5DB-DD45-4A1F-844B-EF529B0E56A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A090F5DB-DD45-4A1F-844B-EF529B0E56A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E2847D7-0B1C-4609-BB15-0AEA262B1123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E2847D7-0B1C-4609-BB15-0AEA262B1123}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E2847D7-0B1C-4609-BB15-0AEA262B1123}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E2847D7-0B1C-4609-BB15-0AEA262B1123}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB175F71-CAA9-496A-839A-6597EC28CE7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB175F71-CAA9-496A-839A-6597EC28CE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB175F71-CAA9-496A-839A-6597EC28CE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -259,5 +247,17 @@ Global
 		{7E970918-EA3C-4794-B36F-E546521FA8A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E970918-EA3C-4794-B36F-E546521FA8A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E970918-EA3C-4794-B36F-E546521FA8A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D07E9C5C-3FDB-4458-8E88-D4DCF867ECD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D07E9C5C-3FDB-4458-8E88-D4DCF867ECD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D07E9C5C-3FDB-4458-8E88-D4DCF867ECD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D07E9C5C-3FDB-4458-8E88-D4DCF867ECD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48989170-0B67-4D0C-984C-898C23CDF732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48989170-0B67-4D0C-984C-898C23CDF732}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48989170-0B67-4D0C-984C-898C23CDF732}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48989170-0B67-4D0C-984C-898C23CDF732}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DB6B15D-837E-4B88-8234-CE79811D6CCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DB6B15D-837E-4B88-8234-CE79811D6CCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DB6B15D-837E-4B88-8234-CE79811D6CCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DB6B15D-837E-4B88-8234-CE79811D6CCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

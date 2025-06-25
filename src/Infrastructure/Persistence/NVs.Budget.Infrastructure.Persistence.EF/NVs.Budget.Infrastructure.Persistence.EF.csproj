@@ -22,10 +22,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
-      <ProjectReference Include="..\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
+      <ProjectReference Include="..\..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
+      <ProjectReference Include="..\..\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
       <ProjectReference Include="..\NVs.Budget.Infrastructure.Persistence.EF.Common\NVs.Budget.Infrastructure.Persistence.EF.Common.csproj" />
     </ItemGroup>
 
