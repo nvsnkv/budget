@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj" />
-      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\Application\NVs.Budget.Infrastructure.Identity.Contracts\NVs.Budget.Infrastructure.Identity.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>

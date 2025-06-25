@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj" />
+      <ProjectReference Include="..\..\..\Utilities\NVs.Budget.Utilities.Testing\NVs.Budget.Utilities.Testing.csproj" />
       <ProjectReference Include="..\NVs.Budget.Infrastructure.IO.Console\NVs.Budget.Infrastructure.IO.Console.csproj" />
     </ItemGroup>
 

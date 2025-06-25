@@ -17,12 +17,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
-      <ProjectReference Include="..\..\Controllers\NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj" />
-      <ProjectReference Include="..\..\Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
-      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Yaml\NVs.Budget.Utilities.Yaml.csproj" />
+      <ProjectReference Include="..\..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\Controllers\NVs.Budget.Controllers.Console.Contracts\NVs.Budget.Controllers.Console.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj" />
+      <ProjectReference Include="..\..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
+      <ProjectReference Include="..\..\..\Utilities\NVs.Budget.Utilities.Json\NVs.Budget.Utilities.Json.csproj" />
+      <ProjectReference Include="..\..\..\Utilities\NVs.Budget.Utilities.Yaml\NVs.Budget.Utilities.Yaml.csproj" />
       <ProjectReference Include="..\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
     </ItemGroup>
 
