@@ -19,6 +19,7 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
 
     public DbSet<StoredTransfer> Transfers { get; init; } = null!;
 
+    [Obsolete]
     public DbSet<StoredCsvFileReadingOption> CsvFileReadingOptions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

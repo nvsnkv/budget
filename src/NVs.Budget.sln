@@ -86,6 +86,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.IO.Console.Tests", "Infrastructure\Console\NVs.Budget.Infrastructure.IO.Console.Tests\NVs.Budget.Infrastructure.IO.Console.Tests.csproj", "{E67629FE-4D28-42B3-AB77-1678808F869E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{63BD943D-0D12-4C50-A4DB-3F86BBFC0396}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Files.CSV.Contracts", "Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV.Contracts\NVs.Budget.Infrastructure.Files.CSV.Contracts.csproj", "{E9FA870F-88B4-49A3-8FC3-514DF54B23A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Files.CSV", "Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV\NVs.Budget.Infrastructure.Files.CSV.csproj", "{1F75A498-5698-41E4-B8B6-3C5035D4BAC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Files.CSV.Tests", "Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV.Tests\NVs.Budget.Infrastructure.Files.CSV.Tests.csproj", "{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +136,10 @@ Global
 		{A0E4E221-2BE3-4565-947E-F90E88881BD0} = {93DB830E-5F9A-44ED-9790-ACA7A557F33D}
 		{55A6D3BD-35F3-4540-AC73-BEA0DF822788} = {93DB830E-5F9A-44ED-9790-ACA7A557F33D}
 		{E67629FE-4D28-42B3-AB77-1678808F869E} = {93DB830E-5F9A-44ED-9790-ACA7A557F33D}
+		{63BD943D-0D12-4C50-A4DB-3F86BBFC0396} = {BBC78D28-4FE0-4044-8540-5E026D8BACB9}
+		{E9FA870F-88B4-49A3-8FC3-514DF54B23A0} = {63BD943D-0D12-4C50-A4DB-3F86BBFC0396}
+		{1F75A498-5698-41E4-B8B6-3C5035D4BAC0} = {63BD943D-0D12-4C50-A4DB-3F86BBFC0396}
+		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A} = {63BD943D-0D12-4C50-A4DB-3F86BBFC0396}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -262,5 +274,17 @@ Global
 		{E67629FE-4D28-42B3-AB77-1678808F869E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E67629FE-4D28-42B3-AB77-1678808F869E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E67629FE-4D28-42B3-AB77-1678808F869E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9FA870F-88B4-49A3-8FC3-514DF54B23A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9FA870F-88B4-49A3-8FC3-514DF54B23A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9FA870F-88B4-49A3-8FC3-514DF54B23A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9FA870F-88B4-49A3-8FC3-514DF54B23A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F75A498-5698-41E4-B8B6-3C5035D4BAC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F75A498-5698-41E4-B8B6-3C5035D4BAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F75A498-5698-41E4-B8B6-3C5035D4BAC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F75A498-5698-41E4-B8B6-3C5035D4BAC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

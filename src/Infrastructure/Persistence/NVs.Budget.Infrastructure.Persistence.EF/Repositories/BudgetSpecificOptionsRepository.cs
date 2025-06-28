@@ -10,6 +10,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
+[Obsolete]
 internal class BudgetSpecificSettingsRepository(BudgetContext context) : IBudgetSpecificSettingsRepository
 {
     public async Task<CsvReadingOptions> GetReadingOptionsFor(TrackedBudget budget, CancellationToken ct)
