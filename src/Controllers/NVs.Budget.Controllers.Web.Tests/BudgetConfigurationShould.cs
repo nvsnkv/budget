@@ -14,7 +14,7 @@ namespace NVs.Budget.Controllers.Web.Tests;
 public class BudgetConfigurationShould
 {
     private readonly Fixture _fixture = new();
-    private readonly Mapper _mapper = new(new MapperConfiguration(cfg => cfg.AddProfile(new MappingProfile(ReadableExpressionsParser.Default))));
+    private readonly Mapper _mapper = new(new MapperConfiguration(cfg => cfg.AddProfile(new MappingProfile())));
     private readonly IDeserializer _yamlDeserializer = new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
     private readonly ISerializer _yamlSerializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 

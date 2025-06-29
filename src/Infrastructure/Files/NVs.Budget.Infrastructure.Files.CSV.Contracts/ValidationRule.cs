@@ -9,7 +9,7 @@ public record ValidationRule(
 {
     public enum ValidationCondition
     {
-        Equal,
-        NotEqual,
+        Equals,
+        NotEquals,
     }
 }

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Controllers.Web.Formatters;
-using NVs.Budget.Utilities.Expressions;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -17,13 +16,13 @@ namespace NVs.Budget.Controllers.Web;
 
 public static class WebControllersExtensions
 {
-    public static IServiceCollection AddWebControllers(this IServiceCollection services, ReadableExpressionsParser parser)
+    public static IServiceCollection AddWebControllers(this IServiceCollection services)
     {
         services.AddSingleton(new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build());
 
-        services.AddAutoMapper(m => m.AddProfile(new MappingProfile(parser)));
+        services.AddAutoMapper(m => m.AddProfile(new MappingProfile()));
         services.AddSingleton<Converter>();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>

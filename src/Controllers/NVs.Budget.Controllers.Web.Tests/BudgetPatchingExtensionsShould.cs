@@ -14,7 +14,7 @@ namespace NVs.Budget.Controllers.Web.Tests;
 public class BudgetPatchingExtensionsShould
 {
     private readonly Fixture _fixture = new();
-    private readonly Mapper _mapper = new(new MapperConfiguration(cfg => cfg.AddProfile(new MappingProfile(ReadableExpressionsParser.Default))));
+    private readonly Mapper _mapper = new(new MapperConfiguration(cfg => cfg.AddProfile(new MappingProfile())));
 
     public BudgetPatchingExtensionsShould()
     {

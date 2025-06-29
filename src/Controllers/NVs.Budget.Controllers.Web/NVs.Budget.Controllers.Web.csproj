@@ -22,7 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
-      <ProjectReference Include="..\..\Infrastructure\Console\NVs.Budget.Infrastructure.IO.Console.Contracts\NVs.Budget.Infrastructure.IO.Console.Contracts.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV.Contracts\NVs.Budget.Infrastructure.Files.CSV.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

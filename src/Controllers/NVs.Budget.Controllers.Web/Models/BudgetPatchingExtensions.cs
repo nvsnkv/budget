@@ -1,9 +1,13 @@
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 using FluentResults;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
+using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Controllers.Web.Models
@@ -41,6 +45,80 @@ namespace NVs.Budget.Controllers.Web.Models
             {
                 Version = patch.Version
             };
+        }
+
+        private static readonly string[] RequiredFields = { nameof(UnregisteredOperation.Timestamp),nameof(UnregisteredOperation.Amount), nameof(UnregisteredOperation.Description) };
+
+        public static Result<IReadOnlyDictionary<Regex, FileReadingSetting>> ConvertToSettings(this IDictionary<string, CsvFileReadingConfiguration> configurations)
+        {
+            var result = new Dictionary<Regex, FileReadingSetting>();
+            foreach (var (key, value) in configurations)
+            {
+                var regex = new Regex(key);
+                var culture = CultureInfo.InvariantCulture;
+                if (!string.IsNullOrEmpty(value.CultureCode)) {
+                    culture = CultureInfo.GetCultures(CultureTypes.AllCultures).FirstOrDefault(c => c.Name == value.CultureCode);
+                    if (culture is null)
+                    {
+                        return Result.Fail(new Error($"Culture {value.CultureCode} not found"));
+                    }
+                }
+
+                var encoding = Encoding.UTF8;
+                if (!string.IsNullOrEmpty(value.EncodingName))
+                {
+                    var info = Encoding.GetEncodings().FirstOrDefault(e => e.Name == value.EncodingName);
+                    if (info is null)
+                    {
+                        return Result.Fail(new Error($"Encoding {value.EncodingName} not found").WithMetadata("Configuration", key));
+                    }
+
+                    encoding = info.GetEncoding();
+                }
+
+                foreach (var field in RequiredFields)
+                {
+                    if (!value.Fields.TryGetValue(field, out var fieldValue))
+                    {
+                        return Result.Fail(new Error($"Field {field} is required").WithMetadata("Configuration", key).WithMetadata("Section", "Fields"));
+                    }
+                }
+
+                var index = 0;
+                var validation = new List<ValidationRule>();
+                foreach (var rule in value.Validation) 
+                {
+
+                    if (string.IsNullOrEmpty(rule.Pattern)) {
+                        return Result.Fail(new Error("Field is required").WithMetadata("Configuration", key).WithMetadata("Section", "Validation").WithMetadata("Index", index));
+                    }
+
+                    if (string.IsNullOrEmpty(rule.Value)) {
+                        return Result.Fail(new Error("Value is required").WithMetadata("Configuration", key).WithMetadata("Section", "Validation").WithMetadata("Index", index));
+                    }
+
+                    if (string.IsNullOrEmpty(rule.ErrorMessage)) {
+                        return Result.Fail(new Error("Error message is required").WithMetadata("Configuration", key).WithMetadata("Section", "Validation").WithMetadata("Index", index));
+                    }
+
+                    ValidationRule.ValidationCondition? condition = rule.Condition switch
+                    {
+                        CsvValidationCondition.Equals => ValidationRule.ValidationCondition.Equals,
+                        CsvValidationCondition.NotEquals => ValidationRule.ValidationCondition.NotEquals,
+                        _ => null
+                    };
+                    if (condition is null) {
+                        return Result.Fail(new Error("Invalid condition").WithMetadata("Configuration", key).WithMetadata("Section", "Validation").WithMetadata("Index", index).WithMetadata("Condition", rule.Condition));
+                    }
+
+                    validation.Add(new ValidationRule(rule.Pattern, condition.Value, rule.Value, rule.ErrorMessage));
+                    index++;
+                }
+
+                result.Add(regex, new FileReadingSetting(culture, encoding, value.Fields, value.Attributes, validation));
+            }
+
+            return result;
         }
 
         private static IEnumerable<Result<TransferCriterion>> ParseTransferCriteria(IDictionary<string, IEnumerable<TransferCriterionExpression>>? transfers, ReadableExpressionsParser parser)

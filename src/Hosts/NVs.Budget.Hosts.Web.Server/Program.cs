@@ -5,7 +5,6 @@ using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Web;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
-using NVs.Budget.Infrastructure.IO.Console;
 using NVs.Budget.Infrastructure.Persistence.EF;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Utilities.Expressions;
@@ -34,14 +33,12 @@ builder.Services
     .AddTransient<IReckoner>(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
     .AddApplicationUseCases()
     .AddSingleton(new Factory().CreateProvider())
-    .AddConsoleIO().UseConsoleIO(builder.Configuration)
     .AddCors(opts =>
     {
         var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string>() ?? string.Empty;
         opts.AddDefaultPolicy(b => b.WithOrigins(allowedOrigins.Split(';')).AllowCredentials().AllowAnyHeader().AllowAnyMethod());
     })
-
-    .AddWebControllers(ReadableExpressionsParser.Default);
+    .AddWebControllers();
 
 
 

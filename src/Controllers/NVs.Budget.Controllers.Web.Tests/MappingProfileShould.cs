@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using AutoFixture;
 using AutoMapper;
 using FluentAssertions;
@@ -5,16 +7,15 @@ using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Controllers.Web.Models;
-using NVs.Budget.Utilities.Expressions;
+using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Testing;
-using NVs.Budget.Infrastructure.IO.Console.Options;
 
 namespace NVs.Budget.Controllers.Web.Tests;
 
 public class MappingProfileShould
 {
     private readonly Fixture _fixture = new();
-    private readonly Mapper _mapper = new(new MapperConfiguration(cfg => cfg.AddProfile(new MappingProfile(ReadableExpressionsParser.Default))));
+    private readonly Mapper _mapper = new(new MapperConfiguration(cfg => cfg.AddProfile(new MappingProfile())));
 
     public MappingProfileShould()
     {
@@ -26,7 +27,7 @@ public class MappingProfileShould
     public void MapBudgetToBudgetConfiguration()
     {
         var expected = _fixture.Create<TrackedBudget>();
-        var groupedTags = expected.TaggingCriteria.GroupBy(x => x.Tag.ToString());
+        var groupedTags = expected.TaggingCriteria.GroupBy(x => x.Tag.ToString()).ToList();
         var groupedTransfers = expected.TransferCriteria.GroupBy(x => x.Comment.ToString())
             .ToDictionary(x => x.Key, x => x.GroupBy(y => y.Accuracy)
             );
@@ -120,32 +121,47 @@ public class MappingProfileShould
     }
 
     [Fact]
-    public void MapFieldConfigurationToString()
+    public void MapFileReadingSettingsToCsvFileReadingConfiguration()
     {
-        var source = _fixture.Create<FieldConfiguration>();
-        var result = _mapper.Map<string>(source);
-
-        result.Should().Be(source.Pattern);
-    }
-
-    [Fact]
-    public void MapValidationRule()
-    {
-        var source = _fixture.Create<ValidationRule>();
-        var result = _mapper.Map<CsvFileReadingConfiguration.ValidationRule>(source);
+        var source = _fixture.Create<Dictionary<Regex, FileReadingSetting>>();
+        var result = _mapper.Map<IDictionary<string, CsvFileReadingConfiguration>>(source);
 
         result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(source);
-    }
+        result.Should().HaveCount(source.Count);
+        foreach (var (key, value) in source)
+        {
+            var actual = result[key.ToString()];
+            if (value.Culture == CultureInfo.InvariantCulture) {
+                actual.CultureCode.Should().BeNull();
+            }
+            else {
+                actual.CultureCode.Should().Be(value.Culture.Name);
+            }
+            
+            actual.EncodingName.Should().Be(value.Encoding.EncodingName);
+            actual.Fields.Should().BeEquivalentTo(value.Fields);
+            actual.Attributes.Should().BeEquivalentTo(value.Attributes);
 
-    [Fact]
-    public void MapCsvFileReadingOptions()
-    {
-        var source = _fixture.Create<CsvFileReadingOptions>();
-        var result = _mapper.Map<CsvFileReadingConfiguration>(source);
-
-        result.Should().NotBeNull();
-        result.CultureCode.Should().Be(source.CultureInfo.Name);
-        result.Should().BeEquivalentTo(source, opts => opts.Excluding(x => x.CultureInfo));
+            actual.Validation.Should().HaveCount(value.Validation.Count);
+            var expected = value.Validation.ToList();
+            for (var i = 0; i < actual.Validation.Length; i++)
+            {
+                var validation = actual.Validation[i];
+                validation.Pattern.Should().Be(expected[i].Pattern);
+                validation.Value.Should().Be(expected[i].Value);
+                validation.ErrorMessage.Should().Be(expected[i].ErrorMessage);
+                switch (expected[i].Condition)
+                {
+                    case ValidationRule.ValidationCondition.Equals:
+                        validation.Condition.Should().Be(CsvValidationCondition.Equals);
+                        break;
+                    case ValidationRule.ValidationCondition.NotEquals:
+                        validation.Condition.Should().Be(CsvValidationCondition.NotEquals);
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid condition");
+                }
+            }
+        }
     }
 }

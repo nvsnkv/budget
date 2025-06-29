@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Web.Models;
-using NVs.Budget.Infrastructure.IO.Console.Input;
-using NVs.Budget.Infrastructure.IO.Console.Options;
+using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Expressions;
 using YamlDotNet.Serialization;
 
@@ -21,8 +20,7 @@ public class BudgetController(
     IMapper mapper,
     ReadableExpressionsParser parser,
     IDeserializer yamlDeserializer,
-    ICsvReadingOptionsReader csvOptionsReader,
-    IBudgetSpecificSettingsRepository settingsRepository
+    IReadingSettingsRepository  readingSettingsRepository
 ) : Controller
 {
     [HttpGet]
@@ -101,7 +99,7 @@ public class BudgetController(
         {
             // Read and parse YAML
             using var streamReader = new StreamReader(file.OpenReadStream());
-            var yamlContent = await streamReader.ReadToEndAsync();
+            var yamlContent = await streamReader.ReadToEndAsync(ct);
             var request = yamlDeserializer.Deserialize<BudgetConfiguration>(yamlContent);
 
             // Find existing budget
@@ -137,14 +135,14 @@ public class BudgetController(
         CancellationToken ct)
     {
         // Validate file
-        if (file == null || file.Length == 0)
+        if (file.Length == 0)
         {
-            return BadRequest("No file uploaded");
+            return BadRequest(new Error("No file uploaded"));
         }
 
         if (!file.FileName.EndsWith(".yaml") && !file.FileName.EndsWith(".yml"))
         {
-            return BadRequest("Only YAML files are supported");
+            return BadRequest(new Error("Only YAML files are supported"));
         }
 
         try
@@ -153,30 +151,41 @@ public class BudgetController(
             var budget = (await manager.GetOwnedBudgets(ct)).FirstOrDefault(b => b.Id == id);
             if (budget == null)
             {
-                return BadRequest("Budget not found");
+                return BadRequest(new Error("Budget not found"));
             }
 
             // Read and parse options
             using var streamReader = new StreamReader(file.OpenReadStream());
-            var result = await csvOptionsReader.ReadFrom(streamReader, ct);
+            var yamlContent = await streamReader.ReadToEndAsync(ct);
+            var request = yamlDeserializer.Deserialize<IDictionary<string, CsvFileReadingConfiguration>>(yamlContent);
+
+            var settings = request.ConvertToSettings();
+            if (settings.IsFailed)
+            {
+                return BadRequest(settings.Errors);
+            }
+
+            var result = await readingSettingsRepository.UpdateReadingSettingsFor(budget, settings.Value, ct);
             if (result.IsFailed)
             {
                 return BadRequest(result.Errors);
             }
 
-            // Update options
-            var updateResult = await settingsRepository.UpdateReadingOptionsFor(budget, result.Value, ct);
-            return updateResult.IsSuccess ? NoContent() : BadRequest(updateResult.Errors);
+            return NoContent();
+        }
+        catch (YamlDotNet.Core.YamlException ex) 
+        {
+            return BadRequest(Result.Fail(ex.Message).Errors);
         }
         catch (Exception ex)
         {
-            return BadRequest(Result.Fail(ex.Message).Errors);
+            return StatusCode(StatusCodes.Status500InternalServerError, Result.Fail(ex.Message).Errors);
         }
     }
 
     [HttpGet("{id:guid}/csv-options.yaml")]
     [Produces("application/yaml")]
-    [ProducesResponseType<CsvReadingOptions>(StatusCodes.Status200OK)]
+    [ProducesResponseType<IDictionary<string, CsvFileReadingConfiguration>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IDictionary<string, CsvFileReadingConfiguration>>> GetCsvReadingOptions(Guid id, CancellationToken ct)
     {
@@ -188,7 +197,7 @@ public class BudgetController(
         }
 
         // Get and return options - will be automatically serialized to YAML
-        var options = await settingsRepository.GetReadingOptionsFor(budget, ct);
-        return Ok(mapper.Map<IDictionary<string, CsvFileReadingConfiguration>>(options.Snapshot));
+        var options = await readingSettingsRepository.GetReadingSettingsFor(budget, ct);
+        return Ok(mapper.Map<IDictionary<string, CsvFileReadingConfiguration>>(options));
     }
 }
