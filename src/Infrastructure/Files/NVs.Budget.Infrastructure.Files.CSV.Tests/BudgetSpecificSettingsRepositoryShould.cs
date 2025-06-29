@@ -37,4 +37,47 @@ public class BudgetSpecificSettingsRepositoryShould : IClassFixture<DbContextMan
         retrievedSettings.ToDictionary(x => x.Key.ToString(), x => x.Value)
             .Should().BeEquivalentTo(expectedSettings.ToDictionary(x => x.Key.ToString(), x => x.Value));
     }
+
+    [Fact]
+    public async Task Should_Not_Return_Old_Configs_After_Update()
+    {
+        var budget = _fixture.Create<TrackedBudget>();
+        var oldSettings = _fixture.Create<Dictionary<Regex, FileReadingSetting>>();
+        var newSettings = _fixture.Create<Dictionary<Regex, FileReadingSetting>>();
+
+        await _repository.UpdateReadingSettingsFor(budget, oldSettings, CancellationToken.None);
+        var firstRetrieval = await _repository.GetReadingSettingsFor(budget, CancellationToken.None);
+        firstRetrieval.ToDictionary(x => x.Key.ToString(), x => x.Value)
+            .Should().BeEquivalentTo(oldSettings.ToDictionary(x => x.Key.ToString(), x => x.Value));
+
+
+        await _repository.UpdateReadingSettingsFor(budget, newSettings, CancellationToken.None);
+        var secondRetrieval = await _repository.GetReadingSettingsFor(budget, CancellationToken.None);
+        secondRetrieval.ToDictionary(x => x.Key.ToString(), x => x.Value)
+            .Should().BeEquivalentTo(newSettings.ToDictionary(x => x.Key.ToString(), x => x.Value));
+
+        secondRetrieval.ToDictionary(x => x.Key.ToString(), x => x.Value)
+            .Should().NotBeEquivalentTo(oldSettings.ToDictionary(x => x.Key.ToString(), x => x.Value));
+    }
+
+    [Fact]
+    public async Task Should_Retrieve_Settings_Only_For_Assigned_Budget()
+    {
+        var budget1 = _fixture.Create<TrackedBudget>();
+        var settings1 = _fixture.Create<Dictionary<Regex, FileReadingSetting>>();
+
+        var budget2 = _fixture.Create<TrackedBudget>();
+        var settings2 = _fixture.Create<Dictionary<Regex, FileReadingSetting>>();
+
+        await _repository.UpdateReadingSettingsFor(budget1, settings1, CancellationToken.None);
+        await _repository.UpdateReadingSettingsFor(budget2, settings2, CancellationToken.None);
+
+        var retrievedSettings1 = await _repository.GetReadingSettingsFor(budget1, CancellationToken.None);
+        retrievedSettings1.ToDictionary(x => x.Key.ToString(), x => x.Value)
+            .Should().BeEquivalentTo(settings1.ToDictionary(x => x.Key.ToString(), x => x.Value));
+
+        var retrievedSettings2 = await _repository.GetReadingSettingsFor(budget2, CancellationToken.None);
+        retrievedSettings2.ToDictionary(x => x.Key.ToString(), x => x.Value)
+            .Should().BeEquivalentTo(settings2.ToDictionary(x => x.Key.ToString(), x => x.Value));
+    }
 }
