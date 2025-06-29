@@ -11,12 +11,12 @@ using NVs.Budget.Utilities.Testing;
 namespace NVs.Budget.Infrastructure.Files.CSV.Tests;
 
 [Collection(nameof(DatabaseCollectionFixture))]
-public class UnitTest1 : IClassFixture<DbContextManager>
+public class BudgetSpecificSettingsRepositoryShould : IClassFixture<DbContextManager>
 {
     private readonly BudgetSpecificSettingsRepository _repository;
     private readonly Fixture _fixture;
 
-    public UnitTest1(DbContextManager manager)
+    public BudgetSpecificSettingsRepositoryShould(DbContextManager manager)
     {
         _repository = new BudgetSpecificSettingsRepository(manager.GetSettingsContext());
         _fixture = new Fixture() { Customizations = { new ReadableExpressionsBuilder() } };
