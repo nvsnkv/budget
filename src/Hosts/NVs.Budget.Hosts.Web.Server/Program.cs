@@ -4,6 +4,7 @@ using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Web;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
+using NVs.Budget.Infrastructure.Files.CSV;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
 using NVs.Budget.Infrastructure.Persistence.EF;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
@@ -14,7 +15,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging(b => b.AddSerilog(dispose: true));
-var identityConnectionString = builder.Configuration.GetConnectionString("IdentityContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!");
+var identityConnectionString = builder.Configuration.GetConnectionString("IdentityContext") ?? throw new InvalidOperationException("No connection string found for IdentityContext!");
 var contentConnectionString = builder.Configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!");
 var yandexAuthConfig = builder.Configuration.GetSection("Auth:Yandex").Get<YandexAuthConfig>() ?? throw new InvalidOperationException("No Auth config found for Yandex provider!");
 var frontendUrl = builder.Configuration.GetSection("FrontendUrl").Get<string>() ?? throw new InvalidOperationException("No FrontendUrl config found!");
@@ -38,9 +39,8 @@ builder.Services
         var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string>() ?? string.Empty;
         opts.AddDefaultPolicy(b => b.WithOrigins(allowedOrigins.Split(';')).AllowCredentials().AllowAnyHeader().AllowAnyMethod());
     })
+    .AddCsvFiles(contentConnectionString)
     .AddWebControllers();
-
-
 
 var app = builder.Build();
 app.UseYandexAuth(frontendUrl)

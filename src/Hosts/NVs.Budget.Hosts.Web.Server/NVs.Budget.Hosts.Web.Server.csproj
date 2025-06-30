@@ -23,6 +23,7 @@
       <ProjectReference Include="..\..\Application\NVs.Budget.Application.UseCases\NVs.Budget.Application.UseCases.csproj" />
       <ProjectReference Include="..\..\Application\NVs.Budget.Application\NVs.Budget.Application.csproj" />
       <ProjectReference Include="..\..\Controllers\NVs.Budget.Controllers.Web\NVs.Budget.Controllers.Web.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV\NVs.Budget.Infrastructure.Files.CSV.csproj" />
       <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.ExchangeRates.CBRF\NVs.Budget.Infrastructure.ExchangeRates.CBRF.csproj" />
       <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex\NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.csproj" />
       <ProjectReference Include="..\..\Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj" />
