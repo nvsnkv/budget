@@ -31,6 +31,7 @@ internal class MappingProfile : Profile
             .ConvertUsing(src => new(
                 src.Culture == CultureInfo.InvariantCulture ? null : src.Culture.Name,
                 src.Encoding.EncodingName,
+                src.DateTimeKind.ToString(),
                 src.Fields.ToDictionary(f => f.Key, f => f.Value),
                 src.Attributes.ToDictionary(a => a.Key, a => a.Value),
                 src.Validation.Select(

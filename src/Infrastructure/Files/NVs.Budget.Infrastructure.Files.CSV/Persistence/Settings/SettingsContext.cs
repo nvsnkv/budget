@@ -21,6 +21,7 @@ internal class SettingsContext(DbContextOptions<SettingsContext> options) : DbCo
 
         modelBuilder.UseIdentityByDefaultColumns();
         modelBuilder.HasPostgresEnum<ValidationRule.ValidationCondition>();
+        modelBuilder.HasPostgresEnum<DateTimeKind>();
 
         modelBuilder.Entity<StoredCsvFileReadingSettings>()
             .OwnsOne(s => s.Settings, d =>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Controllers.Web.Formatters;
+using NVs.Budget.Utilities.Expressions;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -24,6 +25,7 @@ public static class WebControllersExtensions
 
         services.AddAutoMapper(m => m.AddProfile(new MappingProfile()));
         services.AddSingleton<Converter>();
+        services.AddTransient<ReadableExpressionsParser>();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>
         {

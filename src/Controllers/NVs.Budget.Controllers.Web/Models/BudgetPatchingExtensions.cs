@@ -115,7 +115,16 @@ namespace NVs.Budget.Controllers.Web.Models
                     index++;
                 }
 
-                result.Add(regex, new FileReadingSetting(culture, encoding, value.Fields, value.Attributes, validation));
+                var dateTimeKind = DateTimeKind.Local;
+                if (!string.IsNullOrEmpty(value.DateTimeKind)) {
+                    if (!Enum.TryParse<DateTimeKind>(value.DateTimeKind, out var kind)) {
+                        return Result.Fail(new Error("Invalid date time kind").WithMetadata("Configuration", key).WithMetadata("DateTimeKind", value.DateTimeKind));
+                    }
+
+                    dateTimeKind = kind;
+                }
+
+                result.Add(regex, new FileReadingSetting(culture, encoding, dateTimeKind, value.Fields, value.Attributes, validation));
             }
 
             return result;

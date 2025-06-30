@@ -21,6 +21,7 @@ internal class BudgetSpecificSettingsRepository(SettingsContext context) : IRead
                 x => new FileReadingSetting(
                     CultureInfo.GetCultureInfo(x.Settings.CultureCode),
                     Encoding.GetEncoding(x.Settings.EncodingName),
+                    x.Settings.DateTimeKind,
                     x.Settings.Fields.AsReadOnly(),
                     x.Settings.Attributes.AsReadOnly(),
                     x.Settings.Validation.AsReadOnly()
@@ -51,6 +52,7 @@ internal class BudgetSpecificSettingsRepository(SettingsContext context) : IRead
                     {
                         CultureCode = s.Value.Culture.Name,
                         EncodingName = s.Value.Encoding.WebName,
+                        DateTimeKind = s.Value.DateTimeKind,
                         Attributes = new(s.Value.Attributes),
                         Fields = new(s.Value.Fields),
                         Validation = new(s.Value.Validation),

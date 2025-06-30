@@ -11,4 +11,5 @@ internal class StoredSettings
     public Dictionary<string, string> Fields { get; init; } = new();
     public Dictionary<string, string> Attributes { get; init; } = new();
     public List<ValidationRule> Validation {get; init;} = new();
+    public DateTimeKind DateTimeKind { get; init; } = DateTimeKind.Local;
 }
