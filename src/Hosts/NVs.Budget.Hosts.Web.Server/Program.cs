@@ -10,9 +10,18 @@ using NVs.Budget.Infrastructure.Persistence.EF;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Utilities.Expressions;
 using Serilog;
+using Serilog.Events;
 
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog(Log.Logger);
 
 builder.Services.AddLogging(b => b.AddSerilog(dispose: true));
 var identityConnectionString = builder.Configuration.GetConnectionString("IdentityContext") ?? throw new InvalidOperationException("No connection string found for IdentityContext!");
@@ -43,6 +52,7 @@ builder.Services
     .AddWebControllers();
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 app.UseYandexAuth(frontendUrl)
     .UseWebControllers(app.Environment.IsDevelopment());
 

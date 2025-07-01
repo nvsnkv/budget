@@ -67,13 +67,14 @@ namespace NVs.Budget.Controllers.Web.Models
                 var encoding = Encoding.UTF8;
                 if (!string.IsNullOrEmpty(value.EncodingName))
                 {
-                    var info = Encoding.GetEncodings().FirstOrDefault(e => e.Name == value.EncodingName);
-                    if (info is null)
+                    try
                     {
-                        return Result.Fail(new Error($"Encoding {value.EncodingName} not found").WithMetadata("Configuration", key));
+                        encoding = Encoding.GetEncoding(value.EncodingName);
                     }
-
-                    encoding = info.GetEncoding();
+                    catch (ArgumentException ex)
+                    {
+                        return Result.Fail(new Error($"Encoding {value.EncodingName} not found").WithMetadata("Configuration", key).WithMetadata("Exception", ex.ToString()));
+                    }
                 }
 
                 foreach (var field in RequiredFields)

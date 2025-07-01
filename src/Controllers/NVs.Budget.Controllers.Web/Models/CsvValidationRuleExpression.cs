@@ -1,7 +1,25 @@
 ﻿namespace NVs.Budget.Controllers.Web.Models;
 
-public record CsvValidationRuleExpression(
-    string Pattern,
-    string Value,
-    string ErrorMessage,
-    CsvValidationCondition Condition);
+public class CsvValidationRuleExpression
+{
+    public string Pattern { get; init; } = string.Empty;
+    public string Value { get; init; } = string.Empty;
+    public string ErrorMessage { get; init; } = string.Empty;
+    public CsvValidationCondition Condition { get; init; } = CsvValidationCondition.Equals;
+
+    public CsvValidationRuleExpression()
+    {
+    }
+
+    public CsvValidationRuleExpression(
+        string pattern,
+        string value,
+        string errorMessage,
+        CsvValidationCondition condition)
+    {
+        Pattern = pattern;
+        Value = value;
+        ErrorMessage = errorMessage;
+        Condition = condition;
+    }
+}

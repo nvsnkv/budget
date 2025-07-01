@@ -4,6 +4,7 @@ using FluentResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
@@ -20,7 +21,8 @@ public class BudgetController(
     IMapper mapper,
     ReadableExpressionsParser parser,
     IDeserializer yamlDeserializer,
-    IReadingSettingsRepository  readingSettingsRepository
+    IReadingSettingsRepository  readingSettingsRepository,
+    ILogger<BudgetController> logger
 ) : Controller
 {
     [HttpGet]
@@ -129,6 +131,7 @@ public class BudgetController(
     [HttpPut("{id:guid}/csv-options")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<IEnumerable<IError>>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<IEnumerable<IError>>(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateCsvReadingOptions(
         Guid id,
         IFormFile file,
@@ -137,12 +140,12 @@ public class BudgetController(
         // Validate file
         if (file.Length == 0)
         {
-            return BadRequest(new Error("No file uploaded"));
+            return BadRequest(Enumerable.Repeat(new Error("No file uploaded"), 1));
         }
 
         if (!file.FileName.EndsWith(".yaml") && !file.FileName.EndsWith(".yml"))
         {
-            return BadRequest(new Error("Only YAML files are supported"));
+            return BadRequest(Enumerable.Repeat(new Error("Only YAML files are supported"), 1));
         }
 
         try
@@ -151,7 +154,7 @@ public class BudgetController(
             var budget = (await manager.GetOwnedBudgets(ct)).FirstOrDefault(b => b.Id == id);
             if (budget == null)
             {
-                return BadRequest(new Error("Budget not found"));
+                return BadRequest(Enumerable.Repeat(new Error("Budget not found"), 1));
             }
 
             // Read and parse options
@@ -175,11 +178,14 @@ public class BudgetController(
         }
         catch (YamlDotNet.Core.YamlException ex) 
         {
-            return BadRequest(Result.Fail(ex.Message).Errors);
+            logger.LogError(ex, "Error parsing YAML file");
+            logger.LogError(ex.InnerException, "Inner exception:");
+            return BadRequest(Enumerable.Repeat(new ExceptionalError(ex.ToString(), ex), 1));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, Result.Fail(ex.Message).Errors);
+            logger.LogError(ex, "Error updating CSV reading options");
+            return StatusCode(StatusCodes.Status500InternalServerError, Enumerable.Repeat(new ExceptionalError(ex.ToString(), ex), 1));
         }
     }
 

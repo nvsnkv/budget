@@ -30,7 +30,7 @@ internal class MappingProfile : Profile
         CreateMap<FileReadingSetting, CsvFileReadingConfiguration>()
             .ConvertUsing(src => new(
                 src.Culture == CultureInfo.InvariantCulture ? null : src.Culture.Name,
-                src.Encoding.EncodingName,
+                src.Encoding.WebName,
                 src.DateTimeKind.ToString(),
                 src.Fields.ToDictionary(f => f.Key, f => f.Value),
                 src.Attributes.ToDictionary(a => a.Key, a => a.Value),
