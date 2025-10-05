@@ -3,7 +3,7 @@ using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
 
-namespace NVs.Budget.Application.UseCases.Accounts;
+namespace NVs.Budget.Application.UseCases.Budgets;
 
 internal class ListOwnedBudgetsQueryHandler(IBudgetManager manager) : IRequestHandler<ListOwnedBudgetsQuery, IReadOnlyCollection<TrackedBudget>>
 {

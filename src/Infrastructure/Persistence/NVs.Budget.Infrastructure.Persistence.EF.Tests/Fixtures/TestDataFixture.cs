@@ -17,29 +17,29 @@ public class TestDataFixture
     public TestDataFixture()
     {
         Fixture.Inject(LogbookCriteria.Universal);
-        var accounts = new List<TrackedBudget>();
+        var budgets = new List<TrackedBudget>();
 
         Owners = Fixture.Create<Generator<Owner>>().Take(2).ToList();
         foreach (var owner in Owners)
         {
             using (Fixture.SetNamedParameter(nameof(Domain.Entities.Budgets.Budget.Owners).ToLower(), new[] { owner }.AsEnumerable()))
             {
-                accounts.AddRange(Fixture.Create<Generator<TrackedBudget>>().Take(2));
+                budgets.AddRange(Fixture.Create<Generator<TrackedBudget>>().Take(2));
             }
         }
 
-        for (var i = 0; i < accounts.Count; i++)
+        for (var i = 0; i < budgets.Count; i++)
         {
             if (i % 2 == 1)
             {
-                foreach (var owner in Owners.Except(accounts[i].Owners))
+                foreach (var owner in Owners.Except(budgets[i].Owners))
                 {
-                    accounts[i].AddOwner(owner);
+                    budgets[i].AddOwner(owner);
                 }
             }
         }
 
-        Budgets = accounts;
+        Budgets = budgets;
     }
 
 }

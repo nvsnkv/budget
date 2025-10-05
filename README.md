@@ -2,7 +2,7 @@
 
 Yet another budget tracking tool. Successor of [flow](https://github.com/nvsnkv/flow2). The main features are:
 * Import data from any CSV list of operations provided by your banks. `budget` provides uniform way of storing this data
-* Find and mark transfers between your accounts to exclude them from "incomes" and "withdraws", if that was a transfer from your account to another your account
+* Find and mark transfers between your accounts within a budget to exclude them from "incomes" and "withdraws"
 * Tag operations in a way _you_ need with powerful tagging criteria
 * Build calendar-like aggregation of your operations to track your expences month-to-monht
 

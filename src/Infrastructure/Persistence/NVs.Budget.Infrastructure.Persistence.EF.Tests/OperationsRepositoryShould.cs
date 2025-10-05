@@ -49,11 +49,11 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
     public async Task UpdateTransactionSuccessfully()
     {
         var target = await AddTransaction();
-        var newAccount = _testData.Budgets.First(a => a.Id != target.Budget.Id);
+        var newBudget = _testData.Budgets.First(a => a.Id != target.Budget.Id);
 
         TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
-        using (_fixture.SetNamedParameter(nameof(target.Budget).ToLower(), (Domain.Entities.Budgets.Budget)newAccount))
+        using (_fixture.SetNamedParameter(nameof(target.Budget).ToLower(), (Domain.Entities.Budgets.Budget)newBudget))
         using (_fixture.SetNamedParameter(nameof(target.Tags).ToLower(), _fixture.Create<Generator<Tag>>().Take(3)))
         {
             updated = _fixture.Create<TrackedOperation>();

@@ -14,5 +14,5 @@ internal class StoredOwner(Guid id, string name) : DbRecord, ITrackableEntity<Gu
     public string UserId { get; set; } = string.Empty;
     public string? Version { get; set; }
 
-    public virtual IList<StoredBudget> Accounts { get; init; } = new List<StoredBudget>();
+    public virtual IList<StoredBudget> Budgets { get; init; } = new List<StoredBudget>();
 }

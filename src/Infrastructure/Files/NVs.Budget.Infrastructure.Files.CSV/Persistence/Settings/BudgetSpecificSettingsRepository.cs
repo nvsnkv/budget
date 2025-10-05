@@ -65,7 +65,7 @@ internal class BudgetSpecificSettingsRepository(SettingsContext context) : IRead
         }
         catch (Exception ex)
         {
-            return Result.Fail(new ExceptionalError(ex.WithAccountId(budget)));
+            return Result.Fail(new ExceptionalError(ex.WithBudgetId(budget)));
         }
 
         return Result.Ok();

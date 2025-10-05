@@ -32,23 +32,23 @@ public class BudgetManagerShould
     }
 
     [Fact]
-    public async Task ReturnOnlyOwnedAccounts()
+    public async Task ReturnOnlyOwnedBudgets()
     {
-        var ownedAccounts = GenerateBudgets(3, _owner).ToList();
-        var notOwnedAccounts = GenerateBudgets(3, _fixture.Create<Owner>());
+        var ownedBudgets = GenerateBudgets(3, _owner).ToList();
+        var notOwnedBudgets = GenerateBudgets(3, _fixture.Create<Owner>());
 
-        _repository.Append(ownedAccounts);
-        _repository.Append(notOwnedAccounts);
+        _repository.Append(ownedBudgets);
+        _repository.Append(notOwnedBudgets);
 
         var budgets = await _manager.GetOwnedBudgets(CancellationToken.None);
-        budgets.Should().BeEquivalentTo(ownedAccounts);
+        budgets.Should().BeEquivalentTo(ownedBudgets);
     }
 
     [Fact]
-    public async Task CreateAccount()
+    public async Task CreateBudget()
     {
-        var newAccount = _fixture.Create<UnregisteredBudget>();
-        var result = await _manager.Register(newAccount, CancellationToken.None);
+        var newBudget = _fixture.Create<UnregisteredBudget>();
+        var result = await _manager.Register(newBudget, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Owners.Should().HaveCount(1);
@@ -59,7 +59,7 @@ public class BudgetManagerShould
     }
 
     [Fact]
-    public async Task RenameOwnedAccounts()
+    public async Task RenameOwnedBudgets()
     {
         IReadOnlyList<TrackedBudget> getOwnedBudgets = GenerateBudgets(1, _owner).ToList().AsReadOnly();
         _repository.Append(getOwnedBudgets);
@@ -85,7 +85,7 @@ public class BudgetManagerShould
     }
 
     [Fact]
-    public async Task NotUpdateAccountThatDoesNotBelongToCurrentOwner()
+    public async Task NotUpdateBudgetThatDoesNotBelongToCurrentOwner()
     {
         var budgets = GenerateBudgets(1, _fixture.Create<Owner>()).ToList();
         _repository.Append(budgets);
@@ -97,7 +97,7 @@ public class BudgetManagerShould
     }
 
     [Fact]
-    public async Task NotUpdateAccountThatDoesNotExists()
+    public async Task NotUpdateBudgetThatDoesNotExists()
     {
         var result = await _manager.Update(_fixture.Create<TrackedBudget>(), CancellationToken.None);
         result.IsSuccess.Should().BeFalse();
@@ -138,7 +138,7 @@ public class BudgetManagerShould
     }
 
     [Fact]
-    public async Task RemoveAccountOwnedOnlyByCurrentOwner()
+    public async Task RemoveBudgetOwnedOnlyByCurrentOwner()
     {
         IReadOnlyList<TrackedBudget> budgets = GenerateBudgets(1, _owner).ToList().AsReadOnly();
         _repository.Append(budgets);
@@ -153,7 +153,7 @@ public class BudgetManagerShould
     }
 
     [Fact]
-    public async Task NotRemoveAccountOwnedByMultipleOwners()
+    public async Task NotRemoveBudgetOwnedByMultipleOwners()
     {
         var budgets = GenerateBudgets(1, _fixture.Create<Owner>(), _owner).ToList();
         _repository.Append(budgets);

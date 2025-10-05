@@ -114,7 +114,7 @@ internal class Reckoner(
     {
         var result = new TrackedOperation(
             operation.Id, operation.Timestamp, operation.Amount, operation.Description,
-            AsTrackedAccount(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly()
+            AsTrackedBudget(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly()
         );
 
         result.TagEphemeral();
@@ -122,6 +122,6 @@ internal class Reckoner(
         return result;
     }
 
-    private TrackedBudget AsTrackedAccount(Domain.Entities.Budgets.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
+    private TrackedBudget AsTrackedBudget(Domain.Entities.Budgets.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
 
 }

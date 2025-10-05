@@ -52,9 +52,9 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
         var budgets = _fixture.Create<Generator<TrackedBudget>>().Take(2).ToArray();
         var operations = new List<TrackedOperation>();
 
-        foreach (var account in budgets)
+        foreach (var budget in budgets)
         {
-            using (_fixture.SetAccount(account))
+            using (_fixture.SetBudget(budget))
             {
                 operations.AddRange(_fixture.Create<Generator<TrackedOperation>>().Take(10));
             }

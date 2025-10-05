@@ -31,7 +31,7 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
 
         var ownBuilder = modelBuilder.Entity<StoredOwner>();
         ownBuilder
-            .HasMany(o => o.Accounts)
+            .HasMany(o => o.Budgets)
             .WithMany(a => a.Owners);
 
         ownBuilder.HasIndex(o => o.UserId);

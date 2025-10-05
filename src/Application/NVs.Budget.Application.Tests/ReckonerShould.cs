@@ -55,7 +55,7 @@ public class ReckonerShould
             manager);
 
         _data = new ReckonerTestData(_currentOwner, 2, 4, 6);
-        _storage.Budgets.Append(_data.AllAccounts);
+        _storage.Budgets.Append(_data.AllBudgets);
         _storage.Operations.Append(_data.AllTransactions);
 
     }

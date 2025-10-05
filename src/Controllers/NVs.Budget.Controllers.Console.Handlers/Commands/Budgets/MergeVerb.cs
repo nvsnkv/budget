@@ -14,7 +14,7 @@ internal class MergeVerb : AbstractVerb
     [Value(0, MetaName = "Budget ids to merge (min 2). All operations will be moved from budgets into the last one provided")]
     public IEnumerable<string> BudgetIds { get; set; } = Enumerable.Empty<string>();
 
-    [Option("purge", Default = false, HelpText = "Purge empty accounts")]
+    [Option("purge", Default = false, HelpText = "Purge empty budgets")]
     public bool Purge { get; set; }
 }
 
@@ -35,7 +35,7 @@ internal class MergeVerbHandler(IMediator mediator, IResultWriter<Result> result
             ids.Add(i);
         }
 
-        var rq = new MergeAccountsRequest(ids, request.Purge);
+        var rq = new MergeBudgetsRequest(ids, request.Purge);
         var result = await mediator.Send(rq, cancellationToken);
         return result.ToExitCode();
     }

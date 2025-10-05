@@ -1,7 +1,7 @@
 * budget
-    * acc - accounts
-        * stats - accounts-based statistics
-        * merge - merges two accounts into one by moving operation from one account to another
+    * budget - budgets
+        * stats - budgets-based statistics
+        * merge - merges two budgets into one by moving operation from one budget to another
     * ops (o) - operations
         * list - list operations
         * list-duplicates - get list of duplicated operations

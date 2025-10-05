@@ -76,8 +76,8 @@ public class TypeReplacerShould
     {
         var id = _fixture.Create<Guid>();
 
-        Expression<Func<TrackedOperation, bool>> availableAccounts = o => o.Budget.Id == id;
-        var action = () => availableAccounts.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
+        Expression<Func<TrackedOperation, bool>> availableBudgets = o => o.Budget.Id == id;
+        var action = () => availableBudgets.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -85,8 +85,8 @@ public class TypeReplacerShould
     public void ReplaceNestedTypesWithinExtensionMethods()
     {
         var owner = _fixture.Create<Owner>();
-        var newAccount = _fixture.Create<UnregisteredBudget>();
-        Expression<Func<TrackedBudget, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newAccount.Name;
+        var newBudget = _fixture.Create<UnregisteredBudget>();
+        Expression<Func<TrackedBudget, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newBudget.Name;
 
         var action = () => expression.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
         action.Should().NotThrow();

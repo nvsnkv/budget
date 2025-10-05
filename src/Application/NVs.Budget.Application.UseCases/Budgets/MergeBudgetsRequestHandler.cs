@@ -6,11 +6,11 @@ using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
 
-namespace NVs.Budget.Application.UseCases.Accounts;
+namespace NVs.Budget.Application.UseCases.Budgets;
 
-internal class MergeAccountsRequestHandler(IBudgetManager manager, IReckoner reckoner, IAccountant accountant) : IRequestHandler<MergeAccountsRequest, Result>
+internal class MergeBudgetsRequestHandler(IBudgetManager manager, IReckoner reckoner, IAccountant accountant) : IRequestHandler<MergeBudgetsRequest, Result>
 {
-    public async Task<Result> Handle(MergeAccountsRequest request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(MergeBudgetsRequest request, CancellationToken cancellationToken)
     {
         var budgets = (await manager.GetOwnedBudgets(cancellationToken)).Where(b => request.BudgetIds.Contains(b.Id)).ToDictionary(x => x.Id);
         var missedBudgets = request.BudgetIds.Except(budgets.Keys).ToList();
