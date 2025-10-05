@@ -22,10 +22,7 @@ public static class WebControllersExtensions
         services.AddSingleton(new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build());
-
-        services.AddAutoMapper(m => m.AddProfile(new MappingProfile()));
-        services.AddSingleton<Converter>();
-        services.AddTransient<ReadableExpressionsParser>();
+        
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>
         {
