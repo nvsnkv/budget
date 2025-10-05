@@ -9,7 +9,7 @@ public class  TrackedOperation(
     DateTime timestamp,
     Money amount,
     string description,
-    Domain.Entities.Accounts.Budget budget,
+    Domain.Entities.Budgets.Budget budget,
     IEnumerable<Tag> tags,
     IReadOnlyDictionary<string, object>? attributes)
     : Operation(id, timestamp, amount, description, budget, tags, attributes), ITrackableEntity<Guid>

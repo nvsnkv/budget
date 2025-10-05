@@ -5,7 +5,7 @@ using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
@@ -36,7 +36,7 @@ public class MappingProfileShould
     [InlineData(typeof(TaggingCriterion), typeof(StoredTaggingCriterion))]
     [InlineData(typeof(TransferCriterion), typeof(StoredTransferCriterion))]
     [InlineData(typeof(LogbookCriteria), typeof(StoredLogbookCriteria))]
-    [InlineData(typeof(Domain.Entities.Accounts.Budget), typeof(StoredBudget))]
+    [InlineData(typeof(Domain.Entities.Budgets.Budget), typeof(StoredBudget))]
     [InlineData(typeof(TrackedBudget), typeof(StoredBudget))]
     [InlineData(typeof(TrackedOperation), typeof(StoredOperation))]
     [InlineData(typeof(ExchangeRate), typeof(StoredRate))]

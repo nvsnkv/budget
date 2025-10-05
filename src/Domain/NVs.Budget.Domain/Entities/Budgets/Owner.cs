@@ -1,4 +1,4 @@
-﻿namespace NVs.Budget.Domain.Entities.Accounts;
+﻿namespace NVs.Budget.Domain.Entities.Budgets;
 
 public class Owner : EntityBase<Guid>
 {

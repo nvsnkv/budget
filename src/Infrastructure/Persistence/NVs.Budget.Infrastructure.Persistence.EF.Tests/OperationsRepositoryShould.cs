@@ -41,7 +41,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         trackedTransaction.Should().BeEquivalentTo(transaction);
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
-        trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Accounts.Budget)budget, c => c.ComparingByMembers<Domain.Entities.Accounts.Budget>());
+        trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Budgets.Budget)budget, c => c.ComparingByMembers<Domain.Entities.Budgets.Budget>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -53,7 +53,7 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
 
         TrackedOperation updated;
         using (_fixture.SetNamedParameter(nameof(target.Id).ToLower(), target.Id))
-        using (_fixture.SetNamedParameter(nameof(target.Budget).ToLower(), (Domain.Entities.Accounts.Budget)newAccount))
+        using (_fixture.SetNamedParameter(nameof(target.Budget).ToLower(), (Domain.Entities.Budgets.Budget)newAccount))
         using (_fixture.SetNamedParameter(nameof(target.Tags).ToLower(), _fixture.Create<Generator<Tag>>().Take(3)))
         {
             updated = _fixture.Create<TrackedOperation>();

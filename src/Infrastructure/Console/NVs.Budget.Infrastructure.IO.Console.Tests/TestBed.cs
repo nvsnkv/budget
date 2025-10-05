@@ -15,9 +15,9 @@ public class TestBed
         var configuration = new ConfigurationBuilder().Build();
 
         var collection = new ServiceCollection().AddConsoleIO().UseConsoleIO(configuration);
-        if (AccountsRepository is not null)
+        if (BudgetsRepository is not null)
         {
-            collection.AddSingleton(AccountsRepository);
+            collection.AddSingleton(BudgetsRepository);
         }
 
         if (StreamProvider is not null)
@@ -28,7 +28,7 @@ public class TestBed
         return collection.BuildServiceProvider();
     }
 
-    internal IBudgetsRepository? AccountsRepository { get; set; }
+    internal IBudgetsRepository? BudgetsRepository { get; set; }
 
     internal IOutputStreamProvider? StreamProvider { get; set; } = new FakeStreamsProvider();
 

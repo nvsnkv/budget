@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
 

@@ -2,7 +2,7 @@
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 
-internal class BudgetDoesNotExistsError(Domain.Entities.Accounts.Budget budget)
+internal class BudgetDoesNotExistsError(Domain.Entities.Budgets.Budget budget)
     : ErrorBase("Budget with given id does not exists",
         new Dictionary<string, object>
         {

@@ -19,7 +19,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     [Fact(Skip = "Does not work on CI runners properly")]
     public async Task ParseValidFile()
     {
-        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
+        testBed.BudgetsRepository = new FakeReadOnlyBudgetsRepository([]);
         var parser = testBed.GetCsvParser();
         var options = await testBed.GetOptionsFrom("TestData/ValidFile/validFileConfig.yml");
         var stream = File.OpenRead("TestData/ValidFile/validFile.csv");
@@ -34,7 +34,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
     [Fact]
     public async Task ParseFileWithDotsInNumbersAndCyrillicComments()
     {
-        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository([]);
+        testBed.BudgetsRepository = new FakeReadOnlyBudgetsRepository([]);
         var parser = testBed.GetCsvParser();
         var options = await testBed.GetOptionsFrom("TestData/FileWithDotsInNumbersAndCyrillicAttributes/file.yml");
         var stream = File.OpenRead("TestData/FileWithDotsInNumbersAndCyrillicAttributes/file.csv");
@@ -60,7 +60,7 @@ public class CsvFileParserShould(TestBed testBed) : IClassFixture<TestBed>
             }
         }
 
-        testBed.AccountsRepository = new FakeReadOnlyBudgetsRepository(budgets);
+        testBed.BudgetsRepository = new FakeReadOnlyBudgetsRepository(budgets);
 
         await using var streams = new FakeStreamsProvider();
         testBed.StreamProvider = streams;

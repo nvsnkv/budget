@@ -8,7 +8,7 @@ using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Application.Tests.Fakes;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 

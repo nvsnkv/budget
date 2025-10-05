@@ -2,7 +2,7 @@
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Utilities.Expressions;
@@ -33,7 +33,7 @@ internal class MappingProfile : Profile
 
         CreateMap<Tag, StoredTag>().ReverseMap();
         CreateMap<Owner, StoredOwner>().ReverseMap();
-        CreateMap<Domain.Entities.Accounts.Budget, StoredBudget>().ReverseMap();
+        CreateMap<Domain.Entities.Budgets.Budget, StoredBudget>().ReverseMap();
         CreateMap<Operation, StoredOperation>().ReverseMap();
 
         CreateMap<ReadableExpression<Func<Operation, string>>, string>().ConstructUsing(r => r.ToString());

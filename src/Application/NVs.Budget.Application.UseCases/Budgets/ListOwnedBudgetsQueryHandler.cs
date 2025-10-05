@@ -1,7 +1,7 @@
 using MediatR;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Services;
-using NVs.Budget.Application.Contracts.UseCases.Accounts;
+using NVs.Budget.Application.Contracts.UseCases.Budgets;
 
 namespace NVs.Budget.Application.UseCases.Accounts;
 

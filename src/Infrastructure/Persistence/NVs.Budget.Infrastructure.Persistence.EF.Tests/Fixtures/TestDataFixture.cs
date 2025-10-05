@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
@@ -22,7 +22,7 @@ public class TestDataFixture
         Owners = Fixture.Create<Generator<Owner>>().Take(2).ToList();
         foreach (var owner in Owners)
         {
-            using (Fixture.SetNamedParameter(nameof(Domain.Entities.Accounts.Budget.Owners).ToLower(), new[] { owner }.AsEnumerable()))
+            using (Fixture.SetNamedParameter(nameof(Domain.Entities.Budgets.Budget.Owners).ToLower(), new[] { owner }.AsEnumerable()))
             {
                 accounts.AddRange(Fixture.Create<Generator<TrackedBudget>>().Take(2));
             }

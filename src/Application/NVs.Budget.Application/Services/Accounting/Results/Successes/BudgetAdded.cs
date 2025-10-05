@@ -5,7 +5,7 @@ namespace NVs.Budget.Application.Services.Accounting.Results.Successes;
 
 internal class BudgetAdded : Success
 {
-    public BudgetAdded(Domain.Entities.Accounts.Budget budget) : base("Budget was successfully added!")
+    public BudgetAdded(Domain.Entities.Budgets.Budget budget) : base("Budget was successfully added!")
     {
         this.WithOperationId(budget);
     }

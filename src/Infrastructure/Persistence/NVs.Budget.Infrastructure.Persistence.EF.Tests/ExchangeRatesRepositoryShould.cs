@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NMoneys;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;

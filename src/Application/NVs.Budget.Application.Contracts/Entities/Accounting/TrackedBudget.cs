@@ -1,10 +1,10 @@
 ﻿using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
 
 public class TrackedBudget(Guid id, string name, IEnumerable<Owner> owners, IEnumerable<TaggingCriterion> taggingCriteria, IEnumerable<TransferCriterion> transferCriteria, LogbookCriteria logbookCriteria)
-    : Domain.Entities.Accounts.Budget(id, name, owners), ITrackableEntity<Guid>
+    : Domain.Entities.Budgets.Budget(id, name, owners), ITrackableEntity<Guid>
 {
     private readonly List<TaggingCriterion> _taggingCriteria = [..Order(taggingCriteria)];
     private readonly List<TransferCriterion> _transferCriteria = [..Order(transferCriteria)];

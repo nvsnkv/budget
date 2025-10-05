@@ -16,7 +16,7 @@ using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Accounting.Reckon;
 using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Tests.Fakes;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;

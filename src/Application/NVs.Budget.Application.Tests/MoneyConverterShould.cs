@@ -4,7 +4,7 @@ using Moq;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Services.Accounting.Exchange;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;

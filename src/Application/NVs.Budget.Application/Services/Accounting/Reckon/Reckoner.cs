@@ -122,6 +122,6 @@ internal class Reckoner(
         return result;
     }
 
-    private TrackedBudget AsTrackedAccount(Domain.Entities.Accounts.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
+    private TrackedBudget AsTrackedAccount(Domain.Entities.Budgets.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
 
 }

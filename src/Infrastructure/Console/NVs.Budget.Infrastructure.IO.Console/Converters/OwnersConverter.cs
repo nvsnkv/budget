@@ -1,5 +1,5 @@
 using AutoMapper;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Converters;
 

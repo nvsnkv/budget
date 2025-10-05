@@ -2,7 +2,7 @@
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 using NVs.Budget.Infrastructure.Persistence.EF.Tests.Fixtures;
 
