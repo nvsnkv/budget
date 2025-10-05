@@ -13,6 +13,7 @@ using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Hosts.Console;
 using NVs.Budget.Hosts.Console.Commands;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
+using NVs.Budget.Infrastructure.Files.CSV;
 using NVs.Budget.Infrastructure.Identity.Console;
 using NVs.Budget.Infrastructure.IO.Console;
 using NVs.Budget.Infrastructure.Persistence.EF;
@@ -55,22 +56,24 @@ var configuration = configurationBuilder
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
 
 ReadableExpressionsParser.Default.RegisterAdditionalTypes(typeof(Tag));
+var connectionString = configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!");
 
 var collection = new ServiceCollection().AddConsoleIdentity()
     .AddLogging(builder => builder.AddSerilog(dispose: true))
     .AddSingleton(configuration)
     .AddMediatR(c => c.RegisterServicesFromAssembly(typeof(AdminVerb).Assembly))
     .AddEfCorePersistence(
-        configuration.GetConnectionString("BudgetContext") ?? throw new InvalidOperationException("No connection string found for BudgetContext!"),
+        connectionString,
         ReadableExpressionsParser.Default
     )
+    .AddCsvFiles(connectionString)
     .AddScoped<UserCache>()
-    .AddScoped<IUser>(p => p.GetRequiredService<UserCache>().CachedUser)
+    .AddScoped(p => p.GetRequiredService<UserCache>().CachedUser)
     .AddScoped<UserCacheInitializer>()
     .AddTransient<AppServicesFactory>()
-    .AddTransient<IAccountant>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountant())
-    .AddTransient<IBudgetManager>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountManager())
-    .AddTransient<IReckoner>(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
+    .AddTransient(p => p.GetRequiredService<AppServicesFactory>().CreateAccountant())
+    .AddTransient(p => p.GetRequiredService<AppServicesFactory>().CreateAccountManager())
+    .AddTransient(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
     .AddApplicationUseCases()
     .AddSingleton(new Factory().CreateProvider())
     .AddConsole()

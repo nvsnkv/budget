@@ -39,6 +39,7 @@
       <ProjectReference Include="..\..\Infrastructure\Console\NVs.Budget.Infrastructure.IO.Console\NVs.Budget.Infrastructure.IO.Console.csproj" />
       <ProjectReference Include="..\..\Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj" />
       <ProjectReference Include="..\..\Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF.Common\NVs.Budget.Infrastructure.Persistence.EF.Common.csproj" />
+      <ProjectReference Include="..\..\Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV\NVs.Budget.Infrastructure.Files.CSV.csproj" />
     </ItemGroup>
 
     <ItemGroup>
