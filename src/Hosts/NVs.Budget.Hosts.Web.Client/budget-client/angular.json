@@ -83,8 +83,8 @@
           "defaultConfiguration": "development",
           "options": {
             "ssl": true,
-            "sslCert": "/https/aspnetapp.crt",
-            "sslKey": "/https/aspnetapp.key"
+            "sslCert": "../../web-debug/certs/aspnetapp.crt",
+            "sslKey": "../../web-debug/certs/aspnetapp.key"
           }
         },
         "extract-i18n": {
