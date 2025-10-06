@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
+using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
@@ -53,32 +54,49 @@ public class BudgetController(IMediator mediator) : Controller
     /// <summary>
     /// Changes the owners of a budget
     /// </summary>
-    /// <param name="id">Budget ID</param>
     /// <param name="request">Change owners request</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Success or error details</returns>
-    [HttpPut("{id:guid}/owners")]
+    [HttpPut("owners")]
     [ProducesResponseType(204)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
     public async Task<IActionResult> ChangeBudgetOwners(
-        [FromRoute] Guid id, 
         [FromBody] ChangeBudgetOwnersRequest request, 
         CancellationToken ct)
     {
         // First, get the budget to validate it exists and user has access
         var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
-        var budget = budgets.FirstOrDefault(b => b.Id == id);
+        var budget = budgets.FirstOrDefault(b => b.Id == request.Budget.Id);
         
         if (budget == null)
         {
-            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+            return NotFound(new List<Error> { new($"Budget with ID {request.Budget.Id} not found or access denied") });
         }
 
-        // For now, we'll create owners with placeholder names since we only have IDs
-        // In a real application, you might want to fetch owner details from a service
-        var owners = request.OwnerIds.Select(id => new Owner(id, $"Owner-{id}")).ToList();
-        var command = new ChangeBudgetOwnersCommand(budget, owners);
+        // Fetch actual owners by their IDs
+        var owners = await mediator.Send(new ListOwnersQuery(o => request.OwnerIds.Contains(o.Id)), ct);
+        
+        if (owners.Count != request.OwnerIds.Count)
+        {
+            var foundIds = owners.Select(o => o.Id).ToList();
+            var missingIds = request.OwnerIds.Except(foundIds).ToList();
+            return BadRequest(new List<Error> { new($"Owners not found: {string.Join(", ", missingIds)}") });
+        }
+
+        // Create budget with user-provided version
+        var budgetToUpdate = new TrackedBudget(
+            request.Budget.Id,
+            budget.Name,
+            owners,
+            budget.TaggingCriteria,
+            budget.TransferCriteria,
+            budget.LogbookCriteria)
+        {
+            Version = request.Budget.Version
+        };
+
+        var command = new ChangeBudgetOwnersCommand(budgetToUpdate, owners);
         var result = await mediator.Send(command, ct);
 
         if (result.IsSuccess)
@@ -114,16 +132,16 @@ public class BudgetController(IMediator mediator) : Controller
             return NotFound(new List<Error> { new Error($"Budget with ID {id} not found or access denied") });
         }
 
-        // Create updated budget with new properties
+        // Create updated budget with new properties using user-provided version
         var updatedBudget = new TrackedBudget(
-            budget.Id,
+            id,
             request.Name,
             budget.Owners,
             request.TaggingCriteria ?? budget.TaggingCriteria,
             request.TransferCriteria ?? budget.TransferCriteria,
             request.LogbookCriteria ?? budget.LogbookCriteria)
         {
-            Version = budget.Version
+            Version = request.Version
         };
 
         var command = new UpdateBudgetCommand(updatedBudget);
@@ -141,13 +159,17 @@ public class BudgetController(IMediator mediator) : Controller
     /// Removes a budget
     /// </summary>
     /// <param name="id">Budget ID</param>
+    /// <param name="version">Budget version for optimistic concurrency</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Success or error details</returns>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
-    public async Task<IActionResult> RemoveBudget([FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> RemoveBudget(
+        [FromRoute] Guid id, 
+        [FromQuery] string version, 
+        CancellationToken ct)
     {
         // First, get the budget to validate it exists and user has access
         var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
@@ -158,7 +180,19 @@ public class BudgetController(IMediator mediator) : Controller
             return NotFound(new List<Error> { new Error($"Budget with ID {id} not found or access denied") });
         }
 
-        var command = new RemoveBudgetCommand(budget);
+        // Create budget with user-provided version
+        var budgetToRemove = new TrackedBudget(
+            id,
+            budget.Name,
+            budget.Owners,
+            budget.TaggingCriteria,
+            budget.TransferCriteria,
+            budget.LogbookCriteria)
+        {
+            Version = version
+        };
+
+        var command = new RemoveBudgetCommand(budgetToRemove);
         var result = await mediator.Send(command, ct);
 
         if (result.IsSuccess)
@@ -193,12 +227,15 @@ public class BudgetController(IMediator mediator) : Controller
 }
 
 // Request models for the controller
+public record BudgetIdentifier(Guid Id, string Version);
+
 public record RegisterBudgetRequest(string Name);
 
-public record ChangeBudgetOwnersRequest(IReadOnlyCollection<Guid> OwnerIds);
+public record ChangeBudgetOwnersRequest(BudgetIdentifier Budget, IReadOnlyCollection<Guid> OwnerIds);
 
 public record UpdateBudgetRequest(
     string Name,
+    string Version,
     IReadOnlyCollection<TaggingCriterion>? TaggingCriteria = null,
     IReadOnlyCollection<TransferCriterion>? TransferCriteria = null,
     LogbookCriteria? LogbookCriteria = null);
