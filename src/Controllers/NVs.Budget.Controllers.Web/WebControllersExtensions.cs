@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Controllers.Web.Filters;
 using NVs.Budget.Controllers.Web.Formatters;
-using NVs.Budget.Utilities.Expressions;
+using NVs.Budget.Controllers.Web.Utils;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -23,6 +23,9 @@ public static class WebControllersExtensions
         services.AddSingleton(new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build());
+        
+        // Register BudgetMapper
+        services.AddScoped<BudgetMapper>();
         
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>

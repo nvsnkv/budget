@@ -7,6 +7,8 @@ using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
 using NVs.Budget.Application.Contracts.UseCases.Owners;
+using NVs.Budget.Controllers.Web.Models;
+using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
@@ -15,7 +17,7 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 [ApiVersion("0.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json", "application/yaml", "text/yaml")]
-public class BudgetController(IMediator mediator) : Controller
+public class BudgetController(IMediator mediator, BudgetMapper mapper) : Controller
 {
     /// <summary>
     /// Gets all budgets available to the current user (owned by or shared with the user)
@@ -23,10 +25,11 @@ public class BudgetController(IMediator mediator) : Controller
     /// <param name="ct">Cancellation token</param>
     /// <returns>Collection of available budgets</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyCollection<TrackedBudget>), 200)]
-    public async Task<IReadOnlyCollection<TrackedBudget>> GetAvailableBudgets(CancellationToken ct)
+    [ProducesResponseType(typeof(IReadOnlyCollection<BudgetResponse>), 200)]
+    public async Task<IReadOnlyCollection<BudgetResponse>> GetAvailableBudgets(CancellationToken ct)
     {
-        return await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        return budgets.Select(mapper.ToResponse).ToList();
     }
 
     /// <summary>
@@ -36,7 +39,7 @@ public class BudgetController(IMediator mediator) : Controller
     /// <param name="ct">Cancellation token</param>
     /// <returns>Created budget or error details</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(TrackedBudget), 201)]
+    [ProducesResponseType(typeof(BudgetResponse), 201)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     public async Task<IActionResult> RegisterBudget([FromBody] RegisterBudgetRequest request, CancellationToken ct)
     {
@@ -45,7 +48,8 @@ public class BudgetController(IMediator mediator) : Controller
 
         if (result.IsSuccess)
         {
-            return CreatedAtAction(nameof(GetAvailableBudgets), new { id = result.Value.Id }, result.Value);
+            var response = mapper.ToResponse(result.Value);
+            return CreatedAtAction(nameof(GetAvailableBudgets), new { id = result.Value.Id }, response);
         }
 
         return BadRequest(result.Errors);
@@ -132,14 +136,58 @@ public class BudgetController(IMediator mediator) : Controller
             return NotFound(new List<Error> { new Error($"Budget with ID {id} not found or access denied") });
         }
 
+        // Parse tagging criteria if provided
+        List<TaggingCriterion> taggingCriteria = budget.TaggingCriteria.ToList();
+        if (request.TaggingCriteria != null)
+        {
+            taggingCriteria = new List<TaggingCriterion>();
+            foreach (var tc in request.TaggingCriteria)
+            {
+                var parseResult = mapper.FromRequest(tc);
+                if (parseResult.IsFailed)
+                {
+                    return BadRequest(parseResult.Errors);
+                }
+                taggingCriteria.Add(parseResult.Value);
+            }
+        }
+
+        // Parse transfer criteria if provided
+        List<TransferCriterion> transferCriteria = budget.TransferCriteria.ToList();
+        if (request.TransferCriteria != null)
+        {
+            transferCriteria = new List<TransferCriterion>();
+            foreach (var tc in request.TransferCriteria)
+            {
+                var parseResult = mapper.FromRequest(tc);
+                if (parseResult.IsFailed)
+                {
+                    return BadRequest(parseResult.Errors);
+                }
+                transferCriteria.Add(parseResult.Value);
+            }
+        }
+
+        // Parse logbook criteria if provided
+        LogbookCriteria logbookCriteria = budget.LogbookCriteria;
+        if (request.LogbookCriteria != null)
+        {
+            var parseResult = mapper.FromRequest(request.LogbookCriteria);
+            if (parseResult.IsFailed)
+            {
+                return BadRequest(parseResult.Errors);
+            }
+            logbookCriteria = parseResult.Value;
+        }
+
         // Create updated budget with new properties using user-provided version
         var updatedBudget = new TrackedBudget(
             id,
             request.Name,
             budget.Owners,
-            request.TaggingCriteria ?? budget.TaggingCriteria,
-            request.TransferCriteria ?? budget.TransferCriteria,
-            request.LogbookCriteria ?? budget.LogbookCriteria)
+            taggingCriteria,
+            transferCriteria,
+            logbookCriteria)
         {
             Version = request.Version
         };
@@ -236,8 +284,8 @@ public record ChangeBudgetOwnersRequest(BudgetIdentifier Budget, IReadOnlyCollec
 public record UpdateBudgetRequest(
     string Name,
     string Version,
-    IReadOnlyCollection<TaggingCriterion>? TaggingCriteria = null,
-    IReadOnlyCollection<TransferCriterion>? TransferCriteria = null,
-    LogbookCriteria? LogbookCriteria = null);
+    IReadOnlyCollection<TaggingCriterionResponse>? TaggingCriteria = null,
+    IReadOnlyCollection<TransferCriterionResponse>? TransferCriteria = null,
+    LogbookCriteriaResponse? LogbookCriteria = null);
 
 public record MergeBudgetsRequest(IReadOnlyCollection<Guid> BudgetIds, bool PurgeEmptyBudgets);
