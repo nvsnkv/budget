@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using NVs.Budget.Controllers.Web.Filters;
 using NVs.Budget.Controllers.Web.Formatters;
 using NVs.Budget.Utilities.Expressions;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -50,6 +51,13 @@ public static class WebControllersExtensions
 
                 return versionMatched;
             });
+            
+            // Configure lowercase paths
+            o.DocumentFilter<LowercaseDocumentFilter>();
+            
+            // Configure enum string values
+            o.UseInlineDefinitionsForEnums();
+            o.SchemaFilter<EnumSchemaFilter>();
         });
 
         var assembly = typeof(WebControllersExtensions).Assembly;

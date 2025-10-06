@@ -8,7 +8,7 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 
 [Authorize]
 [ApiVersion("0.1")]
-[Route("api/{version:apiVersion}/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class OwnersController(IOwnersRepository owners) : Controller
 {
     [HttpGet]
