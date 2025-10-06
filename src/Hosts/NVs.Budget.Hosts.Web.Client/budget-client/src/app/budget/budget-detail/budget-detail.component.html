@@ -1,0 +1,278 @@
+<div class="budget-detail-container">
+  @if (budget$ | async; as budget) {
+    <tui-loader [overlay]="true" [showLoader]="isLoading">
+      <div tuiCardLarge class="budget-card">
+        <!-- Header with title and actions -->
+        <h2 tuiTitle size="l">{{ budget.name }}</h2>
+        <div class="header-actions">
+          @if (!isEditMode) {
+            <button 
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              (click)="toggleEditMode()">
+              Edit Budget
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              (click)="downloadYaml()">
+              Download YAML
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="destructive"
+              size="m"
+              (click)="deleteBudget()">
+              Delete
+            </button>
+          }
+        </div>
+
+        <!-- Budget Info -->
+        <div class="budget-info-section">
+          <div class="info-grid">
+            <div class="info-item">
+              <label class="info-label">Budget ID:</label>
+              <code class="info-value">{{ budget.id }}</code>
+            </div>
+            <div class="info-item">
+              <label class="info-label">Version:</label>
+              <code class="info-value">{{ budget.version }}</code>
+            </div>
+          </div>
+
+          <!-- Owners -->
+          <div class="owners-section">
+            <h3 tuiTitle size="m">Owners</h3>
+            <div class="owners-list">
+                @for (owner of budget.owners; track owner.id) {
+                <tui-chip size="m">
+                  {{ owner.name }}
+                </tui-chip>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Form -->
+        @if (isEditMode && budgetForm) {
+          <form [formGroup]="budgetForm" class="budget-form">
+            <!-- Budget Name -->
+            <div class="form-section">
+              <h3 tuiTitle size="m">Basic Information</h3>
+              <tui-textfield>
+                <label tuiLabel>Budget Name</label>
+                <input tuiTextfield formControlName="name" type="text" />
+              </tui-textfield>
+            </div>
+
+            <!-- Tagging Criteria -->
+            <div class="form-section">
+              <div class="section-header">
+                <h3 tuiTitle size="m">Tagging Criteria</h3>
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="s"
+                  (click)="addTaggingCriterion()">
+                  + Add Criterion
+                </button>
+              </div>
+              
+              <tui-accordion>
+                <div formArrayName="taggingCriteria">
+                  @for (criterion of taggingCriteria.controls; track $index; let i = $index) {
+                    <tui-accordion-item [formGroupName]="i">
+                      <header>
+                        <span>Tagging Criterion {{ i + 1 }}</span>
+                        <button 
+                          tuiButton
+                          type="button"
+                          appearance="destructive"
+                          size="xs"
+                          (click)="removeTaggingCriterion(i)">
+                          Remove
+                        </button>
+                      </header>
+                      
+                      <div class="criterion-fields">
+                        <tui-textfield>
+                          <label tuiLabel>Tag Expression</label>
+                          <textarea tuiTextarea formControlName="tag" rows="2"></textarea>
+                        </tui-textfield>
+                        
+                        <tui-textfield>
+                          <label tuiLabel>Condition Expression</label>
+                          <textarea tuiTextarea formControlName="condition" rows="2"></textarea>
+                        </tui-textfield>
+                      </div>
+                    </tui-accordion-item>
+                  }
+                </div>
+              </tui-accordion>
+            </div>
+
+            <!-- Transfer Criteria -->
+            <div class="form-section">
+              <div class="section-header">
+                <h3 tuiTitle size="m">Transfer Criteria</h3>
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="s"
+                  (click)="addTransferCriterion()">
+                  + Add Criterion
+                </button>
+              </div>
+              
+              <tui-accordion>
+                <div formArrayName="transferCriteria">
+                  @for (criterion of transferCriteria.controls; track $index; let i = $index) {
+                    <tui-accordion-item [formGroupName]="i">
+                      <header>
+                        <span>Transfer Criterion {{ i + 1 }}</span>
+                        <button 
+                          tuiButton
+                          type="button"
+                          appearance="destructive"
+                          size="xs"
+                          (click)="removeTransferCriterion(i)">
+                          Remove
+                        </button>
+                      </header>
+                      
+                      <div class="criterion-fields">
+                        <tui-textfield>
+                          <label tuiLabel>Accuracy (Exact or Likely)</label>
+                          <input tuiTextfield formControlName="accuracy" type="text" />
+                        </tui-textfield>
+                        
+                        <tui-textfield>
+                          <label tuiLabel>Comment</label>
+                          <input tuiTextfield formControlName="comment" type="text" />
+                        </tui-textfield>
+                        
+                        <tui-textfield>
+                          <label tuiLabel>Criterion Expression</label>
+                          <textarea tuiTextarea formControlName="criterion" rows="3"></textarea>
+                        </tui-textfield>
+                      </div>
+                    </tui-accordion-item>
+                  }
+                </div>
+              </tui-accordion>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button 
+                tuiButton
+                type="button"
+                appearance="primary"
+                size="m"
+                [disabled]="!budgetForm.valid || isLoading"
+                (click)="saveBudget()">
+                Save Changes
+              </button>
+              <button 
+                tuiButton
+                type="button"
+                appearance="flat"
+                size="m"
+                (click)="toggleEditMode()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        } @else {
+          <!-- Read-only view -->
+          <div class="read-only-view">
+            <!-- Tagging Criteria Display -->
+            @if (budget.taggingCriteria.length > 0) {
+              <div class="criteria-section">
+                <h3 tuiTitle size="m">Tagging Criteria</h3>
+                @for (criterion of budget.taggingCriteria; track $index) {
+                  <div class="criterion-card">
+                    <div class="criterion-row">
+                      <span class="criterion-label">Tag:</span>
+                      <code class="criterion-value">{{ criterion.tag }}</code>
+                    </div>
+                    <div class="criterion-row">
+                      <span class="criterion-label">Condition:</span>
+                      <code class="criterion-value">{{ criterion.condition }}</code>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Transfer Criteria Display -->
+            @if (budget.transferCriteria.length > 0) {
+              <div class="criteria-section">
+                <h3 tuiTitle size="m">Transfer Criteria</h3>
+                @for (criterion of budget.transferCriteria; track $index) {
+                  <div class="criterion-card">
+                    <div class="criterion-row">
+                      <span class="criterion-label">Accuracy:</span>
+                      <tui-chip size="s">{{ criterion.accuracy }}</tui-chip>
+                    </div>
+                    <div class="criterion-row">
+                      <span class="criterion-label">Comment:</span>
+                      <span class="criterion-value">{{ criterion.comment }}</span>
+                    </div>
+                    <div class="criterion-row">
+                      <span class="criterion-label">Criterion:</span>
+                      <code class="criterion-value">{{ criterion.criterion }}</code>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Logbook Criteria Display -->
+            <div class="criteria-section">
+              <h3 tuiTitle size="m">Logbook Criteria</h3>
+              <div class="criterion-card">
+                <div class="criterion-row">
+                  <span class="criterion-label">Description:</span>
+                  <span class="criterion-value">{{ budget.logbookCriteria.description || 'N/A' }}</span>
+                </div>
+                @if (budget.logbookCriteria.isUniversal) {
+                  <tui-chip size="m">Universal</tui-chip>
+                }
+                @if (budget.logbookCriteria.tags) {
+                  <div class="criterion-row">
+                    <span class="criterion-label">Tags:</span>
+                    <div class="tags-list">
+                      @for (tag of budget.logbookCriteria.tags; track tag) {
+                        <tui-chip size="s">{{ tag }}</tui-chip>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (budget.logbookCriteria.criteria) {
+                  <div class="criterion-row">
+                    <span class="criterion-label">Criteria:</span>
+                    <code class="criterion-value">{{ budget.logbookCriteria.criteria }}</code>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </tui-loader>
+  } @else {
+    <tui-loader [showLoader]="true">
+      <div class="loading-placeholder">Loading budget...</div>
+    </tui-loader>
+  }
+</div>
+

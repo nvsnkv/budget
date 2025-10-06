@@ -1,58 +1,105 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, startWith, switchMap, tap } from 'rxjs';
-import { BudgetResponse, CreateBudgetRequest, UpdateBudgetRequest } from './models'; // Импортируйте модели, соответствующие схеме OpenAPI
+import { 
+  BudgetResponse, 
+  RegisterBudgetRequest, 
+  UpdateBudgetRequest, 
+  ChangeBudgetOwnersRequest, 
+  MergeBudgetsRequest,
+  IError
+} from './models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BudgetApiService {
-  public readonly baseUrl = environment.apiUrl + '/api/v0.1'; // Ваш базовый URL для запросов
+  public readonly baseUrl = environment.apiUrl + '/api/v0.1';
   private refresh$ = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {}
 
   /**
-   * Получение списка бюджетов
+   * Get all budgets available to the current user
    */
   getAllBudgets(): Observable<BudgetResponse[]> {
     return this.refresh$.pipe(
-      startWith(undefined), // Инициируем первый запрос сразу
+      startWith(undefined),
       switchMap(() => 
         this.http.get<BudgetResponse[]>(`${this.baseUrl}/budget`, { withCredentials: true })
       ));
   }
 
   /**
-   * Создание нового бюджета
+   * Get budget by ID (from list)
    */
-  createBudget(request: CreateBudgetRequest): Observable<BudgetResponse> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
-    return this.http.post<BudgetResponse>(`${this.baseUrl}/budget`, request, { headers, withCredentials: true })
-    .pipe(tap(() => this.refresh$.next(true)));
+  getBudgetById(id: string): Observable<BudgetResponse | undefined> {
+    return this.getAllBudgets().pipe(
+      switchMap(budgets => [budgets.find(b => b.id === id)])
+    );
   }
 
   /**
-   * Обновление существующего бюджета
+   * Register a new budget
+   */
+  createBudget(request: RegisterBudgetRequest): Observable<BudgetResponse> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.post<BudgetResponse>(`${this.baseUrl}/budget`, request, { 
+      headers, 
+      withCredentials: true 
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  /**
+   * Update an existing budget
    */
   updateBudget(id: string, request: UpdateBudgetRequest): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/budget/${id}`, request, { withCredentials: true }).pipe(tap(() => this.refresh$.next(true)));;
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}`, request, { 
+      headers,
+      withCredentials: true 
+    }).pipe(tap(() => this.refresh$.next(true)));
   }
 
   /**
-   * Получение конкретного бюджета по ID
+   * Change budget owners
    */
-  getBudgetById(id: string): Observable<BudgetResponse> {
-    return this.http.get<BudgetResponse>(`${this.baseUrl}/budget/${id}`, { withCredentials: true });
+  changeBudgetOwners(request: ChangeBudgetOwnersRequest): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.put<void>(`${this.baseUrl}/budget/owners`, request, { 
+      headers,
+      withCredentials: true 
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  /**
+   * Remove a budget
+   */
+  removeBudget(id: string, version: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/budget/${id}?version=${encodeURIComponent(version)}`, { 
+      withCredentials: true 
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  /**
+   * Merge multiple budgets
+   */
+  mergeBudgets(request: MergeBudgetsRequest): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.post<void>(`${this.baseUrl}/budget/merge`, request, { 
+      headers,
+      withCredentials: true 
+    }).pipe(tap(() => this.refresh$.next(true)));
   }
 
   /**
    * Download budget configuration as YAML
    */
   downloadBudgetYaml(id: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/budget/${id}.yaml`, {
+    return this.http.get(`${this.baseUrl}/budget/${id}`, {
       responseType: 'blob',
+      headers: new HttpHeaders().set('Accept', 'application/yaml'),
       withCredentials: true
     });
   }

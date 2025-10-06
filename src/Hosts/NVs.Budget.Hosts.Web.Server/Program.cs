@@ -49,6 +49,7 @@ builder.Services
         opts.AddDefaultPolicy(b => b.WithOrigins(allowedOrigins.Split(';')).AllowCredentials().AllowAnyHeader().AllowAnyMethod());
     })
     .AddCsvFiles(contentConnectionString)
+    .AddSingleton(ReadableExpressionsParser.Default)
     .AddWebControllers();
 
 var app = builder.Build();

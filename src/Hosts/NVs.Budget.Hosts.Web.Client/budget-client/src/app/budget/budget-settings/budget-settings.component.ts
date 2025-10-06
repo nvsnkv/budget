@@ -15,7 +15,7 @@ import { TuiButton, TuiDialogService } from '@taiga-ui/core';
 
 export class BudgetSettingsComponent implements OnInit {
   budgetId$?: Observable<string>;
-  budget$?: Observable<BudgetResponse | null>;
+  budget$?: Observable<BudgetResponse | null | undefined>;
   budgetId: string | null = null;
   budget: BudgetResponse | null = null;
 
@@ -52,8 +52,8 @@ export class BudgetSettingsComponent implements OnInit {
     );
 
     // Subscribe to budget$ to store the budget data
-    this.budget$.subscribe(budget => {
-      this.budget = budget;
+    this.budget$?.subscribe(budget => {
+      this.budget = budget || null;
     });
   }
 

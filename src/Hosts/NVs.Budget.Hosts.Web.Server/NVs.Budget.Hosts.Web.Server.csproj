@@ -28,6 +28,7 @@
       <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.ExchangeRates.CBRF\NVs.Budget.Infrastructure.ExchangeRates.CBRF.csproj" />
       <ProjectReference Include="..\..\Infrastructure\NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex\NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex.csproj" />
       <ProjectReference Include="..\..\Infrastructure\Persistence\NVs.Budget.Infrastructure.Persistence.EF\NVs.Budget.Infrastructure.Persistence.EF.csproj" />
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Expressions\NVs.Budget.Utilities.Expressions.csproj" />
     </ItemGroup>
 
 </Project>

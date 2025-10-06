@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BudgetApiService } from '../budget-api.service';
-import { CreateBudgetRequest } from '../models';
+import { RegisterBudgetRequest } from '../models';
 import { CommonModule } from '@angular/common';
 import { TuiButton, TuiError, TuiNotification, TuiTextfield } from '@taiga-ui/core';
 import { TuiFieldErrorPipe, tuiValidationErrorsProvider } from '@taiga-ui/kit';
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   templateUrl: './new-budget.component.html',
   styleUrls: ['./new-budget.component.less'],
   imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiTextfield, TuiButton, TuiError, TuiFieldErrorPipe, TuiForm],
-  providers: [tuiValidationErrorsProvider({required: 'Пожалуйста, введите название бюджета'})]
+  providers: [tuiValidationErrorsProvider({required: 'Please enter budget name'})]
 })
 export class NewBudgetComponent {
   nameGroup = new FormGroup({
@@ -26,11 +26,11 @@ export class NewBudgetComponent {
 
   onSubmit() {
     if (!this.nameGroup.controls.name.valid) {
-      this.errorMessage = 'Пожалуйста, введите название бюджета.';
+      this.errorMessage = 'Please enter budget name.';
       return;
     }
 
-    const request: CreateBudgetRequest = {
+    const request: RegisterBudgetRequest = {
       name: this.nameGroup.controls.name.value ?? '',
     };
 
@@ -51,10 +51,10 @@ export class NewBudgetComponent {
   }
 
   handleError(error: any) {
-    if (error.status === 400 && error.error instanceof Array) {
+    if (error.status === 400 && Array.isArray(error.error)) {
       this.errorMessage = error.error.map((err: any) => err.message).join(', ');
     } else {
-      this.errorMessage = 'Произошла ошибка при создании бюджета. Попробуйте снова позже.';
+      this.errorMessage = 'Error creating budget. Please try again.';
     }
   }
 }

@@ -1,23 +1,69 @@
-// models.ts
+// Budget models matching C# API
+export interface Owner {
+  id: string;
+  name: string;
+}
+
+export interface TaggingCriterionResponse {
+  tag: string;
+  condition: string;
+}
+
+export interface TransferCriterionResponse {
+  accuracy: string;
+  comment: string;
+  criterion: string;
+}
+
+export interface LogbookCriteriaResponse {
+  description: string;
+  subcriteria?: LogbookCriteriaResponse[];
+  type?: string;
+  tags?: string[];
+  substitution?: string;
+  criteria?: string;
+  isUniversal?: boolean;
+}
+
 export interface BudgetResponse {
-    id: string;
-    name?: string;
-    version?: string;
-    taggingCriteria?: string;
-    transferCriteria?: string;
-    logbookCriteria?: string;
-  }
-  
-  export interface CreateBudgetRequest {
-    name?: string;
-  }
-  
-  export interface IError {
-    message?: string;
-    metadata?: any;
-    reasons?: IError[];
-  }
-  
-  export interface UpdateBudgetRequest extends BudgetResponse {
-    id: string;
-  }
+  id: string;
+  name: string;
+  version: string;
+  owners: Owner[];
+  taggingCriteria: TaggingCriterionResponse[];
+  transferCriteria: TransferCriterionResponse[];
+  logbookCriteria: LogbookCriteriaResponse;
+}
+
+export interface BudgetIdentifier {
+  id: string;
+  version: string;
+}
+
+export interface RegisterBudgetRequest {
+  name: string;
+}
+
+export interface ChangeBudgetOwnersRequest {
+  budget: BudgetIdentifier;
+  ownerIds: string[];
+}
+
+export interface UpdateBudgetRequest {
+  name: string;
+  version: string;
+  taggingCriteria?: TaggingCriterionResponse[];
+  transferCriteria?: TransferCriterionResponse[];
+  logbookCriteria?: LogbookCriteriaResponse;
+}
+
+export interface MergeBudgetsRequest {
+  budgetIds: string[];
+  purgeEmptyBudgets: boolean;
+}
+
+export interface IError {
+  message?: string;
+  metadata?: any;
+  reasons?: IError[];
+}

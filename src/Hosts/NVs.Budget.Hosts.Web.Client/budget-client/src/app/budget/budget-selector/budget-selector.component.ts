@@ -14,7 +14,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
   imports: [CommonModule, TuiButton, TuiChevron, TuiDataList, TuiDropdown, RouterLink, AsyncPipe]
 })
 export class BudgetSelectorComponent implements OnInit, OnDestroy {
-  private budgetIdPattern = new RegExp("^/budget/([^/]*)/settings$");
+  private budgetIdPattern = new RegExp("^/budget/([^/]*)(/.*)?$");
   private budgetSub: Subscription | undefined;
   private routerSub: Subscription | undefined;
   private selectedBudgetId: string | null = null;
