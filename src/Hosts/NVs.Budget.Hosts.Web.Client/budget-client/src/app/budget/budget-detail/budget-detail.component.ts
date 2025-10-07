@@ -286,6 +286,32 @@ export class BudgetDetailComponent implements OnInit {
     });
   }
 
+  uploadYaml(): void {
+    if (!this.budget) return;
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.yaml,.yml';
+    input.onchange = (event: any) => {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      this.isLoading = true;
+      this.apiService.uploadBudgetYaml(this.budget!.id, file).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.showSuccess('Budget updated successfully from YAML');
+          window.location.reload();
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.handleError(error, 'Failed to upload YAML');
+        }
+      });
+    };
+    input.click();
+  }
+
   private handleError(error: any, defaultMessage: string): void {
     let errorMessage = defaultMessage;
     

@@ -72,7 +72,12 @@ public static class WebControllersExtensions
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .Build();
                 
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .Build();
+                
                 opts.OutputFormatters.Add(new YamlOutputFormatter(serializer));
+                opts.InputFormatters.Add(new YamlInputFormatter(deserializer));
                 opts.FormatterMappings.SetMediaTypeMappingForFormat("yaml", "application/yaml");
             })
             .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
