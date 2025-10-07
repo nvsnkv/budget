@@ -111,14 +111,36 @@ export class BudgetDetailComponent implements OnInit {
       criteriaType = 'universal';
     }
 
-    return this.fb.group({
+    const group = this.fb.group({
       criteriaType: [criteriaType],
       description: [criteria.description || '', Validators.required],
       type: [criteria.type || ''],
       tags: [criteria.tags ? criteria.tags.join(', ') : ''],
       substitution: [criteria.substitution || ''],
-      criteria: [criteria.criteria || '']
+      criteria: [criteria.criteria || ''],
+      subcriteria: this.fb.array(
+        criteria.subcriteria?.map((sub: any) => this.createLogbookCriteriaGroup(sub)) || []
+      )
     });
+
+    return group;
+  }
+
+  getSubcriteria(criteriaGroup: FormGroup): FormArray {
+    return criteriaGroup.get('subcriteria') as FormArray;
+  }
+
+  addSubcriterion(criteriaGroup: FormGroup): void {
+    const subcriteria = this.getSubcriteria(criteriaGroup);
+    subcriteria.push(this.createLogbookCriteriaGroup({
+      description: '',
+      isUniversal: true
+    }));
+  }
+
+  removeSubcriterion(criteriaGroup: FormGroup, index: number): void {
+    const subcriteria = this.getSubcriteria(criteriaGroup);
+    subcriteria.removeAt(index);
   }
 
   get taggingCriteria(): FormArray {
@@ -163,39 +185,44 @@ export class BudgetDetailComponent implements OnInit {
     this.transferCriteria.removeAt(index);
   }
 
+  buildLogbookCriteriaFromForm(formGroup: FormGroup): any {
+    const criteriaType = formGroup.get('criteriaType')?.value;
+    const description = formGroup.get('description')?.value;
+    const substitution = formGroup.get('substitution')?.value;
+    const subcriteriaArray = formGroup.get('subcriteria') as FormArray;
+
+    const baseCriteria: any = {
+      description,
+      substitution: substitution || undefined
+    };
+
+    if (criteriaType === 'universal') {
+      baseCriteria.isUniversal = true;
+    } else if (criteriaType === 'tag-based') {
+      const tags = formGroup.get('tags')?.value;
+      baseCriteria.type = formGroup.get('type')?.value;
+      baseCriteria.tags = tags ? tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : undefined;
+    } else if (criteriaType === 'criteria-based') {
+      baseCriteria.criteria = formGroup.get('criteria')?.value;
+    }
+
+    // Recursively build subcriteria
+    if (subcriteriaArray && subcriteriaArray.length > 0) {
+      baseCriteria.subcriteria = subcriteriaArray.controls.map(ctrl => 
+        this.buildLogbookCriteriaFromForm(ctrl as FormGroup)
+      );
+    }
+
+    return baseCriteria;
+  }
+
   saveBudget(): void {
     if (!this.budgetForm.valid || !this.budget) return;
 
     this.isLoading = true;
     const formValue = this.budgetForm.value;
     
-    const logbookCriteriaValue = formValue.logbookCriteria;
-    const criteriaType = logbookCriteriaValue.criteriaType;
-    
-    const logbookCriteria: any = {
-      description: logbookCriteriaValue.description,
-      substitution: logbookCriteriaValue.substitution || undefined,
-      subcriteria: undefined
-    };
-
-    if (criteriaType === 'universal') {
-      logbookCriteria.isUniversal = true;
-      logbookCriteria.type = undefined;
-      logbookCriteria.tags = undefined;
-      logbookCriteria.criteria = undefined;
-    } else if (criteriaType === 'tag-based') {
-      logbookCriteria.type = logbookCriteriaValue.type;
-      logbookCriteria.tags = logbookCriteriaValue.tags ? 
-        logbookCriteriaValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : 
-        undefined;
-      logbookCriteria.isUniversal = undefined;
-      logbookCriteria.criteria = undefined;
-    } else if (criteriaType === 'criteria-based') {
-      logbookCriteria.criteria = logbookCriteriaValue.criteria;
-      logbookCriteria.isUniversal = undefined;
-      logbookCriteria.type = undefined;
-      logbookCriteria.tags = undefined;
-    }
+    const logbookCriteria = this.buildLogbookCriteriaFromForm(this.logbookCriteria);
     
     const request: UpdateBudgetRequest = {
       name: formValue.name,

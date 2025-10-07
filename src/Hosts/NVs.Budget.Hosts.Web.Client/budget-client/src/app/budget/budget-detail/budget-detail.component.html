@@ -231,6 +231,186 @@
                     <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
                   </tui-textfield>
                 }
+
+                <!-- Subcriteria -->
+                <div class="subcriteria-section">
+                  <h4 tuiTitle size="s">Subcriteria</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="s"
+                    (click)="addSubcriterion(logbookCriteria)">
+                    + Add Subcriterion
+                  </button>
+                  
+                  @for (subcriterion of getSubcriteria(logbookCriteria).controls; track $index; let idx = $index) {
+                    <div class="subcriterion-card">
+                      <div class="subcriterion-header">
+                        <span>Subcriterion {{ idx + 1 }}</span>
+                        <button 
+                          tuiButton
+                          type="button"
+                          appearance="flat"
+                          size="xs"
+                          (click)="removeSubcriterion(logbookCriteria, idx)">
+                          Remove
+                        </button>
+                      </div>
+                      
+                      <!-- Recursively render the same fields -->
+                      <ng-container [formGroup]="$any(subcriterion)">
+                        <div class="logbook-fields subcriteria-fields">
+                          <tui-textfield>
+                            <label tuiLabel>Description</label>
+                            <input tuiTextfield formControlName="description" type="text" placeholder="Criteria description" />
+                          </tui-textfield>
+
+                          <div class="radio-group">
+                            <label class="radio-label">Criteria Type:</label>
+                            <div class="radio-options">
+                              <label class="radio-option">
+                                <input type="radio" formControlName="criteriaType" value="universal" />
+                                Universal
+                              </label>
+                              <label class="radio-option">
+                                <input type="radio" formControlName="criteriaType" value="tag-based" />
+                                Tag-Based
+                              </label>
+                              <label class="radio-option">
+                                <input type="radio" formControlName="criteriaType" value="criteria-based" />
+                                Criteria-Based
+                              </label>
+                            </div>
+                          </div>
+
+                          <!-- Tag-Based Fields for Subcriterion -->
+                          @if (subcriterion.get('criteriaType')?.value === 'tag-based') {
+                            <div class="select-field">
+                              <label class="select-label">Type</label>
+                              <select class="tui-select" formControlName="type">
+                                <option value="">Select type...</option>
+                                @for (typeOption of tagBasedCriterionTypes; track typeOption) {
+                                  <option [value]="typeOption">{{ typeOption }}</option>
+                                }
+                              </select>
+                            </div>
+
+                            <tui-textfield>
+                              <label tuiLabel>Tags (comma-separated)</label>
+                              <input tuiTextfield formControlName="tags" type="text" placeholder="Tag1, Tag2" />
+                            </tui-textfield>
+                          }
+
+                          <!-- Criteria-Based Fields for Subcriterion -->
+                          @if (subcriterion.get('criteriaType')?.value === 'criteria-based') {
+                            <tui-textfield>
+                              <label tuiLabel>Criteria Expression</label>
+                              <textarea tuiTextarea formControlName="criteria" rows="2" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
+                            </tui-textfield>
+                          }
+
+                          <!-- Substitution for Subcriterion -->
+                          @if (subcriterion.get('criteriaType')?.value !== 'universal') {
+                            <tui-textfield>
+                              <label tuiLabel>Substitution (Optional)</label>
+                              <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
+                            </tui-textfield>
+                          }
+
+                          <!-- Nested Subcriteria (recursive) -->
+                          <div class="nested-subcriteria">
+                            <h5>Nested Subcriteria</h5>
+                            <button 
+                              tuiButton
+                              type="button"
+                              appearance="flat"
+                              size="xs"
+                              (click)="addSubcriterion($any(subcriterion))">
+                              + Add Nested Subcriterion
+                            </button>
+                            
+                            @for (nestedSub of getSubcriteria($any(subcriterion)).controls; track $index; let nestedIdx = $index) {
+                              <div class="nested-subcriterion-card">
+                                <ng-container [formGroup]="$any(nestedSub)">
+                                <div class="subcriterion-header">
+                                  <span>Nested {{ nestedIdx + 1 }}</span>
+                                  <button 
+                                    tuiButton
+                                    type="button"
+                                    appearance="flat"
+                                    size="xs"
+                                    (click)="removeSubcriterion($any(subcriterion), nestedIdx)">
+                                    Remove
+                                  </button>
+                                </div>
+                                
+                                <!-- Third level nesting -->
+                                <div class="logbook-fields nested-fields">
+                                  <tui-textfield>
+                                    <label tuiLabel>Description</label>
+                                    <input tuiTextfield formControlName="description" type="text" />
+                                  </tui-textfield>
+
+                                  <div class="radio-group">
+                                    <label class="radio-label">Type:</label>
+                                    <div class="radio-options">
+                                      <label class="radio-option">
+                                        <input type="radio" formControlName="criteriaType" value="universal" />
+                                        Universal
+                                      </label>
+                                      <label class="radio-option">
+                                        <input type="radio" formControlName="criteriaType" value="tag-based" />
+                                        Tag-Based
+                                      </label>
+                                      <label class="radio-option">
+                                        <input type="radio" formControlName="criteriaType" value="criteria-based" />
+                                        Criteria-Based
+                                      </label>
+                                    </div>
+                                  </div>
+
+                                  @if (nestedSub.get('criteriaType')?.value === 'tag-based') {
+                                    <div class="select-field">
+                                      <label class="select-label">Type</label>
+                                      <select class="tui-select" formControlName="type">
+                                        <option value="">Select type...</option>
+                                        @for (typeOption of tagBasedCriterionTypes; track typeOption) {
+                                          <option [value]="typeOption">{{ typeOption }}</option>
+                                        }
+                                      </select>
+                                    </div>
+                                    <tui-textfield>
+                                      <label tuiLabel>Tags</label>
+                                      <input tuiTextfield formControlName="tags" type="text" />
+                                    </tui-textfield>
+                                  }
+
+                                  @if (nestedSub.get('criteriaType')?.value === 'criteria-based') {
+                                    <tui-textfield>
+                                      <label tuiLabel>Criteria</label>
+                                      <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                    </tui-textfield>
+                                  }
+
+                                  @if (nestedSub.get('criteriaType')?.value !== 'universal') {
+                                    <tui-textfield>
+                                      <label tuiLabel>Substitution</label>
+                                      <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
+                                    </tui-textfield>
+                                  }
+                                  
+                                  <p class="nesting-note"><em>Note: Further nesting beyond this level is not supported in the UI.</em></p>
+                                </div>
+                                </ng-container>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </ng-container>
+                    </div>
+                  }
+                </div>
               </div>
             </div>
 
@@ -303,31 +483,9 @@
             <!-- Logbook Criteria Display -->
             <div class="criteria-section">
               <h3 tuiTitle size="m">Logbook Criteria</h3>
-              <div class="criterion-card">
-                <div class="criterion-row">
-                  <span class="criterion-label">Description:</span>
-                  <span class="criterion-value">{{ budget.logbookCriteria.description || 'N/A' }}</span>
-                </div>
-                @if (budget.logbookCriteria.isUniversal) {
-                  <tui-chip size="m">Universal</tui-chip>
-                }
-                @if (budget.logbookCriteria.tags) {
-                  <div class="criterion-row">
-                    <span class="criterion-label">Tags:</span>
-                    <div class="tags-list">
-                      @for (tag of budget.logbookCriteria.tags; track tag) {
-                        <tui-chip size="s">{{ tag }}</tui-chip>
-                      }
-                    </div>
-                  </div>
-                }
-                @if (budget.logbookCriteria.criteria) {
-                  <div class="criterion-row">
-                    <span class="criterion-label">Criteria:</span>
-                    <code class="criterion-value">{{ budget.logbookCriteria.criteria }}</code>
-                  </div>
-                }
-              </div>
+              @if (budget.logbookCriteria) {
+                <ng-container *ngTemplateOutlet="logbookCriteriaTemplate; context: { $implicit: budget.logbookCriteria, level: 0 }"></ng-container>
+              }
             </div>
           </div>
         }
@@ -339,4 +497,55 @@
     </tui-loader>
   }
 </div>
+
+<!-- Recursive template for displaying logbook criteria -->
+<ng-template #logbookCriteriaTemplate let-criteria let-level="level">
+  <div class="criterion-card" [style.margin-left.rem]="level * 2">
+    <div class="criterion-row">
+      <span class="criterion-label">Description:</span>
+      <span class="criterion-value">{{ criteria.description || 'N/A' }}</span>
+    </div>
+    @if (criteria.isUniversal) {
+      <tui-chip size="m">Universal</tui-chip>
+    }
+    @if (criteria.type) {
+      <div class="criterion-row">
+        <span class="criterion-label">Type:</span>
+        <tui-chip size="s">{{ criteria.type }}</tui-chip>
+      </div>
+    }
+    @if (criteria.tags && criteria.tags.length > 0) {
+      <div class="criterion-row">
+        <span class="criterion-label">Tags:</span>
+        <div class="tags-list">
+          @for (tag of criteria.tags; track tag) {
+            <tui-chip size="s">{{ tag }}</tui-chip>
+          }
+        </div>
+      </div>
+    }
+    @if (criteria.criteria) {
+      <div class="criterion-row">
+        <span class="criterion-label">Criteria:</span>
+        <code class="criterion-value">{{ criteria.criteria }}</code>
+      </div>
+    }
+    @if (criteria.substitution) {
+      <div class="criterion-row">
+        <span class="criterion-label">Substitution:</span>
+        <code class="criterion-value">{{ criteria.substitution }}</code>
+      </div>
+    }
+    
+    <!-- Recursively display subcriteria -->
+    @if (criteria.subcriteria && criteria.subcriteria.length > 0) {
+      <div class="subcriteria-display">
+        <h4 class="subcriteria-title">Subcriteria:</h4>
+        @for (sub of criteria.subcriteria; track $index) {
+          <ng-container *ngTemplateOutlet="logbookCriteriaTemplate; context: { $implicit: sub, level: level + 1 }"></ng-container>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
 
