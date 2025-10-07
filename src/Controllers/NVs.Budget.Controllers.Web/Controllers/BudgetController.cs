@@ -33,6 +33,28 @@ public class BudgetController(IMediator mediator, BudgetMapper mapper) : Control
     }
 
     /// <summary>
+    /// Gets a specific budget by ID
+    /// </summary>
+    /// <param name="id">Budget ID</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Budget details or 404 if not found</returns>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(BudgetResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> GetBudgetById(Guid id, CancellationToken ct)
+    {
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+        
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        return Ok(mapper.ToResponse(budget));
+    }
+
+    /// <summary>
     /// Registers a new budget
     /// </summary>
     /// <param name="request">Budget registration request</param>
