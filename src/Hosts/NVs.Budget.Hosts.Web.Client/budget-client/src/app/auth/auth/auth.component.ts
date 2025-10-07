@@ -22,7 +22,7 @@ export class AuthComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.setBaseUrl(environment.apiUrl); // Задаем базовый URL сервера
+    this.authService.setBaseUrl(environment.apiUrl); // Set base URL for server
     this.checkAuthentication();
   }
 
