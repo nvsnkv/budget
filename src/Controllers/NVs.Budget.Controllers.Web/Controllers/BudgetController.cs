@@ -226,27 +226,6 @@ public class BudgetController(IMediator mediator, BudgetMapper mapper) : Control
     }
 
     /// <summary>
-    /// Uploads and updates a budget from YAML file
-    /// </summary>
-    /// <param name="id">Budget ID</param>
-    /// <param name="request">Budget update request from YAML</param>
-    /// <param name="ct">Cancellation token</param>
-    /// <returns>Success or error details</returns>
-    [HttpPut("{id:guid}/upload")]
-    [Consumes("application/yaml", "text/yaml")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
-    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
-    public async Task<IActionResult> UploadBudgetYaml(
-        [FromRoute] Guid id,
-        [FromBody] UpdateBudgetRequest request,
-        CancellationToken ct)
-    {
-        // Reuse the existing UpdateBudget logic
-        return await UpdateBudget(id, request, ct);
-    }
-
-    /// <summary>
     /// Removes a budget
     /// </summary>
     /// <param name="id">Budget ID</param>

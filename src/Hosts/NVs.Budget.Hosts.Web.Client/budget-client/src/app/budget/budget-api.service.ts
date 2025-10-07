@@ -109,7 +109,7 @@ export class BudgetApiService {
    */
   uploadBudgetYaml(id: string, file: File): Observable<void> {
     const headers = new HttpHeaders().set('Content-Type', 'application/yaml');
-    return this.http.put<void>(`${this.baseUrl}/budget/${id}/upload`, file, {
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}`, file, {
       headers,
       withCredentials: true
     }).pipe(tap(() => this.refresh$.next(true)));
