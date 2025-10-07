@@ -45,7 +45,7 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             criteria.Description,
             criteria.Subcriteria?.Select(ToResponse).ToList(),
             criteria.Type?.ToString(),
-            criteria.Tags?.Select(t => t.ToString()).ToList(),
+            criteria.Tags?.Select(t => t.Value).ToList(),
             criteria.Substitution?.ToString(),
             criteria.Criteria?.ToString(),
             criteria.IsUniversal

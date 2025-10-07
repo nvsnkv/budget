@@ -48,6 +48,9 @@ export class BudgetDetailComponent implements OnInit {
   isEditMode = false;
   isLoading = false;
 
+  // LogbookCriteria type options
+  readonly tagBasedCriterionTypes = ['Including', 'Excluding', 'OneOf'];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -92,7 +95,29 @@ export class BudgetDetailComponent implements OnInit {
           comment: [tc.comment, Validators.required],
           criterion: [tc.criterion, Validators.required]
         }))
-      )
+      ),
+      logbookCriteria: this.createLogbookCriteriaGroup(this.budget.logbookCriteria)
+    });
+  }
+
+  createLogbookCriteriaGroup(criteria: any): FormGroup {
+    // Determine criteria type
+    let criteriaType = 'universal';
+    if (criteria.type && criteria.tags) {
+      criteriaType = 'tag-based';
+    } else if (criteria.criteria) {
+      criteriaType = 'criteria-based';
+    } else if (criteria.isUniversal) {
+      criteriaType = 'universal';
+    }
+
+    return this.fb.group({
+      criteriaType: [criteriaType],
+      description: [criteria.description || '', Validators.required],
+      type: [criteria.type || ''],
+      tags: [criteria.tags ? criteria.tags.join(', ') : ''],
+      substitution: [criteria.substitution || ''],
+      criteria: [criteria.criteria || '']
     });
   }
 
@@ -102,6 +127,10 @@ export class BudgetDetailComponent implements OnInit {
 
   get transferCriteria(): FormArray {
     return this.budgetForm?.get('transferCriteria') as FormArray;
+  }
+
+  get logbookCriteria(): FormGroup {
+    return this.budgetForm?.get('logbookCriteria') as FormGroup;
   }
 
   toggleEditMode(): void {
@@ -140,11 +169,40 @@ export class BudgetDetailComponent implements OnInit {
     this.isLoading = true;
     const formValue = this.budgetForm.value;
     
+    const logbookCriteriaValue = formValue.logbookCriteria;
+    const criteriaType = logbookCriteriaValue.criteriaType;
+    
+    const logbookCriteria: any = {
+      description: logbookCriteriaValue.description,
+      substitution: logbookCriteriaValue.substitution || undefined,
+      subcriteria: undefined
+    };
+
+    if (criteriaType === 'universal') {
+      logbookCriteria.isUniversal = true;
+      logbookCriteria.type = undefined;
+      logbookCriteria.tags = undefined;
+      logbookCriteria.criteria = undefined;
+    } else if (criteriaType === 'tag-based') {
+      logbookCriteria.type = logbookCriteriaValue.type;
+      logbookCriteria.tags = logbookCriteriaValue.tags ? 
+        logbookCriteriaValue.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : 
+        undefined;
+      logbookCriteria.isUniversal = undefined;
+      logbookCriteria.criteria = undefined;
+    } else if (criteriaType === 'criteria-based') {
+      logbookCriteria.criteria = logbookCriteriaValue.criteria;
+      logbookCriteria.isUniversal = undefined;
+      logbookCriteria.type = undefined;
+      logbookCriteria.tags = undefined;
+    }
+    
     const request: UpdateBudgetRequest = {
       name: formValue.name,
       version: this.budget.version,
       taggingCriteria: formValue.taggingCriteria,
-      transferCriteria: formValue.transferCriteria
+      transferCriteria: formValue.transferCriteria,
+      logbookCriteria: logbookCriteria
     };
 
     this.apiService.updateBudget(this.budget.id, request).subscribe({

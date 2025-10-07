@@ -170,6 +170,70 @@
               </tui-accordion>
             </div>
 
+            <!-- Logbook Criteria -->
+            <div class="form-section" [formGroup]="logbookCriteria">
+              <h3 tuiTitle size="m">Logbook Criteria</h3>
+              
+              <div class="logbook-fields">
+                <tui-textfield>
+                  <label tuiLabel>Description</label>
+                  <input tuiTextfield formControlName="description" type="text" placeholder="Criteria description" />
+                </tui-textfield>
+
+                <div class="radio-group">
+                  <label class="radio-label">Criteria Type:</label>
+                  <div class="radio-options">
+                    <label class="radio-option">
+                      <input type="radio" formControlName="criteriaType" value="universal" />
+                      Universal (matches all operations)
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" formControlName="criteriaType" value="tag-based" />
+                      Tag-Based
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" formControlName="criteriaType" value="criteria-based" />
+                      Criteria-Based (expression)
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Tag-Based Fields -->
+                @if (logbookCriteria.get('criteriaType')?.value === 'tag-based') {
+                  <div class="select-field">
+                    <label class="select-label">Type</label>
+                    <select class="tui-select" formControlName="type">
+                      <option value="">Select type...</option>
+                      @for (typeOption of tagBasedCriterionTypes; track typeOption) {
+                        <option [value]="typeOption">{{ typeOption }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <tui-textfield>
+                    <label tuiLabel>Tags (comma-separated)</label>
+                    <input tuiTextfield formControlName="tags" type="text" placeholder="Tag1, Tag2, Tag3" />
+                  </tui-textfield>
+                }
+
+                <!-- Criteria-Based Fields -->
+                @if (logbookCriteria.get('criteriaType')?.value === 'criteria-based') {
+                  <tui-textfield>
+                    <label tuiLabel>Criteria Expression</label>
+                    <textarea tuiTextarea formControlName="criteria" rows="3" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
+                  </tui-textfield>
+                }
+
+                <!-- Substitution (available for all types) -->
+                @if (logbookCriteria.get('criteriaType')?.value !== 'universal') {
+                  <tui-textfield>
+                    <label tuiLabel>Substitution Expression (Optional)</label>
+                    <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
+                  </tui-textfield>
+                }
+              </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
               <button 
