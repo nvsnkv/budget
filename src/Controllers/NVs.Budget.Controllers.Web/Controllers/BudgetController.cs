@@ -161,11 +161,13 @@ public class BudgetController(IMediator mediator, BudgetMapper mapper) : Control
 
         // Parse tagging criteria if provided
         List<TaggingCriterion> taggingCriteria = budget.TaggingCriteria.ToList();
-        if (request.TaggingCriteria != null)
+        if (request.TaggingCriteria != null && request.TaggingCriteria.Any())
         {
             taggingCriteria = new List<TaggingCriterion>();
             foreach (var tc in request.TaggingCriteria)
             {
+                if (tc == null) continue; // Skip null items
+                
                 var parseResult = mapper.FromRequest(tc);
                 if (parseResult.IsFailed)
                 {
@@ -177,11 +179,13 @@ public class BudgetController(IMediator mediator, BudgetMapper mapper) : Control
 
         // Parse transfer criteria if provided
         List<TransferCriterion> transferCriteria = budget.TransferCriteria.ToList();
-        if (request.TransferCriteria != null)
+        if (request.TransferCriteria != null && request.TransferCriteria.Any())
         {
             transferCriteria = new List<TransferCriterion>();
             foreach (var tc in request.TransferCriteria)
             {
+                if (tc == null) continue; // Skip null items
+                
                 var parseResult = mapper.FromRequest(tc);
                 if (parseResult.IsFailed)
                 {
@@ -304,11 +308,13 @@ public record RegisterBudgetRequest(string Name);
 
 public record ChangeBudgetOwnersRequest(BudgetIdentifier Budget, IReadOnlyCollection<Guid> OwnerIds);
 
-public record UpdateBudgetRequest(
-    string Name,
-    string Version,
-    IReadOnlyCollection<TaggingCriterionResponse>? TaggingCriteria = null,
-    IReadOnlyCollection<TransferCriterionResponse>? TransferCriteria = null,
-    LogbookCriteriaResponse? LogbookCriteria = null);
+public class UpdateBudgetRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string Version { get; set; } = string.Empty;
+    public IReadOnlyCollection<TaggingCriterionResponse>? TaggingCriteria { get; set; }
+    public IReadOnlyCollection<TransferCriterionResponse>? TransferCriteria { get; set; }
+    public LogbookCriteriaResponse? LogbookCriteria { get; set; }
+}
 
 public record MergeBudgetsRequest(IReadOnlyCollection<Guid> BudgetIds, bool PurgeEmptyBudgets);

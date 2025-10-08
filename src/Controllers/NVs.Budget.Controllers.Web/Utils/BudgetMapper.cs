@@ -24,32 +24,35 @@ public class BudgetMapper(ReadableExpressionsParser parser)
 
     private TaggingCriterionResponse ToResponse(TaggingCriterion criterion)
     {
-        return new TaggingCriterionResponse(
-            criterion.Tag.ToString(),
-            criterion.Condition.ToString()
-        );
+        return new TaggingCriterionResponse
+        {
+            Tag = criterion.Tag.ToString(),
+            Condition = criterion.Condition.ToString()
+        };
     }
 
     private TransferCriterionResponse ToResponse(TransferCriterion criterion)
     {
-        return new TransferCriterionResponse(
-            criterion.Accuracy.ToString(),
-            criterion.Comment,
-            criterion.Criterion.ToString()
-        );
+        return new TransferCriterionResponse
+        {
+            Accuracy = criterion.Accuracy.ToString(),
+            Comment = criterion.Comment,
+            Criterion = criterion.Criterion.ToString()
+        };
     }
 
     private LogbookCriteriaResponse ToResponse(LogbookCriteria criteria)
     {
-        return new LogbookCriteriaResponse(
-            criteria.Description,
-            criteria.Subcriteria?.Select(ToResponse).ToList(),
-            criteria.Type?.ToString(),
-            criteria.Tags?.Select(t => t.Value).ToList(),
-            criteria.Substitution?.ToString(),
-            criteria.Criteria?.ToString(),
-            criteria.IsUniversal
-        );
+        return new LogbookCriteriaResponse
+        {
+            Description = criteria.Description,
+            Subcriteria = criteria.Subcriteria?.Select(ToResponse).ToList(),
+            Type = criteria.Type?.ToString(),
+            Tags = criteria.Tags?.Select(t => t.Value).ToList(),
+            Substitution = criteria.Substitution?.ToString(),
+            Criteria = criteria.Criteria?.ToString(),
+            IsUniversal = criteria.IsUniversal
+        };
     }
 
     public Result<TaggingCriterion> FromRequest(TaggingCriterionResponse request)

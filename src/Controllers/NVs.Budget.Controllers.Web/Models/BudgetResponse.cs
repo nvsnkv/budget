@@ -12,23 +12,26 @@ public record BudgetResponse(
     LogbookCriteriaResponse LogbookCriteria
 );
 
-public record TaggingCriterionResponse(
-    string Tag,
-    string Condition
-);
+public class TaggingCriterionResponse
+{
+    public string Tag { get; set; } = string.Empty;
+    public string Condition { get; set; } = string.Empty;
+}
 
-public record TransferCriterionResponse(
-    string Accuracy,
-    string Comment,
-    string Criterion
-);
+public class TransferCriterionResponse
+{
+    public string Accuracy { get; set; } = string.Empty;
+    public string Comment { get; set; } = string.Empty;
+    public string Criterion { get; set; } = string.Empty;
+}
 
-public record LogbookCriteriaResponse(
-    string Description,
-    IReadOnlyCollection<LogbookCriteriaResponse>? Subcriteria,
-    string? Type,
-    IReadOnlyCollection<string>? Tags,
-    string? Substitution,
-    string? Criteria,
-    bool? IsUniversal
-);
+public class LogbookCriteriaResponse
+{
+    public string Description { get; set; } = string.Empty;
+    public IReadOnlyCollection<LogbookCriteriaResponse>? Subcriteria { get; set; }
+    public string? Type { get; set; }
+    public IReadOnlyCollection<string>? Tags { get; set; }
+    public string? Substitution { get; set; }
+    public string? Criteria { get; set; }
+    public bool? IsUniversal { get; set; }
+}
