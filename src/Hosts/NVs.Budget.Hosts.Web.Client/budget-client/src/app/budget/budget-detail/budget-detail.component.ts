@@ -296,18 +296,31 @@ export class BudgetDetailComponent implements OnInit {
       const file = event.target?.files?.[0];
       if (!file) return;
 
-      this.isLoading = true;
-      this.apiService.uploadBudgetYaml(this.budget!.id, file).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.showSuccess('Budget updated successfully from YAML');
-          window.location.reload();
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.handleError(error, 'Failed to upload YAML');
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const yamlContent = e.target?.result as string;
+        if (!yamlContent) {
+          this.showError('Failed to read file content');
+          return;
         }
-      });
+
+        this.isLoading = true;
+        this.apiService.uploadBudgetYaml(this.budget!.id, yamlContent).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.showSuccess('Budget updated successfully from YAML');
+            window.location.reload();
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.handleError(error, 'Failed to upload YAML');
+          }
+        });
+      };
+      reader.onerror = () => {
+        this.showError('Failed to read file');
+      };
+      reader.readAsText(file);
     };
     input.click();
   }

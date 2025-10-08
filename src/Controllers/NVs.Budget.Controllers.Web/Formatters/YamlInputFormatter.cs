@@ -21,20 +21,38 @@ internal class YamlInputFormatter : TextInputFormatter
     public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
     {
         var httpContext = context.HttpContext;
-        
-        using (var reader = new StreamReader(httpContext.Request.Body, encoding))
+
+        using var reader = new StreamReader(httpContext.Request.Body, encoding);
+        try
         {
-            try
+            var yaml = await reader.ReadToEndAsync();
+            
+            if (string.IsNullOrWhiteSpace(yaml))
             {
-                var yaml = await reader.ReadToEndAsync();
-                var model = _deserializer.Deserialize(yaml, context.ModelType);
-                return await InputFormatterResult.SuccessAsync(model);
-            }
-            catch (Exception ex)
-            {
-                context.ModelState.AddModelError(string.Empty, $"Failed to parse YAML: {ex.Message}");
+                context.ModelState.AddModelError(string.Empty, "YAML content is empty");
                 return await InputFormatterResult.FailureAsync();
             }
+
+            var model = _deserializer.Deserialize(yaml, context.ModelType);
+            
+            if (model == null)
+            {
+                context.ModelState.AddModelError(string.Empty, "Failed to deserialize YAML to expected type");
+                return await InputFormatterResult.FailureAsync();
+            }
+
+            return await InputFormatterResult.SuccessAsync(model);
+        }
+        catch (Exception ex)
+        {
+            var errorMessage = $"Failed to parse YAML: {ex.Message}";
+            if (ex.InnerException != null)
+            {
+                errorMessage += $" Inner exception: {ex.InnerException.Message}";
+            }
+            
+            context.ModelState.AddModelError(string.Empty, errorMessage);
+            return await InputFormatterResult.FailureAsync();
         }
     }
 }

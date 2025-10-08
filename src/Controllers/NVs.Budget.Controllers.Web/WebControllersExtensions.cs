@@ -4,6 +4,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Controllers.Web.Filters;
 using NVs.Budget.Controllers.Web.Formatters;
@@ -23,6 +24,7 @@ public static class WebControllersExtensions
         services.AddSingleton(new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build());
+
         
         // Register BudgetMapper
         services.AddScoped<BudgetMapper>();
@@ -74,10 +76,11 @@ public static class WebControllersExtensions
                 
                 var deserializer = new DeserializerBuilder()
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .IgnoreUnmatchedProperties()
                     .Build();
-                
+
                 opts.OutputFormatters.Add(new YamlOutputFormatter(serializer));
-                opts.InputFormatters.Add(new YamlInputFormatter(deserializer));
+                opts.InputFormatters.Insert(0, new YamlInputFormatter(deserializer));
                 opts.FormatterMappings.SetMediaTypeMappingForFormat("yaml", "application/yaml");
             })
             .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));

@@ -142,6 +142,7 @@ public class BudgetController(IMediator mediator, BudgetMapper mapper) : Control
     /// <returns>Success or error details</returns>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(204)]
+    [Consumes("application/json", "application/yaml", "text/yaml")]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
     public async Task<IActionResult> UpdateBudget(
