@@ -308,13 +308,4 @@ public record RegisterBudgetRequest(string Name);
 
 public record ChangeBudgetOwnersRequest(BudgetIdentifier Budget, IReadOnlyCollection<Guid> OwnerIds);
 
-public class UpdateBudgetRequest
-{
-    public string Name { get; set; } = string.Empty;
-    public string Version { get; set; } = string.Empty;
-    public IReadOnlyCollection<TaggingCriterionResponse>? TaggingCriteria { get; set; }
-    public IReadOnlyCollection<TransferCriterionResponse>? TransferCriteria { get; set; }
-    public LogbookCriteriaResponse? LogbookCriteria { get; set; }
-}
-
 public record MergeBudgetsRequest(IReadOnlyCollection<Guid> BudgetIds, bool PurgeEmptyBudgets);
