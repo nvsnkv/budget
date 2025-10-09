@@ -4,3 +4,4 @@ obj
 *.user
 /dist/
 server.env
+certs/
