@@ -82,6 +82,9 @@ public static class WebControllersExtensions
                 opts.OutputFormatters.Add(new YamlOutputFormatter(serializer));
                 opts.InputFormatters.Insert(0, new YamlInputFormatter(deserializer));
                 opts.FormatterMappings.SetMediaTypeMappingForFormat("yaml", "application/yaml");
+                
+                // Add model state validation filter to return 400 on invalid input
+                opts.Filters.Add<ValidateModelStateFilter>();
             })
             .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
 

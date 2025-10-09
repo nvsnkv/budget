@@ -136,6 +136,27 @@ criterion: (source, sink) => source.Amount.Amount == sink.Amount.Amount * -1
     }
 
     [Fact]
+    public void FailToDeserializeInvalidYaml()
+    {
+        // Arrange
+        var invalidYaml = @"
+name: Test Budget
+version: v1.0
+taggingCriteria:
+  - this is not valid yaml structure
+    missing proper formatting
+";
+
+        // Act & Assert
+        var exception = Assert.Throws<YamlDotNet.Core.YamlException>(() =>
+        {
+            _deserializer.Deserialize<UpdateBudgetRequest>(invalidYaml);
+        });
+        
+        exception.Should().NotBeNull();
+    }
+
+    [Fact]
     public void DeserializeLogbookCriteriaResponseWithNestedSubcriteria()
     {
         // Arrange
