@@ -10,6 +10,7 @@ using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Domain.Entities.Budgets;
+using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
 
@@ -17,7 +18,11 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 [ApiVersion("0.1")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json", "application/yaml", "text/yaml")]
-public class BudgetController(IMediator mediator, BudgetMapper mapper) : Controller
+public class BudgetController(
+    IMediator mediator, 
+    BudgetMapper mapper, 
+    IReadingSettingsRepository readingSettingsRepository, 
+    FileReadingSettingsMapper settingsMapper) : Controller
 {
     /// <summary>
     /// Gets all budgets available to the current user (owned by or shared with the user)
@@ -291,6 +296,77 @@ public class BudgetController(IMediator mediator, BudgetMapper mapper) : Control
     {
         var mergeRequest = new NVs.Budget.Application.Contracts.UseCases.Budgets.MergeBudgetsRequest(request.BudgetIds.ToList(), request.PurgeEmptyBudgets);
         var result = await mediator.Send(mergeRequest, ct);
+
+        if (result.IsSuccess)
+        {
+            return NoContent();
+        }
+
+        return BadRequest(result.Errors);
+    }
+
+    /// <summary>
+    /// Gets file reading settings for a specific budget
+    /// </summary>
+    /// <param name="id">Budget ID</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Reading settings or error details</returns>
+    [HttpGet("{id:guid}/reading-settings")]
+    [ProducesResponseType(typeof(Dictionary<string, FileReadingSettingResponse>), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> GetReadingSettings(Guid id, CancellationToken ct)
+    {
+        // Validate budget access
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+        
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        // Get reading settings
+        var settings = await readingSettingsRepository.GetReadingSettingsFor(budget, ct);
+        var response = settingsMapper.ToResponse(settings);
+
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Updates file reading settings for a specific budget
+    /// </summary>
+    /// <param name="id">Budget ID</param>
+    /// <param name="request">Reading settings update request (dictionary of pattern to settings)</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Success or error details</returns>
+    [HttpPut("{id:guid}/reading-settings")]
+    [ProducesResponseType(204)]
+    [Consumes("application/json", "application/yaml", "text/yaml")]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> UpdateReadingSettings(
+        [FromRoute] Guid id, 
+        [FromBody] Dictionary<string, FileReadingSettingResponse> request, 
+        CancellationToken ct)
+    {
+        // Validate budget access
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+        
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        // Parse request
+        var parseResult = settingsMapper.FromRequest(request);
+        if (parseResult.IsFailed)
+        {
+            return BadRequest(parseResult.Errors);
+        }
+
+        // Update settings
+        var result = await readingSettingsRepository.UpdateReadingSettingsFor(budget, parseResult.Value, ct);
 
         if (result.IsSuccess)
         {

@@ -67,3 +67,20 @@ export interface IError {
   metadata?: any;
   reasons?: IError[];
 }
+
+// File Reading Settings models
+export interface ValidationRuleResponse {
+  pattern: string;
+  condition: string;
+  value: string;
+  errorMessage: string;
+}
+
+export interface FileReadingSettingResponse {
+  culture: string;
+  encoding: string;
+  dateTimeKind: string;
+  fields: Record<string, string>;
+  attributes: Record<string, string>;
+  validation: ValidationRuleResponse[];
+}

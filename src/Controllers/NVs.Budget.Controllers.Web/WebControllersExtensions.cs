@@ -26,8 +26,8 @@ public static class WebControllersExtensions
             .Build());
 
         
-        // Register BudgetMapper
         services.AddScoped<BudgetMapper>();
+        services.AddScoped<FileReadingSettingsMapper>();
         
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>

@@ -1,0 +1,288 @@
+.reading-settings-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.settings-card {
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--tui-text-02);
+  font-style: italic;
+}
+
+.patterns-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pattern-item {
+  border: 1px solid var(--tui-base-03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pattern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--tui-base-02);
+}
+
+.pattern-code {
+  font-family: monospace;
+  font-size: 0.95rem;
+  background: var(--tui-base-01);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.pattern-content {
+  padding: 1.5rem;
+}
+
+.pattern-details {
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.detail-value {
+  color: var(--tui-text-02);
+}
+
+.detail-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--tui-base-03);
+
+  h5 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 0.25rem 0;
+    
+    strong {
+      color: var(--tui-text-01);
+    }
+
+    code {
+      background: var(--tui-base-02);
+      padding: 0.125rem 0.25rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+    }
+
+    em {
+      color: var(--tui-text-03);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.pattern-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--tui-base-03);
+}
+
+.edit-section {
+  background: var(--tui-base-01);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .form-group {
+    min-width: 200px;
+  }
+}
+
+.subsection {
+  border: 1px solid var(--tui-base-03);
+  border-radius: 6px;
+  padding: 1rem;
+  background: var(--tui-base-02);
+}
+
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h4 {
+    margin: 0;
+  }
+}
+
+.key-value-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.key-value-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  .key-input {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .value-input {
+    flex: 2;
+    min-width: 200px;
+  }
+}
+
+.validation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.validation-item {
+  border: 1px solid var(--tui-base-03);
+  padding: 1rem;
+  border-radius: 4px;
+  background: var(--tui-base-01);
+}
+
+.validation-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .pattern-input {
+    flex: 2;
+    min-width: 150px;
+  }
+
+  .condition-input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .value-input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .error-message-input {
+    flex: 3;
+    min-width: 250px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--tui-base-03);
+  flex-wrap: wrap;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .reading-settings-container {
+    padding: 1rem;
+  }
+
+  .settings-card {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-row,
+  .key-value-item,
+  .validation-row {
+    flex-direction: column;
+    align-items: stretch;
+
+    .form-group,
+    .key-input,
+    .value-input,
+    .pattern-input,
+    .condition-input,
+    .error-message-input {
+      min-width: 100%;
+    }
+  }
+}
+

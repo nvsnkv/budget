@@ -7,7 +7,8 @@ import {
   UpdateBudgetRequest, 
   ChangeBudgetOwnersRequest, 
   MergeBudgetsRequest,
-  IError
+  IError,
+  FileReadingSettingResponse
 } from './models';
 import { environment } from '../../environments/environment';
 
@@ -132,5 +133,25 @@ export class BudgetApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/csv-options`, formData, { withCredentials: true });
+  }
+
+  /**
+   * Get file reading settings for a budget
+   */
+  getReadingSettings(budgetId: string): Observable<Record<string, FileReadingSettingResponse>> {
+    return this.http.get<Record<string, FileReadingSettingResponse>>(`${this.baseUrl}/budget/${budgetId}/reading-settings`, {
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Update file reading settings for a budget
+   */
+  updateReadingSettings(budgetId: string, settings: Record<string, FileReadingSettingResponse>): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.put<void>(`${this.baseUrl}/budget/${budgetId}/reading-settings`, settings, {
+      headers,
+      withCredentials: true
+    });
   }
 }

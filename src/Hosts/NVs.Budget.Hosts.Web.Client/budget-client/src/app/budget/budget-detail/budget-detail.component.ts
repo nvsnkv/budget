@@ -266,6 +266,12 @@ export class BudgetDetailComponent implements OnInit {
     }
   }
 
+  navigateToReadingSettings(): void {
+    if (this.budget) {
+      this.router.navigate(['/budget', this.budget.id, 'reading-settings']);
+    }
+  }
+
   downloadYaml(): void {
     if (!this.budget) return;
 
