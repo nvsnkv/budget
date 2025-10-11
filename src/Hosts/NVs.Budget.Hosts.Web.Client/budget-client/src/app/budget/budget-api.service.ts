@@ -154,4 +154,26 @@ export class BudgetApiService {
       withCredentials: true
     });
   }
+
+  /**
+   * Download reading settings as YAML
+   */
+  downloadReadingSettingsYaml(budgetId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/budget/${budgetId}/reading-settings`, {
+      responseType: 'blob',
+      headers: new HttpHeaders().set('Accept', 'application/yaml'),
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Upload reading settings from YAML content
+   */
+  uploadReadingSettingsYaml(budgetId: string, yamlContent: string): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/yaml');
+    return this.http.put<void>(`${this.baseUrl}/budget/${budgetId}/reading-settings`, yamlContent, {
+      headers,
+      withCredentials: true
+    });
+  }
 }

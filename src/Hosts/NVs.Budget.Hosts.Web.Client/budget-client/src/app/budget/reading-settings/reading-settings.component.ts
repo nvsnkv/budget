@@ -284,6 +284,61 @@ export class ReadingSettingsComponent implements OnInit {
     this.router.navigate(['/budget', this.budgetId]);
   }
 
+  downloadYaml(): void {
+    this.isLoading = true;
+    this.apiService.downloadReadingSettingsYaml(this.budgetId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reading-settings-${this.budgetId}.yaml`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.handleError(error, 'Failed to download YAML');
+      }
+    });
+  }
+
+  uploadYaml(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.yaml,.yml';
+    input.onchange = (event: any) => {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const yamlContent = e.target?.result as string;
+        if (!yamlContent) {
+          this.handleError({}, 'Failed to read file content');
+          return;
+        }
+
+        this.isLoading = true;
+        this.apiService.uploadReadingSettingsYaml(this.budgetId, yamlContent).subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.showSuccess('Reading settings updated successfully from YAML');
+            this.loadSettings();
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.handleError(error, 'Failed to upload YAML');
+          }
+        });
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
   private showSuccess(message: string): void {
     this.dialogService
       .open(message, { label: 'Success', size: 's' })
