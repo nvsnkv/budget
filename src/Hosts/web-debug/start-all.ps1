@@ -100,16 +100,12 @@ To stop all services, close all windows and run: docker compose down
 
 # Start server in a new PowerShell window
 $serverScript = Join-Path $PSScriptRoot "start-server.ps1"
-Start-Process pwsh -ArgumentList "-NoExit", "-File", "`"$serverScript`""
+ wt sp -d . pwsh $serverScript
 
 # Wait a moment before starting client
 Start-Sleep -Seconds 2
 
 # Start client in a new PowerShell window
 $clientScript = Join-Path $PSScriptRoot "start-client.ps1"
-Start-Process pwsh -ArgumentList "-NoExit", "-File", "`"$clientScript`""
-
-Write-Host "All services started! Check the new windows for logs." -ForegroundColor Green
-Write-Host "Press any key to exit this launcher (services will continue running)..." -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+pwsh $clientScript
 
