@@ -69,15 +69,13 @@
                 </tui-textfield>
               </div>
 
-              <div class="form-group">
-                <tui-textfield>
-                  <label tuiLabel>DateTime Kind</label>
-                  <select tuiTextfield formControlName="dateTimeKind">
-                    @for (option of dateTimeKindOptions; track option) {
-                      <option [value]="option">{{ option }}</option>
-                    }
-                  </select>
-                </tui-textfield>
+              <div class="select-field">
+                <label class="select-label">DateTime Kind</label>
+                <select class="tui-select" formControlName="dateTimeKind">
+                  @for (option of dateTimeKindOptions; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
               </div>
             </div>
 
@@ -141,14 +139,14 @@
                         <label tuiLabel>Field Pattern</label>
                         <input tuiTextfield formControlName="pattern" type="text" />
                       </tui-textfield>
-                      <tui-textfield class="condition-input">
-                        <label tuiLabel>Condition</label>
-                        <select tuiTextfield formControlName="condition">
+                      <div class="select-field condition-input">
+                        <label class="select-label">Condition</label>
+                        <select class="tui-select" formControlName="condition">
                           @for (option of validationConditionOptions; track option) {
                             <option [value]="option">{{ option }}</option>
                           }
                         </select>
-                      </tui-textfield>
+                      </div>
                       <tui-textfield class="value-input">
                         <label tuiLabel>Value</label>
                         <input tuiTextfield formControlName="value" type="text" />
@@ -291,15 +289,13 @@
                             </tui-textfield>
                           </div>
 
-                          <div class="form-group">
-                            <tui-textfield>
-                              <label tuiLabel>DateTime Kind</label>
-                              <select tuiTextfield formControlName="dateTimeKind">
-                                @for (option of dateTimeKindOptions; track option) {
-                                  <option [value]="option">{{ option }}</option>
-                                }
-                              </select>
-                            </tui-textfield>
+                          <div class="select-field">
+                            <label class="select-label">DateTime Kind</label>
+                            <select class="tui-select" formControlName="dateTimeKind">
+                              @for (option of dateTimeKindOptions; track option) {
+                                <option [value]="option">{{ option }}</option>
+                              }
+                            </select>
                           </div>
                         </div>
 
@@ -363,14 +359,14 @@
                                     <label tuiLabel>Field Pattern</label>
                                     <input tuiTextfield formControlName="pattern" type="text" />
                                   </tui-textfield>
-                                  <tui-textfield class="condition-input">
-                                    <label tuiLabel>Condition</label>
-                                    <select tuiTextfield formControlName="condition">
+                                  <div class="select-field condition-input">
+                                    <label class="select-label">Condition</label>
+                                    <select class="tui-select" formControlName="condition">
                                       @for (option of validationConditionOptions; track option) {
                                         <option [value]="option">{{ option }}</option>
                                       }
                                     </select>
-                                  </tui-textfield>
+                                  </div>
                                   <tui-textfield class="value-input">
                                     <label tuiLabel>Value</label>
                                     <input tuiTextfield formControlName="value" type="text" />

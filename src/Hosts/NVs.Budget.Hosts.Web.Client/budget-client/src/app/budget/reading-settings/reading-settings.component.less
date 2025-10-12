@@ -254,6 +254,45 @@
   flex-wrap: wrap;
 }
 
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.select-label {
+  font-size: 0.875rem;
+  color: var(--tui-text-02);
+  font-weight: 500;
+}
+
+.tui-select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 8px;
+  background-color: var(--tui-background-base);
+  color: var(--tui-text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  
+  &:hover {
+    border-color: var(--tui-border-hover);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--tui-border-focus);
+    box-shadow: 0 0 0 3px var(--tui-background-accent-1);
+  }
+  
+  option {
+    padding: 0.5rem;
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   .reading-settings-container {
