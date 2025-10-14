@@ -200,8 +200,8 @@
                   <label class="radio-label">Criteria Type:</label>
                   <div class="radio-options">
                     <label class="radio-option">
-                      <input type="radio" formControlName="criteriaType" value="universal" />
-                      Universal (matches all operations)
+                      <input type="radio" formControlName="criteriaType" value="group" />
+                      Group
                     </label>
                     <label class="radio-option">
                       <input type="radio" formControlName="criteriaType" value="tag-based" />
@@ -213,6 +213,16 @@
                     </label>
                   </div>
                 </div>
+
+                <!-- IsUniversal checkbox for groups -->
+                @if (logbookCriteria.get('criteriaType')?.value === 'group') {
+                  <div class="checkbox-field">
+                    <label>
+                      <input type="checkbox" formControlName="isUniversal" />
+                      Universal (matches all operations)
+                    </label>
+                  </div>
+                }
 
                 <!-- Tag-Based Fields -->
                 @if (logbookCriteria.get('criteriaType')?.value === 'tag-based') {
@@ -240,8 +250,16 @@
                   </tui-textfield>
                 }
 
+                <!-- Pre-filter for Groups (only if not universal) -->
+                @if (logbookCriteria.get('criteriaType')?.value === 'group' && !logbookCriteria.get('isUniversal')?.value) {
+                  <tui-textfield>
+                    <label tuiLabel>Pre-filter Expression (Optional)</label>
+                    <textarea tuiTextarea formControlName="criteria" rows="3" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
+                  </tui-textfield>
+                }
+
                 <!-- Substitution (available for all types) -->
-                @if (logbookCriteria.get('criteriaType')?.value !== 'universal') {
+                @if (logbookCriteria.get('criteriaType')?.value !== 'group' || !logbookCriteria.get('isUniversal')?.value) {
                   <tui-textfield>
                     <label tuiLabel>Substitution Expression (Optional)</label>
                     <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
@@ -286,8 +304,8 @@
                             <label class="radio-label">Criteria Type:</label>
                             <div class="radio-options">
                               <label class="radio-option">
-                                <input type="radio" formControlName="criteriaType" value="universal" />
-                                Universal
+                                <input type="radio" formControlName="criteriaType" value="group" />
+                                Group
                               </label>
                               <label class="radio-option">
                                 <input type="radio" formControlName="criteriaType" value="tag-based" />
@@ -299,6 +317,16 @@
                               </label>
                             </div>
                           </div>
+
+                          <!-- IsUniversal checkbox for groups -->
+                          @if (subcriterion.get('criteriaType')?.value === 'group') {
+                            <div class="checkbox-field">
+                              <label>
+                                <input type="checkbox" formControlName="isUniversal" />
+                                Universal (matches all operations)
+                              </label>
+                            </div>
+                          }
 
                           <!-- Tag-Based Fields for Subcriterion -->
                           @if (subcriterion.get('criteriaType')?.value === 'tag-based') {
@@ -326,8 +354,16 @@
                             </tui-textfield>
                           }
 
+                          <!-- Pre-filter for Groups -->
+                          @if (subcriterion.get('criteriaType')?.value === 'group' && !subcriterion.get('isUniversal')?.value) {
+                            <tui-textfield>
+                              <label tuiLabel>Pre-filter Expression (Optional)</label>
+                              <textarea tuiTextarea formControlName="criteria" rows="2" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
+                            </tui-textfield>
+                          }
+
                           <!-- Substitution for Subcriterion -->
-                          @if (subcriterion.get('criteriaType')?.value !== 'universal') {
+                          @if (subcriterion.get('criteriaType')?.value !== 'group' || !subcriterion.get('isUniversal')?.value) {
                             <tui-textfield>
                               <label tuiLabel>Substitution (Optional)</label>
                               <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
@@ -372,8 +408,8 @@
                                     <label class="radio-label">Type:</label>
                                     <div class="radio-options">
                                       <label class="radio-option">
-                                        <input type="radio" formControlName="criteriaType" value="universal" />
-                                        Universal
+                                        <input type="radio" formControlName="criteriaType" value="group" />
+                                        Group
                                       </label>
                                       <label class="radio-option">
                                         <input type="radio" formControlName="criteriaType" value="tag-based" />
@@ -385,6 +421,16 @@
                                       </label>
                                     </div>
                                   </div>
+
+                                  <!-- IsUniversal checkbox for groups -->
+                                  @if (nestedSub.get('criteriaType')?.value === 'group') {
+                                    <div class="checkbox-field">
+                                      <label>
+                                        <input type="checkbox" formControlName="isUniversal" />
+                                        Universal (matches all operations)
+                                      </label>
+                                    </div>
+                                  }
 
                                   @if (nestedSub.get('criteriaType')?.value === 'tag-based') {
                                     <div class="select-field">
@@ -409,7 +455,14 @@
                                     </tui-textfield>
                                   }
 
-                                  @if (nestedSub.get('criteriaType')?.value !== 'universal') {
+                                  @if (nestedSub.get('criteriaType')?.value === 'group' && !nestedSub.get('isUniversal')?.value) {
+                                    <tui-textfield>
+                                      <label tuiLabel>Pre-filter Expression (Optional)</label>
+                                      <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                    </tui-textfield>
+                                  }
+
+                                  @if (nestedSub.get('criteriaType')?.value !== 'group' || !nestedSub.get('isUniversal')?.value) {
                                     <tui-textfield>
                                       <label tuiLabel>Substitution</label>
                                       <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
@@ -521,8 +574,16 @@
       <span class="criterion-label">Description:</span>
       <span class="criterion-value">{{ criteria.description || 'N/A' }}</span>
     </div>
-    @if (criteria.isUniversal) {
-      <tui-chip size="m">Universal</tui-chip>
+    @if (criteria.subcriteria && criteria.subcriteria.length > 0) {
+      <div class="criterion-row">
+        <span class="criterion-label">Type:</span>
+        <tui-chip size="m">Group</tui-chip>
+      </div>
+      @if (criteria.isUniversal) {
+        <div class="criterion-row">
+          <tui-chip size="s" appearance="outline">Universal (matches all operations)</tui-chip>
+        </div>
+      }
     }
     @if (criteria.type) {
       <div class="criterion-row">
@@ -542,7 +603,7 @@
     }
     @if (criteria.criteria) {
       <div class="criterion-row">
-        <span class="criterion-label">Criteria:</span>
+        <span class="criterion-label">{{ (criteria.subcriteria && criteria.subcriteria.length > 0) ? 'Pre-filter:' : 'Criteria:' }}</span>
         <code class="criterion-value">{{ criteria.criteria }}</code>
       </div>
     }

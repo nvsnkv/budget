@@ -102,18 +102,24 @@ export class BudgetDetailComponent implements OnInit {
 
   createLogbookCriteriaGroup(criteria: any): FormGroup {
     // Determine criteria type
-    let criteriaType = 'universal';
+    let criteriaType = 'group';
+    let isUniversal = false;
+    
     if (criteria.type && criteria.tags) {
       criteriaType = 'tag-based';
-    } else if (criteria.criteria) {
+    } else if (criteria.criteria && (!criteria.subcriteria || criteria.subcriteria.length === 0)) {
+      // It's criteria-based only if it has criteria expression but no subcriteria
       criteriaType = 'criteria-based';
-    } else if (criteria.isUniversal) {
-      criteriaType = 'universal';
+    } else {
+      // It's a group (has subcriteria or is universal)
+      criteriaType = 'group';
+      isUniversal = criteria.isUniversal || false;
     }
 
     const group = this.fb.group({
       criteriaType: [criteriaType],
       description: [criteria.description || '', Validators.required],
+      isUniversal: [isUniversal],
       type: [criteria.type || ''],
       tags: [criteria.tags ? criteria.tags.join(', ') : ''],
       substitution: [criteria.substitution || ''],
@@ -134,7 +140,7 @@ export class BudgetDetailComponent implements OnInit {
     const subcriteria = this.getSubcriteria(criteriaGroup);
     subcriteria.push(this.createLogbookCriteriaGroup({
       description: '',
-      isUniversal: true
+      subcriteria: []
     }));
   }
 
@@ -190,14 +196,24 @@ export class BudgetDetailComponent implements OnInit {
     const description = formGroup.get('description')?.value;
     const substitution = formGroup.get('substitution')?.value;
     const subcriteriaArray = formGroup.get('subcriteria') as FormArray;
+    const isUniversal = formGroup.get('isUniversal')?.value;
 
     const baseCriteria: any = {
       description,
       substitution: substitution || undefined
     };
 
-    if (criteriaType === 'universal') {
-      baseCriteria.isUniversal = true;
+    if (criteriaType === 'group') {
+      // Group type - may have isUniversal flag and/or pre-filter criteria
+      if (isUniversal) {
+        baseCriteria.isUniversal = true;
+      }
+      
+      // Add pre-filter criteria if specified and not universal
+      const criteriaExpr = formGroup.get('criteria')?.value;
+      if (criteriaExpr && !isUniversal) {
+        baseCriteria.criteria = criteriaExpr;
+      }
     } else if (criteriaType === 'tag-based') {
       const tags = formGroup.get('tags')?.value;
       baseCriteria.type = formGroup.get('type')?.value;
