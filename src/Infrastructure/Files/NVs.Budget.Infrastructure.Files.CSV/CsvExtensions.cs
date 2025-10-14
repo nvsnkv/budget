@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
@@ -13,6 +14,8 @@ public static class CsvExtensions
 {
     public static IServiceCollection AddCsvFiles(this IServiceCollection services, string connectionString)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
         services.AddDbContext<SettingsContext>(o => o.UseNpgsql(connectionString))
             .AddTransient<IDbMigrator, PostgreSqlDbMigrator<SettingsContext>>()
             .AddScoped<IReadingSettingsRepository, BudgetSpecificSettingsRepository>();
