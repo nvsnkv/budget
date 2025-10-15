@@ -84,3 +84,65 @@ export interface FileReadingSettingResponse {
   attributes: Record<string, string>;
   validation: ValidationRuleResponse[];
 }
+
+// Operation models
+export interface MoneyResponse {
+  value: number;
+  currencyCode: string;
+}
+
+export interface OperationResponse {
+  id: string;
+  version: string;
+  timestamp: string;
+  amount: MoneyResponse;
+  description: string;
+  budgetId: string;
+  tags: string[];
+  attributes?: Record<string, any>;
+}
+
+export interface UnregisteredOperationRequest {
+  timestamp: string;
+  amount: MoneyResponse;
+  description: string;
+  attributes?: Record<string, any>;
+}
+
+export interface UpdateOperationRequest {
+  id: string;
+  version: string;
+  timestamp: string;
+  amount: MoneyResponse;
+  description: string;
+  tags: string[];
+  attributes?: Record<string, any>;
+}
+
+export interface ImportOperationsRequest {
+  budgetVersion: string;
+  operations: UnregisteredOperationRequest[];
+  transferConfidenceLevel?: string;
+}
+
+export interface UpdateOperationsRequest {
+  budgetVersion: string;
+  operations: UpdateOperationRequest[];
+  transferConfidenceLevel?: string;
+  taggingMode: string;
+}
+
+export interface RemoveOperationsRequest {
+  criteria: string;
+}
+
+export interface ImportResultResponse {
+  registeredOperations: OperationResponse[];
+  duplicates: OperationResponse[][];
+  errors: string[];
+}
+
+export interface UpdateResultResponse {
+  updatedOperations: OperationResponse[];
+  errors: string[];
+}

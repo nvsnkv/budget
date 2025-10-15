@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Controllers.Web.Filters;
 using NVs.Budget.Controllers.Web.Formatters;
+using NVs.Budget.Controllers.Web.Middleware;
 using NVs.Budget.Controllers.Web.Utils;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using YamlDotNet.Serialization;
@@ -28,6 +29,7 @@ public static class WebControllersExtensions
         
         services.AddScoped<BudgetMapper>();
         services.AddScoped<FileReadingSettingsMapper>();
+        services.AddScoped<OperationMapper>();
         
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>
@@ -96,6 +98,9 @@ public static class WebControllersExtensions
 
     public static WebApplication UseWebControllers(this WebApplication app, bool useSwagger)
     {
+        // Add exception handling middleware first to catch all exceptions
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        
         if (useSwagger)
         {
             app.UseSwagger();

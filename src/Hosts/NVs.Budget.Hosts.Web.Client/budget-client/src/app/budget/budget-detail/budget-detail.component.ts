@@ -305,6 +305,12 @@ export class BudgetDetailComponent implements OnInit {
     }
   }
 
+  navigateToOperations(): void {
+    if (this.budget) {
+      this.router.navigate(['/budget', this.budget.id, 'operations']);
+    }
+  }
+
   downloadYaml(): void {
     if (!this.budget) return;
 

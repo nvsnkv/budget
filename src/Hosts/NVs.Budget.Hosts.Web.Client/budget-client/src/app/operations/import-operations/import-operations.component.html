@@ -1,0 +1,117 @@
+<div class="import-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="import-card">
+      <h2 tuiTitle size="l">Import Operations</h2>
+      
+      @if (budget) {
+        <div class="budget-info">
+          <p><strong>Budget:</strong> {{ budget.name }}</p>
+          <p><strong>Budget ID:</strong> <code>{{ budget.id }}</code></p>
+        </div>
+
+        <form [formGroup]="importForm" class="import-form">
+          <div class="form-section">
+            <h3 tuiTitle size="m">Upload CSV File</h3>
+            <p class="help-text">
+              CSV file should have columns: timestamp, amount, currency, description.
+              Any additional columns will be stored as attributes.
+            </p>
+            
+            <div class="file-input-container">
+              <input 
+                type="file" 
+                accept=".csv"
+                (change)="onFileSelected($event)"
+                class="file-input"
+                id="csvFile"
+              />
+              <label for="csvFile" class="file-label">
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="m">
+                  Choose CSV File
+                </button>
+              </label>
+              @if (csvContent) {
+                <span class="file-selected">✓ File loaded</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-section">
+            <tui-textfield>
+              <label tuiLabel>Transfer Confidence Level (Optional)</label>
+              <input 
+                tuiTextfield 
+                formControlName="transferConfidenceLevel" 
+                type="text" 
+                placeholder="e.g., High, Exact"
+              />
+            </tui-textfield>
+            <p class="help-text">
+              Specify the confidence level for transfer detection: Exact, Likely, or leave empty for default.
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              [disabled]="!csvContent || isLoading"
+              (click)="importCsv()">
+              Import Operations
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              (click)="viewOperations()">
+              View Operations List
+            </button>
+          </div>
+        </form>
+
+        @if (importResult) {
+          <div class="import-result">
+            <h3 tuiTitle size="m">Import Results</h3>
+            <div class="result-stats">
+              <div class="stat-item success">
+                <span class="stat-label">Registered:</span>
+                <span class="stat-value">{{ importResult.registered }}</span>
+              </div>
+              <div class="stat-item warning">
+                <span class="stat-label">Duplicates:</span>
+                <span class="stat-value">{{ importResult.duplicates }}</span>
+              </div>
+              @if (importResult.errors.length > 0) {
+                <div class="stat-item error">
+                  <span class="stat-label">Errors:</span>
+                  <span class="stat-value">{{ importResult.errors.length }}</span>
+                </div>
+              }
+            </div>
+            
+            @if (importResult.errors.length > 0) {
+              <div class="errors-section">
+                <h4>Errors:</h4>
+                <ul>
+                  @for (error of importResult.errors; track $index) {
+                    <li>{{ error }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <div class="loading-placeholder">Loading budget...</div>
+      }
+    </div>
+  </tui-loader>
+</div>
+
