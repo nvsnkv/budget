@@ -90,107 +90,148 @@
             <!-- Tagging Criteria -->
             <div class="form-section">
               <div class="section-header">
-                <h3 tuiTitle size="m">Tagging Criteria</h3>
-                <button 
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="s"
-                  (click)="addTaggingCriterion()">
-                  + Add Criterion
-                </button>
+                <div class="section-title-with-toggle">
+                  <h3 tuiTitle size="m">Tagging Criteria</h3>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleTaggingCriteria()">
+                    {{ showTaggingCriteria ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showTaggingCriteria) {
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="secondary"
+                    size="s"
+                    (click)="addTaggingCriterion()">
+                    + Add Criterion
+                  </button>
+                }
               </div>
               
-              <tui-accordion>
-                <div formArrayName="taggingCriteria">
-                  @for (criterion of taggingCriteria.controls; track $index; let i = $index) {
-                    <tui-accordion-item [formGroupName]="i">
-                      <header>
-                        <span>Tagging Criterion {{ i + 1 }}</span>
-                        <button 
-                          tuiButton
-                          type="button"
-                          appearance="destructive"
-                          size="xs"
-                          (click)="removeTaggingCriterion(i)">
-                          Remove
-                        </button>
-                      </header>
-                      
-                      <div class="criterion-fields">
-                        <tui-textfield>
-                          <label tuiLabel>Tag Expression</label>
-                          <textarea tuiTextarea formControlName="tag" rows="2"></textarea>
-                        </tui-textfield>
+              @if (showTaggingCriteria) {
+                <tui-accordion>
+                  <div formArrayName="taggingCriteria">
+                    @for (criterion of taggingCriteria.controls; track $index; let i = $index) {
+                      <tui-accordion-item [formGroupName]="i">
+                        <header>
+                          <span>Tagging Criterion {{ i + 1 }}</span>
+                          <button 
+                            tuiButton
+                            type="button"
+                            appearance="destructive"
+                            size="xs"
+                            (click)="removeTaggingCriterion(i)">
+                            Remove
+                          </button>
+                        </header>
                         
-                        <tui-textfield>
-                          <label tuiLabel>Condition Expression</label>
-                          <textarea tuiTextarea formControlName="condition" rows="2"></textarea>
-                        </tui-textfield>
-                      </div>
-                    </tui-accordion-item>
-                  }
-                </div>
-              </tui-accordion>
+                        <div class="criterion-fields">
+                          <tui-textfield>
+                            <label tuiLabel>Tag Expression</label>
+                            <textarea tuiTextarea formControlName="tag" rows="2"></textarea>
+                          </tui-textfield>
+                          
+                          <tui-textfield>
+                            <label tuiLabel>Condition Expression</label>
+                            <textarea tuiTextarea formControlName="condition" rows="2"></textarea>
+                          </tui-textfield>
+                        </div>
+                      </tui-accordion-item>
+                    }
+                  </div>
+                </tui-accordion>
+              }
             </div>
 
             <!-- Transfer Criteria -->
             <div class="form-section">
               <div class="section-header">
-                <h3 tuiTitle size="m">Transfer Criteria</h3>
-                <button 
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="s"
-                  (click)="addTransferCriterion()">
-                  + Add Criterion
-                </button>
+                <div class="section-title-with-toggle">
+                  <h3 tuiTitle size="m">Transfer Criteria</h3>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleTransferCriteria()">
+                    {{ showTransferCriteria ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showTransferCriteria) {
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="secondary"
+                    size="s"
+                    (click)="addTransferCriterion()">
+                    + Add Criterion
+                  </button>
+                }
               </div>
               
-              <tui-accordion>
-                <div formArrayName="transferCriteria">
-                  @for (criterion of transferCriteria.controls; track $index; let i = $index) {
-                    <tui-accordion-item [formGroupName]="i">
-                      <header>
-                        <span>Transfer Criterion {{ i + 1 }}</span>
-                        <button 
-                          tuiButton
-                          type="button"
-                          appearance="destructive"
-                          size="xs"
-                          (click)="removeTransferCriterion(i)">
-                          Remove
-                        </button>
-                      </header>
-                      
-                      <div class="criterion-fields">
-                        <tui-textfield>
-                          <label tuiLabel>Accuracy (Exact or Likely)</label>
-                          <input tuiTextfield formControlName="accuracy" type="text" />
-                        </tui-textfield>
+              @if (showTransferCriteria) {
+                <tui-accordion>
+                  <div formArrayName="transferCriteria">
+                    @for (criterion of transferCriteria.controls; track $index; let i = $index) {
+                      <tui-accordion-item [formGroupName]="i">
+                        <header>
+                          <span>Transfer Criterion {{ i + 1 }}</span>
+                          <button 
+                            tuiButton
+                            type="button"
+                            appearance="destructive"
+                            size="xs"
+                            (click)="removeTransferCriterion(i)">
+                            Remove
+                          </button>
+                        </header>
                         
-                        <tui-textfield>
-                          <label tuiLabel>Comment</label>
-                          <input tuiTextfield formControlName="comment" type="text" />
-                        </tui-textfield>
-                        
-                        <tui-textfield>
-                          <label tuiLabel>Criterion Expression</label>
-                          <textarea tuiTextarea formControlName="criterion" rows="3"></textarea>
-                        </tui-textfield>
-                      </div>
-                    </tui-accordion-item>
-                  }
-                </div>
-              </tui-accordion>
+                        <div class="criterion-fields">
+                          <tui-textfield>
+                            <label tuiLabel>Accuracy (Exact or Likely)</label>
+                            <input tuiTextfield formControlName="accuracy" type="text" />
+                          </tui-textfield>
+                          
+                          <tui-textfield>
+                            <label tuiLabel>Comment</label>
+                            <input tuiTextfield formControlName="comment" type="text" />
+                          </tui-textfield>
+                          
+                          <tui-textfield>
+                            <label tuiLabel>Criterion Expression</label>
+                            <textarea tuiTextarea formControlName="criterion" rows="3"></textarea>
+                          </tui-textfield>
+                        </div>
+                      </tui-accordion-item>
+                    }
+                  </div>
+                </tui-accordion>
+              }
             </div>
 
             <!-- Logbook Criteria -->
             <div class="form-section" [formGroup]="logbookCriteria">
-              <h3 tuiTitle size="m">Logbook Criteria</h3>
+              <div class="section-header">
+                <div class="section-title-with-toggle">
+                  <h3 tuiTitle size="m">Logbook Criteria</h3>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleLogbookCriteria()">
+                    {{ showLogbookCriteria ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+              </div>
               
-              <div class="logbook-fields">
+              @if (showLogbookCriteria) {
+                <div class="logbook-fields">
                 <tui-textfield>
                   <label tuiLabel>Description</label>
                   <input tuiTextfield formControlName="description" type="text" placeholder="Criteria description" />
@@ -469,7 +510,211 @@
                                     </tui-textfield>
                                   }
                                   
-                                  <p class="nesting-note"><em>Note: Further nesting beyond this level is not supported in the UI.</em></p>
+                                  <!-- Level 4 Subcriteria -->
+                                  <div class="level4-subcriteria">
+                                    <h6>Level 4 Subcriteria</h6>
+                                    <button 
+                                      tuiButton
+                                      type="button"
+                                      appearance="flat"
+                                      size="xs"
+                                      (click)="addSubcriterion($any(nestedSub))">
+                                      + Add Level 4 Subcriterion
+                                    </button>
+                                    
+                                    @for (level4Sub of getSubcriteria($any(nestedSub)).controls; track $index; let l4Idx = $index) {
+                                      <div class="level4-subcriterion-card">
+                                        <ng-container [formGroup]="$any(level4Sub)">
+                                        <div class="subcriterion-header">
+                                          <span>Level 4 - {{ l4Idx + 1 }}</span>
+                                          <button 
+                                            tuiButton
+                                            type="button"
+                                            appearance="flat"
+                                            size="xs"
+                                            (click)="removeSubcriterion($any(nestedSub), l4Idx)">
+                                            Remove
+                                          </button>
+                                        </div>
+                                        
+                                        <div class="logbook-fields level4-fields">
+                                          <tui-textfield>
+                                            <label tuiLabel>Description</label>
+                                            <input tuiTextfield formControlName="description" type="text" />
+                                          </tui-textfield>
+
+                                          <div class="radio-group">
+                                            <label class="radio-label">Type:</label>
+                                            <div class="radio-options">
+                                              <label class="radio-option">
+                                                <input type="radio" formControlName="criteriaType" value="group" />
+                                                Group
+                                              </label>
+                                              <label class="radio-option">
+                                                <input type="radio" formControlName="criteriaType" value="tag-based" />
+                                                Tag-Based
+                                              </label>
+                                              <label class="radio-option">
+                                                <input type="radio" formControlName="criteriaType" value="criteria-based" />
+                                                Criteria-Based
+                                              </label>
+                                            </div>
+                                          </div>
+
+                                          @if (level4Sub.get('criteriaType')?.value === 'group') {
+                                            <div class="checkbox-field">
+                                              <label>
+                                                <input type="checkbox" formControlName="isUniversal" />
+                                                Universal
+                                              </label>
+                                            </div>
+                                          }
+
+                                          @if (level4Sub.get('criteriaType')?.value === 'tag-based') {
+                                            <div class="select-field">
+                                              <label class="select-label">Type</label>
+                                              <select class="tui-select" formControlName="type">
+                                                <option value="">Select type...</option>
+                                                @for (typeOption of tagBasedCriterionTypes; track typeOption) {
+                                                  <option [value]="typeOption">{{ typeOption }}</option>
+                                                }
+                                              </select>
+                                            </div>
+                                            <tui-textfield>
+                                              <label tuiLabel>Tags</label>
+                                              <input tuiTextfield formControlName="tags" type="text" />
+                                            </tui-textfield>
+                                          }
+
+                                          @if (level4Sub.get('criteriaType')?.value === 'criteria-based') {
+                                            <tui-textfield>
+                                              <label tuiLabel>Criteria</label>
+                                              <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                            </tui-textfield>
+                                          }
+
+                                          @if (level4Sub.get('criteriaType')?.value === 'group' && !level4Sub.get('isUniversal')?.value) {
+                                            <tui-textfield>
+                                              <label tuiLabel>Pre-filter (Optional)</label>
+                                              <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                            </tui-textfield>
+                                          }
+
+                                          @if (level4Sub.get('criteriaType')?.value !== 'group' || !level4Sub.get('isUniversal')?.value) {
+                                            <tui-textfield>
+                                              <label tuiLabel>Substitution</label>
+                                              <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
+                                            </tui-textfield>
+                                          }
+                                          
+                                          <!-- Level 5 Subcriteria -->
+                                          <div class="level5-subcriteria">
+                                            <h6>Level 5 Subcriteria</h6>
+                                            <button 
+                                              tuiButton
+                                              type="button"
+                                              appearance="flat"
+                                              size="xs"
+                                              (click)="addSubcriterion($any(level4Sub))">
+                                              + Add Level 5 Subcriterion
+                                            </button>
+                                            
+                                            @for (level5Sub of getSubcriteria($any(level4Sub)).controls; track $index; let l5Idx = $index) {
+                                              <div class="level5-subcriterion-card">
+                                                <ng-container [formGroup]="$any(level5Sub)">
+                                                <div class="subcriterion-header">
+                                                  <span>Level 5 - {{ l5Idx + 1 }}</span>
+                                                  <button 
+                                                    tuiButton
+                                                    type="button"
+                                                    appearance="flat"
+                                                    size="xs"
+                                                    (click)="removeSubcriterion($any(level4Sub), l5Idx)">
+                                                    Remove
+                                                  </button>
+                                                </div>
+                                                
+                                                <div class="logbook-fields level5-fields">
+                                                  <tui-textfield>
+                                                    <label tuiLabel>Description</label>
+                                                    <input tuiTextfield formControlName="description" type="text" />
+                                                  </tui-textfield>
+
+                                                  <div class="radio-group">
+                                                    <label class="radio-label">Type:</label>
+                                                    <div class="radio-options">
+                                                      <label class="radio-option">
+                                                        <input type="radio" formControlName="criteriaType" value="group" />
+                                                        Group
+                                                      </label>
+                                                      <label class="radio-option">
+                                                        <input type="radio" formControlName="criteriaType" value="tag-based" />
+                                                        Tag-Based
+                                                      </label>
+                                                      <label class="radio-option">
+                                                        <input type="radio" formControlName="criteriaType" value="criteria-based" />
+                                                        Criteria-Based
+                                                      </label>
+                                                    </div>
+                                                  </div>
+
+                                                  @if (level5Sub.get('criteriaType')?.value === 'group') {
+                                                    <div class="checkbox-field">
+                                                      <label>
+                                                        <input type="checkbox" formControlName="isUniversal" />
+                                                        Universal
+                                                      </label>
+                                                    </div>
+                                                  }
+
+                                                  @if (level5Sub.get('criteriaType')?.value === 'tag-based') {
+                                                    <div class="select-field">
+                                                      <label class="select-label">Type</label>
+                                                      <select class="tui-select" formControlName="type">
+                                                        <option value="">Select type...</option>
+                                                        @for (typeOption of tagBasedCriterionTypes; track typeOption) {
+                                                          <option [value]="typeOption">{{ typeOption }}</option>
+                                                        }
+                                                      </select>
+                                                    </div>
+                                                    <tui-textfield>
+                                                      <label tuiLabel>Tags</label>
+                                                      <input tuiTextfield formControlName="tags" type="text" />
+                                                    </tui-textfield>
+                                                  }
+
+                                                  @if (level5Sub.get('criteriaType')?.value === 'criteria-based') {
+                                                    <tui-textfield>
+                                                      <label tuiLabel>Criteria</label>
+                                                      <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                                    </tui-textfield>
+                                                  }
+
+                                                  @if (level5Sub.get('criteriaType')?.value === 'group' && !level5Sub.get('isUniversal')?.value) {
+                                                    <tui-textfield>
+                                                      <label tuiLabel>Pre-filter (Optional)</label>
+                                                      <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                                    </tui-textfield>
+                                                  }
+
+                                                  @if (level5Sub.get('criteriaType')?.value !== 'group' || !level5Sub.get('isUniversal')?.value) {
+                                                    <tui-textfield>
+                                                      <label tuiLabel>Substitution</label>
+                                                      <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
+                                                    </tui-textfield>
+                                                  }
+                                                  
+                                                  <p class="nesting-note"><em>Note: This is the deepest nesting level (Level 5). Further nesting is not supported.</em></p>
+                                                </div>
+                                                </ng-container>
+                                              </div>
+                                            }
+                                          </div>
+                                        </div>
+                                        </ng-container>
+                                      </div>
+                                    }
+                                  </div>
                                 </div>
                                 </ng-container>
                               </div>
@@ -481,6 +726,7 @@
                   }
                 </div>
               </div>
+            }
             </div>
 
             <!-- Form Actions -->

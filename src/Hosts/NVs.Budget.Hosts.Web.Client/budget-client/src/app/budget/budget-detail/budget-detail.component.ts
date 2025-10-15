@@ -48,6 +48,11 @@ export class BudgetDetailComponent implements OnInit {
   isEditMode = false;
   isLoading = false;
 
+  // Section visibility toggles
+  showTaggingCriteria = true;
+  showTransferCriteria = true;
+  showLogbookCriteria = true;
+
   // LogbookCriteria type options
   readonly tagBasedCriterionTypes = ['Including', 'Excluding', 'OneOf'];
 
@@ -189,6 +194,18 @@ export class BudgetDetailComponent implements OnInit {
 
   removeTransferCriterion(index: number): void {
     this.transferCriteria.removeAt(index);
+  }
+
+  toggleTaggingCriteria(): void {
+    this.showTaggingCriteria = !this.showTaggingCriteria;
+  }
+
+  toggleTransferCriteria(): void {
+    this.showTransferCriteria = !this.showTransferCriteria;
+  }
+
+  toggleLogbookCriteria(): void {
+    this.showLogbookCriteria = !this.showLogbookCriteria;
   }
 
   buildLogbookCriteriaFromForm(formGroup: FormGroup): any {
