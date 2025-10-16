@@ -23,17 +23,16 @@
                 accept=".csv"
                 (change)="onFileSelected($event)"
                 class="file-input"
-                id="csvFile"
+                #fileInput
               />
-              <label for="csvFile" class="file-label">
-                <button 
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="m">
-                  Choose CSV File
-                </button>
-              </label>
+              <button 
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="m"
+                (click)="fileInput.click()">
+                Choose CSV File
+              </button>
               @if (selectedFile) {
                 <span class="file-selected">✓ {{ selectedFile.name }}</span>
               }
