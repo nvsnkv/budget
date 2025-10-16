@@ -45,7 +45,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -86,7 +86,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}.{2}",
-                ["Amount.CurrencyCode"] = "{3}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{3}",
                 [nameof(UnregisteredOperation.Description)] = "{4} {5}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -125,7 +125,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>
@@ -171,7 +171,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -212,7 +212,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -255,7 +255,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -288,7 +288,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -321,7 +321,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -354,7 +354,7 @@ public class CsvFileReaderShould
             {
                 // Missing Timestamp field
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -389,7 +389,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -421,7 +421,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -457,7 +457,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{1}",
                 [nameof(UnregisteredOperation.Amount)] = "{2}",
-                ["Amount.CurrencyCode"] = "{3}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{3}",
                 [nameof(UnregisteredOperation.Description)] = "{4}"
             },
             Attributes: new Dictionary<string, string>
@@ -504,7 +504,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -540,7 +540,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "Default description" // No placeholder
             },
             Attributes: new Dictionary<string, string>(),
@@ -574,7 +574,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -612,7 +612,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -650,7 +650,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -688,7 +688,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -721,7 +721,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -757,7 +757,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -792,7 +792,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),
@@ -830,7 +830,7 @@ public class CsvFileReaderShould
             {
                 [nameof(UnregisteredOperation.Timestamp)] = "{0}",
                 [nameof(UnregisteredOperation.Amount)] = "{1}",
-                ["Amount.CurrencyCode"] = "{2}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{2}",
                 [nameof(UnregisteredOperation.Description)] = "{3}"
             },
             Attributes: new Dictionary<string, string>(),

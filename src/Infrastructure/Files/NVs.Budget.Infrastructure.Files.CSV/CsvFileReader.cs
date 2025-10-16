@@ -108,7 +108,7 @@ internal partial class CsvFileReader : ICsvFileReader
         }
 
         // Parse currency code
-        var currencyResult = ParseField(parser, config.Fields, "Amount.CurrencyCode", Currency.Get);
+        var currencyResult = ParseField(parser, config.Fields, nameof(UnregisteredOperation.Amount.CurrencyCode), Currency.Get);
         if (currencyResult.IsFailed)
         {
             return BuildParseError(rowNumber, currencyResult.Errors);
