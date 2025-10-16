@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse, UnregisteredOperationRequest, ImportOperationsRequest } from '../../budget/models';
+import { BudgetResponse } from '../../budget/models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -38,7 +37,7 @@ export class ImportOperationsComponent implements OnInit {
   isLoading = false;
   
   importForm!: FormGroup;
-  csvContent: string = '';
+  selectedFile: File | null = null;
   importResult: { registered: number; duplicates: number; errors: string[] } | null = null;
 
   constructor(
@@ -54,7 +53,8 @@ export class ImportOperationsComponent implements OnInit {
     this.budgetId = this.route.snapshot.params['budgetId'];
     
     this.importForm = this.fb.group({
-      transferConfidenceLevel: ['']
+      transferConfidenceLevel: [''],
+      filePattern: ['']
     });
 
     this.loadBudget();
@@ -76,24 +76,16 @@ export class ImportOperationsComponent implements OnInit {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
+    if (!input.files || input.files.length === 0) {
+      this.selectedFile = null;
+      return;
+    }
 
-    const file = input.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      this.csvContent = e.target?.result as string;
-    };
-    
-    reader.onerror = () => {
-      this.showError('Failed to read file');
-    };
-    
-    reader.readAsText(file);
+    this.selectedFile = input.files[0];
   }
 
   importCsv(): void {
-    if (!this.csvContent || !this.budget) {
+    if (!this.selectedFile || !this.budget) {
       this.showError('Please select a CSV file first');
       return;
     }
@@ -101,21 +93,16 @@ export class ImportOperationsComponent implements OnInit {
     this.isLoading = true;
     this.importResult = null;
 
-    // Parse CSV content
-    const operations = this.parseCsv(this.csvContent);
-    if (operations.length === 0) {
-      this.isLoading = false;
-      this.showError('No valid operations found in CSV');
-      return;
-    }
+    const transferConfidenceLevel = this.importForm.value.transferConfidenceLevel || undefined;
+    const filePattern = this.importForm.value.filePattern || undefined;
 
-    const request: ImportOperationsRequest = {
-      budgetVersion: this.budget.version,
-      operations: operations,
-      transferConfidenceLevel: this.importForm.value.transferConfidenceLevel || undefined
-    };
-
-    this.operationsApi.importOperations(this.budgetId, request).subscribe({
+    this.operationsApi.importOperations(
+      this.budgetId, 
+      this.selectedFile, 
+      this.budget.version,
+      transferConfidenceLevel,
+      filePattern
+    ).subscribe({
       next: (result) => {
         this.isLoading = false;
         this.importResult = {
@@ -128,7 +115,10 @@ export class ImportOperationsComponent implements OnInit {
           this.showSuccess(`Successfully imported ${result.registeredOperations.length} operations`);
           this.operationsApi.triggerRefresh(this.budgetId);
         } else {
-          this.showError(`Import completed with errors: ${result.errors.join('; ')}`);
+          const errorMessage = result.errors.length > 5 
+            ? `Import completed with ${result.errors.length} errors. Check the results below.`
+            : `Import completed with errors: ${result.errors.slice(0, 3).join('; ')}`;
+          this.showError(errorMessage);
         }
       },
       error: (error) => {
@@ -136,54 +126,6 @@ export class ImportOperationsComponent implements OnInit {
         this.handleError(error, 'Failed to import operations');
       }
     });
-  }
-
-  parseCsv(content: string): UnregisteredOperationRequest[] {
-    const lines = content.split('\n').filter(line => line.trim());
-    if (lines.length < 2) return []; // Need header + at least one row
-
-    const header = lines[0].split(',').map(h => h.trim());
-    const operations: UnregisteredOperationRequest[] = [];
-
-    // Find column indices
-    const timestampIdx = header.findIndex(h => h.toLowerCase() === 'timestamp' || h.toLowerCase() === 'date');
-    const amountIdx = header.findIndex(h => h.toLowerCase() === 'amount');
-    const currencyIdx = header.findIndex(h => h.toLowerCase() === 'currency');
-    const descriptionIdx = header.findIndex(h => h.toLowerCase() === 'description');
-
-    if (timestampIdx === -1 || amountIdx === -1 || currencyIdx === -1 || descriptionIdx === -1) {
-      this.showError('CSV must have columns: timestamp, amount, currency, description');
-      return [];
-    }
-
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
-      
-      try {
-        const operation: UnregisteredOperationRequest = {
-          timestamp: new Date(values[timestampIdx]).toISOString(),
-          amount: {
-            value: parseFloat(values[amountIdx]),
-            currencyCode: values[currencyIdx]
-          },
-          description: values[descriptionIdx],
-          attributes: {}
-        };
-
-        // Add remaining columns as attributes
-        for (let j = 0; j < header.length; j++) {
-          if (j !== timestampIdx && j !== amountIdx && j !== currencyIdx && j !== descriptionIdx) {
-            operation.attributes![header[j]] = values[j];
-          }
-        }
-
-        operations.push(operation);
-      } catch (error) {
-        console.warn(`Skipping invalid row ${i + 1}:`, error);
-      }
-    }
-
-    return operations;
   }
 
   viewOperations(): void {

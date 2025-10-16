@@ -13,8 +13,8 @@
           <div class="form-section">
             <h3 tuiTitle size="m">Upload CSV File</h3>
             <p class="help-text">
-              CSV file should have columns: timestamp, amount, currency, description.
-              Any additional columns will be stored as attributes.
+              The CSV file will be parsed using the reading settings configured for this budget.
+              Make sure you have configured the reading settings before importing.
             </p>
             
             <div class="file-input-container">
@@ -34,10 +34,25 @@
                   Choose CSV File
                 </button>
               </label>
-              @if (csvContent) {
-                <span class="file-selected">✓ File loaded</span>
+              @if (selectedFile) {
+                <span class="file-selected">✓ {{ selectedFile.name }}</span>
               }
             </div>
+          </div>
+
+          <div class="form-section">
+            <tui-textfield>
+              <label tuiLabel>File Pattern (Optional)</label>
+              <input 
+                tuiTextfield 
+                formControlName="filePattern" 
+                type="text" 
+                placeholder="e.g., .*\.csv or specific pattern"
+              />
+            </tui-textfield>
+            <p class="help-text">
+              Regex pattern to match reading settings. Leave empty to auto-match by filename.
+            </p>
           </div>
 
           <div class="form-section">
@@ -61,7 +76,7 @@
               type="button"
               appearance="primary"
               size="m"
-              [disabled]="!csvContent || isLoading"
+              [disabled]="!selectedFile || isLoading"
               (click)="importCsv()">
               Import Operations
             </button>

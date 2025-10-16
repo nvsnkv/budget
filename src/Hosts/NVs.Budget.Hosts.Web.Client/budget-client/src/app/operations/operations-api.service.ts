@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, startWith, switchMap } from 'rxjs';
 import { 
   OperationResponse,
-  ImportOperationsRequest,
   UpdateOperationsRequest,
   RemoveOperationsRequest,
   ImportResultResponse,
@@ -56,14 +55,29 @@ export class OperationsApiService {
   }
 
   /**
-   * Import operations into a budget
+   * Import operations into a budget from CSV file
    */
-  importOperations(budgetId: string, request: ImportOperationsRequest): Observable<ImportResultResponse> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+  importOperations(
+    budgetId: string, 
+    file: File, 
+    budgetVersion: string,
+    transferConfidenceLevel?: string,
+    filePattern?: string
+  ): Observable<ImportResultResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('budgetVersion', budgetVersion);
+    if (transferConfidenceLevel) {
+      formData.append('transferConfidenceLevel', transferConfidenceLevel);
+    }
+    if (filePattern) {
+      formData.append('filePattern', filePattern);
+    }
+
     return this.http.post<ImportResultResponse>(
       `${this.baseUrl}/budget/${budgetId}/operations/import`,
-      request,
-      { headers, withCredentials: true }
+      formData,
+      { withCredentials: true }
     );
   }
 

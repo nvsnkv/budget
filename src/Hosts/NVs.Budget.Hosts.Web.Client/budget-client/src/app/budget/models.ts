@@ -102,13 +102,6 @@ export interface OperationResponse {
   attributes?: Record<string, any>;
 }
 
-export interface UnregisteredOperationRequest {
-  timestamp: string;
-  amount: MoneyResponse;
-  description: string;
-  attributes?: Record<string, any>;
-}
-
 export interface UpdateOperationRequest {
   id: string;
   version: string;
@@ -117,12 +110,6 @@ export interface UpdateOperationRequest {
   description: string;
   tags: string[];
   attributes?: Record<string, any>;
-}
-
-export interface ImportOperationsRequest {
-  budgetVersion: string;
-  operations: UnregisteredOperationRequest[];
-  transferConfidenceLevel?: string;
 }
 
 export interface UpdateOperationsRequest {

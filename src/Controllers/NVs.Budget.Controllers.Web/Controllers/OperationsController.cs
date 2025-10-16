@@ -1,9 +1,11 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using Asp.Versioning;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NVs.Budget.Application.Contracts.Entities.Budgeting;
 using NVs.Budget.Application.Contracts.Options;
@@ -13,6 +15,7 @@ using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Web.Exceptions;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
+using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
@@ -24,7 +27,9 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 public class OperationsController(
     IMediator mediator,
     OperationMapper mapper,
-    ReadableExpressionsParser parser) : Controller
+    ReadableExpressionsParser parser,
+    ICsvFileReader csvReader,
+    IReadingSettingsRepository settingsRepository) : Controller
 {
     /// <summary>
     /// Gets all operations for a specific budget
@@ -92,71 +97,112 @@ public class OperationsController(
     }
 
     /// <summary>
-    /// Imports new operations into a budget
+    /// Imports new operations into a budget from CSV file
     /// </summary>
     /// <param name="budgetId">Budget ID from route</param>
-    /// <param name="request">Import operations request</param>
+    /// <param name="file">CSV file to import</param>
+    /// <param name="budgetVersion">Budget version for optimistic concurrency</param>
+    /// <param name="transferConfidenceLevel">Optional transfer detection confidence level</param>
+    /// <param name="filePattern">Optional file pattern to match reading settings (default: .*)</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Import result with success/failure details</returns>
     [HttpPost("import")]
-    [Consumes("application/json", "application/yaml", "text/yaml")]
+    [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ImportResultResponse), 200)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
     public async Task<IActionResult> ImportOperations(
         [FromRoute] Guid budgetId,
-        [FromBody] ImportOperationsRequest request,
-        CancellationToken ct)
+        [FromForm] IFormFile file,
+        [FromForm] string budgetVersion,
+        [FromForm] string? transferConfidenceLevel = null,
+        [FromForm] string? filePattern = null,
+        CancellationToken ct = default)
     {
+        // Validate file
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new List<Error> { new("No file uploaded") });
+        }
+
+        if (!file.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new List<Error> { new("Only CSV files are supported") });
+        }
+
         // Validate budget access
         var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
         var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
         
         if (budget == null)
         {
-            return NotFound(new List<Error> { new($"Budget with ID {budgetId} not found or access denied") });
+            throw new NotFoundException($"Budget with ID {budgetId} not found or access denied");
         }
 
-        // Parse operations
-        var operations = new List<UnregisteredOperation>();
-        foreach (var op in request.Operations)
+        // Get reading settings for this budget
+        var allSettings = await settingsRepository.GetReadingSettingsFor(budget, ct);
+        
+        // Find matching setting by file pattern
+        var pattern = filePattern ?? ".*";
+        var regex = new Regex(pattern);
+        FileReadingSetting? readingSetting = allSettings
+            .Where(kvp => kvp.Key.IsMatch(file.FileName))
+            .Select(kvp => kvp.Value)
+            .FirstOrDefault();
+
+        if (readingSetting == null)
         {
-            var parseResult = mapper.FromRequest(op);
-            if (parseResult.IsFailed)
-            {
-                return BadRequest(parseResult.Errors);
-            }
-            operations.Add(parseResult.Value);
+            // Try to match the provided pattern
+            readingSetting = allSettings
+                .Where(kvp => kvp.Key.ToString() == pattern)
+                .Select(kvp => kvp.Value)
+                .FirstOrDefault();
+        }
+
+        if (readingSetting == null)
+        {
+            return BadRequest(new List<Error> { new($"No reading settings found for file pattern '{pattern}'. Please configure reading settings for this budget first.") });
         }
 
         // Parse transfer confidence level
-        DetectionAccuracy? transferConfidenceLevel = null;
-        if (!string.IsNullOrWhiteSpace(request.TransferConfidenceLevel))
+        DetectionAccuracy? transferAccuracy = null;
+        if (!string.IsNullOrWhiteSpace(transferConfidenceLevel))
         {
-            var accuracyResult = mapper.ParseDetectionAccuracy(request.TransferConfidenceLevel);
+            var accuracyResult = mapper.ParseDetectionAccuracy(transferConfidenceLevel);
             if (accuracyResult.IsFailed)
             {
                 return BadRequest(accuracyResult.Errors);
             }
-            transferConfidenceLevel = accuracyResult.Value;
+            transferAccuracy = accuracyResult.Value;
         }
 
         // Update budget version for optimistic concurrency
-        budget.Version = request.BudgetVersion;
+        budget.Version = budgetVersion;
 
-        var options = new ImportOptions(transferConfidenceLevel);
-        
-        async IAsyncEnumerable<UnregisteredOperation> GetOperationsAsync()
+        // Read and parse CSV file
+        var parseErrors = new List<string>();
+        async IAsyncEnumerable<UnregisteredOperation> ReadOperationsAsync()
         {
-            foreach (var op in operations)
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream, readingSetting.Encoding);
+
+            await foreach (var result in csvReader.ReadUntrackedOperations(reader, readingSetting, ct))
             {
-                yield return op;
+                if (result.IsSuccess)
+                {
+                    yield return result.Value;
+                }
+                else
+                {
+                    // Collect parsing errors
+                    parseErrors.AddRange(result.Errors.Select(e => e.Message));
+                }
             }
-            await Task.CompletedTask;
         }
-        
+
+        var options = new ImportOptions(transferAccuracy);
         var command = new ImportOperationsCommand(
-            GetOperationsAsync(),
+            ReadOperationsAsync(),
             budget,
             options
         );
@@ -165,10 +211,13 @@ public class OperationsController(
 
         if (result.IsSuccess)
         {
+            // Combine parsing errors with import reasons
+            var allErrors = parseErrors.Concat(result.Reasons.Select(e => e.Message)).ToList();
+            
             var response = new ImportResultResponse(
                 result.Operations.Select(mapper.ToResponse).ToList(),
                 result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).ToList(),
-                result.Reasons.Select(e => e.Message).ToList()
+                allErrors
             );
             return Ok(response);
         }

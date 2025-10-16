@@ -35,12 +35,6 @@ public record UpdateOperationRequest(
     Dictionary<string, object>? Attributes
 );
 
-public record ImportOperationsRequest(
-    string BudgetVersion,
-    IReadOnlyCollection<UnregisteredOperationRequest> Operations,
-    string? TransferConfidenceLevel
-);
-
 public record UpdateOperationsRequest(
     string BudgetVersion,
     IReadOnlyCollection<UpdateOperationRequest> Operations,
