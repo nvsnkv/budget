@@ -18,7 +18,8 @@ public static class CsvExtensions
 
         services.AddDbContext<SettingsContext>(o => o.UseNpgsql(connectionString))
             .AddTransient<IDbMigrator, PostgreSqlDbMigrator<SettingsContext>>()
-            .AddScoped<IReadingSettingsRepository, BudgetSpecificSettingsRepository>();
+            .AddScoped<IReadingSettingsRepository, BudgetSpecificSettingsRepository>()
+            .AddScoped<ICsvFileReader, CsvFileReader>();
         return services;
     }
 }
