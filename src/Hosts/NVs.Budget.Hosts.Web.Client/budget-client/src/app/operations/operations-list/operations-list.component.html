@@ -145,69 +145,83 @@
     <div class="operations-section">
       @if (operations$ | async; as operations) {
         @if (operations.length > 0) {
-          <div class="operations-list">
-            @for (operation of operations; track operation.id) {
-              <div class="operation-card">
-                <div class="operation-header" (click)="toggleOperationDetails(operation.id)">
-                  <div class="operation-main">
-                    <span class="operation-date">{{ formatDate(operation.timestamp) }}</span>
-                    <span class="operation-description">{{ operation.description }}</span>
-                  </div>
-                  <div class="operation-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">
-                    {{ formatCurrency(operation.amount.value, operation.amount.currencyCode) }}
-                  </div>
-                  <button 
-                    tuiButton
-                    type="button"
-                    appearance="flat"
-                    size="xs">
-                    {{ expandedOperationId === operation.id ? '▼' : '▶' }}
-                  </button>
-                </div>
-                
-                @if (expandedOperationId === operation.id) {
-                  <div class="operation-details">
-                    <div class="detail-row">
-                      <span class="detail-label">ID:</span>
-                      <code class="detail-value">{{ operation.id }}</code>
-                    </div>
-                    <div class="detail-row">
-                      <span class="detail-label">Version:</span>
-                      <code class="detail-value">{{ operation.version }}</code>
-                    </div>
-                    <div class="detail-row">
-                      <span class="detail-label">Budget ID:</span>
-                      <code class="detail-value">{{ operation.budgetId }}</code>
-                    </div>
-                    
-                    @if (operation.tags.length > 0) {
-                      <div class="detail-row">
-                        <span class="detail-label">Tags:</span>
-                        <div class="tags-list">
-                          @for (tag of operation.tags; track tag) {
-                            <tui-chip size="s">{{ tag }}</tui-chip>
-                          }
-                        </div>
+          <div class="operations-table-container">
+            <table class="operations-table">
+              <thead>
+                <tr>
+                  <th class="col-timestamp">Date & Time</th>
+                  <th class="col-description">Description</th>
+                  <th class="col-amount">Amount</th>
+                  <th class="col-tags">Tags</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (operation of operations; track operation.id) {
+                  <tr class="operation-row">
+                    <td class="col-timestamp">{{ formatDate(operation.timestamp) }}</td>
+                    <td class="col-description">{{ operation.description }}</td>
+                    <td class="col-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">
+                      {{ formatCurrency(operation.amount.value, operation.amount.currencyCode) }}
+                    </td>
+                    <td class="col-tags">
+                      <div class="tags-inline">
+                        @for (tag of operation.tags; track tag) {
+                          <tui-chip size="xs">{{ tag }}</tui-chip>
+                        }
                       </div>
-                    }
-                    
-                    @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
-                      <div class="detail-row">
-                        <span class="detail-label">Attributes:</span>
-                        <div class="attributes-list">
-                          @for (key of getObjectKeys(operation.attributes!); track key) {
-                            <div class="attribute-item">
-                              <span class="attr-key">{{ key }}:</span>
-                              <span class="attr-value">{{ operation.attributes![key] }}</span>
+                    </td>
+                    <td class="col-actions">
+                      <button 
+                        tuiButton
+                        type="button"
+                        appearance="flat"
+                        size="xs"
+                        (click)="toggleOperationDetails(operation.id)">
+                        {{ expandedOperationId === operation.id ? '▼' : '▶' }}
+                      </button>
+                    </td>
+                  </tr>
+                  
+                  @if (expandedOperationId === operation.id) {
+                    <tr class="operation-details-row">
+                      <td colspan="5">
+                        <div class="operation-details">
+                          <div class="details-grid">
+                            <div class="detail-item">
+                              <span class="detail-label">ID:</span>
+                              <code class="detail-value">{{ operation.id }}</code>
+                            </div>
+                            <div class="detail-item">
+                              <span class="detail-label">Version:</span>
+                              <code class="detail-value">{{ operation.version }}</code>
+                            </div>
+                            <div class="detail-item">
+                              <span class="detail-label">Budget ID:</span>
+                              <code class="detail-value">{{ operation.budgetId }}</code>
+                            </div>
+                          </div>
+                          
+                          @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
+                            <div class="attributes-section">
+                              <h4>Attributes:</h4>
+                              <div class="attributes-grid">
+                                @for (key of getObjectKeys(operation.attributes!); track key) {
+                                  <div class="attribute-item">
+                                    <span class="attr-key">{{ key }}:</span>
+                                    <span class="attr-value">{{ operation.attributes![key] }}</span>
+                                  </div>
+                                }
+                              </div>
                             </div>
                           }
                         </div>
-                      </div>
-                    }
-                  </div>
+                      </td>
+                    </tr>
+                  }
                 }
-              </div>
-            }
+              </tbody>
+            </table>
           </div>
           
           <div class="operations-count">
