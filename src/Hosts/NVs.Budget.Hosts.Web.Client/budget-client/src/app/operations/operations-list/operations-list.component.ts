@@ -16,7 +16,7 @@ import {
   TuiExpand
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiChip, TuiAccordion } from '@taiga-ui/kit';
+import { TuiChip, TuiAccordion, TuiTextarea } from '@taiga-ui/kit';
 
 @Component({
   selector: 'app-operations-list',
@@ -32,7 +32,8 @@ import { TuiChip, TuiAccordion } from '@taiga-ui/kit';
     TuiTitle,
     TuiChip,
     TuiAccordion,
-    TuiExpand
+    TuiExpand,
+    TuiTextarea
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -44,7 +45,9 @@ export class OperationsListComponent implements OnInit {
   isLoading = false;
   
   filterForm!: FormGroup;
+  deleteForm!: FormGroup;
   expandedOperationId: string | null = null;
+  showDeleteSection = false;
 
   readonly columns = ['timestamp', 'description', 'amount', 'tags', 'actions'];
 
@@ -64,6 +67,10 @@ export class OperationsListComponent implements OnInit {
       criteria: [''],
       outputCurrency: [''],
       excludeTransfers: [false]
+    });
+
+    this.deleteForm = this.fb.group({
+      criteria: ['o => true']
     });
 
     this.loadBudget();
@@ -127,6 +134,38 @@ export class OperationsListComponent implements OnInit {
 
   navigateToBudget(): void {
     this.router.navigate(['/budget', this.budgetId]);
+  }
+
+  toggleDeleteSection(): void {
+    this.showDeleteSection = !this.showDeleteSection;
+  }
+
+  deleteOperations(): void {
+    if (!this.deleteForm.valid || !this.deleteForm.value.criteria) {
+      this.showError('Please provide a valid criteria expression');
+      return;
+    }
+
+    const criteria = this.deleteForm.value.criteria;
+    const confirmMessage = `Are you sure you want to delete all operations matching the criteria:\n\n${criteria}\n\nThis action cannot be undone.`;
+    
+    const confirmed = confirm(confirmMessage);
+    if (!confirmed) return;
+
+    this.isLoading = true;
+    this.operationsApi.removeOperations(this.budgetId, { criteria }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.showSuccess('Operations deleted successfully');
+        this.deleteForm.patchValue({ criteria: 'o => true' });
+        this.showDeleteSection = false;
+        this.loadOperations();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.handleError(error, 'Failed to delete operations');
+      }
+    });
   }
 
   private handleError(error: any, defaultMessage: string): void {
