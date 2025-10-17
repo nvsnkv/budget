@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse } from '../../budget/models';
+import { BudgetResponse, IError, ISuccess } from '../../budget/models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -38,7 +38,12 @@ export class ImportOperationsComponent implements OnInit {
   
   importForm!: FormGroup;
   selectedFile: File | null = null;
-  importResult: { registered: number; duplicates: number; errors: string[] } | null = null;
+  importResult: { 
+    registered: number; 
+    duplicates: number; 
+    errors: IError[];
+    successes: ISuccess[];
+  } | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -108,7 +113,8 @@ export class ImportOperationsComponent implements OnInit {
         this.importResult = {
           registered: result.registeredOperations.length,
           duplicates: result.duplicates.length,
-          errors: result.errors
+          errors: result.errors,
+          successes: result.successes
         };
         
         if (result.errors.length === 0) {
@@ -117,7 +123,7 @@ export class ImportOperationsComponent implements OnInit {
         } else {
           const errorMessage = result.errors.length > 5 
             ? `Import completed with ${result.errors.length} errors. Check the results below.`
-            : `Import completed with errors: ${result.errors.slice(0, 3).join('; ')}`;
+            : `Import completed with errors. See details below.`;
           this.showError(errorMessage);
         }
       },
@@ -161,6 +167,11 @@ export class ImportOperationsComponent implements OnInit {
       closeable: true,
       dismissible: true
     }).subscribe();
+  }
+
+  // Helper method to access Object.keys in template
+  getObjectKeys(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
   }
 }
 

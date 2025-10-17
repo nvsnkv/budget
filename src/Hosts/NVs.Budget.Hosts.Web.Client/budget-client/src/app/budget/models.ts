@@ -62,12 +62,6 @@ export interface MergeBudgetsRequest {
   purgeEmptyBudgets: boolean;
 }
 
-export interface IError {
-  message?: string;
-  metadata?: any;
-  reasons?: IError[];
-}
-
 // File Reading Settings models
 export interface ValidationRuleResponse {
   pattern: string;
@@ -123,13 +117,25 @@ export interface RemoveOperationsRequest {
   criteria: string;
 }
 
+export interface IReason {
+  message?: string;
+  metadata?: Record<string, any>;
+  reasons?: IReason[];
+}
+
+export interface IError extends IReason {}
+
+export interface ISuccess extends IReason {}
+
 export interface ImportResultResponse {
   registeredOperations: OperationResponse[];
   duplicates: OperationResponse[][];
-  errors: string[];
+  errors: IError[];
+  successes: ISuccess[];
 }
 
 export interface UpdateResultResponse {
   updatedOperations: OperationResponse[];
-  errors: string[];
+  errors: IError[];
+  successes: ISuccess[];
 }

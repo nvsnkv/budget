@@ -212,13 +212,19 @@ public class OperationsController(
         if (result.IsSuccess)
         {
             // Combine parsing errors with import reasons
-            var allErrors = parseErrors.Concat(result.Errors).ToList();
+            var importErrors = result.Reasons.Where(r => r is IError).Cast<IError>().ToList();
+            var allErrors = parseErrors.Concat(importErrors).ToList();
+            
+            var allSuccesses = result.Reasons
+                .Where(r => r is ISuccess)
+                .Cast<ISuccess>()
+                .ToList();
             
             var response = new ImportResultResponse(
                 result.Operations.Select(mapper.ToResponse).ToList(),
                 result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).ToList(),
                 allErrors,
-                result.Successes
+                allSuccesses
             );
             return Ok(response);
         }
