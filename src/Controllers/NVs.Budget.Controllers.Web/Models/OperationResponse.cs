@@ -1,4 +1,4 @@
-using NVs.Budget.Application.Contracts.Options;
+using FluentResults;
 
 namespace NVs.Budget.Controllers.Web.Models;
 
@@ -50,11 +50,12 @@ public record RemoveOperationsRequest(
 public record ImportResultResponse(
     IReadOnlyCollection<OperationResponse> RegisteredOperations,
     IReadOnlyCollection<IReadOnlyCollection<OperationResponse>> Duplicates,
-    IReadOnlyCollection<string> Errors
-);
+    IReadOnlyCollection<IError> Errors,
+    IReadOnlyCollection<ISuccess> Successes);
 
 public record UpdateResultResponse(
     IReadOnlyCollection<OperationResponse> UpdatedOperations,
-    IReadOnlyCollection<string> Errors
+    IReadOnlyCollection<IError> Errors,
+    IReadOnlyCollection<ISuccess> Successes
 );
 

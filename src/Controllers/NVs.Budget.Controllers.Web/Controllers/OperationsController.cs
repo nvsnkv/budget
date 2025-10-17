@@ -180,7 +180,7 @@ public class OperationsController(
         budget.Version = budgetVersion;
 
         // Read and parse CSV file
-        var parseErrors = new List<string>();
+        var parseErrors = new List<IError>();
         async IAsyncEnumerable<UnregisteredOperation> ReadOperationsAsync()
         {
             using var stream = file.OpenReadStream();
@@ -195,7 +195,7 @@ public class OperationsController(
                 else
                 {
                     // Collect parsing errors
-                    parseErrors.AddRange(result.Errors.Select(e => e.Message));
+                    parseErrors.AddRange(result.Errors);
                 }
             }
         }
@@ -212,12 +212,13 @@ public class OperationsController(
         if (result.IsSuccess)
         {
             // Combine parsing errors with import reasons
-            var allErrors = parseErrors.Concat(result.Reasons.Select(e => e.Message)).ToList();
+            var allErrors = parseErrors.Concat(result.Errors).ToList();
             
             var response = new ImportResultResponse(
                 result.Operations.Select(mapper.ToResponse).ToList(),
                 result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).ToList(),
-                allErrors
+                allErrors,
+                result.Successes
             );
             return Ok(response);
         }
@@ -307,7 +308,8 @@ public class OperationsController(
         {
             var response = new UpdateResultResponse(
                 result.Operations.Select(mapper.ToResponse).ToList(),
-                result.Reasons.Select(e => e.Message).ToList()
+                result.Errors,
+                result.Successes
             );
             return Ok(response);
         }
