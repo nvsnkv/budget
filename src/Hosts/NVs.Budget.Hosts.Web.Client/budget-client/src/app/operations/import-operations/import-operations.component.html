@@ -116,10 +116,57 @@
               }
             </div>
             
+            <!-- Duplicates Section -->
+            @if (importResult.duplicates > 0) {
+              <div class="duplicates-section">
+                <div class="section-header-with-toggle">
+                  <h4>Duplicates ({{ importResult.duplicates }} groups)</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleDuplicates()">
+                    {{ showDuplicates ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showDuplicates) {
+                  @for (group of getDuplicatesList(); track $index; let groupIdx = $index) {
+                    <div class="duplicate-group">
+                      <h5>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h5>
+                      <div class="duplicate-operations">
+                        @for (op of group; track op.id) {
+                          <div class="duplicate-operation">
+                            <div class="op-summary">{{ formatOperationSummary(op) }}</div>
+                            <div class="op-tags">
+                              @for (tag of op.tags; track tag) {
+                                <tui-chip size="xs">{{ tag }}</tui-chip>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            }
+            
             <!-- Successes Section -->
             @if (importResult.successes.length > 0) {
               <div class="successes-section">
-                <h4>Success Messages:</h4>
+                <div class="section-header-with-toggle">
+                  <h4>Success Messages ({{ importResult.successes.length }})</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleSuccesses()">
+                    {{ showSuccesses ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showSuccesses) {
                 @for (success of importResult.successes; track $index) {
                   <div class="success-item">
                     <div class="success-message">{{ success.message || 'Success' }}</div>
@@ -136,13 +183,25 @@
                     }
                   </div>
                 }
+                }
               </div>
             }
             
             <!-- Errors Section -->
             @if (importResult.errors.length > 0) {
               <div class="errors-section">
-                <h4>Errors:</h4>
+                <div class="section-header-with-toggle">
+                  <h4>Errors ({{ importResult.errors.length }})</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleErrors()">
+                    {{ showErrors ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showErrors) {
                 @for (error of importResult.errors; track $index) {
                   <div class="error-item">
                     <div class="error-message">{{ error.message || 'Error' }}</div>
@@ -168,6 +227,7 @@
                       </div>
                     }
                   </div>
+                }
                 }
               </div>
             }

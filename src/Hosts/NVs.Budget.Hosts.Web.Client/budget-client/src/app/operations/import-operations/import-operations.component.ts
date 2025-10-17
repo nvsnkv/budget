@@ -14,6 +14,7 @@ import {
   TuiLabel
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
+import { TuiChip } from '@taiga-ui/kit';
 
 @Component({
   selector: 'app-import-operations',
@@ -26,7 +27,8 @@ import { TuiCardLarge } from '@taiga-ui/layout';
     TuiTextfield,
     TuiLabel,
     TuiCardLarge,
-    TuiTitle
+    TuiTitle,
+    TuiChip
   ],
   templateUrl: './import-operations.component.html',
   styleUrls: ['./import-operations.component.less']
@@ -39,11 +41,16 @@ export class ImportOperationsComponent implements OnInit {
   importForm!: FormGroup;
   selectedFile: File | null = null;
   importResult: { 
-    registered: number; 
+    registered: number;
     duplicates: number; 
     errors: IError[];
     successes: ISuccess[];
   } | null = null;
+
+  // Section toggles
+  showSuccesses = true;
+  showErrors = true;
+  showDuplicates = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -117,6 +124,9 @@ export class ImportOperationsComponent implements OnInit {
           successes: result.successes
         };
         
+        // Store full result for displaying details
+        (this.importResult as any).duplicatesList = result.duplicates;
+        
         if (result.errors.length === 0) {
           this.showSuccess(`Successfully imported ${result.registeredOperations.length} operations`);
           this.operationsApi.triggerRefresh(this.budgetId);
@@ -172,6 +182,26 @@ export class ImportOperationsComponent implements OnInit {
   // Helper method to access Object.keys in template
   getObjectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
+  }
+
+  toggleSuccesses(): void {
+    this.showSuccesses = !this.showSuccesses;
+  }
+
+  toggleErrors(): void {
+    this.showErrors = !this.showErrors;
+  }
+
+  toggleDuplicates(): void {
+    this.showDuplicates = !this.showDuplicates;
+  }
+
+  formatOperationSummary(op: any): string {
+    return `${new Date(op.timestamp).toLocaleDateString()} - ${op.description} - ${op.amount.value} ${op.amount.currencyCode}`;
+  }
+
+  getDuplicatesList(): any[] {
+    return (this.importResult as any)?.duplicatesList || [];
   }
 }
 
