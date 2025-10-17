@@ -176,10 +176,9 @@
                       @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
                         <div class="attributes-inline">
                           @for (key of getObjectKeys(operation.attributes!); track key) {
-                            <span class="attr-inline">
-                              <span class="attr-key-inline">{{ key }}:</span>
-                              <span class="attr-value-inline">{{ operation.attributes![key] }}</span>
-                            </span>
+                            <tui-chip size="xs" class="attr-chip">
+                              {{ key }}: {{ operation.attributes![key] }}
+                            </tui-chip>
                           }
                         </div>
                       } @else {
