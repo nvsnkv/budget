@@ -153,6 +153,7 @@
                   <th class="col-description">Description</th>
                   <th class="col-amount">Amount</th>
                   <th class="col-tags">Tags</th>
+                  <th class="col-attributes">Attributes</th>
                   <th class="col-actions">Actions</th>
                 </tr>
               </thead>
@@ -171,6 +172,20 @@
                         }
                       </div>
                     </td>
+                    <td class="col-attributes">
+                      @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
+                        <div class="attributes-inline">
+                          @for (key of getObjectKeys(operation.attributes!); track key) {
+                            <span class="attr-inline">
+                              <span class="attr-key-inline">{{ key }}:</span>
+                              <span class="attr-value-inline">{{ operation.attributes![key] }}</span>
+                            </span>
+                          }
+                        </div>
+                      } @else {
+                        <span class="no-attributes">—</span>
+                      }
+                    </td>
                     <td class="col-actions">
                       <button 
                         tuiButton
@@ -185,11 +200,11 @@
                   
                   @if (expandedOperationId === operation.id) {
                     <tr class="operation-details-row">
-                      <td colspan="5">
+                      <td colspan="6">
                         <div class="operation-details">
                           <div class="details-grid">
                             <div class="detail-item">
-                              <span class="detail-label">ID:</span>
+                              <span class="detail-label">Operation ID:</span>
                               <code class="detail-value">{{ operation.id }}</code>
                             </div>
                             <div class="detail-item">
@@ -201,20 +216,6 @@
                               <code class="detail-value">{{ operation.budgetId }}</code>
                             </div>
                           </div>
-                          
-                          @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
-                            <div class="attributes-section">
-                              <h4>Attributes:</h4>
-                              <div class="attributes-grid">
-                                @for (key of getObjectKeys(operation.attributes!); track key) {
-                                  <div class="attribute-item">
-                                    <span class="attr-key">{{ key }}:</span>
-                                    <span class="attr-value">{{ operation.attributes![key] }}</span>
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                          }
                         </div>
                       </td>
                     </tr>
