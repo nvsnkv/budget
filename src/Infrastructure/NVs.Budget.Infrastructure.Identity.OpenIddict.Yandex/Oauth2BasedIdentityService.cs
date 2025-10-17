@@ -1,9 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Infrastructure.Identity.Contracts;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 
 namespace NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;

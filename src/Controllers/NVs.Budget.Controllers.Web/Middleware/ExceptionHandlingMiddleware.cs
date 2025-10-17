@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using FluentResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NVs.Budget.Controllers.Web.Exceptions;

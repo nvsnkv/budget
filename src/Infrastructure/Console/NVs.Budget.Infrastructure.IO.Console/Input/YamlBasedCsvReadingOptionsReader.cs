@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentResults;
 using NVs.Budget.Domain.Extensions;
-using NVs.Budget.Infrastructure.IO.Console.Input.Criteria.Logbook;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Utilities.Yaml;
 using YamlDotNet.RepresentationModel;

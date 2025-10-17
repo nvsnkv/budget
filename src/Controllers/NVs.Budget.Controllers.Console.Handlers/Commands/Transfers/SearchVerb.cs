@@ -8,7 +8,6 @@ using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Transfers;
 using NVs.Budget.Controllers.Console.Contracts.Commands;
-using NVs.Budget.Domain.Entities.Transactions;
 using NVs.Budget.Infrastructure.IO.Console.Input.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using Error = FluentResults.Error;

@@ -9,7 +9,6 @@ using NVs.Budget.Application.Contracts.UseCases.Budgets;
 using NVs.Budget.Application.Contracts.UseCases.Owners;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
-using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 
 namespace NVs.Budget.Controllers.Web.Controllers;

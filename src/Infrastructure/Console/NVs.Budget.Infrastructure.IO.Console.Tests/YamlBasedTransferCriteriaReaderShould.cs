@@ -1,4 +1,3 @@
-using System.Text;
 using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
@@ -9,7 +8,6 @@ using NVs.Budget.Infrastructure.IO.Console.Input;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.IO.Console.Tests.Mocks;
-using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 
 namespace NVs.Budget.Infrastructure.IO.Console.Tests;

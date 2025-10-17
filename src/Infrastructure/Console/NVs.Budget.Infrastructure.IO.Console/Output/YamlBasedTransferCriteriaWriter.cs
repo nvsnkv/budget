@@ -1,4 +1,3 @@
-using System.Collections;
 using Microsoft.Extensions.Options;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Infrastructure.IO.Console.Options;

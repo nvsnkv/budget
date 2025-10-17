@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using YamlDotNet.Serialization;

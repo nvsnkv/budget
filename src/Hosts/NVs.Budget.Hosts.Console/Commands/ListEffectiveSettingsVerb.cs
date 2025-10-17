@@ -6,7 +6,6 @@ using NVs.Budget.Controllers.Console.Contracts.Commands;
 using NVs.Budget.Infrastructure.IO.Console.Options;
 using NVs.Budget.Infrastructure.IO.Console.Output;
 using NVs.Budget.Infrastructure.Persistence.EF.Common;
-using NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 namespace NVs.Budget.Hosts.Console.Commands;
 

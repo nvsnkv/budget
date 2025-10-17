@@ -3,10 +3,7 @@
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NVs.Budget.Application;
-using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Console.Handlers;
 using NVs.Budget.Domain.ValueObjects;

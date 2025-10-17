@@ -4,7 +4,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NVs.Budget.Controllers.Web.Filters;
 using NVs.Budget.Controllers.Web.Formatters;

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
