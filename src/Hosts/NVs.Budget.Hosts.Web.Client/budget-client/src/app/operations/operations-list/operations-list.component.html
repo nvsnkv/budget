@@ -54,17 +54,15 @@
         </div>
         
         <div class="filter-item">
-          <tui-textfield>
-            <label tuiLabel>Output Currency ({{ currencies.length }} available)</label>
-            <select 
-              tuiTextfield
-              formControlName="outputCurrency">
-              <option value="">-- Original --</option>
-              @for (currency of currencies; track currency) {
-                <option [value]="currency">{{ currency }}</option>
-              }
-            </select>
-          </tui-textfield>
+          <tui-combo-box
+            formControlName="outputCurrency"
+            [tuiTextfieldCleaner]="true">
+            Output Currency
+            <tui-data-list-wrapper
+              *tuiDataList
+              [items]="currencies"
+            />
+          </tui-combo-box>
         </div>
         
         <div class="filter-item checkbox-field">
