@@ -37,30 +37,35 @@
     }
 
     <!-- Filters -->
-    <form [formGroup]="filterForm" class="filters-section">
+    <form [formGroup]="filterForm" class="filters-section" (submit)="applyFilters(); $event.preventDefault()">
       <h3 tuiTitle size="m">Filters</h3>
       <div class="filters-grid">
-        <tui-textfield>
-          <label tuiLabel>Criteria Expression</label>
-          <input 
-            tuiTextfield 
-            formControlName="criteria" 
-            type="text" 
-            placeholder="e.g., o => o.Amount.Amount > 100"
-          />
-        </tui-textfield>
+        <div class="filter-item full-width">
+          <tui-textfield>
+            <label tuiLabel>Criteria Expression (Ctrl+Enter to apply)</label>
+            <textarea 
+              tuiTextarea 
+              formControlName="criteria" 
+              rows="2"
+              placeholder="e.g., o => o.Amount.Amount > 100"
+              (keydown)="onCriteriaKeydown($event)"
+            ></textarea>
+          </tui-textfield>
+        </div>
         
-        <tui-textfield>
+        <div class="filter-item">
           <label tuiLabel>Output Currency</label>
-          <input 
-            tuiTextfield 
-            formControlName="outputCurrency" 
-            type="text" 
-            placeholder="e.g., USD, EUR"
-          />
-        </tui-textfield>
+          <select 
+            class="currency-select"
+            formControlName="outputCurrency">
+            <option [value]="null">-- Original --</option>
+            @for (currency of currencies; track currency) {
+              <option [value]="currency">{{ currency }}</option>
+            }
+          </select>
+        </div>
         
-        <div class="checkbox-field">
+        <div class="filter-item checkbox-field">
           <label>
             <input type="checkbox" formControlName="excludeTransfers" />
             Exclude Transfers

@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
 import { BudgetResponse, OperationResponse } from '../../budget/models';
+import { environment } from '../../../environments/environment';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -16,7 +18,8 @@ import {
   TuiExpand
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiChip, TuiAccordion } from '@taiga-ui/kit';
+import { TuiChip, TuiAccordion, TuiTextarea, TuiDataListWrapper } from '@taiga-ui/kit';
+import { TuiDataList } from '@taiga-ui/core';
 
 @Component({
   selector: 'app-operations-list',
@@ -32,7 +35,10 @@ import { TuiChip, TuiAccordion } from '@taiga-ui/kit';
     TuiTitle,
     TuiChip,
     TuiAccordion,
-    TuiExpand
+    TuiExpand,
+    TuiTextarea,
+    TuiDataList,
+    TuiDataListWrapper
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -45,6 +51,7 @@ export class OperationsListComponent implements OnInit {
   
   filterForm!: FormGroup;
   expandedOperationId: string | null = null;
+  currencies: string[] = [];
 
   readonly columns = ['timestamp', 'description', 'amount', 'tags', 'actions'];
 
@@ -54,7 +61,8 @@ export class OperationsListComponent implements OnInit {
     private operationsApi: OperationsApiService,
     private budgetApi: BudgetApiService,
     private fb: FormBuilder,
-    private dialogService: TuiDialogService
+    private dialogService: TuiDialogService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +76,21 @@ export class OperationsListComponent implements OnInit {
 
     this.loadBudget();
     this.loadOperations();
+    this.loadCurrencies();
+  }
+
+  loadCurrencies(): void {
+    const baseUrl = environment.apiUrl + '/api/v0.1';
+    this.http.get<string[]>(`${baseUrl}/currencies`, { withCredentials: true }).subscribe({
+      next: (currencies) => {
+        this.currencies = currencies;
+      },
+      error: (error) => {
+        console.error('Failed to load currencies', error);
+        // Fallback to common currencies
+        this.currencies = ['USD', 'EUR', 'GBP', 'JPY', 'RUB', 'CNY'];
+      }
+    });
   }
 
   loadBudget(): void {
@@ -103,10 +126,17 @@ export class OperationsListComponent implements OnInit {
   clearFilters(): void {
     this.filterForm.reset({
       criteria: '',
-      outputCurrency: '',
+      outputCurrency: null,
       excludeTransfers: false
     });
     this.loadOperations();
+  }
+
+  onCriteriaKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault();
+      this.applyFilters();
+    }
   }
 
   toggleOperationDetails(operationId: string): void {

@@ -23,18 +23,19 @@
 }
 
 .budget-info {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
   background: var(--tui-base-02);
   border-radius: 0.5rem;
   
   p {
     margin: 0;
+    font-size: 0.875rem;
   }
 }
 
 .filters-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding: 1.5rem;
   background: var(--tui-base-02);
   border-radius: 0.5rem;
@@ -46,15 +47,40 @@
 
 .filters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 1rem;
+  
+  .filter-item {
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.currency-select {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--tui-base-04);
+  border-radius: 0.5rem;
+  background: var(--tui-base-01);
+  color: var(--tui-text-01);
+  font-size: 0.9375rem;
+  cursor: pointer;
+  
+  &:hover {
+    border-color: var(--tui-base-05);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--tui-primary);
+  }
 }
 
 .checkbox-field {
   display: flex;
   align-items: center;
-  padding-top: 1.5rem;
   
   label {
     display: flex;
