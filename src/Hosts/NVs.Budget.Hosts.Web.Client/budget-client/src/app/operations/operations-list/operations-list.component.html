@@ -30,12 +30,6 @@
       </div>
     </div>
 
-    @if (budget) {
-      <div class="budget-info">
-        <p><strong>Budget:</strong> {{ budget.name }}</p>
-      </div>
-    }
-
     <!-- Filters -->
     <form [formGroup]="filterForm" class="filters-section" (submit)="applyFilters(); $event.preventDefault()">
       <h3 tuiTitle size="m">Filters</h3>

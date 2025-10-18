@@ -4,8 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
-import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse, OperationResponse } from '../../budget/models';
+import { OperationResponse } from '../../budget/models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -41,7 +40,6 @@ import { TuiChip, TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
 })
 export class OperationsListComponent implements OnInit {
   budgetId!: string;
-  budget: BudgetResponse | null = null;
   operations$!: Observable<OperationResponse[]>;
   isLoading = false;
   
@@ -54,7 +52,6 @@ export class OperationsListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private budgetApi: BudgetApiService,
     private fb: FormBuilder,
     private dialogService: TuiDialogService
   ) {}
@@ -68,19 +65,7 @@ export class OperationsListComponent implements OnInit {
       excludeTransfers: [false]
     });
 
-    this.loadBudget();
     this.loadOperations();
-  }
-
-  loadBudget(): void {
-    this.budgetApi.getBudgetById(this.budgetId).subscribe({
-      next: (budget) => {
-        this.budget = budget || null;
-      },
-      error: (error) => {
-        this.handleError(error, 'Failed to load budget');
-      }
-    });
   }
 
   loadOperations(): void {
