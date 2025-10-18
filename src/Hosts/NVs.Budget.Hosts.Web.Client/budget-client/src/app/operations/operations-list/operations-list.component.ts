@@ -18,8 +18,8 @@ import {
   TuiExpand
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiChip, TuiAccordion, TuiTextarea, TuiDataListWrapper } from '@taiga-ui/kit';
-import { TuiDataList } from '@taiga-ui/core';
+import { TuiChip, TuiAccordion, TuiTextarea, TuiDataListWrapper, TuiCheckbox } from '@taiga-ui/kit';
+import { TuiDataList, TuiDropdown } from '@taiga-ui/core';
 
 @Component({
   selector: 'app-operations-list',
@@ -38,7 +38,9 @@ import { TuiDataList } from '@taiga-ui/core';
     TuiExpand,
     TuiTextarea,
     TuiDataList,
-    TuiDataListWrapper
+    TuiDataListWrapper,
+    TuiCheckbox,
+    TuiDropdown
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']

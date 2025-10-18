@@ -54,20 +54,26 @@
         </div>
         
         <div class="filter-item">
-          <label tuiLabel>Output Currency</label>
-          <select 
-            class="currency-select"
-            formControlName="outputCurrency">
-            <option [value]="null">-- Original --</option>
-            @for (currency of currencies; track currency) {
-              <option [value]="currency">{{ currency }}</option>
-            }
-          </select>
+          <tui-textfield>
+            <label tuiLabel>Output Currency</label>
+            <select 
+              tuiTextfield
+              formControlName="outputCurrency">
+              <option [value]="null">-- Original --</option>
+              @for (currency of currencies; track currency) {
+                <option [value]="currency">{{ currency }}</option>
+              }
+            </select>
+          </tui-textfield>
         </div>
         
         <div class="filter-item checkbox-field">
-          <label>
-            <input type="checkbox" formControlName="excludeTransfers" />
+          <label tuiLabel size="m">
+            <input 
+              tuiCheckbox
+              type="checkbox" 
+              formControlName="excludeTransfers"
+            />
             Exclude Transfers
           </label>
         </div>
