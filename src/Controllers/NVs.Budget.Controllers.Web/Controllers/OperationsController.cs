@@ -364,10 +364,7 @@ public class OperationsController(
 
         if (result.IsSuccess)
         {
-            var errors = result.Reasons.Where(r => r is IError).Cast<IError>().ToList();
-            var successes = result.Reasons.Where(r => r is ISuccess).Cast<ISuccess>().ToList();
-            
-            var response = new DeleteResultResponse(errors, successes);
+            var response = new DeleteResultResponse(result.Errors, result.Successes);
             return Ok(response);
         }
 
