@@ -3,13 +3,7 @@
     <div tuiCardLarge class="delete-card">
       <h2 tuiTitle size="l">Delete Operations</h2>
       
-      @if (budget) {
-        <div class="budget-info">
-          <p><strong>Budget:</strong> {{ budget.name }}</p>
-          <p><strong>Budget ID:</strong> <code>{{ budget.id }}</code></p>
-        </div>
-
-        <div class="danger-warning">
+      <div class="danger-warning">
           <h3>⚠️ Warning: Dangerous Operation</h3>
           <p>This action will permanently delete all operations matching your criteria. This cannot be undone.</p>
           <p>Please be careful and verify your criteria before executing the deletion.</p>
@@ -206,9 +200,6 @@
             }
           </div>
         }
-      } @else {
-        <div class="loading-placeholder">Loading budget...</div>
-      }
     </div>
   </tui-loader>
 </div>

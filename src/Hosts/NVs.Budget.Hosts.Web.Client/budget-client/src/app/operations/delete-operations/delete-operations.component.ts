@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
-import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse, IError, ISuccess } from '../../budget/models';
+import { IError, ISuccess } from '../../budget/models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -35,7 +34,6 @@ import { TuiTextarea } from '@taiga-ui/kit';
 })
 export class DeleteOperationsComponent implements OnInit {
   budgetId!: string;
-  budget: BudgetResponse | null = null;
   isLoading = false;
   
   deleteForm!: FormGroup;
@@ -53,7 +51,6 @@ export class DeleteOperationsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private budgetApi: BudgetApiService,
     private fb: FormBuilder,
     private dialogService: TuiDialogService
   ) {}
@@ -64,22 +61,6 @@ export class DeleteOperationsComponent implements OnInit {
     this.deleteForm = this.fb.group({
       criteria: ['o => true', Validators.required]
     });
-
-    this.loadBudget();
-  }
-
-  loadBudget(): void {
-    this.isLoading = true;
-    this.budgetApi.getBudgetById(this.budgetId).subscribe({
-      next: (budget) => {
-        this.budget = budget || null;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.handleError(error, 'Failed to load budget');
-      }
-    });
   }
 
   toggleExamples(): void {
@@ -87,7 +68,7 @@ export class DeleteOperationsComponent implements OnInit {
   }
 
   deleteOperations(): void {
-    if (!this.deleteForm.valid || !this.budget) {
+    if (!this.deleteForm.valid) {
       this.showError('Please provide a valid criteria expression');
       return;
     }

@@ -4,11 +4,6 @@
       <h2 tuiTitle size="l">Import Operations</h2>
       
       @if (budget) {
-        <div class="budget-info">
-          <p><strong>Budget:</strong> {{ budget.name }}</p>
-          <p><strong>Budget ID:</strong> <code>{{ budget.id }}</code></p>
-        </div>
-
         <form [formGroup]="importForm" class="import-form">
           <div class="form-section">
             <h3 tuiTitle size="m">Upload CSV File</h3>
