@@ -130,18 +130,24 @@
 
 .operations-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   
   thead {
     background: var(--tui-base-02);
     
     th {
-      padding: 1rem;
+      padding: 0.75rem 1rem;
       text-align: left;
       font-weight: 600;
       color: var(--tui-text-01);
-      border-bottom: 2px solid var(--tui-base-04);
+      border-bottom: 1px solid var(--tui-base-04);
+      border-right: 1px solid var(--tui-base-04);
       white-space: nowrap;
+      
+      &:last-child {
+        border-right: none;
+      }
       
       &.col-timestamp {
         width: 180px;
@@ -182,8 +188,13 @@
       }
       
       td {
-        padding: 0.875rem 1rem;
+        padding: 0.75rem 1rem;
         vertical-align: middle;
+        border-right: 1px solid var(--tui-base-04);
+        
+        &:last-child {
+          border-right: none;
+        }
         
         &.col-timestamp {
           font-family: monospace;
@@ -210,18 +221,46 @@
         }
         
         &.col-tags {
+          max-width: 150px;
+          overflow: hidden;
+          
           .tags-inline {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 0.25rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            
+            &::-webkit-scrollbar {
+              height: 4px;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+              background: var(--tui-base-04);
+              border-radius: 2px;
+            }
           }
         }
         
         &.col-attributes {
+          max-width: 250px;
+          overflow: hidden;
+          
           .attributes-inline {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 0.25rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            
+            &::-webkit-scrollbar {
+              height: 4px;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+              background: var(--tui-base-04);
+              border-radius: 2px;
+            }
           }
           
           .no-attributes {
