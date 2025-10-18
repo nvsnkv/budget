@@ -85,6 +85,7 @@ export class OperationsListComponent implements OnInit {
     const baseUrl = environment.apiUrl + '/api/v0.1';
     this.http.get<string[]>(`${baseUrl}/currencies`, { withCredentials: true }).subscribe({
       next: (currencies) => {
+        console.log('Loaded currencies:', currencies.length, currencies.slice(0, 5));
         this.currencies = currencies;
       },
       error: (error) => {
