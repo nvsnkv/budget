@@ -113,7 +113,7 @@ public class OperationsController(
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
     public async Task<IActionResult> ImportOperations(
         [FromRoute] Guid budgetId,
-        [FromForm] IFormFile file,
+        IFormFile file,
         [FromForm] string budgetVersion,
         [FromForm] string? transferConfidenceLevel = null,
         [FromForm] string? filePattern = null,

@@ -59,7 +59,7 @@
             <select 
               tuiTextfield
               formControlName="outputCurrency">
-              <option [value]="null">-- Original --</option>
+              <option value="">-- Original --</option>
               @for (currency of currencies; track currency) {
                 <option [value]="currency">{{ currency }}</option>
               }

@@ -128,7 +128,7 @@ export class OperationsListComponent implements OnInit {
   clearFilters(): void {
     this.filterForm.reset({
       criteria: '',
-      outputCurrency: null,
+      outputCurrency: '',
       excludeTransfers: false
     });
     this.loadOperations();
