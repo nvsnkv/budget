@@ -332,10 +332,10 @@ public class OperationsController(
     /// <param name="budgetId">Budget ID from route</param>
     /// <param name="request">Remove operations request with criteria expression</param>
     /// <param name="ct">Cancellation token</param>
-    /// <returns>Success or error details</returns>
+    /// <returns>Delete result with success/failure details</returns>
     [HttpDelete]
     [Consumes("application/json", "application/yaml", "text/yaml")]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(typeof(DeleteResultResponse), 200)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
     public async Task<IActionResult> RemoveOperations(
@@ -364,7 +364,11 @@ public class OperationsController(
 
         if (result.IsSuccess)
         {
-            return NoContent();
+            var errors = result.Reasons.Where(r => r is IError).Cast<IError>().ToList();
+            var successes = result.Reasons.Where(r => r is ISuccess).Cast<ISuccess>().ToList();
+            
+            var response = new DeleteResultResponse(errors, successes);
+            return Ok(response);
         }
 
         return BadRequest(result.Errors);

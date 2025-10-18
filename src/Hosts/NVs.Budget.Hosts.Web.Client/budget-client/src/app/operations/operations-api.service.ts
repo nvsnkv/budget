@@ -6,7 +6,8 @@ import {
   UpdateOperationsRequest,
   RemoveOperationsRequest,
   ImportResultResponse,
-  UpdateResultResponse
+  UpdateResultResponse,
+  DeleteResultResponse
 } from '../budget/models';
 import { environment } from '../../environments/environment';
 
@@ -96,9 +97,9 @@ export class OperationsApiService {
   /**
    * Remove operations matching criteria
    */
-  removeOperations(budgetId: string, request: RemoveOperationsRequest): Observable<void> {
+  removeOperations(budgetId: string, request: RemoveOperationsRequest): Observable<DeleteResultResponse> {
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
-    return this.http.request<void>(
+    return this.http.request<DeleteResultResponse>(
       'DELETE',
       `${this.baseUrl}/budget/${budgetId}/operations`,
       { 

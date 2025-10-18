@@ -94,7 +94,7 @@
               (click)="viewOperations()">
               View Operations List
             </button>
-            @if (deleteExecuted) {
+            @if (deleteResult) {
               <button 
                 tuiButton
                 type="button"
@@ -107,13 +107,103 @@
           </div>
         </form>
 
-        @if (deleteExecuted) {
+        @if (deleteResult) {
           <div class="delete-result">
-            <h3 tuiTitle size="m">Deletion Completed</h3>
-            <div class="result-message success">
-              <p>✓ Operations matching the criteria have been successfully deleted.</p>
-              <p>The operations list has been updated. You can view the remaining operations or perform another deletion.</p>
+            <h3 tuiTitle size="m">Deletion Results</h3>
+            <div class="result-stats">
+              @if (deleteResult.successes.length > 0) {
+                <div class="stat-item success">
+                  <span class="stat-label">Successes:</span>
+                  <span class="stat-value">{{ deleteResult.successes.length }}</span>
+                </div>
+              }
+              @if (deleteResult.errors.length > 0) {
+                <div class="stat-item error">
+                  <span class="stat-label">Errors:</span>
+                  <span class="stat-value">{{ deleteResult.errors.length }}</span>
+                </div>
+              }
             </div>
+            
+            <!-- Successes Section -->
+            @if (deleteResult.successes.length > 0) {
+              <div class="successes-section">
+                <div class="section-header-with-toggle">
+                  <h4>Success Messages ({{ deleteResult.successes.length }})</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleSuccesses()">
+                    {{ showSuccesses ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showSuccesses) {
+                  @for (success of deleteResult.successes; track $index) {
+                    <div class="success-item">
+                      <div class="success-message">{{ success.message || 'Success' }}</div>
+                      @if (success.metadata && getObjectKeys(success.metadata).length > 0) {
+                        <div class="metadata">
+                          <strong>Details:</strong>
+                          @for (key of getObjectKeys(success.metadata); track key) {
+                            <div class="metadata-item">
+                              <span class="metadata-key">{{ key }}:</span>
+                              <span class="metadata-value">{{ success.metadata[key] }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            }
+            
+            <!-- Errors Section -->
+            @if (deleteResult.errors.length > 0) {
+              <div class="errors-section">
+                <div class="section-header-with-toggle">
+                  <h4>Errors ({{ deleteResult.errors.length }})</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleErrors()">
+                    {{ showErrors ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showErrors) {
+                  @for (error of deleteResult.errors; track $index) {
+                    <div class="error-item">
+                      <div class="error-message">{{ error.message || 'Error' }}</div>
+                      @if (error.metadata && getObjectKeys(error.metadata).length > 0) {
+                        <div class="metadata">
+                          <strong>Details:</strong>
+                          @for (key of getObjectKeys(error.metadata); track key) {
+                            <div class="metadata-item">
+                              <span class="metadata-key">{{ key }}:</span>
+                              <span class="metadata-value">{{ error.metadata[key] }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                      @if (error.reasons && error.reasons.length > 0) {
+                        <div class="nested-reasons">
+                          <strong>Caused by:</strong>
+                          <ul>
+                            @for (reason of error.reasons; track $index) {
+                              <li>{{ reason.message || 'Unspecified reason' }}</li>
+                            }
+                          </ul>
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            }
           </div>
         }
       } @else {

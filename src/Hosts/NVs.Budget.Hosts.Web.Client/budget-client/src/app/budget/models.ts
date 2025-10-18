@@ -139,3 +139,8 @@ export interface UpdateResultResponse {
   errors: IError[];
   successes: ISuccess[];
 }
+
+export interface DeleteResultResponse {
+  errors: IError[];
+  successes: ISuccess[];
+}

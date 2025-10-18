@@ -59,3 +59,8 @@ public record UpdateResultResponse(
     IReadOnlyCollection<ISuccess> Successes
 );
 
+public record DeleteResultResponse(
+    IReadOnlyCollection<IError> Errors,
+    IReadOnlyCollection<ISuccess> Successes
+);
+

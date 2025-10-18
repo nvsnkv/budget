@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse } from '../../budget/models';
+import { BudgetResponse, IError, ISuccess } from '../../budget/models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -39,10 +39,15 @@ export class DeleteOperationsComponent implements OnInit {
   isLoading = false;
   
   deleteForm!: FormGroup;
-  deleteExecuted = false;
+  deleteResult: {
+    errors: IError[];
+    successes: ISuccess[];
+  } | null = null;
   
   // Section toggles
   showExamples = false;
+  showSuccesses = true;
+  showErrors = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -94,14 +99,25 @@ export class DeleteOperationsComponent implements OnInit {
     if (!confirmed) return;
 
     this.isLoading = true;
-    this.deleteExecuted = false;
+    this.deleteResult = null;
 
     this.operationsApi.removeOperations(this.budgetId, { criteria }).subscribe({
-      next: () => {
+      next: (result) => {
         this.isLoading = false;
-        this.deleteExecuted = true;
-        this.showSuccess('Operations deleted successfully');
-        this.operationsApi.triggerRefresh(this.budgetId);
+        this.deleteResult = {
+          errors: result.errors,
+          successes: result.successes
+        };
+        
+        if (result.errors.length === 0) {
+          this.showSuccess('Operations deleted successfully');
+          this.operationsApi.triggerRefresh(this.budgetId);
+        } else {
+          const errorMessage = result.errors.length > 5 
+            ? `Deletion completed with ${result.errors.length} errors. Check the results below.`
+            : `Deletion completed with errors. See details below.`;
+          this.showError(errorMessage);
+        }
       },
       error: (error) => {
         this.isLoading = false;
@@ -116,7 +132,20 @@ export class DeleteOperationsComponent implements OnInit {
 
   resetForm(): void {
     this.deleteForm.patchValue({ criteria: 'o => true' });
-    this.deleteExecuted = false;
+    this.deleteResult = null;
+  }
+
+  toggleSuccesses(): void {
+    this.showSuccesses = !this.showSuccesses;
+  }
+
+  toggleErrors(): void {
+    this.showErrors = !this.showErrors;
+  }
+
+  // Helper method to access Object.keys in template
+  getObjectKeys(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
   }
 
   private handleError(error: any, defaultMessage: string): void {
