@@ -54,15 +54,15 @@
         </div>
         
         <div class="filter-item">
-          <tui-combo-box
-            formControlName="outputCurrency"
-            [tuiTextfieldCleaner]="true">
-            Output Currency
-            <tui-data-list-wrapper
-              *tuiDataList
-              [items]="currencies"
+          <tui-textfield>
+            <label tuiLabel>Output Currency</label>
+            <input 
+              tuiTextfield 
+              formControlName="outputCurrency" 
+              type="text" 
+              placeholder="e.g., USD, EUR"
             />
-          </tui-combo-box>
+          </tui-textfield>
         </div>
         
         <div class="filter-item checkbox-field">

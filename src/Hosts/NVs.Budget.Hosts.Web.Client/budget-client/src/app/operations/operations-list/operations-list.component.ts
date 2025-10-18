@@ -3,11 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
 import { BudgetResponse, OperationResponse } from '../../budget/models';
-import { environment } from '../../../environments/environment';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -18,14 +16,7 @@ import {
   TuiExpand
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { 
-  TuiChip, 
-  TuiAccordion, 
-  TuiTextarea, 
-  TuiDataListWrapper, 
-  TuiCheckbox
-} from '@taiga-ui/kit';
-import { TuiDataList, TuiDropdown } from '@taiga-ui/core';
+import { TuiChip, TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
 
 @Component({
   selector: 'app-operations-list',
@@ -43,10 +34,7 @@ import { TuiDataList, TuiDropdown } from '@taiga-ui/core';
     TuiAccordion,
     TuiExpand,
     TuiTextarea,
-    TuiDataList,
-    TuiDataListWrapper,
-    TuiCheckbox,
-    TuiDropdown
+    TuiCheckbox
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -59,7 +47,6 @@ export class OperationsListComponent implements OnInit {
   
   filterForm!: FormGroup;
   expandedOperationId: string | null = null;
-  currencies: string[] = [];
 
   readonly columns = ['timestamp', 'description', 'amount', 'tags', 'actions'];
 
@@ -69,8 +56,7 @@ export class OperationsListComponent implements OnInit {
     private operationsApi: OperationsApiService,
     private budgetApi: BudgetApiService,
     private fb: FormBuilder,
-    private dialogService: TuiDialogService,
-    private http: HttpClient
+    private dialogService: TuiDialogService
   ) {}
 
   ngOnInit(): void {
@@ -84,21 +70,6 @@ export class OperationsListComponent implements OnInit {
 
     this.loadBudget();
     this.loadOperations();
-    this.loadCurrencies();
-  }
-
-  loadCurrencies(): void {
-    const baseUrl = environment.apiUrl + '/api/v0.1';
-    this.http.get<string[]>(`${baseUrl}/currencies`, { withCredentials: true }).subscribe({
-      next: (currencies) => {
-        this.currencies = currencies;
-      },
-      error: (error) => {
-        console.error('Failed to load currencies', error);
-        // Fallback to common currencies
-        this.currencies = ['USD', 'EUR', 'GBP', 'JPY', 'RUB', 'CNY'];
-      }
-    });
   }
 
   loadBudget(): void {
