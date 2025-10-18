@@ -1,0 +1,125 @@
+<div class="delete-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="delete-card">
+      <h2 tuiTitle size="l">Delete Operations</h2>
+      
+      @if (budget) {
+        <div class="budget-info">
+          <p><strong>Budget:</strong> {{ budget.name }}</p>
+          <p><strong>Budget ID:</strong> <code>{{ budget.id }}</code></p>
+        </div>
+
+        <div class="danger-warning">
+          <h3>⚠️ Warning: Dangerous Operation</h3>
+          <p>This action will permanently delete all operations matching your criteria. This cannot be undone.</p>
+          <p>Please be careful and verify your criteria before executing the deletion.</p>
+        </div>
+
+        <form [formGroup]="deleteForm" class="delete-form">
+          <div class="form-section">
+            <h3 tuiTitle size="m">Deletion Criteria</h3>
+            <tui-textfield>
+              <label tuiLabel>Criteria Expression</label>
+              <textarea 
+                tuiTextarea 
+                formControlName="criteria" 
+                rows="4"
+                placeholder="e.g., o => o.Amount.Amount < 0 && o.Timestamp.Year == 2023"
+              ></textarea>
+            </tui-textfield>
+          </div>
+
+          <div class="examples-section">
+            <div class="examples-header">
+              <h4>Common Examples</h4>
+              <button 
+                tuiButton
+                type="button"
+                appearance="flat"
+                size="xs"
+                (click)="toggleExamples()">
+                {{ showExamples ? '▼ Hide' : '▶ Show' }}
+              </button>
+            </div>
+            
+            @if (showExamples) {
+              <div class="examples-list">
+                <div class="example-item">
+                  <strong>All operations:</strong>
+                  <code>o => true</code>
+                </div>
+                <div class="example-item">
+                  <strong>Negative amounts:</strong>
+                  <code>o => o.Amount.Amount &lt; 0</code>
+                </div>
+                <div class="example-item">
+                  <strong>Specific year:</strong>
+                  <code>o => o.Timestamp.Year == 2023</code>
+                </div>
+                <div class="example-item">
+                  <strong>Contains text:</strong>
+                  <code>o => o.Description.Contains("test")</code>
+                </div>
+                <div class="example-item">
+                  <strong>By tag:</strong>
+                  <code>o => o.Tags.Any(t => t.Value == "unwanted")</code>
+                </div>
+                <div class="example-item">
+                  <strong>By attribute:</strong>
+                  <code>o => o.Attributes.ContainsKey("error")</code>
+                </div>
+                <div class="example-item">
+                  <strong>Amount range:</strong>
+                  <code>o => o.Amount.Amount >= -100 && o.Amount.Amount &lt;= -10</code>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button 
+              tuiButton
+              type="button"
+              appearance="destructive"
+              size="m"
+              [disabled]="!deleteForm.valid || isLoading"
+              (click)="deleteOperations()">
+              Delete Operations
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              (click)="viewOperations()">
+              View Operations List
+            </button>
+            @if (deleteExecuted) {
+              <button 
+                tuiButton
+                type="button"
+                appearance="flat"
+                size="m"
+                (click)="resetForm()">
+                Reset Form
+              </button>
+            }
+          </div>
+        </form>
+
+        @if (deleteExecuted) {
+          <div class="delete-result">
+            <h3 tuiTitle size="m">Deletion Completed</h3>
+            <div class="result-message success">
+              <p>✓ Operations matching the criteria have been successfully deleted.</p>
+              <p>The operations list has been updated. You can view the remaining operations or perform another deletion.</p>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="loading-placeholder">Loading budget...</div>
+      }
+    </div>
+  </tui-loader>
+</div>
+

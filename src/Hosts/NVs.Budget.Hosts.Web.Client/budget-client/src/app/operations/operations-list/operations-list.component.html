@@ -14,6 +14,14 @@
         <button 
           tuiButton
           type="button"
+          appearance="destructive"
+          size="m"
+          (click)="navigateToDelete()">
+          Delete Operations
+        </button>
+        <button 
+          tuiButton
+          type="button"
           appearance="secondary"
           size="m"
           (click)="navigateToBudget()">
@@ -79,67 +87,6 @@
         </button>
       </div>
     </form>
-
-    <!-- Delete Operations Section -->
-    <div class="delete-section">
-      <div class="delete-header">
-        <h3 tuiTitle size="m">Delete Operations</h3>
-        <button 
-          tuiButton
-          type="button"
-          appearance="flat"
-          size="s"
-          (click)="toggleDeleteSection()">
-          {{ showDeleteSection ? '▼ Hide' : '▶ Show Delete Options' }}
-        </button>
-      </div>
-      
-      @if (showDeleteSection) {
-        <form [formGroup]="deleteForm" class="delete-form">
-          <div class="warning-message">
-            <strong>⚠️ Warning:</strong> This will permanently delete all operations matching the specified criteria.
-          </div>
-          
-          <tui-textfield>
-            <label tuiLabel>Criteria Expression</label>
-            <textarea 
-              tuiTextarea 
-              formControlName="criteria" 
-              rows="3"
-              placeholder="e.g., o => o.Amount.Amount < 0 && o.Tags.Contains('unwanted')"
-            ></textarea>
-          </tui-textfield>
-          
-          <p class="help-text">
-            Enter a boolean expression to filter operations for deletion. 
-            Examples:
-            <br>• <code>o => o.Amount.Amount &lt; 0</code> - All negative amounts
-            <br>• <code>o => o.Description.Contains("test")</code> - Contains "test"
-            <br>• <code>o => o.Timestamp.Year == 2023</code> - From year 2023
-          </p>
-          
-          <div class="delete-actions">
-            <button 
-              tuiButton
-              type="button"
-              appearance="destructive"
-              size="m"
-              [disabled]="!deleteForm.valid || isLoading"
-              (click)="deleteOperations()">
-              Delete Matching Operations
-            </button>
-            <button 
-              tuiButton
-              type="button"
-              appearance="flat"
-              size="m"
-              (click)="toggleDeleteSection()">
-              Cancel
-            </button>
-          </div>
-        </form>
-      }
-    </div>
 
     <!-- Operations List -->
     <div class="operations-section">
