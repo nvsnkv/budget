@@ -14,7 +14,7 @@ import {
   TuiLabel
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiChip } from '@taiga-ui/kit';
+import { OperationsTableComponent } from '../operations-table/operations-table.component';
 
 @Component({
   selector: 'app-import-operations',
@@ -28,7 +28,7 @@ import { TuiChip } from '@taiga-ui/kit';
     TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    TuiChip
+    OperationsTableComponent
   ],
   templateUrl: './import-operations.component.html',
   styleUrls: ['./import-operations.component.less']

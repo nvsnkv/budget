@@ -129,18 +129,7 @@
                   @for (group of getDuplicatesList(); track $index; let groupIdx = $index) {
                     <div class="duplicate-group">
                       <h5>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h5>
-                      <div class="duplicate-operations">
-                        @for (op of group; track op.id) {
-                          <div class="duplicate-operation">
-                            <div class="op-summary">{{ formatOperationSummary(op) }}</div>
-                            <div class="op-tags">
-                              @for (tag of op.tags; track tag) {
-                                <tui-chip size="xs">{{ tag }}</tui-chip>
-                              }
-                            </div>
-                          </div>
-                        }
-                      </div>
+                      <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
                     </div>
                   }
                 }

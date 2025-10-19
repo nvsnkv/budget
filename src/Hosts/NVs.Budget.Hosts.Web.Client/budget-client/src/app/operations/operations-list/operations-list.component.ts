@@ -15,7 +15,8 @@ import {
   TuiExpand
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiChip, TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
+import { TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
+import { OperationsTableComponent } from '../operations-table/operations-table.component';
 
 @Component({
   selector: 'app-operations-list',
@@ -29,11 +30,11 @@ import { TuiChip, TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
     TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    TuiChip,
     TuiAccordion,
     TuiExpand,
     TuiTextarea,
-    TuiCheckbox
+    TuiCheckbox,
+    OperationsTableComponent
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -41,12 +42,10 @@ import { TuiChip, TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
 export class OperationsListComponent implements OnInit {
   budgetId!: string;
   operations$!: Observable<OperationResponse[]>;
+  operations: OperationResponse[] = [];
   isLoading = false;
   
   filterForm!: FormGroup;
-  expandedOperationId: string | null = null;
-
-  readonly columns = ['timestamp', 'description', 'amount', 'tags', 'actions'];
 
   constructor(
     private route: ActivatedRoute,
@@ -81,6 +80,9 @@ export class OperationsListComponent implements OnInit {
         return of([]);
       })
     );
+    
+    // Subscribe to update the array for the table component
+    this.operations$.subscribe(ops => this.operations = ops);
   }
 
   applyFilters(): void {
@@ -101,27 +103,6 @@ export class OperationsListComponent implements OnInit {
       event.preventDefault();
       this.applyFilters();
     }
-  }
-
-  toggleOperationDetails(operationId: string): void {
-    this.expandedOperationId = this.expandedOperationId === operationId ? null : operationId;
-  }
-
-  formatCurrency(amount: number, currencyCode: string): string {
-    // Format number with space as thousand separator
-    const formattedAmount = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    return `${formattedAmount} ${currencyCode}`;
-  }
-
-  formatDate(timestamp: string): string {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${year}.${month}.${day}, ${hours}:${minutes}:${seconds}`;
   }
 
   navigateToImport(): void {

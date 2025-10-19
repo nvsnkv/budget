@@ -1,0 +1,83 @@
+<div class="operations-table-container">
+  <table class="operations-table">
+    <thead>
+      <tr>
+        <th class="col-timestamp">Date & Time</th>
+        <th class="col-description">Description</th>
+        <th class="col-amount">Amount</th>
+        <th class="col-tags">Tags</th>
+        <th class="col-attributes">Attributes</th>
+        @if (showActions) {
+          <th class="col-actions">Actions</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (operation of operations; track operation.id) {
+        <tr class="operation-row">
+          <td class="col-timestamp">{{ formatDate(operation.timestamp) }}</td>
+          <td class="col-description">{{ operation.description }}</td>
+          <td class="col-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">
+            {{ formatCurrency(operation.amount.value, operation.amount.currencyCode) }}
+          </td>
+          <td class="col-tags">
+            <div class="tags-inline">
+              @for (tag of operation.tags; track tag) {
+                <tui-chip size="xs">{{ tag }}</tui-chip>
+              }
+            </div>
+          </td>
+          <td class="col-attributes">
+            @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
+              <div class="attributes-inline">
+                @for (key of getObjectKeys(operation.attributes!); track key) {
+                  <tui-chip size="xs" class="attr-chip">
+                    {{ key }}: {{ operation.attributes![key] }}
+                  </tui-chip>
+                }
+              </div>
+            } @else {
+              <span class="no-attributes">—</span>
+            }
+          </td>
+          @if (showActions) {
+            <td class="col-actions">
+              <button 
+                tuiButton
+                type="button"
+                appearance="flat"
+                size="xs"
+                (click)="toggleOperationDetails(operation.id)">
+                {{ expandedOperationId === operation.id ? '▼' : '▶' }}
+              </button>
+            </td>
+          }
+        </tr>
+        
+        @if (expandedOperationId === operation.id) {
+          <tr class="operation-details-row">
+            <td [attr.colspan]="showActions ? 6 : 5">
+              <tui-expand [expanded]="true">
+                <div class="operation-details">
+                  <div class="detail-row">
+                    <span class="detail-label">Operation ID:</span>
+                    <span class="detail-value"><code>{{ operation.id }}</code></span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Budget ID:</span>
+                    <span class="detail-value"><code>{{ operation.budgetId }}</code></span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Version:</span>
+                    <span class="detail-value"><code>{{ operation.version }}</code></span>
+                  </div>
+                </div>
+              </tui-expand>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
