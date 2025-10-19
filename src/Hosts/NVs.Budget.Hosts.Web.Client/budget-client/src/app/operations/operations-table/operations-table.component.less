@@ -55,7 +55,7 @@
       }
       
       &.col-actions {
-        width: 100px;
+        width: 130px;
         text-align: center;
       }
     }
@@ -68,6 +68,14 @@
       
       &:hover {
         background: var(--tui-base-02);
+      }
+      
+      &.editing {
+        background: var(--tui-primary-bg);
+        
+        &:hover {
+          background: var(--tui-primary-bg);
+        }
       }
       
       td {
@@ -173,6 +181,10 @@
             gap: 0.25rem;
             justify-content: center;
             align-items: center;
+            
+            &.edit-mode {
+              gap: 0.5rem;
+            }
           }
         }
       }
@@ -216,6 +228,67 @@
       font-family: monospace;
       font-size: 0.875rem;
     }
+  }
+}
+
+// Edit mode styles
+.edit-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--tui-base-04);
+  border-radius: 0.25rem;
+  background: var(--tui-base-01);
+  color: var(--tui-text-01);
+  font-size: 0.875rem;
+  font-family: inherit;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--tui-primary);
+    box-shadow: 0 0 0 2px var(--tui-primary-hover);
+  }
+}
+
+.amount-edit {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  
+  .amount-input {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .currency-input {
+    width: 50px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+}
+
+.tags-edit,
+.attributes-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tag-edit-item,
+.attribute-edit-item {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  
+  .tag-input {
+    flex: 1;
+  }
+  
+  .attr-key-input {
+    flex: 0 0 80px;
+  }
+  
+  .attr-value-input {
+    flex: 1;
   }
 }
 

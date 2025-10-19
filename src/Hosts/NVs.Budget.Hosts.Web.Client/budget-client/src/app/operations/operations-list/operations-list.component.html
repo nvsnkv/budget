@@ -98,7 +98,8 @@
           <app-operations-table 
             [operations]="operations" 
             [showActions]="true"
-            (operationDeleted)="onDeleteOperation($event)">
+            (operationDeleted)="onDeleteOperation($event)"
+            (operationUpdated)="onUpdateOperation($event)">
           </app-operations-table>
           
           <div class="operations-count">

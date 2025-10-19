@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
-import { OperationResponse } from '../../budget/models';
+import { BudgetApiService } from '../../budget/budget-api.service';
+import { OperationResponse, BudgetResponse } from '../../budget/models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -51,6 +52,7 @@ export class OperationsListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
+    private budgetApi: BudgetApiService,
     private fb: FormBuilder,
     private dialogService: TuiDialogService
   ) {}
@@ -142,6 +144,51 @@ export class OperationsListComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         this.handleError(error, 'Failed to delete operation');
+      }
+    });
+  }
+
+  onUpdateOperation(operation: OperationResponse): void {
+    this.isLoading = true;
+    
+    // Get the budget to access its version
+    this.budgetApi.getAllBudgets().subscribe({
+      next: (budgetList: BudgetResponse[]) => {
+        const budget = budgetList.find((b: BudgetResponse) => b.id === this.budgetId);
+        if (!budget) {
+          this.isLoading = false;
+          this.showError('Budget not found');
+          return;
+        }
+
+        const request = {
+          operations: [operation],
+          budgetVersion: budget.version,
+          transferConfidenceLevel: undefined,
+          taggingMode: 'PreserveExistingTags'
+        };
+
+        this.operationsApi.updateOperations(this.budgetId, request).subscribe({
+          next: (result) => {
+            this.isLoading = false;
+            
+            if (result.errors && result.errors.length > 0) {
+              const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+              this.showError(`Failed to update operation: ${errorMessage}`);
+            } else {
+              this.showSuccess('Operation updated successfully');
+              this.loadOperations();
+            }
+          },
+          error: (error: any) => {
+            this.isLoading = false;
+            this.handleError(error, 'Failed to update operation');
+          }
+        });
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        this.handleError(error, 'Failed to load budget');
       }
     });
   }
