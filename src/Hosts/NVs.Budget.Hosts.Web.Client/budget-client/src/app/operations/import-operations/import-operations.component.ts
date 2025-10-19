@@ -196,10 +196,6 @@ export class ImportOperationsComponent implements OnInit {
     this.showDuplicates = !this.showDuplicates;
   }
 
-  formatOperationSummary(op: any): string {
-    return `${new Date(op.timestamp).toLocaleDateString()} - ${op.description} - ${op.amount.value} ${op.amount.currencyCode}`;
-  }
-
   getDuplicatesList(): any[] {
     return (this.importResult as any)?.duplicatesList || [];
   }
