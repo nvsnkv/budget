@@ -145,7 +145,7 @@ export class ImportOperationsComponent implements OnInit {
   }
 
   viewOperations(): void {
-    this.router.navigate(['/budget', this.budgetId, 'operations']);
+    this.router.navigate(['/budget', this.budgetId]);
   }
 
   private handleError(error: any, defaultMessage: string): void {

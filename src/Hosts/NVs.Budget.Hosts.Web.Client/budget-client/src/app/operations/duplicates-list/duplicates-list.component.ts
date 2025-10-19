@@ -95,11 +95,11 @@ export class DuplicatesListComponent implements OnInit {
   }
 
   navigateToOperations(): void {
-    this.router.navigate(['/budget', this.budgetId, 'operations']);
+    this.router.navigate(['/budget', this.budgetId]);
   }
 
   navigateToBudget(): void {
-    this.router.navigate(['/budget', this.budgetId]);
+    this.router.navigate(['/budget', this.budgetId, 'details']);
   }
 
   getTotalDuplicates(): number {

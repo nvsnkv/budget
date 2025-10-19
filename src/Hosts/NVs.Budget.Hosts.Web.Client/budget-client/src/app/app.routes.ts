@@ -12,9 +12,10 @@ export const routes: Routes = [
     { path: 'budget/new', component: NewBudgetComponent },
     { path: 'budget/:budgetId/operations/import', component: ImportOperationsComponent },
     { path: 'budget/:budgetId/operations/delete', component: DeleteOperationsComponent },
-  { path: 'budget/:budgetId/operations/duplicates', component: DuplicatesListComponent },
+    { path: 'budget/:budgetId/operations/duplicates', component: DuplicatesListComponent },
     { path: 'budget/:budgetId/operations', component: OperationsListComponent },
+    { path: 'budget/:budgetId/details', component: BudgetDetailComponent },
     { path: 'budget/:budgetId/reading-settings', component: ReadingSettingsComponent },
-    { path: 'budget/:budgetId', component: BudgetDetailComponent },
+    { path: 'budget/:budgetId', redirectTo: 'budget/:budgetId/operations', pathMatch: 'full' },
     { path: '', component: IndexComponent }
 ];

@@ -108,7 +108,7 @@ export class DeleteOperationsComponent implements OnInit {
   }
 
   viewOperations(): void {
-    this.router.navigate(['/budget', this.budgetId, 'operations']);
+    this.router.navigate(['/budget', this.budgetId]);
   }
 
   resetForm(): void {

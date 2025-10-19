@@ -112,7 +112,7 @@ export class OperationsListComponent implements OnInit {
   }
 
   navigateToBudget(): void {
-    this.router.navigate(['/budget', this.budgetId]);
+    this.router.navigate(['/budget', this.budgetId, 'details']);
   }
 
   navigateToDelete(): void {
