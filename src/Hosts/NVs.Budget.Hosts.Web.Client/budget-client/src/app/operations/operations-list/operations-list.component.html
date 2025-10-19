@@ -95,7 +95,11 @@
     <div class="operations-section">
       @if (operations$ | async; as ops) {
         @if (ops.length > 0) {
-          <app-operations-table [operations]="operations" [showActions]="true"></app-operations-table>
+          <app-operations-table 
+            [operations]="operations" 
+            [showActions]="true"
+            (operationDeleted)="onDeleteOperation($event)">
+          </app-operations-table>
           
           <div class="operations-count">
             Total: {{ operations.length }} operations

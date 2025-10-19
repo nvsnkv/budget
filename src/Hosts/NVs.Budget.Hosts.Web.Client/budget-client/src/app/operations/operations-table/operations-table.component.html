@@ -42,14 +42,25 @@
           </td>
           @if (showActions) {
             <td class="col-actions">
-              <button 
-                tuiButton
-                type="button"
-                appearance="flat"
-                size="xs"
-                (click)="toggleOperationDetails(operation.id)">
-                {{ expandedOperationId === operation.id ? '▼' : '▶' }}
-              </button>
+              <div class="actions-buttons">
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="flat"
+                  size="xs"
+                  (click)="toggleOperationDetails(operation.id)">
+                  {{ expandedOperationId === operation.id ? '▼' : '▶' }}
+                </button>
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="icon"
+                  size="xs"
+                  title="Delete operation"
+                  (click)="deleteOperation(operation)">
+                  🗑️
+                </button>
+              </div>
             </td>
           }
         </tr>

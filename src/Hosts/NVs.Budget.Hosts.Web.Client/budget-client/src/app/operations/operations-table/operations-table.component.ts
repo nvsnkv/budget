@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OperationResponse } from '../../budget/models';
 import { TuiButton, TuiExpand } from '@taiga-ui/core';
@@ -19,6 +19,7 @@ import { TuiChip } from '@taiga-ui/kit';
 export class OperationsTableComponent {
   @Input() operations: OperationResponse[] = [];
   @Input() showActions = true;
+  @Output() operationDeleted = new EventEmitter<OperationResponse>();
   
   expandedOperationId: string | null = null;
 
@@ -45,6 +46,10 @@ export class OperationsTableComponent {
 
   getObjectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
+  }
+
+  deleteOperation(operation: OperationResponse): void {
+    this.operationDeleted.emit(operation);
   }
 }
 
