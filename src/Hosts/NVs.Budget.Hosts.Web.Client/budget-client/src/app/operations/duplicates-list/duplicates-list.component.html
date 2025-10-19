@@ -1,0 +1,132 @@
+<div class="duplicates-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge>
+      <div class="header">
+        <h2 tuiTitle size="l">Duplicate Operations</h2>
+        <div class="header-actions">
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="navigateToBudget()">
+            Back to Budget
+          </button>
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="navigateToOperations()">
+            View Operations List
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <form [formGroup]="filterForm" class="filters-section" (submit)="applyFilters(); $event.preventDefault()">
+        <h3 tuiTitle size="m">Filter Criteria</h3>
+        <div class="filters-grid">
+          <div class="filter-item full-width">
+            <tui-textfield>
+              <label tuiLabel>Criteria Expression (Ctrl+Enter to apply)</label>
+              <textarea 
+                tuiTextarea
+                formControlName="criteria"
+                rows="2"
+                placeholder="e.g., o => o.Timestamp.Year == 2024"
+                (keydown)="onCriteriaKeydown($event)"
+              ></textarea>
+            </tui-textfield>
+          </div>
+        </div>
+
+        <div class="examples-section">
+          <div class="examples-header">
+            <h4>Common Examples</h4>
+            <button 
+              tuiButton
+              type="button"
+              appearance="flat"
+              size="xs"
+              (click)="toggleExamples()">
+              {{ showExamples ? '▼ Hide' : '▶ Show' }}
+            </button>
+          </div>
+          
+          @if (showExamples) {
+            <div class="examples-list">
+              <div class="example-item">
+                <strong>All operations:</strong>
+                <code>o => true</code>
+              </div>
+              <div class="example-item">
+                <strong>Specific year:</strong>
+                <code>o => o.Timestamp.Year == 2024</code>
+              </div>
+              <div class="example-item">
+                <strong>Negative amounts only:</strong>
+                <code>o => o.Amount.Amount &lt; 0</code>
+              </div>
+              <div class="example-item">
+                <strong>By description contains:</strong>
+                <code>o => o.Description.Contains("coffee")</code>
+              </div>
+              <div class="example-item">
+                <strong>Recent operations:</strong>
+                <code>o => o.Timestamp > DateTime.Now.AddDays(-30)</code>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="filter-actions">
+          <button 
+            tuiButton
+            type="submit"
+            appearance="primary"
+            size="m">
+            Apply Filters
+          </button>
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="clearFilters()">
+            Clear
+          </button>
+        </div>
+      </form>
+
+      <!-- Duplicates List -->
+      <div class="duplicates-section">
+        @if (duplicateGroups.length > 0) {
+          <div class="duplicates-summary">
+            <h3 tuiTitle size="m">Found {{ duplicateGroups.length }} duplicate groups ({{ getTotalDuplicates() }} operations)</h3>
+          </div>
+
+          @for (group of duplicateGroups; track $index; let groupIdx = $index) {
+            <div class="duplicate-group">
+              <h4>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h4>
+              <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
+            </div>
+          }
+        } @else {
+          <div class="empty-state">
+            <p>No duplicate operations found with the current criteria.</p>
+            <button 
+              tuiButton
+              type="button"
+              appearance="flat"
+              size="m"
+              (click)="clearFilters()">
+              Reset Filters
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </tui-loader>
+</div>
+

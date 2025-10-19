@@ -116,5 +116,19 @@ export class OperationsApiService {
   triggerRefresh(budgetId: string): void {
     this.refresh$.next(budgetId);
   }
+
+  /**
+   * Get duplicate operations
+   */
+  getDuplicates(budgetId: string, criteria?: string): Observable<OperationResponse[][]> {
+    const params: any = {};
+    if (criteria) {
+      params.criteria = criteria;
+    }
+    return this.http.get<OperationResponse[][]>(
+      `${this.baseUrl}/budget/${budgetId}/operations/duplicates`,
+      { params, withCredentials: true }
+    );
+  }
 }
 

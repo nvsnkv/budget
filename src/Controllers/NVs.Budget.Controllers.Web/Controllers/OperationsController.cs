@@ -12,6 +12,7 @@ using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
+using System.Linq;
 using NVs.Budget.Controllers.Web.Exceptions;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
@@ -40,11 +41,55 @@ public class OperationsController(
     /// <param name="excludeTransfers">Whether to exclude transfers from results</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Collection of operations</returns>
-    [HttpGet]
-    [ProducesResponseType(typeof(IAsyncEnumerable<OperationResponse>), 200)]
-    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
-    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
-    public async IAsyncEnumerable<OperationResponse> GetOperations(
+        [HttpGet("duplicates")]
+        [ProducesResponseType(typeof(IReadOnlyCollection<IReadOnlyCollection<OperationResponse>>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+        [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+        public async Task<IActionResult> GetDuplicates(
+            [FromRoute] Guid budgetId,
+            [FromQuery] string? criteria = null,
+            CancellationToken ct = default)
+        {
+            var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+            var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
+            
+            if (budget == null)
+            {
+                throw new NotFoundException($"Budget with ID {budgetId} not found or access denied");
+            }
+
+            Expression<Func<TrackedOperation, bool>>? conditions = null;
+            
+            if (!string.IsNullOrWhiteSpace(criteria))
+            {
+                var criteriaResult = parser.ParseUnaryPredicate<TrackedOperation>(criteria);
+                if (criteriaResult.IsFailed)
+                {
+                    throw new BadRequestException($"Invalid criteria: {string.Join("; ", criteriaResult.Errors.Select(e => e.Message))}");
+                }
+                conditions = criteriaResult.Value.AsExpression();
+            }
+            else
+            {
+                // Default: all operations
+                conditions = o => true;
+            }
+
+            var query = new ListDuplicatedOperationsQuery(conditions);
+            var duplicateGroups = await mediator.Send(query, ct);
+            
+            var response = duplicateGroups
+                .Select(group => group.Select(mapper.ToResponse).ToList())
+                .ToList();
+            
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(IAsyncEnumerable<OperationResponse>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+        [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+        public async IAsyncEnumerable<OperationResponse> GetOperations(
         [FromRoute] Guid budgetId,
         [FromQuery] string? criteria = null,
         [FromQuery] string? outputCurrency = null,
