@@ -165,7 +165,7 @@ export class OperationsListComponent implements OnInit {
           operations: [operation],
           budgetVersion: budget.version,
           transferConfidenceLevel: undefined,
-          taggingMode: 'PreserveExistingTags'
+          taggingMode: 'Skip'
         };
 
         this.operationsApi.updateOperations(this.budgetId, request).subscribe({
