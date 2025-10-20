@@ -24,80 +24,13 @@
       </div>
 
       <!-- Filters -->
-      <form [formGroup]="filterForm" class="filters-section" (submit)="applyFilters(); $event.preventDefault()">
-        <h3 tuiTitle size="m">Filter Criteria</h3>
-        <div class="filters-grid">
-          <div class="filter-item full-width">
-            <tui-textfield>
-              <label tuiLabel>Criteria Expression (Ctrl+Enter to apply)</label>
-              <textarea 
-                tuiTextarea
-                formControlName="criteria"
-                rows="2"
-                placeholder="e.g., o => o.Timestamp.Year == 2024"
-                (keydown)="onCriteriaKeydown($event)"
-              ></textarea>
-            </tui-textfield>
-          </div>
-        </div>
-
-        <div class="examples-section">
-          <div class="examples-header">
-            <h4>Common Examples</h4>
-            <button 
-              tuiButton
-              type="button"
-              appearance="flat"
-              size="xs"
-              (click)="toggleExamples()">
-              {{ showExamples ? '▼ Hide' : '▶ Show' }}
-            </button>
-          </div>
-          
-          @if (showExamples) {
-            <div class="examples-list">
-              <div class="example-item">
-                <strong>All operations:</strong>
-                <code>o => true</code>
-              </div>
-              <div class="example-item">
-                <strong>Specific year:</strong>
-                <code>o => o.Timestamp.Year == 2024</code>
-              </div>
-              <div class="example-item">
-                <strong>Negative amounts only:</strong>
-                <code>o => o.Amount.Amount &lt; 0</code>
-              </div>
-              <div class="example-item">
-                <strong>By description contains:</strong>
-                <code>o => o.Description.Contains("coffee")</code>
-              </div>
-              <div class="example-item">
-                <strong>Recent operations:</strong>
-                <code>o => o.Timestamp > DateTime.Now.AddDays(-30)</code>
-              </div>
-            </div>
-          }
-        </div>
-
-        <div class="filter-actions">
-          <button 
-            tuiButton
-            type="submit"
-            appearance="primary"
-            size="m">
-            Apply Filters
-          </button>
-          <button 
-            tuiButton
-            type="button"
-            appearance="secondary"
-            size="m"
-            (click)="clearFilters()">
-            Clear
-          </button>
-        </div>
-      </form>
+      <app-criteria-filter
+        [initialCriteria]="'o => true'"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="onCriteriaSubmitted($event)"
+        (criteriaCleared)="onCriteriaCleared()">
+      </app-criteria-filter>
 
       <!-- Duplicates List -->
       <div class="duplicates-section">

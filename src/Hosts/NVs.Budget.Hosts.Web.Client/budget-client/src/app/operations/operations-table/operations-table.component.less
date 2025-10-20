@@ -1,3 +1,5 @@
+@import '../shared/styles/mixins.less';
+
 .operations-table-container {
   overflow-x: auto;
   border-radius: 0.5rem;
@@ -121,20 +123,7 @@
             gap: 0.25rem;
             max-height: 60px;
             overflow-y: auto;
-            
-            &::-webkit-scrollbar {
-              width: 4px;
-              height: 4px;
-            }
-            
-            &::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            
-            &::-webkit-scrollbar-thumb {
-              background: var(--tui-base-05);
-              border-radius: 2px;
-            }
+            .custom-scrollbar();
           }
         }
         
@@ -147,20 +136,7 @@
             gap: 0.25rem;
             max-height: 60px;
             overflow-y: auto;
-            
-            &::-webkit-scrollbar {
-              width: 4px;
-              height: 4px;
-            }
-            
-            &::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            
-            &::-webkit-scrollbar-thumb {
-              background: var(--tui-base-05);
-              border-radius: 2px;
-            }
+            .custom-scrollbar();
           }
           
           .attr-chip {

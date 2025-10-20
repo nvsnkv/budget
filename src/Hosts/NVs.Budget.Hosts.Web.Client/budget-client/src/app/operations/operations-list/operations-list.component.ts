@@ -4,11 +4,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
-import { BudgetApiService } from '../../budget/budget-api.service';
-import { OperationResponse, BudgetResponse } from '../../budget/models';
+import { OperationResponse } from '../../budget/models';
 import { 
   TuiButton, 
-  TuiDialogService, 
   TuiLoader,
   TuiTitle,
   TuiTextfield,
@@ -18,6 +16,9 @@ import {
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
+import { NotificationService } from '../shared/notification.service';
+import { OperationsHelperService } from '../shared/operations-helper.service';
+import { CtrlEnterDirective } from '../shared/directives/ctrl-enter.directive';
 
 @Component({
   selector: 'app-operations-list',
@@ -35,7 +36,8 @@ import { OperationsTableComponent } from '../operations-table/operations-table.c
     TuiExpand,
     TuiTextarea,
     TuiCheckbox,
-    OperationsTableComponent
+    OperationsTableComponent,
+    CtrlEnterDirective
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -52,9 +54,9 @@ export class OperationsListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private budgetApi: BudgetApiService,
     private fb: FormBuilder,
-    private dialogService: TuiDialogService
+    private notificationService: NotificationService,
+    private operationsHelper: OperationsHelperService
   ) {}
 
   ngOnInit(): void {
@@ -78,7 +80,8 @@ export class OperationsListComponent implements OnInit {
       formValue.excludeTransfers
     ).pipe(
       catchError(error => {
-        this.handleError(error, 'Failed to load operations');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to load operations');
+        this.notificationService.showError(errorMessage).subscribe();
         return of([]);
       })
     );
@@ -98,13 +101,6 @@ export class OperationsListComponent implements OnInit {
       excludeTransfers: false
     });
     this.loadOperations();
-  }
-
-  onCriteriaKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && event.ctrlKey) {
-      event.preventDefault();
-      this.applyFilters();
-    }
   }
 
   navigateToImport(): void {
@@ -131,23 +127,23 @@ export class OperationsListComponent implements OnInit {
     }
 
     this.isLoading = true;
-    const criteria = `o => o.Id == Guid.Parse("${operation.id}")`;
     
-    this.operationsApi.removeOperations(this.budgetId, { criteria }).subscribe({
+    this.operationsHelper.deleteOperation(this.budgetId, operation.id).subscribe({
       next: (result) => {
         this.isLoading = false;
         
         if (result.errors && result.errors.length > 0) {
-          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
-          this.showError(`Failed to delete operation: ${errorMessage}`);
+          const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
+          this.notificationService.showError(`Failed to delete operation: ${errorMessage}`).subscribe();
         } else {
-          this.showSuccess('Operation deleted successfully');
+          this.notificationService.showSuccess('Operation deleted successfully').subscribe();
           this.loadOperations();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to delete operation');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to delete operation');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
   }
@@ -155,82 +151,24 @@ export class OperationsListComponent implements OnInit {
   onUpdateOperation(operation: OperationResponse): void {
     this.isLoading = true;
     
-    // Get the budget to access its version
-    this.budgetApi.getAllBudgets().subscribe({
-      next: (budgetList: BudgetResponse[]) => {
-        const budget = budgetList.find((b: BudgetResponse) => b.id === this.budgetId);
-        if (!budget) {
-          this.isLoading = false;
-          this.showError('Budget not found');
-          return;
-        }
-
-        const request = {
-          operations: [operation],
-          budgetVersion: budget.version,
-          transferConfidenceLevel: undefined,
-          taggingMode: 'Skip'
-        };
-
-        this.operationsApi.updateOperations(this.budgetId, request).subscribe({
-          next: (result) => {
-            this.isLoading = false;
-            
-            if (result.errors && result.errors.length > 0) {
-              const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
-              this.showError(`Failed to update operation: ${errorMessage}`);
-            } else {
-              this.showSuccess('Operation updated successfully');
-              this.loadOperations();
-            }
-          },
-          error: (error: any) => {
-            this.isLoading = false;
-            this.handleError(error, 'Failed to update operation');
-          }
-        });
-      },
-      error: (error: any) => {
+    this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
+      next: (result) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to load budget');
+        
+        if (result.errors && result.errors.length > 0) {
+          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+          this.notificationService.showError(`Failed to update operation: ${errorMessage}`).subscribe();
+        } else {
+          this.notificationService.showSuccess('Operation updated successfully').subscribe();
+          this.loadOperations();
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        const errorMessage = this.notificationService.handleError(error, 'Failed to update operation');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
-  }
-
-  private handleError(error: any, defaultMessage: string): void {
-    let errorMessage = defaultMessage;
-    
-    if (error.status === 400 && Array.isArray(error.error)) {
-      const errors = error.error as any[];
-      errorMessage = errors.map(e => e.message || e).join('; ');
-    } else if (error.error?.message) {
-      errorMessage = error.error.message;
-    }
-    
-    this.showError(errorMessage);
-  }
-
-  private showError(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Error',
-      size: 'm',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
-  }
-
-  private showSuccess(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Success',
-      size: 's',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
-  }
-
-  // Helper method for template to access Object.keys
-  getObjectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
   }
 }
 

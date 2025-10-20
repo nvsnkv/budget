@@ -1,36 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
-import { BudgetApiService } from '../../budget/budget-api.service';
-import { OperationResponse, BudgetResponse } from '../../budget/models';
+import { OperationResponse } from '../../budget/models';
 import { 
   TuiButton, 
-  TuiDialogService,
   TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
+  TuiTitle
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiTextarea } from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
+import { NotificationService } from '../shared/notification.service';
+import { OperationsHelperService } from '../shared/operations-helper.service';
+import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
+import { CriteriaExample } from '../shared/models/example.interface';
 
 @Component({
   selector: 'app-duplicates-list',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
-    TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    TuiTextarea,
-    OperationsTableComponent
+    OperationsTableComponent,
+    CriteriaFilterComponent
   ],
   templateUrl: './duplicates-list.component.html',
   styleUrls: ['./duplicates-list.component.less']
@@ -40,62 +35,53 @@ export class DuplicatesListComponent implements OnInit {
   duplicateGroups: OperationResponse[][] = [];
   isLoading = false;
   
-  filterForm!: FormGroup;
-  showExamples = false;
+  criteriaExamples: CriteriaExample[] = [
+    { label: 'All operations:', code: 'o => true' },
+    { label: 'Specific year:', code: 'o => o.Timestamp.Year == 2024' },
+    { label: 'Negative amounts only:', code: 'o => o.Amount.Amount < 0' },
+    { label: 'By description contains:', code: 'o => o.Description.Contains("coffee")' },
+    { label: 'Recent operations:', code: 'o => o.Timestamp > DateTime.Now.AddDays(-30)' }
+  ];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private budgetApi: BudgetApiService,
-    private fb: FormBuilder,
-    private dialogService: TuiDialogService
+    private notificationService: NotificationService,
+    private operationsHelper: OperationsHelperService
   ) {}
 
   ngOnInit(): void {
     this.budgetId = this.route.snapshot.params['budgetId'];
-    
-    this.filterForm = this.fb.group({
-      criteria: ['o => true']
-    });
-
-    this.loadDuplicates();
+    this.loadDuplicates('o => true');
   }
 
-  loadDuplicates(): void {
+  loadDuplicates(criteria: string): void {
     this.isLoading = true;
-    const criteria = this.filterForm.value.criteria || undefined;
     
-    this.operationsApi.getDuplicates(this.budgetId, criteria).subscribe({
+    this.operationsApi.getDuplicates(this.budgetId, criteria || undefined).subscribe({
       next: (groups) => {
         this.duplicateGroups = groups;
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Failed to load duplicates', error);
+        const errorMessage = this.notificationService.handleError(error, 'Failed to load duplicates');
+        this.notificationService.showError(errorMessage).subscribe();
         this.isLoading = false;
       }
     });
   }
 
-  applyFilters(): void {
-    this.loadDuplicates();
+  onCriteriaSubmitted(criteria: string): void {
+    this.loadDuplicates(criteria);
+  }
+
+  onCriteriaCleared(): void {
+    this.loadDuplicates('o => true');
   }
 
   clearFilters(): void {
-    this.filterForm.patchValue({ criteria: 'o => true' });
-    this.loadDuplicates();
-  }
-
-  toggleExamples(): void {
-    this.showExamples = !this.showExamples;
-  }
-
-  onCriteriaKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && event.ctrlKey) {
-      event.preventDefault();
-      this.applyFilters();
-    }
+    this.onCriteriaCleared();
   }
 
   navigateToOperations(): void {
@@ -118,23 +104,23 @@ export class DuplicatesListComponent implements OnInit {
     }
 
     this.isLoading = true;
-    const criteria = `o => o.Id == Guid.Parse("${operation.id}")`;
     
-    this.operationsApi.removeOperations(this.budgetId, { criteria }).subscribe({
+    this.operationsHelper.deleteOperation(this.budgetId, operation.id).subscribe({
       next: (result) => {
         this.isLoading = false;
         
         if (result.errors && result.errors.length > 0) {
-          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
-          this.showError(`Failed to delete operation: ${errorMessage}`);
+          const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
+          this.notificationService.showError(`Failed to delete operation: ${errorMessage}`).subscribe();
         } else {
-          this.showSuccess('Operation deleted successfully');
-          this.loadDuplicates();
+          this.notificationService.showSuccess('Operation deleted successfully').subscribe();
+          this.loadDuplicates('o => true');
         }
       },
-      error: (error: any) => {
+      error: (error) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to delete operation');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to delete operation');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
   }
@@ -142,77 +128,24 @@ export class DuplicatesListComponent implements OnInit {
   onUpdateOperation(operation: OperationResponse): void {
     this.isLoading = true;
     
-    // Get the budget to access its version
-    this.budgetApi.getAllBudgets().subscribe({
-      next: (budgetList: BudgetResponse[]) => {
-        const budget = budgetList.find((b: BudgetResponse) => b.id === this.budgetId);
-        if (!budget) {
-          this.isLoading = false;
-          this.showError('Budget not found');
-          return;
-        }
-
-        const request = {
-          operations: [operation],
-          budgetVersion: budget.version,
-          transferConfidenceLevel: undefined,
-          taggingMode: 'Skip'
-        };
-
-        this.operationsApi.updateOperations(this.budgetId, request).subscribe({
-          next: (result) => {
-            this.isLoading = false;
-            
-            if (result.errors && result.errors.length > 0) {
-              const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
-              this.showError(`Failed to update operation: ${errorMessage}`);
-            } else {
-              this.showSuccess('Operation updated successfully');
-              this.loadDuplicates();
-            }
-          },
-          error: (error: any) => {
-            this.isLoading = false;
-            this.handleError(error, 'Failed to update operation');
-          }
-        });
-      },
-      error: (error: any) => {
+    this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
+      next: (result) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to load budget');
+        
+        if (result.errors && result.errors.length > 0) {
+          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+          this.notificationService.showError(`Failed to update operation: ${errorMessage}`).subscribe();
+        } else {
+          this.notificationService.showSuccess('Operation updated successfully').subscribe();
+          this.loadDuplicates('o => true');
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        const errorMessage = this.notificationService.handleError(error, 'Failed to update operation');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
-  }
-
-  private handleError(error: any, defaultMessage: string): void {
-    let errorMessage = defaultMessage;
-    
-    if (error.status === 400 && Array.isArray(error.error)) {
-      const errors = error.error as any[];
-      errorMessage = errors.map(e => e.message || e).join('; ');
-    } else if (error.error?.message) {
-      errorMessage = error.error.message;
-    }
-    
-    this.showError(errorMessage);
-  }
-
-  private showError(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Error',
-      size: 'm',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
-  }
-
-  private showSuccess(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Success',
-      size: 's',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
   }
 }
 

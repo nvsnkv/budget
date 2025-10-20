@@ -1,33 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
-import { IError, ISuccess } from '../../budget/models';
 import { 
   TuiButton, 
-  TuiDialogService, 
   TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
+  TuiTitle
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiTextarea } from '@taiga-ui/kit';
+import { NotificationService } from '../shared/notification.service';
+import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
+import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
+import { CriteriaExample } from '../shared/models/example.interface';
+import { OperationResult } from '../shared/models/result.interface';
 
 @Component({
   selector: 'app-delete-operations',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
-    TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    TuiTextarea
+    CriteriaFilterComponent,
+    OperationResultComponent
   ],
   templateUrl: './delete-operations.component.html',
   styleUrls: ['./delete-operations.component.less']
@@ -35,45 +32,36 @@ import { TuiTextarea } from '@taiga-ui/kit';
 export class DeleteOperationsComponent implements OnInit {
   budgetId!: string;
   isLoading = false;
+  deleteResult: OperationResult | null = null;
+  currentCriteria = 'o => true';
   
-  deleteForm!: FormGroup;
-  deleteResult: {
-    errors: IError[];
-    successes: ISuccess[];
-  } | null = null;
-  
-  // Section toggles
-  showExamples = false;
-  showSuccesses = true;
-  showErrors = true;
+  criteriaExamples: CriteriaExample[] = [
+    { label: 'All operations:', code: 'o => true' },
+    { label: 'Negative amounts:', code: 'o => o.Amount.Amount < 0' },
+    { label: 'Specific year:', code: 'o => o.Timestamp.Year == 2023' },
+    { label: 'Contains text:', code: 'o => o.Description.Contains("test")' },
+    { label: 'By tag:', code: 'o => o.Tags.Any(t => t.Value == "unwanted")' },
+    { label: 'By attribute:', code: 'o => o.Attributes.ContainsKey("error")' },
+    { label: 'Amount range:', code: 'o => o.Amount.Amount >= -100 && o.Amount.Amount <= -10' }
+  ];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private fb: FormBuilder,
-    private dialogService: TuiDialogService
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.budgetId = this.route.snapshot.params['budgetId'];
-    
-    this.deleteForm = this.fb.group({
-      criteria: ['o => true', Validators.required]
-    });
   }
 
-  toggleExamples(): void {
-    this.showExamples = !this.showExamples;
+  onCriteriaSubmitted(criteria: string): void {
+    this.currentCriteria = criteria;
+    this.deleteOperations(criteria);
   }
 
-  deleteOperations(): void {
-    if (!this.deleteForm.valid) {
-      this.showError('Please provide a valid criteria expression');
-      return;
-    }
-
-    const criteria = this.deleteForm.value.criteria;
+  deleteOperations(criteria: string): void {
     const confirmMessage = `Are you sure you want to delete all operations matching the criteria:\n\n${criteria}\n\nThis action cannot be undone.`;
     
     const confirmed = confirm(confirmMessage);
@@ -91,18 +79,19 @@ export class DeleteOperationsComponent implements OnInit {
         };
         
         if (result.errors.length === 0) {
-          this.showSuccess('Operations deleted successfully');
+          this.notificationService.showSuccess('Operations deleted successfully').subscribe();
           this.operationsApi.triggerRefresh(this.budgetId);
         } else {
           const errorMessage = result.errors.length > 5 
             ? `Deletion completed with ${result.errors.length} errors. Check the results below.`
             : `Deletion completed with errors. See details below.`;
-          this.showError(errorMessage);
+          this.notificationService.showError(errorMessage).subscribe();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to delete operations');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to delete operations');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
   }
@@ -111,53 +100,8 @@ export class DeleteOperationsComponent implements OnInit {
     this.router.navigate(['/budget', this.budgetId]);
   }
 
-  resetForm(): void {
-    this.deleteForm.patchValue({ criteria: 'o => true' });
+  resetResult(): void {
     this.deleteResult = null;
-  }
-
-  toggleSuccesses(): void {
-    this.showSuccesses = !this.showSuccesses;
-  }
-
-  toggleErrors(): void {
-    this.showErrors = !this.showErrors;
-  }
-
-  // Helper method to access Object.keys in template
-  getObjectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
-
-  private handleError(error: any, defaultMessage: string): void {
-    let errorMessage = defaultMessage;
-    
-    if (error.status === 400 && Array.isArray(error.error)) {
-      const errors = error.error as any[];
-      errorMessage = errors.map(e => e.message || e).join('; ');
-    } else if (error.error?.message) {
-      errorMessage = error.error.message;
-    }
-    
-    this.showError(errorMessage);
-  }
-
-  private showError(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Error',
-      size: 'm',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
-  }
-
-  private showSuccess(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Success',
-      size: 's',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
   }
 }
 

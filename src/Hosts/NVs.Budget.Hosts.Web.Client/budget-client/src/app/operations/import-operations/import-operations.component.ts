@@ -4,10 +4,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse, IError, ISuccess } from '../../budget/models';
+import { BudgetResponse } from '../../budget/models';
 import { 
   TuiButton, 
-  TuiDialogService, 
   TuiLoader,
   TuiTitle,
   TuiTextfield,
@@ -15,6 +14,9 @@ import {
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
+import { NotificationService } from '../shared/notification.service';
+import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
+import { ImportResult } from '../shared/models/result.interface';
 
 @Component({
   selector: 'app-import-operations',
@@ -28,7 +30,8 @@ import { OperationsTableComponent } from '../operations-table/operations-table.c
     TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    OperationsTableComponent
+    OperationsTableComponent,
+    OperationResultComponent
   ],
   templateUrl: './import-operations.component.html',
   styleUrls: ['./import-operations.component.less']
@@ -40,16 +43,9 @@ export class ImportOperationsComponent implements OnInit {
   
   importForm!: FormGroup;
   selectedFile: File | null = null;
-  importResult: { 
-    registered: number;
-    duplicates: number; 
-    errors: IError[];
-    successes: ISuccess[];
-  } | null = null;
+  importResult: ImportResult | null = null;
 
   // Section toggles
-  showSuccesses = true;
-  showErrors = true;
   showDuplicates = false;
 
   constructor(
@@ -58,7 +54,7 @@ export class ImportOperationsComponent implements OnInit {
     private operationsApi: OperationsApiService,
     private budgetApi: BudgetApiService,
     private fb: FormBuilder,
-    private dialogService: TuiDialogService
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +77,8 @@ export class ImportOperationsComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to load budget');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to load budget');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
   }
@@ -98,7 +95,7 @@ export class ImportOperationsComponent implements OnInit {
 
   importCsv(): void {
     if (!this.selectedFile || !this.budget) {
-      this.showError('Please select a CSV file first');
+      this.notificationService.showError('Please select a CSV file first').subscribe();
       return;
     }
 
@@ -121,25 +118,24 @@ export class ImportOperationsComponent implements OnInit {
           registered: result.registeredOperations.length,
           duplicates: result.duplicates.length,
           errors: result.errors,
-          successes: result.successes
+          successes: result.successes,
+          duplicatesList: result.duplicates
         };
         
-        // Store full result for displaying details
-        (this.importResult as any).duplicatesList = result.duplicates;
-        
         if (result.errors.length === 0) {
-          this.showSuccess(`Successfully imported ${result.registeredOperations.length} operations`);
+          this.notificationService.showSuccess(`Successfully imported ${result.registeredOperations.length} operations`).subscribe();
           this.operationsApi.triggerRefresh(this.budgetId);
         } else {
           const errorMessage = result.errors.length > 5 
             ? `Import completed with ${result.errors.length} errors. Check the results below.`
             : `Import completed with errors. See details below.`;
-          this.showError(errorMessage);
+          this.notificationService.showError(errorMessage).subscribe();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.handleError(error, 'Failed to import operations');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to import operations');
+        this.notificationService.showError(errorMessage).subscribe();
       }
     });
   }
@@ -148,56 +144,12 @@ export class ImportOperationsComponent implements OnInit {
     this.router.navigate(['/budget', this.budgetId]);
   }
 
-  private handleError(error: any, defaultMessage: string): void {
-    let errorMessage = defaultMessage;
-    
-    if (error.status === 400 && Array.isArray(error.error)) {
-      const errors = error.error as any[];
-      errorMessage = errors.map(e => e.message || e).join('; ');
-    } else if (error.error?.message) {
-      errorMessage = error.error.message;
-    }
-    
-    this.showError(errorMessage);
-  }
-
-  private showError(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Error',
-      size: 'm',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
-  }
-
-  private showSuccess(message: string): void {
-    this.dialogService.open(message, {
-      label: 'Success',
-      size: 's',
-      closeable: true,
-      dismissible: true
-    }).subscribe();
-  }
-
-  // Helper method to access Object.keys in template
-  getObjectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
-
-  toggleSuccesses(): void {
-    this.showSuccesses = !this.showSuccesses;
-  }
-
-  toggleErrors(): void {
-    this.showErrors = !this.showErrors;
-  }
-
   toggleDuplicates(): void {
     this.showDuplicates = !this.showDuplicates;
   }
 
   getDuplicatesList(): any[] {
-    return (this.importResult as any)?.duplicatesList || [];
+    return this.importResult?.duplicatesList || [];
   }
 }
 

@@ -15,7 +15,7 @@
     <tbody>
       @for (operation of operations; track operation.id) {
         <tr class="operation-row" [class.editing]="isEditing(operation.id)">
-          <td class="col-timestamp">{{ formatDate(operation.timestamp) }}</td>
+          <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
           <td class="col-description">
             @if (isEditing(operation.id) && editingOperation) {
               <input 
@@ -44,7 +44,7 @@
                 />
               </div>
             } @else {
-              {{ formatCurrency(operation.amount.value, operation.amount.currencyCode) }}
+              {{ operation.amount.value | currencyFormat: operation.amount.currencyCode }}
             }
           </td>
           <td class="col-tags">
@@ -87,7 +87,7 @@
           <td class="col-attributes">
             @if (isEditing(operation.id) && editingOperation) {
               <div class="attributes-edit">
-                @for (key of getObjectKeys(editingOperation.attributes); track key) {
+                @for (key of editingOperation.attributes | objectKeys; track key) {
                   <div class="attribute-edit-item">
                     <input 
                       class="edit-input attr-key-input" 
@@ -120,9 +120,9 @@
                 </button>
               </div>
             } @else {
-              @if (operation.attributes && getObjectKeys(operation.attributes).length > 0) {
+              @if (operation.attributes && (operation.attributes | objectKeys).length > 0) {
                 <div class="attributes-inline">
-                  @for (key of getObjectKeys(operation.attributes!); track key) {
+                  @for (key of operation.attributes | objectKeys; track key) {
                     <tui-chip size="xs" class="attr-chip">
                       {{ key }}: {{ operation.attributes![key] }}
                     </tui-chip>

@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { OperationResponse } from '../../budget/models';
 import { TuiButton, TuiExpand, TuiTextfield } from '@taiga-ui/core';
 import { TuiChip } from '@taiga-ui/kit';
+import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
+import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
+import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
 
 interface EditableOperation {
   id: string;
@@ -23,7 +26,10 @@ interface EditableOperation {
     TuiButton,
     TuiExpand,
     TuiChip,
-    TuiTextfield
+    TuiTextfield,
+    CurrencyFormatPipe,
+    DateFormatPipe,
+    ObjectKeysPipe
   ],
   templateUrl: './operations-table.component.html',
   styleUrls: ['./operations-table.component.less']
@@ -40,27 +46,6 @@ export class OperationsTableComponent {
 
   toggleOperationDetails(operationId: string): void {
     this.expandedOperationId = this.expandedOperationId === operationId ? null : operationId;
-  }
-
-  formatCurrency(amount: number, currencyCode: string): string {
-    // Format number with space as thousand separator
-    const formattedAmount = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    return `${formattedAmount} ${currencyCode}`;
-  }
-
-  formatDate(timestamp: string): string {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${year}.${month}.${day}, ${hours}:${minutes}:${seconds}`;
-  }
-
-  getObjectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
   }
 
   deleteOperation(operation: OperationResponse): void {

@@ -136,85 +136,10 @@
               </div>
             }
             
-            <!-- Successes Section -->
-            @if (importResult.successes.length > 0) {
-              <div class="successes-section">
-                <div class="section-header-with-toggle">
-                  <h4>Success Messages ({{ importResult.successes.length }})</h4>
-                  <button 
-                    tuiButton
-                    type="button"
-                    appearance="flat"
-                    size="xs"
-                    (click)="toggleSuccesses()">
-                    {{ showSuccesses ? '▼ Hide' : '▶ Show' }}
-                  </button>
-                </div>
-                @if (showSuccesses) {
-                @for (success of importResult.successes; track $index) {
-                  <div class="success-item">
-                    <div class="success-message">{{ success.message || 'Success' }}</div>
-                    @if (success.metadata && getObjectKeys(success.metadata).length > 0) {
-                      <div class="metadata">
-                        <strong>Details:</strong>
-                        @for (key of getObjectKeys(success.metadata); track key) {
-                          <div class="metadata-item">
-                            <span class="metadata-key">{{ key }}:</span>
-                            <span class="metadata-value">{{ success.metadata[key] }}</span>
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-                }
-              </div>
-            }
-            
-            <!-- Errors Section -->
-            @if (importResult.errors.length > 0) {
-              <div class="errors-section">
-                <div class="section-header-with-toggle">
-                  <h4>Errors ({{ importResult.errors.length }})</h4>
-                  <button 
-                    tuiButton
-                    type="button"
-                    appearance="flat"
-                    size="xs"
-                    (click)="toggleErrors()">
-                    {{ showErrors ? '▼ Hide' : '▶ Show' }}
-                  </button>
-                </div>
-                @if (showErrors) {
-                @for (error of importResult.errors; track $index) {
-                  <div class="error-item">
-                    <div class="error-message">{{ error.message || 'Error' }}</div>
-                    @if (error.metadata && getObjectKeys(error.metadata).length > 0) {
-                      <div class="metadata">
-                        <strong>Details:</strong>
-                        @for (key of getObjectKeys(error.metadata); track key) {
-                          <div class="metadata-item">
-                            <span class="metadata-key">{{ key }}:</span>
-                            <span class="metadata-value">{{ error.metadata[key] }}</span>
-                          </div>
-                        }
-                      </div>
-                    }
-                    @if (error.reasons && error.reasons.length > 0) {
-                      <div class="nested-reasons">
-                        <strong>Caused by:</strong>
-                        <ul>
-                          @for (reason of error.reasons; track $index) {
-                            <li>{{ reason.message || 'Unspecified reason' }}</li>
-                          }
-                        </ul>
-                      </div>
-                    }
-                  </div>
-                }
-                }
-              </div>
-            }
+            <app-operation-result
+              [successes]="importResult.successes"
+              [errors]="importResult.errors">
+            </app-operation-result>
           </div>
         }
       } @else {

@@ -50,7 +50,7 @@
               formControlName="criteria" 
               rows="2"
               placeholder="e.g., o => o.Amount.Amount > 100"
-              (keydown)="onCriteriaKeydown($event)"
+              (appCtrlEnter)="applyFilters()"
             ></textarea>
           </tui-textfield>
         </div>

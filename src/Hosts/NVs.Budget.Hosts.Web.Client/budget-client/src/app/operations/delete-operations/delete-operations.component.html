@@ -4,203 +4,63 @@
       <h2 tuiTitle size="l">Delete Operations</h2>
       
       <div class="danger-warning">
-          <h3>⚠️ Warning: Dangerous Operation</h3>
-          <p>This action will permanently delete all operations matching your criteria. This cannot be undone.</p>
-          <p>Please be careful and verify your criteria before executing the deletion.</p>
-        </div>
+        <h3>⚠️ Warning: Dangerous Operation</h3>
+        <p>This action will permanently delete all operations matching your criteria. This cannot be undone.</p>
+        <p>Please be careful and verify your criteria before executing the deletion.</p>
+      </div>
 
-        <form [formGroup]="deleteForm" class="delete-form">
-          <div class="form-section">
-            <h3 tuiTitle size="m">Deletion Criteria</h3>
-            <tui-textfield>
-              <label tuiLabel>Criteria Expression</label>
-              <textarea 
-                tuiTextarea 
-                formControlName="criteria" 
-                rows="4"
-                placeholder="e.g., o => o.Amount.Amount < 0 && o.Timestamp.Year == 2023"
-              ></textarea>
-            </tui-textfield>
-          </div>
+      <app-criteria-filter
+        [initialCriteria]="'o => true'"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="onCriteriaSubmitted($event)">
+      </app-criteria-filter>
 
-          <div class="examples-section">
-            <div class="examples-header">
-              <h4>Common Examples</h4>
-              <button 
-                tuiButton
-                type="button"
-                appearance="flat"
-                size="xs"
-                (click)="toggleExamples()">
-                {{ showExamples ? '▼ Hide' : '▶ Show' }}
-              </button>
-            </div>
-            
-            @if (showExamples) {
-              <div class="examples-list">
-                <div class="example-item">
-                  <strong>All operations:</strong>
-                  <code>o => true</code>
-                </div>
-                <div class="example-item">
-                  <strong>Negative amounts:</strong>
-                  <code>o => o.Amount.Amount &lt; 0</code>
-                </div>
-                <div class="example-item">
-                  <strong>Specific year:</strong>
-                  <code>o => o.Timestamp.Year == 2023</code>
-                </div>
-                <div class="example-item">
-                  <strong>Contains text:</strong>
-                  <code>o => o.Description.Contains("test")</code>
-                </div>
-                <div class="example-item">
-                  <strong>By tag:</strong>
-                  <code>o => o.Tags.Any(t => t.Value == "unwanted")</code>
-                </div>
-                <div class="example-item">
-                  <strong>By attribute:</strong>
-                  <code>o => o.Attributes.ContainsKey("error")</code>
-                </div>
-                <div class="example-item">
-                  <strong>Amount range:</strong>
-                  <code>o => o.Amount.Amount >= -100 && o.Amount.Amount &lt;= -10</code>
-                </div>
-              </div>
-            }
-          </div>
-
-          <div class="form-actions">
-            <button 
-              tuiButton
-              type="button"
-              appearance="destructive"
-              size="m"
-              [disabled]="!deleteForm.valid || isLoading"
-              (click)="deleteOperations()">
-              Delete Operations
-            </button>
-            <button 
-              tuiButton
-              type="button"
-              appearance="secondary"
-              size="m"
-              (click)="viewOperations()">
-              View Operations List
-            </button>
-            @if (deleteResult) {
-              <button 
-                tuiButton
-                type="button"
-                appearance="flat"
-                size="m"
-                (click)="resetForm()">
-                Reset Form
-              </button>
-            }
-          </div>
-        </form>
-
+      <div class="action-buttons">
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="viewOperations()">
+          View Operations List
+        </button>
         @if (deleteResult) {
-          <div class="delete-result">
-            <h3 tuiTitle size="m">Deletion Results</h3>
-            <div class="result-stats">
-              @if (deleteResult.successes.length > 0) {
-                <div class="stat-item success">
-                  <span class="stat-label">Successes:</span>
-                  <span class="stat-value">{{ deleteResult.successes.length }}</span>
-                </div>
-              }
-              @if (deleteResult.errors.length > 0) {
-                <div class="stat-item error">
-                  <span class="stat-label">Errors:</span>
-                  <span class="stat-value">{{ deleteResult.errors.length }}</span>
-                </div>
-              }
-            </div>
-            
-            <!-- Successes Section -->
+          <button 
+            tuiButton
+            type="button"
+            appearance="flat"
+            size="m"
+            (click)="resetResult()">
+            Reset Results
+          </button>
+        }
+      </div>
+
+      @if (deleteResult) {
+        <div class="delete-result">
+          <h3 tuiTitle size="m">Deletion Results</h3>
+          <div class="result-stats">
             @if (deleteResult.successes.length > 0) {
-              <div class="successes-section">
-                <div class="section-header-with-toggle">
-                  <h4>Success Messages ({{ deleteResult.successes.length }})</h4>
-                  <button 
-                    tuiButton
-                    type="button"
-                    appearance="flat"
-                    size="xs"
-                    (click)="toggleSuccesses()">
-                    {{ showSuccesses ? '▼ Hide' : '▶ Show' }}
-                  </button>
-                </div>
-                @if (showSuccesses) {
-                  @for (success of deleteResult.successes; track $index) {
-                    <div class="success-item">
-                      <div class="success-message">{{ success.message || 'Success' }}</div>
-                      @if (success.metadata && getObjectKeys(success.metadata).length > 0) {
-                        <div class="metadata">
-                          <strong>Details:</strong>
-                          @for (key of getObjectKeys(success.metadata); track key) {
-                            <div class="metadata-item">
-                              <span class="metadata-key">{{ key }}:</span>
-                              <span class="metadata-value">{{ success.metadata[key] }}</span>
-                            </div>
-                          }
-                        </div>
-                      }
-                    </div>
-                  }
-                }
+              <div class="stat-item success">
+                <span class="stat-label">Successes:</span>
+                <span class="stat-value">{{ deleteResult.successes.length }}</span>
               </div>
             }
-            
-            <!-- Errors Section -->
             @if (deleteResult.errors.length > 0) {
-              <div class="errors-section">
-                <div class="section-header-with-toggle">
-                  <h4>Errors ({{ deleteResult.errors.length }})</h4>
-                  <button 
-                    tuiButton
-                    type="button"
-                    appearance="flat"
-                    size="xs"
-                    (click)="toggleErrors()">
-                    {{ showErrors ? '▼ Hide' : '▶ Show' }}
-                  </button>
-                </div>
-                @if (showErrors) {
-                  @for (error of deleteResult.errors; track $index) {
-                    <div class="error-item">
-                      <div class="error-message">{{ error.message || 'Error' }}</div>
-                      @if (error.metadata && getObjectKeys(error.metadata).length > 0) {
-                        <div class="metadata">
-                          <strong>Details:</strong>
-                          @for (key of getObjectKeys(error.metadata); track key) {
-                            <div class="metadata-item">
-                              <span class="metadata-key">{{ key }}:</span>
-                              <span class="metadata-value">{{ error.metadata[key] }}</span>
-                            </div>
-                          }
-                        </div>
-                      }
-                      @if (error.reasons && error.reasons.length > 0) {
-                        <div class="nested-reasons">
-                          <strong>Caused by:</strong>
-                          <ul>
-                            @for (reason of error.reasons; track $index) {
-                              <li>{{ reason.message || 'Unspecified reason' }}</li>
-                            }
-                          </ul>
-                        </div>
-                      }
-                    </div>
-                  }
-                }
+              <div class="stat-item error">
+                <span class="stat-label">Errors:</span>
+                <span class="stat-value">{{ deleteResult.errors.length }}</span>
               </div>
             }
           </div>
-        }
+          
+          <app-operation-result
+            [successes]="deleteResult.successes"
+            [errors]="deleteResult.errors">
+          </app-operation-result>
+        </div>
+      }
     </div>
   </tui-loader>
 </div>
-

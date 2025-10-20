@@ -1,0 +1,12 @@
+@if (metadata && (metadata | objectKeys).length > 0) {
+  <div class="metadata">
+    <strong>{{ title }}:</strong>
+    @for (key of metadata | objectKeys; track key) {
+      <div class="metadata-item">
+        <span class="metadata-key">{{ key }}:</span>
+        <span class="metadata-value">{{ metadata[key] }}</span>
+      </div>
+    }
+  </div>
+}
+
