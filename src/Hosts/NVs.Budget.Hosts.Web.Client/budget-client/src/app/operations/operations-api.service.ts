@@ -5,9 +5,11 @@ import {
   OperationResponse,
   UpdateOperationsRequest,
   RemoveOperationsRequest,
+  RetagOperationsRequest,
   ImportResultResponse,
   UpdateResultResponse,
-  DeleteResultResponse
+  DeleteResultResponse,
+  RetagResultResponse
 } from '../budget/models';
 import { environment } from '../../environments/environment';
 
@@ -107,6 +109,18 @@ export class OperationsApiService {
         body: request,
         withCredentials: true 
       }
+    );
+  }
+
+  /**
+   * Retag operations matching criteria
+   */
+  retagOperations(budgetId: string, request: RetagOperationsRequest): Observable<RetagResultResponse> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.post<RetagResultResponse>(
+      `${this.baseUrl}/budget/${budgetId}/operations/retag`,
+      request,
+      { headers, withCredentials: true }
     );
   }
 

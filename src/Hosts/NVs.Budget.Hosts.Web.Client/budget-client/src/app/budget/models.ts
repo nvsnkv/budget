@@ -117,6 +117,12 @@ export interface RemoveOperationsRequest {
   criteria: string;
 }
 
+export interface RetagOperationsRequest {
+  budgetVersion: string;
+  criteria: string;
+  fromScratch: boolean;
+}
+
 export interface IReason {
   message?: string;
   metadata?: Record<string, any>;
@@ -141,6 +147,11 @@ export interface UpdateResultResponse {
 }
 
 export interface DeleteResultResponse {
+  errors: IError[];
+  successes: ISuccess[];
+}
+
+export interface RetagResultResponse {
   errors: IError[];
   successes: ISuccess[];
 }

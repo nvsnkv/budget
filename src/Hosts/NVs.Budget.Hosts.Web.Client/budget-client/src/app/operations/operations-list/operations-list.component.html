@@ -22,6 +22,14 @@
         <button 
           tuiButton
           type="button"
+          appearance="secondary"
+          size="m"
+          (click)="navigateToRetag()">
+          Retag Operations
+        </button>
+        <button 
+          tuiButton
+          type="button"
           appearance="destructive"
           size="m"
           (click)="navigateToDelete()">
@@ -39,65 +47,41 @@
     </div>
 
     <!-- Filters -->
-    <form [formGroup]="filterForm" class="filters-section" (submit)="applyFilters(); $event.preventDefault()">
+    <div class="filters-section">
       <h3 tuiTitle size="m">Filters</h3>
-      <div class="filters-grid">
-        <div class="filter-item full-width">
-          <tui-textfield>
-            <label tuiLabel>Criteria Expression (Ctrl+Enter to apply)</label>
-            <textarea 
-              tuiTextarea 
-              formControlName="criteria" 
-              rows="2"
-              placeholder="e.g., o => o.Amount.Amount > 100"
-              (appCtrlEnter)="applyFilters()"
-            ></textarea>
-          </tui-textfield>
-        </div>
+      <app-criteria-filter
+        [initialCriteria]="currentCriteria"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="onCriteriaSubmitted($event)"
+        (criteriaCleared)="onCriteriaCleared()">
         
-        <div class="filter-item">
-          <tui-textfield>
-            <label tuiLabel>Output Currency</label>
-            <input 
-              tuiTextfield 
-              formControlName="outputCurrency" 
-              type="text" 
-              placeholder="e.g., USD, EUR"
-            />
-          </tui-textfield>
+        <div class="additional-filters">
+          <div class="filter-item">
+            <tui-textfield>
+              <label tuiLabel>Output Currency</label>
+              <input 
+                tuiTextfield 
+                [(ngModel)]="outputCurrency"
+                type="text" 
+                placeholder="e.g., USD, EUR"
+              />
+            </tui-textfield>
+          </div>
+          
+          <div class="filter-item">
+            <label tuiLabel size="m">
+              <input 
+                tuiCheckbox
+                type="checkbox" 
+                [(ngModel)]="excludeTransfers"
+              />
+              Exclude Transfers
+            </label>
+          </div>
         </div>
-        
-        <div class="filter-item checkbox-field">
-          <label tuiLabel size="m">
-            <input 
-              tuiCheckbox
-              type="checkbox" 
-              formControlName="excludeTransfers"
-            />
-            Exclude Transfers
-          </label>
-        </div>
-      </div>
-      
-      <div class="filter-actions">
-        <button 
-          tuiButton
-          type="button"
-          appearance="primary"
-          size="s"
-          (click)="applyFilters()">
-          Apply Filters
-        </button>
-        <button 
-          tuiButton
-          type="button"
-          appearance="flat"
-          size="s"
-          (click)="clearFilters()">
-          Clear
-        </button>
-      </div>
-    </form>
+      </app-criteria-filter>
+    </div>
 
     <!-- Operations List -->
     <div class="operations-section">

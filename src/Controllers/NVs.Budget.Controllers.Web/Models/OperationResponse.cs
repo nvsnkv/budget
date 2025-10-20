@@ -46,6 +46,12 @@ public record RemoveOperationsRequest(
     string Criteria
 );
 
+public record RetagOperationsRequest(
+    string BudgetVersion,
+    string Criteria,
+    bool FromScratch
+);
+
 // Result response models
 public record ImportResultResponse(
     IReadOnlyCollection<OperationResponse> RegisteredOperations,
@@ -60,6 +66,11 @@ public record UpdateResultResponse(
 );
 
 public record DeleteResultResponse(
+    IReadOnlyCollection<IError> Errors,
+    IReadOnlyCollection<ISuccess> Successes
+);
+
+public record RetagResultResponse(
     IReadOnlyCollection<IError> Errors,
     IReadOnlyCollection<ISuccess> Successes
 );

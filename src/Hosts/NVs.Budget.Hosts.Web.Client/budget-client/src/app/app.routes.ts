@@ -5,6 +5,7 @@ import { ReadingSettingsComponent } from './budget/reading-settings/reading-sett
 import { ImportOperationsComponent } from './operations/import-operations/import-operations.component';
 import { OperationsListComponent } from './operations/operations-list/operations-list.component';
 import { DeleteOperationsComponent } from './operations/delete-operations/delete-operations.component';
+import { RetagOperationsComponent } from './operations/retag-operations/retag-operations.component';
 import { DuplicatesListComponent } from './operations/duplicates-list/duplicates-list.component';
 import { IndexComponent } from './index/index.component';
 
@@ -12,6 +13,7 @@ export const routes: Routes = [
     { path: 'budget/new', component: NewBudgetComponent },
     { path: 'budget/:budgetId/operations/import', component: ImportOperationsComponent },
     { path: 'budget/:budgetId/operations/delete', component: DeleteOperationsComponent },
+    { path: 'budget/:budgetId/operations/retag', component: RetagOperationsComponent },
     { path: 'budget/:budgetId/operations/duplicates', component: DuplicatesListComponent },
     { path: 'budget/:budgetId/operations', component: OperationsListComponent },
     { path: 'budget/:budgetId/details', component: BudgetDetailComponent },

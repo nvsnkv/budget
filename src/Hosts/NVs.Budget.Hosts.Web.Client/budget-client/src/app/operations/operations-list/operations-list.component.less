@@ -14,34 +14,33 @@
 
 .filters-section {
   .filters-section-base();
+  
+  h3 {
+    margin-bottom: 1rem;
+  }
 }
 
-.filters-grid {
+.additional-filters {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr auto;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--tui-base-02);
+  border-radius: 0.5rem;
+  align-items: end;
   
   .filter-item {
-    &.full-width {
-      grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    
+    label[tuiLabel] {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
   }
-}
-
-.checkbox-field {
-  display: flex;
-  align-items: center;
-  padding-top: 1.5rem;
-  
-  label {
-    cursor: pointer;
-  }
-}
-
-.filter-actions {
-  display: flex;
-  gap: 1rem;
 }
 
 .operations-section {

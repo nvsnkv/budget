@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
@@ -10,34 +10,31 @@ import {
   TuiLoader,
   TuiTitle,
   TuiTextfield,
-  TuiLabel,
-  TuiExpand
+  TuiLabel
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiAccordion, TuiTextarea, TuiCheckbox } from '@taiga-ui/kit';
+import { TuiCheckbox } from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
-import { CtrlEnterDirective } from '../shared/directives/ctrl-enter.directive';
+import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
+import { CriteriaExample } from '../shared/models/example.interface';
 
 @Component({
   selector: 'app-operations-list',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     TuiButton,
     TuiLoader,
     TuiTextfield,
     TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    TuiAccordion,
-    TuiExpand,
-    TuiTextarea,
     TuiCheckbox,
     OperationsTableComponent,
-    CtrlEnterDirective
+    CriteriaFilterComponent
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -48,36 +45,40 @@ export class OperationsListComponent implements OnInit {
   operations: OperationResponse[] = [];
   isLoading = false;
   
-  filterForm!: FormGroup;
+  currentCriteria = '';
+  outputCurrency = '';
+  excludeTransfers = false;
+  
+  criteriaExamples: CriteriaExample[] = [
+    { label: 'All operations:', code: 'o => true' },
+    { label: 'Positive amounts:', code: 'o => o.Amount.Amount > 0' },
+    { label: 'Negative amounts:', code: 'o => o.Amount.Amount < 0' },
+    { label: 'Specific year:', code: 'o => o.Timestamp.Year == 2023' },
+    { label: 'Contains text:', code: 'o => o.Description.Contains("groceries")' },
+    { label: 'By tag:', code: 'o => o.Tags.Any(t => t.Value == "food")' },
+    { label: 'Without tags:', code: 'o => o.Tags.Count == 0' },
+    { label: 'Amount range:', code: 'o => o.Amount.Amount >= -1000 && o.Amount.Amount <= -100' }
+  ];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private fb: FormBuilder,
     private notificationService: NotificationService,
     private operationsHelper: OperationsHelperService
   ) {}
 
   ngOnInit(): void {
     this.budgetId = this.route.snapshot.params['budgetId'];
-    
-    this.filterForm = this.fb.group({
-      criteria: [''],
-      outputCurrency: [''],
-      excludeTransfers: [false]
-    });
-
     this.loadOperations();
   }
 
   loadOperations(): void {
-    const formValue = this.filterForm.value;
     this.operations$ = this.operationsApi.getOperations(
       this.budgetId,
-      formValue.criteria || undefined,
-      formValue.outputCurrency || undefined,
-      formValue.excludeTransfers
+      this.currentCriteria || undefined,
+      this.outputCurrency || undefined,
+      this.excludeTransfers
     ).pipe(
       catchError(error => {
         const errorMessage = this.notificationService.handleError(error, 'Failed to load operations');
@@ -90,16 +91,15 @@ export class OperationsListComponent implements OnInit {
     this.operations$.subscribe(ops => this.operations = ops);
   }
 
-  applyFilters(): void {
+  onCriteriaSubmitted(criteria: string): void {
+    this.currentCriteria = criteria;
     this.loadOperations();
   }
 
-  clearFilters(): void {
-    this.filterForm.reset({
-      criteria: '',
-      outputCurrency: '',
-      excludeTransfers: false
-    });
+  onCriteriaCleared(): void {
+    this.currentCriteria = '';
+    this.outputCurrency = '';
+    this.excludeTransfers = false;
     this.loadOperations();
   }
 
@@ -117,6 +117,10 @@ export class OperationsListComponent implements OnInit {
 
   navigateToDuplicates(): void {
     this.router.navigate(['/budget', this.budgetId, 'operations', 'duplicates']);
+  }
+
+  navigateToRetag(): void {
+    this.router.navigate(['/budget', this.budgetId, 'operations', 'retag']);
   }
 
   onDeleteOperation(operation: OperationResponse): void {

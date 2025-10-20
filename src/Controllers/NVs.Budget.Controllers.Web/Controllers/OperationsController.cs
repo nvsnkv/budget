@@ -415,4 +415,52 @@ public class OperationsController(
 
         return BadRequest(result.Errors);
     }
+
+    /// <summary>
+    /// Retags operations matching the specified criteria in a specific budget
+    /// </summary>
+    /// <param name="budgetId">Budget ID from route</param>
+    /// <param name="request">Retag operations request with criteria expression and options</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Retag result with success/failure details</returns>
+    [HttpPost("retag")]
+    [Consumes("application/json", "application/yaml", "text/yaml")]
+    [ProducesResponseType(typeof(RetagResultResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> RetagOperations(
+        [FromRoute] Guid budgetId,
+        [FromBody] RetagOperationsRequest request,
+        CancellationToken ct)
+    {
+        // Validate budget access
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
+        
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {budgetId} not found or access denied") });
+        }
+
+        // Update budget version for optimistic concurrency
+        budget.Version = request.BudgetVersion;
+
+        // Parse criteria expression
+        var criteriaResult = parser.ParseUnaryPredicate<TrackedOperation>(request.Criteria);
+        if (criteriaResult.IsFailed)
+        {
+            return BadRequest(criteriaResult.Errors);
+        }
+
+        var command = new RetagOperationsCommand(criteriaResult.Value.AsExpression(), budget, request.FromScratch);
+        var result = await mediator.Send(command, ct);
+
+        if (result.IsSuccess)
+        {
+            var response = new RetagResultResponse(result.Errors, result.Successes);
+            return Ok(response);
+        }
+
+        return BadRequest(result.Errors);
+    }
 }

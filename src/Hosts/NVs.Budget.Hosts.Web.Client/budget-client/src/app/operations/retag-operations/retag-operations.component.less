@@ -1,0 +1,71 @@
+@import '../shared/styles/mixins.less';
+
+.retag-container {
+  .page-container();
+}
+
+.retag-card {
+  .card-base();
+}
+
+.info-warning {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--tui-info-bg);
+  border: 2px solid var(--tui-info-fill);
+  border-radius: 0.5rem;
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: var(--tui-info-fill);
+    font-size: 1.125rem;
+  }
+  
+  p {
+    margin: 0.5rem 0;
+    color: var(--tui-text-01);
+    line-height: 1.5;
+  }
+
+  ul {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+    
+    li {
+      margin: 0.5rem 0;
+      line-height: 1.5;
+      
+      strong {
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.retag-options {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--tui-base-02);
+  border-radius: 0.5rem;
+  
+  .from-scratch-checkbox {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.retag-result {
+  .result-section-base();
+}
+
+.result-stats {
+  .result-stats-base();
+}
+
