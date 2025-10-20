@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
-import { OperationResponse } from '../../budget/models';
+import { BudgetApiService } from '../../budget/budget-api.service';
+import { OperationResponse, BudgetResponse } from '../../budget/models';
 import { 
   TuiButton, 
+  TuiDialogService,
   TuiLoader,
   TuiTitle,
   TuiTextfield,
@@ -45,7 +47,9 @@ export class DuplicatesListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private fb: FormBuilder
+    private budgetApi: BudgetApiService,
+    private fb: FormBuilder,
+    private dialogService: TuiDialogService
   ) {}
 
   ngOnInit(): void {
@@ -104,6 +108,111 @@ export class DuplicatesListComponent implements OnInit {
 
   getTotalDuplicates(): number {
     return this.duplicateGroups.reduce((total, group) => total + group.length, 0);
+  }
+
+  onDeleteOperation(operation: OperationResponse): void {
+    const confirmMessage = `Are you sure you want to delete this operation?\n\n${operation.description}\n${operation.amount.value} ${operation.amount.currencyCode}\n\nThis action cannot be undone.`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    this.isLoading = true;
+    const criteria = `o => o.Id == Guid.Parse("${operation.id}")`;
+    
+    this.operationsApi.removeOperations(this.budgetId, { criteria }).subscribe({
+      next: (result) => {
+        this.isLoading = false;
+        
+        if (result.errors && result.errors.length > 0) {
+          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+          this.showError(`Failed to delete operation: ${errorMessage}`);
+        } else {
+          this.showSuccess('Operation deleted successfully');
+          this.loadDuplicates();
+        }
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        this.handleError(error, 'Failed to delete operation');
+      }
+    });
+  }
+
+  onUpdateOperation(operation: OperationResponse): void {
+    this.isLoading = true;
+    
+    // Get the budget to access its version
+    this.budgetApi.getAllBudgets().subscribe({
+      next: (budgetList: BudgetResponse[]) => {
+        const budget = budgetList.find((b: BudgetResponse) => b.id === this.budgetId);
+        if (!budget) {
+          this.isLoading = false;
+          this.showError('Budget not found');
+          return;
+        }
+
+        const request = {
+          operations: [operation],
+          budgetVersion: budget.version,
+          transferConfidenceLevel: undefined,
+          taggingMode: 'Skip'
+        };
+
+        this.operationsApi.updateOperations(this.budgetId, request).subscribe({
+          next: (result) => {
+            this.isLoading = false;
+            
+            if (result.errors && result.errors.length > 0) {
+              const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+              this.showError(`Failed to update operation: ${errorMessage}`);
+            } else {
+              this.showSuccess('Operation updated successfully');
+              this.loadDuplicates();
+            }
+          },
+          error: (error: any) => {
+            this.isLoading = false;
+            this.handleError(error, 'Failed to update operation');
+          }
+        });
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        this.handleError(error, 'Failed to load budget');
+      }
+    });
+  }
+
+  private handleError(error: any, defaultMessage: string): void {
+    let errorMessage = defaultMessage;
+    
+    if (error.status === 400 && Array.isArray(error.error)) {
+      const errors = error.error as any[];
+      errorMessage = errors.map(e => e.message || e).join('; ');
+    } else if (error.error?.message) {
+      errorMessage = error.error.message;
+    }
+    
+    this.showError(errorMessage);
+  }
+
+  private showError(message: string): void {
+    this.dialogService.open(message, {
+      label: 'Error',
+      size: 'm',
+      closeable: true,
+      dismissible: true
+    }).subscribe();
+  }
+
+  private showSuccess(message: string): void {
+    this.dialogService.open(message, {
+      label: 'Success',
+      size: 's',
+      closeable: true,
+      dismissible: true
+    }).subscribe();
   }
 }
 

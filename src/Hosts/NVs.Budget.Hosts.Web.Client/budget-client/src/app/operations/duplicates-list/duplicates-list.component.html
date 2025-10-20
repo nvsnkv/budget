@@ -109,7 +109,12 @@
           @for (group of duplicateGroups; track $index; let groupIdx = $index) {
             <div class="duplicate-group">
               <h4>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h4>
-              <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
+              <app-operations-table 
+                [operations]="group" 
+                [showActions]="true"
+                (operationDeleted)="onDeleteOperation($event)"
+                (operationUpdated)="onUpdateOperation($event)">
+              </app-operations-table>
             </div>
           }
         } @else {
