@@ -16,8 +16,14 @@
   }
 }
 
-.date-range-section {
+.additional-parameters {
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.date-range-section {
   padding: 1rem;
   background: var(--tui-base-02);
   border-radius: 0.5rem;
@@ -41,6 +47,16 @@
   flex-wrap: wrap;
 }
 
+.cron-section {
+  padding: 1rem;
+  background: var(--tui-base-02);
+  border-radius: 0.5rem;
+}
+
+.cron-field {
+  margin-bottom: 0.5rem;
+}
+
 .action-buttons {
   display: flex;
   gap: 1rem;
@@ -56,44 +72,94 @@
   }
 }
 
-.logbook-tree {
-  background: var(--tui-base-01);
+.logbook-table-container {
+  overflow-x: auto;
   border: 1px solid var(--tui-base-04);
   border-radius: 0.5rem;
-  padding: 1rem;
+  background: var(--tui-base-01);
 }
 
-.logbook-entry {
-  margin: 0.5rem 0;
+.logbook-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   
-  .entry-header {
-    cursor: pointer;
+  thead {
+    background: var(--tui-primary-hover);
+    position: sticky;
+    top: 0;
+    z-index: 10;
     
-    &:hover {
-      background: var(--tui-base-03);
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 700;
+      color: var(--tui-text-01);
+      border-bottom: 2px solid var(--tui-primary);
+      border-right: 1px solid var(--tui-base-04);
+      white-space: nowrap;
+      
+      &:last-child {
+        border-right: none;
+      }
+      
+      &.criteria-column {
+        min-width: 250px;
+        position: sticky;
+        left: 0;
+        background: var(--tui-primary-hover);
+        z-index: 11;
+      }
+      
+      &.range-column {
+        min-width: 200px;
+      }
+    }
+  }
+  
+  tbody {
+    tr.criteria-row {
+      border-bottom: 1px solid var(--tui-base-04);
+      transition: background-color 0.15s;
+      
+      &:hover {
+        background: var(--tui-base-02);
+      }
+      
+      &[data-level="0"] {
+        background: var(--tui-base-02);
+        font-weight: 600;
+      }
+      
+      &[data-level="1"] {
+        background: var(--tui-base-01);
+      }
+      
+      td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        border-right: 1px solid var(--tui-base-04);
+        
+        &:last-child {
+          border-right: none;
+        }
+      }
     }
   }
 }
 
-.entry-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: var(--tui-base-02);
-  border-radius: 0.25rem;
-  transition: background-color 0.15s;
-  gap: 1rem;
-  flex-wrap: wrap;
+.criteria-cell {
+  position: sticky;
+  left: 0;
+  background: inherit;
+  z-index: 5;
+  min-width: 250px;
 }
 
-.entry-info {
+.criteria-info {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-weight: 600;
-  color: var(--tui-text-01);
-  min-width: 200px;
 }
 
 .expand-icon {
@@ -101,34 +167,40 @@
   text-align: center;
   color: var(--tui-text-02);
   font-size: 0.75rem;
+  cursor: pointer;
+  
+  &.placeholder {
+    visibility: hidden;
+  }
+  
+  &:hover {
+    color: var(--tui-text-01);
+  }
 }
 
-.entry-description {
+.criteria-name {
   font-size: 1rem;
 }
 
-.entry-stats {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+.data-cell {
+  min-width: 150px;
+  text-align: right;
+  
+  &.clickable {
+    cursor: pointer;
+    transition: all 0.15s;
+    
+    &:hover {
+      background: var(--tui-base-03);
+      transform: scale(1.02);
+    }
+  }
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.stat-label {
-  color: var(--tui-text-02);
-  font-weight: 500;
-}
-
-.stat-value {
-  color: var(--tui-text-01);
+.sum-value {
   font-family: monospace;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
   
   &.positive {
     color: var(--tui-success-fill);
@@ -139,54 +211,10 @@
   }
 }
 
-.entry-content {
-  margin-top: 0.5rem;
-}
-
-.entry-operations-section {
-  margin-bottom: 1rem;
-}
-
-.operations-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--tui-base-02);
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.15s;
-  
-  &:hover {
-    background: var(--tui-base-03);
-  }
-}
-
-.operations-toggle-icon {
-  width: 1rem;
+.empty-cell {
   text-align: center;
-  color: var(--tui-text-02);
-  font-size: 0.75rem;
-}
-
-.operations-title {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--tui-text-02);
-}
-
-.entry-operations {
-  padding: 1rem;
-  background: var(--tui-base-01);
-  border-radius: 0.25rem;
-  margin-top: 0.5rem;
-}
-
-.entry-children {
-  margin-top: 1rem;
-  border-left: 2px solid var(--tui-base-04);
-  padding-left: 0.5rem;
+  color: var(--tui-text-03);
+  font-style: italic;
 }
 
 .empty-state {

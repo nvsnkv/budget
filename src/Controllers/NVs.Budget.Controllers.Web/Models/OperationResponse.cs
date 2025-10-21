@@ -76,6 +76,12 @@ public record RetagResultResponse(
 );
 
 // Logbook models
+public record NamedRangeResponse(
+    string Name,
+    DateTime From,
+    DateTime Till
+);
+
 public record LogbookEntryResponse(
     string Description,
     MoneyResponse Sum,
@@ -86,8 +92,13 @@ public record LogbookEntryResponse(
     IReadOnlyCollection<LogbookEntryResponse> Children
 );
 
+public record RangedLogbookEntryResponse(
+    NamedRangeResponse Range,
+    LogbookEntryResponse Entry
+);
+
 public record LogbookResponse(
-    LogbookEntryResponse Root,
+    IReadOnlyCollection<RangedLogbookEntryResponse> Ranges,
     IReadOnlyCollection<IError> Errors,
     IReadOnlyCollection<ISuccess> Successes
 );

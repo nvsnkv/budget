@@ -7,6 +7,7 @@ import { OperationsListComponent } from './operations/operations-list/operations
 import { DeleteOperationsComponent } from './operations/delete-operations/delete-operations.component';
 import { RetagOperationsComponent } from './operations/retag-operations/retag-operations.component';
 import { LogbookViewComponent } from './operations/logbook-view/logbook-view.component';
+import { LogbookGroupComponent } from './operations/logbook-group/logbook-group.component';
 import { DuplicatesListComponent } from './operations/duplicates-list/duplicates-list.component';
 import { IndexComponent } from './index/index.component';
 
@@ -15,6 +16,7 @@ export const routes: Routes = [
     { path: 'budget/:budgetId/operations/import', component: ImportOperationsComponent },
     { path: 'budget/:budgetId/operations/delete', component: DeleteOperationsComponent },
     { path: 'budget/:budgetId/operations/retag', component: RetagOperationsComponent },
+    { path: 'budget/:budgetId/operations/logbook/group', component: LogbookGroupComponent },
     { path: 'budget/:budgetId/operations/logbook', component: LogbookViewComponent },
     { path: 'budget/:budgetId/operations/duplicates', component: DuplicatesListComponent },
     { path: 'budget/:budgetId/operations', component: OperationsListComponent },

@@ -153,7 +153,8 @@ export class OperationsApiService {
     budgetId: string,
     from?: Date,
     till?: Date,
-    criteria?: string
+    criteria?: string,
+    cronExpression?: string
   ): Observable<LogbookResponse> {
     const params: any = {};
     if (from) {
@@ -164,6 +165,9 @@ export class OperationsApiService {
     }
     if (criteria) {
       params.criteria = criteria;
+    }
+    if (cronExpression) {
+      params.cronExpression = cronExpression;
     }
     return this.http.get<LogbookResponse>(
       `${this.baseUrl}/budget/${budgetId}/operations/logbook`,

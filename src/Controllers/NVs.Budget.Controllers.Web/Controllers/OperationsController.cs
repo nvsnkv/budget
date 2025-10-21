@@ -32,7 +32,8 @@ public class OperationsController(
     LogbookMapper logbookMapper,
     ReadableExpressionsParser parser,
     ICsvFileReader csvReader,
-    IReadingSettingsRepository settingsRepository) : Controller
+    IReadingSettingsRepository settingsRepository,
+    RangeBuilder rangeBuilder) : Controller
 {
     /// <summary>
     /// Gets all operations for a specific budget
@@ -473,8 +474,9 @@ public class OperationsController(
     /// <param name="from">Start date for filtering operations</param>
     /// <param name="till">End date for filtering operations</param>
     /// <param name="criteria">Optional additional filter criteria expression</param>
+    /// <param name="cronExpression">Optional cron expression to divide logbook into ranges</param>
     /// <param name="ct">Cancellation token</param>
-    /// <returns>Logbook with aggregated statistics</returns>
+    /// <returns>Logbook with aggregated statistics divided by ranges</returns>
     [HttpGet("logbook")]
     [ProducesResponseType(typeof(LogbookResponse), 200)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
@@ -484,6 +486,7 @@ public class OperationsController(
         [FromQuery] DateTime? from = null,
         [FromQuery] DateTime? till = null,
         [FromQuery] string? criteria = null,
+        [FromQuery] string? cronExpression = null,
         CancellationToken ct = default)
     {
         // Validate budget access
@@ -536,10 +539,29 @@ public class OperationsController(
             return BadRequest(result.Errors);
         }
 
-        // Map to response
-        var logbookEntry = logbookMapper.ToResponse(result.Value);
+        // Generate ranges
+        var fromDate = from ?? result.Value.From;
+        var tillDate = till ?? result.Value.Till;
+        
+        var rangesResult = rangeBuilder.GetRanges(fromDate, tillDate, cronExpression);
+        if (rangesResult.IsFailed)
+        {
+            return BadRequest(rangesResult.Errors);
+        }
+
+        // Map to response with ranges
+        var rangedEntries = rangesResult.Value
+            .Select(range =>
+            {
+                var rangedLogbook = (CriteriaBasedLogbook)result.Value[range.From, range.Till];
+                var entry = logbookMapper.ToResponse(rangedLogbook);
+                var rangeResponse = new NamedRangeResponse(range.Name, range.From, range.Till);
+                return new RangedLogbookEntryResponse(rangeResponse, entry);
+            })
+            .ToList();
+
         var response = new LogbookResponse(
-            logbookEntry,
+            rangedEntries,
             result.Errors,
             result.Successes
         );

@@ -157,6 +157,12 @@ export interface RetagResultResponse {
 }
 
 // Logbook models
+export interface NamedRangeResponse {
+  name: string;
+  from: string;
+  till: string;
+}
+
 export interface LogbookEntryResponse {
   description: string;
   sum: MoneyResponse;
@@ -167,8 +173,13 @@ export interface LogbookEntryResponse {
   children: LogbookEntryResponse[];
 }
 
+export interface RangedLogbookEntryResponse {
+  range: NamedRangeResponse;
+  entry: LogbookEntryResponse;
+}
+
 export interface LogbookResponse {
-  root: LogbookEntryResponse;
+  ranges: RangedLogbookEntryResponse[];
   errors: IError[];
   successes: ISuccess[];
 }

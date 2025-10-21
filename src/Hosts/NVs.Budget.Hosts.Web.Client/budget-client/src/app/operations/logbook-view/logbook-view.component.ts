@@ -13,11 +13,18 @@ import {
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiAccordion } from '@taiga-ui/kit';
 import { NotificationService } from '../shared/notification.service';
-import { OperationsHelperService } from '../shared/operations-helper.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
-import { OperationsTableComponent } from '../operations-table/operations-table.component';
+import { ExamplesSectionComponent } from '../shared/components/examples-section/examples-section.component';
 import { CriteriaExample } from '../shared/models/example.interface';
-import { LogbookEntryResponse, LogbookResponse, OperationResponse } from '../../budget/models';
+import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse } from '../../budget/models';
+
+interface CriteriaRow {
+  description: string;
+  path: string;
+  level: number;
+  rangeData: Map<string, LogbookEntryResponse>;
+  hasChildren: boolean;
+}
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 
@@ -35,7 +42,7 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     TuiLabel,
     TuiAccordion,
     CriteriaFilterComponent,
-    OperationsTableComponent,
+    ExamplesSectionComponent,
     DateFormatPipe,
     CurrencyFormatPipe
   ],
@@ -50,9 +57,11 @@ export class LogbookViewComponent implements OnInit {
   currentCriteria = '';
   fromDate: string = '';
   tillDate: string = '';
+  cronExpression = '';
   
-  expandedEntries = new Set<string>();
-  expandedOperations = new Set<string>();
+  ranges: NamedRangeResponse[] = [];
+  criteriaRows: CriteriaRow[] = [];
+  expandedRows = new Set<string>();
   
   criteriaExamples: CriteriaExample[] = [
     { label: 'All operations:', code: 'o => true' },
@@ -63,29 +72,73 @@ export class LogbookViewComponent implements OnInit {
     { label: 'Amount range:', code: 'o => o.Amount.Amount >= -1000 && o.Amount.Amount <= -100' }
   ];
 
+  cronExamples: CriteriaExample[] = [
+    { label: 'Daily:', code: '0 0 * * *' },
+    { label: 'Weekly (Mondays):', code: '0 0 * * 1' },
+    { label: 'Monthly (1st day):', code: '0 0 1 * *' },
+    { label: 'Bi-weekly:', code: '0 0 1,15 * *' },
+    { label: 'Quarterly:', code: '0 0 1 1,4,7,10 *' }
+  ];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private notificationService: NotificationService,
-    private operationsHelper: OperationsHelperService
+    private notificationService: NotificationService
   ) {
     this.resetToDefaultDateRange();
   }
 
   ngOnInit(): void {
     this.budgetId = this.route.snapshot.params['budgetId'];
+    
+    // Restore filter parameters from query params if present
+    const queryParams = this.route.snapshot.queryParams;
+    
+    if (queryParams['from']) {
+      this.fromDate = queryParams['from'];
+    }
+    
+    if (queryParams['till']) {
+      this.tillDate = queryParams['till'];
+    }
+    
+    if (queryParams['criteria']) {
+      this.currentCriteria = queryParams['criteria'];
+    }
+    
+    if (queryParams['cronExpression']) {
+      this.cronExpression = queryParams['cronExpression'];
+    }
+    
     this.loadLogbook();
   }
 
   onCriteriaSubmitted(criteria: string): void {
     this.currentCriteria = criteria;
-    this.loadLogbook();
+    this.updateUrlAndLoadLogbook();
   }
 
   onCriteriaCleared(): void {
     this.currentCriteria = '';
+    this.cronExpression = '';
     this.resetToDefaultDateRange();
+    this.updateUrlAndLoadLogbook();
+  }
+
+  private updateUrlAndLoadLogbook(): void {
+    // Update URL with current filter state
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        from: this.fromDate || undefined,
+        till: this.tillDate || undefined,
+        criteria: this.currentCriteria || undefined,
+        cronExpression: this.cronExpression || undefined
+      },
+      queryParamsHandling: 'merge'
+    });
+    
     this.loadLogbook();
   }
 
@@ -101,8 +154,9 @@ export class LogbookViewComponent implements OnInit {
   loadLogbook(): void {
     this.isLoading = true;
     this.logbook = null;
-    this.expandedEntries.clear();
-    this.expandedOperations.clear();
+    this.ranges = [];
+    this.criteriaRows = [];
+    this.expandedRows.clear();
 
     const from = this.fromDate ? new Date(this.fromDate) : undefined;
     const till = this.tillDate ? new Date(this.tillDate) : undefined;
@@ -111,15 +165,19 @@ export class LogbookViewComponent implements OnInit {
       this.budgetId,
       from,
       till,
-      this.currentCriteria || undefined
+      this.currentCriteria || undefined,
+      this.cronExpression || undefined
     ).subscribe({
       next: (result) => {
         this.isLoading = false;
         this.logbook = result;
         
-        if (result.errors.length === 0) {
-          this.notificationService.showSuccess('Logbook loaded successfully').subscribe();
-        } else {
+        if (result.ranges && result.ranges.length > 0) {
+          this.ranges = result.ranges.map(r => r.range);
+          this.criteriaRows = this.buildCriteriaRows(result.ranges);
+        }
+        
+        if (result.errors.length > 0) {
           const errorMessage = `Logbook loaded with ${result.errors.length} errors`;
           this.notificationService.showWarning(errorMessage).subscribe();
         }
@@ -132,37 +190,122 @@ export class LogbookViewComponent implements OnInit {
     });
   }
 
-  toggleEntry(path: string): void {
-    if (this.expandedEntries.has(path)) {
-      this.expandedEntries.delete(path);
-    } else {
-      this.expandedEntries.add(path);
+  private buildCriteriaRows(rangedEntries: RangedLogbookEntryResponse[]): CriteriaRow[] {
+    const rows: CriteriaRow[] = [];
+    
+    // Get all unique criteria paths from the first range to establish row structure
+    if (rangedEntries.length === 0) return rows;
+    
+    const firstEntry = rangedEntries[0].entry;
+    this.collectCriteriaPaths(firstEntry, '', 0, rows, rangedEntries);
+    
+    return rows;
+  }
+
+  private collectCriteriaPaths(
+    entry: LogbookEntryResponse, 
+    parentPath: string, 
+    level: number,
+    rows: CriteriaRow[],
+    rangedEntries: RangedLogbookEntryResponse[]
+  ): void {
+    const currentPath = parentPath ? `${parentPath}/${entry.description}` : entry.description;
+    
+    // Create range data map for this criteria
+    const rangeData = new Map<string, LogbookEntryResponse>();
+    
+    for (const rangedEntry of rangedEntries) {
+      const entryData = this.findEntryByPath(rangedEntry.entry, currentPath);
+      if (entryData) {
+        rangeData.set(rangedEntry.range.name, entryData);
+      }
+    }
+    
+    const hasChildren = entry.children && entry.children.length > 0;
+    
+    rows.push({
+      description: entry.description,
+      path: currentPath,
+      level,
+      rangeData,
+      hasChildren
+    });
+    
+    // Recursively add children
+    if (hasChildren) {
+      for (const child of entry.children) {
+        this.collectCriteriaPaths(child, currentPath, level + 1, rows, rangedEntries);
+      }
     }
   }
 
-  isExpanded(path: string): boolean {
-    return this.expandedEntries.has(path);
+  private findEntryByPath(entry: LogbookEntryResponse, targetPath: string): LogbookEntryResponse | null {
+    const currentPath = entry.description;
+    
+    if (currentPath === targetPath) {
+      return entry;
+    }
+    
+    if (targetPath.startsWith(currentPath + '/')) {
+      const remainingPath = targetPath.substring(currentPath.length + 1);
+      
+      for (const child of entry.children) {
+        const found = this.findEntryByPath(child, remainingPath);
+        if (found) return found;
+      }
+    }
+    
+    return null;
   }
 
-  toggleOperations(path: string, event: Event): void {
+  toggleRow(path: string): void {
+    if (this.expandedRows.has(path)) {
+      this.expandedRows.delete(path);
+    } else {
+      this.expandedRows.add(path);
+    }
+  }
+
+  isRowExpanded(path: string): boolean {
+    return this.expandedRows.has(path);
+  }
+
+  isRowVisible(row: CriteriaRow): boolean {
+    if (row.level === 0) return true;
+    
+    // Check if all parent rows are expanded
+    const pathParts = row.path.split('/');
+    for (let i = 1; i < pathParts.length; i++) {
+      const parentPath = pathParts.slice(0, i).join('/');
+      if (!this.expandedRows.has(parentPath)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  viewGroupOperations(row: CriteriaRow, rangeName: string, event: Event): void {
     event.stopPropagation();
-    if (this.expandedOperations.has(path)) {
-      this.expandedOperations.delete(path);
-    } else {
-      this.expandedOperations.add(path);
-    }
+    
+    this.router.navigate(['/budget', this.budgetId, 'operations', 'logbook', 'group'], {
+      queryParams: {
+        rangeName: rangeName,
+        criteriaPath: row.path,
+        from: this.fromDate,
+        till: this.tillDate,
+        criteria: this.currentCriteria || undefined,
+        cronExpression: this.cronExpression || undefined
+      }
+    });
   }
 
-  areOperationsExpanded(path: string): boolean {
-    return this.expandedOperations.has(path);
+  getEntryForRange(row: CriteriaRow, rangeName: string): LogbookEntryResponse | undefined {
+    return row.rangeData.get(rangeName);
   }
 
-  getEntryPath(parent: string, description: string): string {
-    return parent ? `${parent}/${description}` : description;
-  }
-
-  hasChildren(entry: LogbookEntryResponse): boolean {
-    return entry.children && entry.children.length > 0;
+  hasOperationsInRange(row: CriteriaRow, rangeName: string): boolean {
+    const entry = this.getEntryForRange(row, rangeName);
+    return entry ? (entry.operations && entry.operations.length > 0) : false;
   }
 
   viewOperations(): void {
@@ -195,7 +338,7 @@ export class LogbookViewComponent implements OnInit {
 
     this.fromDate = from.toISOString().slice(0, 16);
     this.tillDate = till.toISOString().slice(0, 16);
-    this.loadLogbook();
+    this.updateUrlAndLoadLogbook();
   }
 
   hasMetadata(error: any): boolean {
@@ -223,61 +366,7 @@ export class LogbookViewComponent implements OnInit {
   hasNestedReasons(error: any): boolean {
     return error.reasons && error.reasons.length > 0;
   }
-
-  hasOperations(entry: LogbookEntryResponse): boolean {
-    return entry.operations && entry.operations.length > 0;
-  }
-
-  onDeleteOperation(operation: OperationResponse): void {
-    const confirmMessage = `Are you sure you want to delete this operation?\n\n${operation.description}\n${operation.amount.value} ${operation.amount.currencyCode}\n\nThis action cannot be undone.`;
-    
-    if (!confirm(confirmMessage)) {
-      return;
-    }
-
-    this.isLoading = true;
-    
-    this.operationsHelper.deleteOperation(this.budgetId, operation.id).subscribe({
-      next: (result) => {
-        this.isLoading = false;
-        
-        if (result.errors && result.errors.length > 0) {
-          const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
-          this.notificationService.showError(`Failed to delete operation: ${errorMessage}`).subscribe();
-        } else {
-          this.notificationService.showSuccess('Operation deleted successfully').subscribe();
-          this.loadLogbook();
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        const errorMessage = this.notificationService.handleError(error, 'Failed to delete operation');
-        this.notificationService.showError(errorMessage).subscribe();
-      }
-    });
-  }
-
-  onUpdateOperation(operation: OperationResponse): void {
-    this.isLoading = true;
-    
-    this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
-      next: (result) => {
-        this.isLoading = false;
-        
-        if (result.errors && result.errors.length > 0) {
-          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
-          this.notificationService.showError(`Failed to update operation: ${errorMessage}`).subscribe();
-        } else {
-          this.notificationService.showSuccess('Operation updated successfully').subscribe();
-          this.loadLogbook();
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        const errorMessage = this.notificationService.handleError(error, 'Failed to update operation');
-        this.notificationService.showError(errorMessage).subscribe();
-      }
-    });
-  }
 }
+
+
 

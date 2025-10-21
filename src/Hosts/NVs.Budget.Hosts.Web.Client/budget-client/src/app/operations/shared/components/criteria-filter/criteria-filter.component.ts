@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TuiButton, TuiTextfield, TuiLabel } from '@taiga-ui/core';
@@ -23,7 +23,7 @@ import { CtrlEnterDirective } from '../../directives/ctrl-enter.directive';
   templateUrl: './criteria-filter.component.html',
   styleUrls: ['./criteria-filter.component.less']
 })
-export class CriteriaFilterComponent implements OnInit {
+export class CriteriaFilterComponent implements OnInit, OnChanges {
   @Input() initialCriteria = 'o => true';
   @Input() examples: CriteriaExample[] = [];
   @Input() showExamplesInitially = false;
@@ -38,6 +38,12 @@ export class CriteriaFilterComponent implements OnInit {
     this.filterForm = this.fb.group({
       criteria: [this.initialCriteria]
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialCriteria'] && this.filterForm && !changes['initialCriteria'].firstChange) {
+      this.filterForm.patchValue({ criteria: this.initialCriteria });
+    }
   }
 
   apply(): void {

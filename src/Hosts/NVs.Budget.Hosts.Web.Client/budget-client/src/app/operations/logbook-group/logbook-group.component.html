@@ -1,0 +1,45 @@
+<div class="logbook-group-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="logbook-group-card">
+      <div class="header">
+        <h2 tuiTitle size="l">{{ groupTitle }}</h2>
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="backToLogbook()">
+          ← Back to Logbook
+        </button>
+      </div>
+
+      @if (operations.length > 0) {
+        <div class="operations-section">
+          <div class="operations-count">
+            {{ operations.length }} operations
+          </div>
+          
+          <app-operations-table 
+            [operations]="operations" 
+            [showActions]="true"
+            (operationDeleted)="onDeleteOperation($event)"
+            (operationUpdated)="onUpdateOperation($event)">
+          </app-operations-table>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <p>No operations found for this group.</p>
+          <button 
+            tuiButton
+            type="button"
+            appearance="primary"
+            size="m"
+            (click)="backToLogbook()">
+            Back to Logbook
+          </button>
+        </div>
+      }
+    </div>
+  </tui-loader>
+</div>
+
