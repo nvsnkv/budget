@@ -9,7 +9,8 @@ import {
   ImportResultResponse,
   UpdateResultResponse,
   DeleteResultResponse,
-  RetagResultResponse
+  RetagResultResponse,
+  LogbookResponse
 } from '../budget/models';
 import { environment } from '../../environments/environment';
 
@@ -141,6 +142,31 @@ export class OperationsApiService {
     }
     return this.http.get<OperationResponse[][]>(
       `${this.baseUrl}/budget/${budgetId}/operations/duplicates`,
+      { params, withCredentials: true }
+    );
+  }
+
+  /**
+   * Get logbook (aggregated operations statistics)
+   */
+  getLogbook(
+    budgetId: string,
+    from?: Date,
+    till?: Date,
+    criteria?: string
+  ): Observable<LogbookResponse> {
+    const params: any = {};
+    if (from) {
+      params.from = from.toISOString();
+    }
+    if (till) {
+      params.till = till.toISOString();
+    }
+    if (criteria) {
+      params.criteria = criteria;
+    }
+    return this.http.get<LogbookResponse>(
+      `${this.baseUrl}/budget/${budgetId}/operations/logbook`,
       { params, withCredentials: true }
     );
   }

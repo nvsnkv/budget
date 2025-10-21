@@ -75,3 +75,20 @@ public record RetagResultResponse(
     IReadOnlyCollection<ISuccess> Successes
 );
 
+// Logbook models
+public record LogbookEntryResponse(
+    string Description,
+    MoneyResponse Sum,
+    DateTime From,
+    DateTime Till,
+    int OperationsCount,
+    IReadOnlyCollection<OperationResponse> Operations,
+    IReadOnlyCollection<LogbookEntryResponse> Children
+);
+
+public record LogbookResponse(
+    LogbookEntryResponse Root,
+    IReadOnlyCollection<IError> Errors,
+    IReadOnlyCollection<ISuccess> Successes
+);
+

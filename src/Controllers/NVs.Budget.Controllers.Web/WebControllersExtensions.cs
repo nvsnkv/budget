@@ -29,6 +29,7 @@ public static class WebControllersExtensions
         services.AddScoped<BudgetMapper>();
         services.AddScoped<FileReadingSettingsMapper>();
         services.AddScoped<OperationMapper>();
+        services.AddScoped<LogbookMapper>();
         
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>

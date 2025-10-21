@@ -16,6 +16,7 @@ using System.Linq;
 using NVs.Budget.Controllers.Web.Exceptions;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
+using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Expressions;
 
@@ -28,6 +29,7 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 public class OperationsController(
     IMediator mediator,
     OperationMapper mapper,
+    LogbookMapper logbookMapper,
     ReadableExpressionsParser parser,
     ICsvFileReader csvReader,
     IReadingSettingsRepository settingsRepository) : Controller
@@ -462,5 +464,86 @@ public class OperationsController(
         }
 
         return BadRequest(result.Errors);
+    }
+
+    /// <summary>
+    /// Get aggregated operations statistics (logbook) for a specific budget
+    /// </summary>
+    /// <param name="budgetId">Budget ID from route</param>
+    /// <param name="from">Start date for filtering operations</param>
+    /// <param name="till">End date for filtering operations</param>
+    /// <param name="criteria">Optional additional filter criteria expression</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Logbook with aggregated statistics</returns>
+    [HttpGet("logbook")]
+    [ProducesResponseType(typeof(LogbookResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> GetLogbook(
+        [FromRoute] Guid budgetId,
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? till = null,
+        [FromQuery] string? criteria = null,
+        CancellationToken ct = default)
+    {
+        // Validate budget access
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
+        
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {budgetId} not found or access denied") });
+        }
+
+        // Parse user criteria first
+        Expression<Func<TrackedOperation, bool>>? userCriteria = null;
+        if (!string.IsNullOrWhiteSpace(criteria))
+        {
+            var criteriaResult = parser.ParseUnaryPredicate<TrackedOperation>(criteria);
+            if (criteriaResult.IsFailed)
+            {
+                return BadRequest(criteriaResult.Errors);
+            }
+            userCriteria = criteriaResult.Value.AsExpression();
+        }
+
+        // Build filter expression using CombineWith
+        Expression<Func<TrackedOperation, bool>> filter = o => o.Budget.Id == budget.Id;
+
+        if (from.HasValue)
+        {
+            var fromUtc = from.Value.ToUniversalTime();
+            filter = filter.CombineWith(o => o.Timestamp >= fromUtc);
+        }
+
+        if (till.HasValue)
+        {
+            var tillUtc = till.Value.ToUniversalTime();
+            filter = filter.CombineWith(o => o.Timestamp < tillUtc);
+        }
+
+        if (userCriteria != null)
+        {
+            filter = filter.CombineWith(userCriteria);
+        }
+
+        // Execute query
+        var query = new CalcOperationsStatisticsQuery(budget.LogbookCriteria.GetCriterion(), filter);
+        var result = await mediator.Send(query, ct);
+
+        if (result.IsFailed)
+        {
+            return BadRequest(result.Errors);
+        }
+
+        // Map to response
+        var logbookEntry = logbookMapper.ToResponse(result.Value);
+        var response = new LogbookResponse(
+            logbookEntry,
+            result.Errors,
+            result.Successes
+        );
+
+        return Ok(response);
     }
 }

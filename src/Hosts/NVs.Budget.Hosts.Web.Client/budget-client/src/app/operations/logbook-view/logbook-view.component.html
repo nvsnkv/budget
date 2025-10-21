@@ -1,0 +1,220 @@
+<div class="logbook-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="logbook-card">
+      <h2 tuiTitle size="l">Operations Logbook</h2>
+      
+      <div class="filters-section">
+        <h3 tuiTitle size="m">Filters</h3>
+        
+        <app-criteria-filter
+          [initialCriteria]="currentCriteria"
+          [examples]="criteriaExamples"
+          [showExamplesInitially]="false"
+          (criteriaSubmitted)="onCriteriaSubmitted($event)"
+          (criteriaCleared)="onCriteriaCleared()">
+          
+          <div class="date-range-section">
+            <div class="date-inputs">
+              <div class="date-field">
+                <tui-textfield>
+                  <label tuiLabel>From Date</label>
+                  <input 
+                    tuiTextfield 
+                    type="datetime-local"
+                    [(ngModel)]="fromDate"
+                  />
+                </tui-textfield>
+              </div>
+              
+              <div class="date-field">
+                <tui-textfield>
+                  <label tuiLabel>Till Date</label>
+                  <input 
+                    tuiTextfield 
+                    type="datetime-local"
+                    [(ngModel)]="tillDate"
+                  />
+                </tui-textfield>
+              </div>
+            </div>
+            
+            <div class="date-presets">
+              <button 
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="s"
+                (click)="setDateRange('currentMonth')">
+                Current Month
+              </button>
+              <button 
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="s"
+                (click)="setDateRange('lastMonth')">
+                Last Month
+              </button>
+              <button 
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="s"
+                (click)="setDateRange('currentYear')">
+                Current Year
+              </button>
+              <button 
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="s"
+                (click)="setDateRange('lastYear')">
+                Last Year
+              </button>
+            </div>
+          </div>
+        </app-criteria-filter>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="viewOperations()">
+          View Operations List
+        </button>
+      </div>
+
+      @if (logbook) {
+        <div class="logbook-section">
+          <h3 tuiTitle size="m">Logbook Statistics</h3>
+          
+          @if (logbook.root) {
+            <div class="logbook-tree">
+              <ng-container *ngTemplateOutlet="entryTemplate; context: { entry: logbook.root, path: '', level: 0 }"></ng-container>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <p>No logbook data available for the selected criteria and date range.</p>
+            </div>
+          }
+          
+          @if (logbook.errors.length > 0) {
+            <div class="logbook-errors">
+              <h4 tuiTitle size="s">Errors ({{ logbook.errors.length }})</h4>
+              <div class="error-list">
+                @for (error of logbook.errors; track $index) {
+                  <div class="error-item">
+                    <div class="error-message">
+                      <strong>{{ error.message || 'Unknown error' }}</strong>
+                    </div>
+                    
+                    @if (hasMetadata(error)) {
+                      <div class="error-metadata">
+                        <div class="metadata-label">Metadata:</div>
+                        <div class="metadata-content">
+                          @for (key of getMetadataKeys(error.metadata!); track key) {
+                            <div class="metadata-item">
+                              <span class="metadata-key">{{ key }}:</span>
+                              <span class="metadata-value">{{ formatMetadataValue(error.metadata![key]) }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                    
+                    @if (hasNestedReasons(error)) {
+                      <div class="nested-reasons">
+                        <div class="nested-label">Nested Reasons:</div>
+                        <div class="nested-content">
+                          @for (reason of error.reasons; track $index) {
+                            <div class="nested-reason">
+                              {{ reason.message || 'No message' }}
+                              @if (hasMetadata(reason)) {
+                                <div class="reason-metadata">
+                                  @for (key of getMetadataKeys(reason.metadata!); track key) {
+                                    <div class="metadata-item small">
+                                      <span class="metadata-key">{{ key }}:</span>
+                                      <span class="metadata-value">{{ formatMetadataValue(reason.metadata![key]) }}</span>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </tui-loader>
+</div>
+
+<ng-template #entryTemplate let-entry="entry" let-path="path" let-level="level">
+  <div class="logbook-entry" [class.has-children]="hasChildren(entry)" [class.has-operations]="hasOperations(entry)" [style.padding-left.rem]="level * 2">
+    <div class="entry-header" (click)="toggleEntry(getEntryPath(path, entry.description))">
+      <div class="entry-info">
+        <span class="expand-icon">{{ isExpanded(getEntryPath(path, entry.description)) ? '▼' : '▶' }}</span>
+        <span class="entry-description">{{ entry.description || 'Unnamed' }}</span>
+      </div>
+      
+      <div class="entry-stats">
+        <span class="stat-item">
+          <span class="stat-label">Sum:</span>
+          <span class="stat-value" [class.positive]="entry.sum.value > 0" [class.negative]="entry.sum.value < 0">
+            {{ entry.sum.value | currencyFormat: entry.sum.currencyCode }}
+          </span>
+        </span>
+        <span class="stat-item">
+          <span class="stat-label">Count:</span>
+          <span class="stat-value">{{ entry.operationsCount }}</span>
+        </span>
+        <span class="stat-item">
+          <span class="stat-label">Period:</span>
+          <span class="stat-value">{{ entry.from | dateFormat }} - {{ entry.till | dateFormat }}</span>
+        </span>
+      </div>
+    </div>
+    
+    @if (isExpanded(getEntryPath(path, entry.description))) {
+      <div class="entry-content">
+        @if (hasOperations(entry) && !hasChildren(entry)) {
+          <div class="entry-operations-section">
+            <div class="operations-header" (click)="toggleOperations(getEntryPath(path, entry.description), $event)">
+              <span class="operations-toggle-icon">{{ areOperationsExpanded(getEntryPath(path, entry.description)) ? '▼' : '▶' }}</span>
+              <h4 class="operations-title">Operations ({{ entry.operations.length }})</h4>
+            </div>
+            
+            @if (areOperationsExpanded(getEntryPath(path, entry.description))) {
+              <div class="entry-operations">
+                <app-operations-table 
+                  [operations]="entry.operations" 
+                  [showActions]="true"
+                  (operationDeleted)="onDeleteOperation($event)"
+                  (operationUpdated)="onUpdateOperation($event)">
+                </app-operations-table>
+              </div>
+            }
+          </div>
+        }
+        
+        @if (hasChildren(entry)) {
+          <div class="entry-children">
+            @for (child of entry.children; track $index) {
+              <ng-container *ngTemplateOutlet="entryTemplate; context: { entry: child, path: getEntryPath(path, entry.description), level: level + 1 }"></ng-container>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+

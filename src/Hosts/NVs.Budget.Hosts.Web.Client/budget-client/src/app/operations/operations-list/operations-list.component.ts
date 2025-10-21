@@ -123,6 +123,10 @@ export class OperationsListComponent implements OnInit {
     this.router.navigate(['/budget', this.budgetId, 'operations', 'retag']);
   }
 
+  navigateToLogbook(): void {
+    this.router.navigate(['/budget', this.budgetId, 'operations', 'logbook']);
+  }
+
   onDeleteOperation(operation: OperationResponse): void {
     const confirmMessage = `Are you sure you want to delete this operation?\n\n${operation.description}\n${operation.amount.value} ${operation.amount.currencyCode}\n\nThis action cannot be undone.`;
     

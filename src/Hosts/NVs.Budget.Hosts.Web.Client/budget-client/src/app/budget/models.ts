@@ -155,3 +155,20 @@ export interface RetagResultResponse {
   errors: IError[];
   successes: ISuccess[];
 }
+
+// Logbook models
+export interface LogbookEntryResponse {
+  description: string;
+  sum: MoneyResponse;
+  from: string;
+  till: string;
+  operationsCount: number;
+  operations: OperationResponse[];
+  children: LogbookEntryResponse[];
+}
+
+export interface LogbookResponse {
+  root: LogbookEntryResponse;
+  errors: IError[];
+  successes: ISuccess[];
+}
