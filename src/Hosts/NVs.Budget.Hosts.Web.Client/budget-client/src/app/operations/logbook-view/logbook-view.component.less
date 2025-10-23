@@ -25,7 +25,7 @@
 
 .date-range-section {
   padding: 1rem;
-  background: var(--tui-base-02);
+  background: var(--tui-background-neutral-1);
   border-radius: 0.5rem;
 }
 
@@ -49,7 +49,7 @@
 
 .cron-section {
   padding: 1rem;
-  background: var(--tui-base-02);
+  background: var(--tui-background-neutral-1);
   border-radius: 0.5rem;
 }
 
@@ -74,9 +74,9 @@
 
 .logbook-table-container {
   overflow-x: auto;
-  border: 1px solid var(--tui-base-04);
+  border: 1px solid var(--tui-border-normal);
   border-radius: 0.5rem;
-  background: var(--tui-base-01);
+  background: var(--tui-background-base);
 }
 
 .logbook-table {
@@ -85,7 +85,7 @@
   border-spacing: 0;
   
   thead {
-    background: var(--tui-primary-hover);
+    background: var(--tui-background-accent-1);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -94,9 +94,9 @@
       padding: 1rem;
       text-align: left;
       font-weight: 700;
-      color: var(--tui-text-01);
+      color: var(--tui-text-primary);
       border-bottom: 2px solid var(--tui-primary);
-      border-right: 1px solid var(--tui-base-04);
+      border-right: 1px solid var(--tui-border-normal);
       white-space: nowrap;
       
       &:last-child {
@@ -107,7 +107,7 @@
         min-width: 250px;
         position: sticky;
         left: 0;
-        background: var(--tui-primary-hover);
+        background: var(--tui-background-accent-1);
         z-index: 11;
       }
       
@@ -119,26 +119,26 @@
   
   tbody {
     tr.criteria-row {
-      border-bottom: 1px solid var(--tui-base-04);
+      border-bottom: 1px solid var(--tui-border-normal);
       transition: background-color 0.15s;
       
       &:hover {
-        background: var(--tui-base-02);
+        background: var(--tui-background-neutral-1);
       }
       
       &[data-level="0"] {
-        background: var(--tui-base-02);
+        background: var(--tui-background-neutral-1);
         font-weight: 600;
       }
       
       &[data-level="1"] {
-        background: var(--tui-base-01);
+        background: var(--tui-background-base);
       }
       
       td {
         padding: 0.75rem 1rem;
         vertical-align: middle;
-        border-right: 1px solid var(--tui-base-04);
+        border-right: 1px solid var(--tui-border-normal);
         
         &:last-child {
           border-right: none;
@@ -165,7 +165,7 @@
 .expand-icon {
   width: 1rem;
   text-align: center;
-  color: var(--tui-text-02);
+  color: var(--tui-text-secondary);
   font-size: 0.75rem;
   cursor: pointer;
   
@@ -174,7 +174,7 @@
   }
   
   &:hover {
-    color: var(--tui-text-01);
+    color: var(--tui-text-primary);
   }
 }
 
@@ -191,7 +191,7 @@
     transition: all 0.15s;
     
     &:hover {
-      background: var(--tui-base-03);
+      background: var(--tui-background-neutral-2);
       transform: scale(1.02);
     }
   }
@@ -213,14 +213,14 @@
 
 .empty-cell {
   text-align: center;
-  color: var(--tui-text-03);
+  color: var(--tui-text-tertiary);
   font-style: italic;
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
-  color: var(--tui-text-02);
+  color: var(--tui-text-secondary);
   
   p {
     margin: 0;
@@ -249,9 +249,9 @@
 
 .error-item {
   padding: 1rem;
-  background: var(--tui-base-01);
+  background: var(--tui-background-base);
   border-radius: 0.25rem;
-  color: var(--tui-text-01);
+  color: var(--tui-text-primary);
   font-size: 0.875rem;
   border-left: 3px solid var(--tui-error-fill);
 }
@@ -261,7 +261,7 @@
   font-size: 1rem;
   
   strong {
-    color: var(--tui-text-01);
+    color: var(--tui-text-primary);
   }
 }
 
@@ -269,14 +269,14 @@
 .nested-reasons {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: var(--tui-base-02);
+  background: var(--tui-background-neutral-1);
   border-radius: 0.25rem;
 }
 
 .metadata-label,
 .nested-label {
   font-weight: 600;
-  color: var(--tui-text-02);
+  color: var(--tui-text-secondary);
   margin-bottom: 0.5rem;
   font-size: 0.8125rem;
   text-transform: uppercase;
@@ -293,7 +293,7 @@
   grid-template-columns: auto 1fr;
   gap: 0.75rem;
   padding: 0.5rem;
-  background: var(--tui-base-01);
+  background: var(--tui-background-base);
   border-radius: 0.25rem;
   
   &.small {
@@ -304,13 +304,13 @@
 
 .metadata-key {
   font-weight: 600;
-  color: var(--tui-text-02);
+  color: var(--tui-text-secondary);
   white-space: nowrap;
 }
 
 .metadata-value {
   font-family: monospace;
-  color: var(--tui-text-01);
+  color: var(--tui-text-primary);
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -323,9 +323,9 @@
 
 .nested-reason {
   padding: 0.75rem;
-  background: var(--tui-base-01);
+  background: var(--tui-background-base);
   border-radius: 0.25rem;
-  border-left: 2px solid var(--tui-base-04);
+  border-left: 2px solid var(--tui-border-normal);
 }
 
 .reason-metadata {

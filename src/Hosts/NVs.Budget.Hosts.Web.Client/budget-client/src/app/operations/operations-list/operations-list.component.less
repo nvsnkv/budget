@@ -26,7 +26,7 @@
   gap: 1rem;
   margin-top: 1rem;
   padding: 1rem;
-  background: var(--tui-base-02);
+  background: var(--tui-background-neutral-1);
   border-radius: 0.5rem;
   align-items: end;
   
@@ -49,7 +49,7 @@
 
 .operations-table-container {
   overflow-x: auto;
-  border: 1px solid var(--tui-base-04);
+  border: 1px solid var(--tui-border-normal);
   border-radius: 0.5rem;
 }
 
@@ -59,15 +59,15 @@
   border-spacing: 0;
   
   thead {
-    background: var(--tui-base-02);
+    background: var(--tui-background-neutral-1);
     
     th {
       padding: 0.75rem 1rem;
       text-align: left;
       font-weight: 600;
-      color: var(--tui-text-01);
-      border-bottom: 1px solid var(--tui-base-04);
-      border-right: 1px solid var(--tui-base-04);
+      color: var(--tui-text-primary);
+      border-bottom: 1px solid var(--tui-border-normal);
+      border-right: 1px solid var(--tui-border-normal);
       white-space: nowrap;
       
       &:last-child {
@@ -106,17 +106,17 @@
   
   tbody {
     tr.operation-row {
-      border-bottom: 1px solid var(--tui-base-04);
+      border-bottom: 1px solid var(--tui-border-normal);
       transition: background-color 0.15s;
       
       &:hover {
-        background: var(--tui-base-02);
+        background: var(--tui-background-neutral-1);
       }
       
       td {
         padding: 0.75rem 1rem;
         vertical-align: middle;
-        border-right: 1px solid var(--tui-base-04);
+        border-right: 1px solid var(--tui-border-normal);
         
         &:last-child {
           border-right: none;
@@ -125,11 +125,11 @@
         &.col-timestamp {
           font-family: monospace;
           font-size: 0.875rem;
-          color: var(--tui-text-02);
+          color: var(--tui-text-secondary);
         }
         
         &.col-description {
-          color: var(--tui-text-01);
+          color: var(--tui-text-primary);
         }
         
         &.col-amount {
@@ -162,7 +162,7 @@
             }
             
             &::-webkit-scrollbar-thumb {
-              background: var(--tui-base-04);
+              background: var(--tui-border-normal);
               border-radius: 2px;
             }
           }
@@ -183,13 +183,13 @@
             }
             
             &::-webkit-scrollbar-thumb {
-              background: var(--tui-base-04);
+              background: var(--tui-border-normal);
               border-radius: 2px;
             }
           }
           
           .no-attributes {
-            color: var(--tui-text-03);
+            color: var(--tui-text-tertiary);
             font-style: italic;
           }
         }
@@ -201,8 +201,8 @@
     }
     
     tr.operation-details-row {
-      background: var(--tui-base-01);
-      border-bottom: 1px solid var(--tui-base-04);
+      background: var(--tui-background-base);
+      border-bottom: 1px solid var(--tui-border-normal);
       
       td {
         padding: 0;
@@ -231,12 +231,12 @@
 .detail-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--tui-text-02);
+  color: var(--tui-text-secondary);
   text-transform: uppercase;
 }
 
 .detail-value {
-  background: var(--tui-base-02);
+  background: var(--tui-background-neutral-1);
   padding: 0.5rem;
   border-radius: 0.25rem;
   font-family: monospace;
@@ -247,7 +247,7 @@
 .operations-count {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: var(--tui-base-02);
+  background: var(--tui-background-neutral-1);
   border-radius: 0.5rem;
   text-align: center;
   font-weight: 600;
@@ -259,7 +259,7 @@
   
   p {
     margin-bottom: 1.5rem;
-    color: var(--tui-text-02);
+    color: var(--tui-text-secondary);
     font-size: 1.125rem;
   }
 }
@@ -267,6 +267,6 @@
 .loading-placeholder {
   text-align: center;
   padding: 3rem 1rem;
-  color: var(--tui-text-02);
+  color: var(--tui-text-secondary);
 }
 
