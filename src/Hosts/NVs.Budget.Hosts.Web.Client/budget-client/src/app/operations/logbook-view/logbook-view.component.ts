@@ -17,6 +17,7 @@ import { CriteriaFilterComponent } from '../shared/components/criteria-filter/cr
 import { ExamplesSectionComponent } from '../shared/components/examples-section/examples-section.component';
 import { CriteriaExample } from '../shared/models/example.interface';
 import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse } from '../../budget/models';
+import { LogbookStateService } from './logbook-state.service';
 
 interface CriteriaRow {
   description: string;
@@ -84,7 +85,8 @@ export class LogbookViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private logbookStateService: LogbookStateService
   ) {
     this.resetToDefaultDateRange();
   }
@@ -116,13 +118,19 @@ export class LogbookViewComponent implements OnInit {
 
   onCriteriaSubmitted(criteria: string): void {
     this.currentCriteria = criteria;
-    this.updateUrlAndLoadLogbook();
+    this.clearStateAndReload();
   }
 
   onCriteriaCleared(): void {
     this.currentCriteria = '';
     this.cronExpression = '';
     this.resetToDefaultDateRange();
+    this.clearStateAndReload();
+  }
+
+  private clearStateAndReload(): void {
+    // Clear saved state when filters change
+    this.logbookStateService.clearState(this.budgetId);
     this.updateUrlAndLoadLogbook();
   }
 
@@ -156,7 +164,6 @@ export class LogbookViewComponent implements OnInit {
     this.logbook = null;
     this.ranges = [];
     this.criteriaRows = [];
-    this.expandedRows.clear();
 
     const from = this.fromDate ? new Date(this.fromDate) : undefined;
     const till = this.tillDate ? new Date(this.tillDate) : undefined;
@@ -175,6 +182,19 @@ export class LogbookViewComponent implements OnInit {
         if (result.ranges && result.ranges.length > 0) {
           this.ranges = result.ranges.map(r => r.range);
           this.criteriaRows = this.buildCriteriaRows(result.ranges);
+          
+          // Restore expansion state if it exists, otherwise start fresh
+          const savedState = this.logbookStateService.getState(this.budgetId);
+          if (savedState) {
+            this.expandedRows = savedState.expandedRows;
+            
+            // Restore scroll position after view is rendered
+            setTimeout(() => {
+              window.scrollTo(0, savedState.scrollPosition);
+            }, 100);
+          } else {
+            this.expandedRows.clear();
+          }
         }
         
         if (result.errors.length > 0) {
@@ -287,6 +307,13 @@ export class LogbookViewComponent implements OnInit {
   viewGroupOperations(row: CriteriaRow, rangeName: string, event: Event): void {
     event.stopPropagation();
     
+    // Save current state before navigating
+    this.logbookStateService.saveState(
+      this.budgetId, 
+      this.expandedRows,
+      window.scrollY
+    );
+    
     this.router.navigate(['/budget', this.budgetId, 'operations', 'logbook', 'group'], {
       queryParams: {
         rangeName: rangeName,
@@ -338,7 +365,7 @@ export class LogbookViewComponent implements OnInit {
 
     this.fromDate = from.toISOString().slice(0, 16);
     this.tillDate = till.toISOString().slice(0, 16);
-    this.updateUrlAndLoadLogbook();
+    this.clearStateAndReload();
   }
 
   hasMetadata(error: any): boolean {
