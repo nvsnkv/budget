@@ -2,45 +2,45 @@
   <tui-loader [overlay]="true" [showLoader]="isLoading">
     <div tuiCardLarge class="logbook-card">
       <h2 tuiTitle size="l">Operations Logbook</h2>
-      
+
       <div class="filters-section">
         <h3 tuiTitle size="m">Filters</h3>
-        
+
         <app-criteria-filter
           [initialCriteria]="currentCriteria"
           [examples]="criteriaExamples"
           [showExamplesInitially]="false"
           (criteriaSubmitted)="onCriteriaSubmitted($event)"
           (criteriaCleared)="onCriteriaCleared()">
-          
+
           <div class="additional-parameters">
             <div class="date-range-section">
               <div class="date-inputs">
                 <div class="date-field">
                   <tui-textfield>
                     <label tuiLabel>From Date</label>
-                    <input 
-                      tuiTextfield 
+                    <input
+                      tuiTextfield
                       type="datetime-local"
                       [(ngModel)]="fromDate"
                     />
                   </tui-textfield>
                 </div>
-                
+
                 <div class="date-field">
                   <tui-textfield>
                     <label tuiLabel>Till Date</label>
-                    <input 
-                      tuiTextfield 
+                    <input
+                      tuiTextfield
                       type="datetime-local"
                       [(ngModel)]="tillDate"
                     />
                   </tui-textfield>
                 </div>
               </div>
-              
+
               <div class="date-presets">
-                <button 
+                <button
                   tuiButton
                   type="button"
                   appearance="secondary"
@@ -48,7 +48,7 @@
                   (click)="setDateRange('currentMonth')">
                   Current Month
                 </button>
-                <button 
+                <button
                   tuiButton
                   type="button"
                   appearance="secondary"
@@ -56,7 +56,7 @@
                   (click)="setDateRange('lastMonth')">
                   Last Month
                 </button>
-                <button 
+                <button
                   tuiButton
                   type="button"
                   appearance="secondary"
@@ -64,7 +64,7 @@
                   (click)="setDateRange('currentYear')">
                   Current Year
                 </button>
-                <button 
+                <button
                   tuiButton
                   type="button"
                   appearance="secondary"
@@ -74,22 +74,22 @@
                 </button>
               </div>
             </div>
-            
+
             <div class="cron-section">
               <div class="cron-field">
                 <tui-textfield>
                   <label tuiLabel>Cron Expression (optional - to split into periods)</label>
-                  <input 
-                    tuiTextfield 
+                  <input
+                    tuiTextfield
                     type="text"
                     [(ngModel)]="cronExpression"
                     placeholder="e.g., 0 0 1 * * for monthly"
                   />
                 </tui-textfield>
               </div>
-              
-              <app-examples-section 
-                [examples]="cronExamples" 
+
+              <app-examples-section
+                [examples]="cronExamples"
                 [expanded]="false">
               </app-examples-section>
             </div>
@@ -98,7 +98,7 @@
       </div>
 
       <div class="action-buttons">
-        <button 
+        <button
           tuiButton
           type="button"
           appearance="secondary"
@@ -111,7 +111,7 @@
       @if (logbook) {
         <div class="logbook-section">
           <h3 tuiTitle size="m">Logbook Statistics</h3>
-          
+
           @if (criteriaRows.length > 0 && ranges.length > 0) {
             <div class="logbook-table-container">
               <table class="logbook-table">
@@ -142,16 +142,16 @@
                           </div>
                         </td>
                         @for (range of ranges; track range.name) {
-                          <td class="data-cell" 
+                          <td class="data-cell"
                               [class.clickable]="hasOperationsInRange(row, range.name)"
                               [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + getEntryForRange(row, range.name)?.operationsCount + ' operations' : ''"
                               (click)="hasOperationsInRange(row, range.name) && viewGroupOperations(row, range.name, $event)">
                             @if (getEntryForRange(row, range.name); as entry) {
                               @if (entry.sum.value !== 0) {
-                                <div class="sum-value" 
-                                     [class.positive]="entry.sum.value > 0" 
+                                <div class="sum-value"
+                                     [class.positive]="entry.sum.value > 0"
                                      [class.negative]="entry.sum.value < 0">
-                                  {{ entry.sum.value | currencyFormat: entry.sum.currencyCode }}
+                                  {{ entry.sum.value | currencyFormat }}
                                 </div>
                               } @else {
                                 <div class="empty-cell">-</div>
@@ -171,7 +171,7 @@
               <p>No logbook data available for the selected criteria and date range.</p>
             </div>
           }
-          
+
           @if (logbook.errors.length > 0) {
             <div class="logbook-errors">
               <h4 tuiTitle size="s">Errors ({{ logbook.errors.length }})</h4>
@@ -181,7 +181,7 @@
                     <div class="error-message">
                       <strong>{{ error.message || 'Unknown error' }}</strong>
                     </div>
-                    
+
                     @if (hasMetadata(error)) {
                       <div class="error-metadata">
                         <div class="metadata-label">Metadata:</div>
@@ -195,7 +195,7 @@
                         </div>
                       </div>
                     }
-                    
+
                     @if (hasNestedReasons(error)) {
                       <div class="nested-reasons">
                         <div class="nested-label">Nested Reasons:</div>

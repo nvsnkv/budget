@@ -5,10 +5,10 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true
 })
 export class CurrencyFormatPipe implements PipeTransform {
-  transform(amount: number, currencyCode: string): string {
+  transform(amount: number, currencyCode: string | null = null): string {
     // Format number with space as thousand separator
     const formattedAmount = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    return `${formattedAmount} ${currencyCode}`;
+    return currencyCode ? `${formattedAmount} ${currencyCode}` : formattedAmount;
   }
 }
 
