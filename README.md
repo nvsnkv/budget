@@ -14,6 +14,7 @@ Yet another budget tracking tool. Successor of [flow](https://github.com/nvsnkv/
 3. Configure aggregation rules (logbook criteria)
 
 Starting from this point you're ready to use service:
+
 4. Import new operations
 5. Handle possible duplicates and transfers
 6. Build and explore agregated expenses
