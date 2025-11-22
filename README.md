@@ -94,14 +94,13 @@ Configure how CSV files from your banks are parsed. Each setting is associated w
   - `Currency` - Currency code
   - `Timestamp` - Transaction date/time
   - `Description` - Transaction description
-  - `Account` - Account identifier
-- **Attribute Mappings**: Maps CSV columns to custom operation attributes
+- **Attribute Mappings**: Maps CSV columns to custom operation attributes like MCC codes or whatever else you need and have in raw data
 - **Validation Rules**: Rules to validate and filter CSV rows:
   - Condition: `Equals` or `NotEquals`
   - Field: Column to check
   - Value: Expected value
 
-Example: Configure a setting for files matching `.*sberbank.*\.csv` with specific field mappings for Sberbank's CSV format.
+Example: Configure a setting for files matching `.*the-bank.*\.csv` with specific field mappings for Sberbank's CSV format.
 
 #### 2. Tagging Criteria
 
