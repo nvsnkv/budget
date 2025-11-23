@@ -100,13 +100,11 @@ Configure how CSV files from your banks are parsed. Each setting is associated w
   - Field: Column to check
   - Value: Expected value
 
-Example: Configure a setting for files matching `.*the-bank.*\.csv` with specific field mappings for Sberbank's CSV format.
-
 #### 2. Tagging Criteria
 
 Define rules that automatically assign tags to operations based on conditions. Each criterion consists of:
 
-- **Tag Expression**: Expression that computes the tag name from operation properties
+- **Tag Expression**: Expression that computes the tag name from operation properties.
   - Example: `o => o.Description.Contains("Grocery") ? "Food" : "Other"`
 - **Condition**: Boolean expression that determines when to apply the tag
   - Example: `o => o.Amount.Amount < 0` (only for expenses)
@@ -122,7 +120,7 @@ Define rules to automatically detect transfers between accounts. Each criterion 
 - **Accuracy**: Confidence level of the match
   - `Exact` (100%) - High confidence, exact match
   - `Likely` (70%) - Probable match, may require review
-- **Comment**: Optional description for the transfer
+- **Comment**: Description for the transfer
 
 When a transfer is detected, both operations are tagged with `Transfer`, `Source`, or `Sink` tags and excluded from income/expense calculations.
 
@@ -170,15 +168,6 @@ Universal (all operations)
 ```
 
 This structure allows you to build calendar-like views where operations are grouped by category and time period.
-
-#### Usage
-
-Logbook criteria are used when building aggregated statistics:
-- Operations are matched against the root criterion
-- Matching operations are registered in the logbook
-- Operations are then matched against subcriteria for further grouping
-- Each level maintains aggregated statistics (count, total amount, etc.)
-- You can specify date ranges and additional filter criteria when querying the logbook
 
 ### Import
 
