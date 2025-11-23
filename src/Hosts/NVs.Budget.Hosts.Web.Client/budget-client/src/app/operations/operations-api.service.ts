@@ -10,7 +10,10 @@ import {
   UpdateResultResponse,
   DeleteResultResponse,
   RetagResultResponse,
-  LogbookResponse
+  LogbookResponse,
+  TransferResponse,
+  RegisterTransfersRequest,
+  RemoveTransfersRequest
 } from '../budget/models';
 import { environment } from '../../environments/environment';
 
@@ -20,6 +23,8 @@ import { environment } from '../../environments/environment';
 export class OperationsApiService {
   public readonly baseUrl = environment.apiUrl + '/api/v0.1';
   private refresh$ = new BehaviorSubject<string | null>(null);
+  
+  private static readonly jsonHeaders = new HttpHeaders().set('Content-Type', 'application/json');
 
   constructor(private http: HttpClient) {}
 
@@ -89,11 +94,10 @@ export class OperationsApiService {
    * Update existing operations
    */
   updateOperations(budgetId: string, request: UpdateOperationsRequest): Observable<UpdateResultResponse> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
     return this.http.put<UpdateResultResponse>(
       `${this.baseUrl}/budget/${budgetId}/operations`,
       request,
-      { headers, withCredentials: true }
+      { headers: OperationsApiService.jsonHeaders, withCredentials: true }
     );
   }
 
@@ -101,12 +105,11 @@ export class OperationsApiService {
    * Remove operations matching criteria
    */
   removeOperations(budgetId: string, request: RemoveOperationsRequest): Observable<DeleteResultResponse> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
     return this.http.request<DeleteResultResponse>(
       'DELETE',
       `${this.baseUrl}/budget/${budgetId}/operations`,
       { 
-        headers,
+        headers: OperationsApiService.jsonHeaders,
         body: request,
         withCredentials: true 
       }
@@ -117,11 +120,10 @@ export class OperationsApiService {
    * Retag operations matching criteria
    */
   retagOperations(budgetId: string, request: RetagOperationsRequest): Observable<RetagResultResponse> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
     return this.http.post<RetagResultResponse>(
       `${this.baseUrl}/budget/${budgetId}/operations/retag`,
       request,
-      { headers, withCredentials: true }
+      { headers: OperationsApiService.jsonHeaders, withCredentials: true }
     );
   }
 
@@ -172,6 +174,59 @@ export class OperationsApiService {
     return this.http.get<LogbookResponse>(
       `${this.baseUrl}/budget/${budgetId}/operations/logbook`,
       { params, withCredentials: true }
+    );
+  }
+
+  /**
+   * Search transfers in a budget
+   */
+  searchTransfers(
+    budgetId: string,
+    criteria?: string,
+    accuracy?: string
+  ): Observable<TransferResponse[]> {
+    const params: any = {};
+    if (criteria) {
+      params.criteria = criteria;
+    }
+    if (accuracy) {
+      params.accuracy = accuracy;
+    }
+    return this.http.get<TransferResponse[]>(
+      `${this.baseUrl}/budget/${budgetId}/transfers`,
+      { params, withCredentials: true }
+    );
+  }
+
+  /**
+   * Register new transfers
+   */
+  registerTransfers(
+    budgetId: string,
+    request: RegisterTransfersRequest
+  ): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/budget/${budgetId}/transfers`,
+      request,
+      { headers: OperationsApiService.jsonHeaders, withCredentials: true }
+    );
+  }
+
+  /**
+   * Remove transfers
+   */
+  removeTransfers(
+    budgetId: string,
+    request: RemoveTransfersRequest
+  ): Observable<void> {
+    return this.http.request<void>(
+      'DELETE',
+      `${this.baseUrl}/budget/${budgetId}/transfers`,
+      {
+        headers: OperationsApiService.jsonHeaders,
+        body: request,
+        withCredentials: true
+      }
     );
   }
 }

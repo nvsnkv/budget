@@ -183,3 +183,31 @@ export interface LogbookResponse {
   errors: IError[];
   successes: ISuccess[];
 }
+
+// Transfer models
+export interface TransferResponse {
+  sourceId: string;
+  source: OperationResponse;
+  sinkId: string;
+  sink: OperationResponse;
+  fee: MoneyResponse;
+  comment: string;
+  accuracy: string;
+}
+
+export interface RegisterTransferRequest {
+  sourceId: string;
+  sinkId: string;
+  fee?: MoneyResponse;
+  comment: string;
+  accuracy: string;
+}
+
+export interface RegisterTransfersRequest {
+  transfers: RegisterTransferRequest[];
+}
+
+export interface RemoveTransfersRequest {
+  sourceIds: string[];
+  all: boolean;
+}

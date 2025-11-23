@@ -9,6 +9,7 @@ import { RetagOperationsComponent } from './operations/retag-operations/retag-op
 import { LogbookViewComponent } from './operations/logbook-view/logbook-view.component';
 import { LogbookGroupComponent } from './operations/logbook-group/logbook-group.component';
 import { DuplicatesListComponent } from './operations/duplicates-list/duplicates-list.component';
+import { TransfersListComponent } from './operations/transfers-list/transfers-list.component';
 import { IndexComponent } from './index/index.component';
 
 export const routes: Routes = [
@@ -19,6 +20,7 @@ export const routes: Routes = [
     { path: 'budget/:budgetId/operations/logbook/group', component: LogbookGroupComponent },
     { path: 'budget/:budgetId/operations/logbook', component: LogbookViewComponent },
     { path: 'budget/:budgetId/operations/duplicates', component: DuplicatesListComponent },
+    { path: 'budget/:budgetId/transfers', component: TransfersListComponent },
     { path: 'budget/:budgetId/operations', component: OperationsListComponent },
     { path: 'budget/:budgetId/details', component: BudgetDetailComponent },
     { path: 'budget/:budgetId/reading-settings', component: ReadingSettingsComponent },

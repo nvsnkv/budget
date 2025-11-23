@@ -1,0 +1,178 @@
+<div class="transfers-container">
+  <div tuiCardLarge class="transfers-card">
+    <div class="header">
+      <h2 tuiTitle size="l">Transfers</h2>
+      <div class="header-actions">
+        <button 
+          tuiButton
+          type="button"
+          appearance="primary"
+          size="m"
+          (click)="toggleRegisterForm()">
+          @if (showRegisterForm) {
+            Cancel
+          } @else {
+            Register Transfer
+          }
+        </button>
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="navigateToOperations()">
+          View Operations
+        </button>
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="navigateToBudget()">
+          Budget Details
+        </button>
+      </div>
+    </div>
+
+    <!-- Register Transfer Form -->
+    @if (showRegisterForm) {
+      <div class="register-form-section">
+        <h3 tuiTitle size="m">Register New Transfer</h3>
+        <div class="form-grid">
+          <div class="form-item">
+            <tui-textfield>
+              <label tuiLabel>Source Operation ID</label>
+              <input 
+                tuiTextfield 
+                [(ngModel)]="newTransfer.sourceId"
+                type="text" 
+                placeholder="Enter source operation ID"
+              />
+            </tui-textfield>
+          </div>
+          
+          <div class="form-item">
+            <tui-textfield>
+              <label tuiLabel>Sink Operation ID</label>
+              <input 
+                tuiTextfield 
+                [(ngModel)]="newTransfer.sinkId"
+                type="text" 
+                placeholder="Enter sink operation ID"
+              />
+            </tui-textfield>
+          </div>
+          
+          <div class="form-item">
+            <tui-textfield>
+              <label tuiLabel>Comment</label>
+              <input 
+                tuiTextfield 
+                [(ngModel)]="newTransfer.comment"
+                type="text" 
+                placeholder="Enter transfer comment"
+              />
+            </tui-textfield>
+          </div>
+          
+          <div class="form-item">
+            <tui-textfield>
+              <label tuiLabel>Accuracy</label>
+              <select 
+                [(ngModel)]="newTransfer.accuracy"
+                class="select-input">
+                @for (option of accuracyOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </tui-textfield>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button 
+            tuiButton
+            type="button"
+            appearance="primary"
+            size="m"
+            [disabled]="isLoading"
+            (click)="registerTransfer()">
+            Register Transfer
+          </button>
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            [disabled]="isLoading"
+            (click)="toggleRegisterForm()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <h3 tuiTitle size="m">Filters</h3>
+      <app-criteria-filter
+        [initialCriteria]="currentCriteria"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="onCriteriaSubmitted($event)"
+        (criteriaCleared)="onCriteriaCleared()">
+        
+        <div class="additional-filters">
+          <div class="filter-item">
+            <tui-textfield>
+              <label tuiLabel>Accuracy</label>
+              <select 
+                [(ngModel)]="accuracy"
+                (ngModelChange)="onAccuracyChange()"
+                class="select-input">
+                <option value="">All</option>
+                @for (option of accuracyOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </tui-textfield>
+          </div>
+        </div>
+      </app-criteria-filter>
+    </div>
+
+    <!-- Transfers List -->
+    <div class="transfers-section">
+      @if (transfers$ | async; as transfers) {
+        @if (transfers.length > 0) {
+          <app-transfers-table 
+            [transfers]="transfers" 
+            [showActions]="true"
+            (transferDeleted)="onDeleteTransfer($event)">
+          </app-transfers-table>
+          
+          <div class="transfers-count">
+            Total: {{ transfers.length }} transfer(s)
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>No transfers found.</p>
+            <button 
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              (click)="toggleRegisterForm()">
+              Register Transfer
+            </button>
+          </div>
+        }
+      } @else {
+        <tui-loader [showLoader]="true">
+          <div class="loading-placeholder">Loading transfers...</div>
+        </tui-loader>
+      }
+    </div>
+  </div>
+</div>
+

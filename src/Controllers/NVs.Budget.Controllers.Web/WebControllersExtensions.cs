@@ -26,10 +26,12 @@ public static class WebControllersExtensions
             .Build());
 
         
+        services.AddScoped<MoneyMapper>();
         services.AddScoped<BudgetMapper>();
         services.AddScoped<FileReadingSettingsMapper>();
         services.AddScoped<OperationMapper>();
         services.AddScoped<LogbookMapper>();
+        services.AddScoped<TransferMapper>();
         services.AddScoped<RangeBuilder>();
         
         services.AddEndpointsApiExplorer();

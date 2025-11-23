@@ -6,7 +6,7 @@ using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Controllers.Web.Utils;
 
-public class OperationMapper
+public class OperationMapper(MoneyMapper moneyMapper)
 {
     public OperationResponse ToResponse(TrackedOperation operation)
     {
@@ -24,7 +24,7 @@ public class OperationMapper
 
     public Result<UnregisteredOperation> FromRequest(UnregisteredOperationRequest request)
     {
-        var moneyResult = ParseMoney(request.Amount);
+        var moneyResult = moneyMapper.ParseMoney(request.Amount);
         if (moneyResult.IsFailed)
         {
             return Result.Fail<UnregisteredOperation>(moneyResult.Errors);
@@ -44,7 +44,7 @@ public class OperationMapper
 
     public Result<TrackedOperation> FromRequest(UpdateOperationRequest request, TrackedBudget budget)
     {
-        var moneyResult = ParseMoney(request.Amount);
+        var moneyResult = moneyMapper.ParseMoney(request.Amount);
         if (moneyResult.IsFailed)
         {
             return Result.Fail<TrackedOperation>(moneyResult.Errors);
@@ -84,20 +84,6 @@ public class OperationMapper
         }
 
         return Result.Ok(accuracy);
-    }
-
-    private Result<Money> ParseMoney(MoneyResponse moneyResponse)
-    {
-        try
-        {
-            var currency = Currency.Get(moneyResponse.CurrencyCode);
-            var money = new Money(moneyResponse.Value, currency);
-            return Result.Ok(money);
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail<Money>($"Invalid money value: {ex.Message}");
-        }
     }
 }
 
