@@ -83,6 +83,7 @@ public class OperationsController(
             
             var response = duplicateGroups
                 .Select(group => group.Select(mapper.ToResponse).ToList())
+                .OrderHistorically()
                 .ToList();
             
             return Ok(response);
@@ -138,7 +139,7 @@ public class OperationsController(
         var query = new OperationQuery(conditions, currency, excludeTransfers);
         var listQuery = new ListOperationsQuery(query);
 
-        await foreach (var operation in mediator.CreateStream(listQuery, ct))
+        await foreach (var operation in mediator.CreateStream(listQuery, ct).OrderHistorically())
         {
             yield return mapper.ToResponse(operation);
         }
@@ -269,8 +270,8 @@ public class OperationsController(
                 .ToList();
             
             var response = new ImportResultResponse(
-                result.Operations.Select(mapper.ToResponse).ToList(),
-                result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).ToList(),
+                result.Operations.Select(mapper.ToResponse).OrderHistorically().ToList(),
+                result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).OrderHistorically().ToList(),
                 allErrors,
                 allSuccesses
             );
@@ -364,7 +365,7 @@ public class OperationsController(
             var successes = result.Reasons.Where(r => r is ISuccess).Cast<ISuccess>().ToList();
             
             var response = new UpdateResultResponse(
-                result.Operations.Select(mapper.ToResponse).ToList(),
+                result.Operations.Select(mapper.ToResponse).OrderHistorically().ToList(),
                 errors,
                 successes
             );
