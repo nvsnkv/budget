@@ -1,6 +1,6 @@
 using FluentResults;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Domain.ValueObjects;
 

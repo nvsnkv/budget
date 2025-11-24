@@ -5,7 +5,7 @@ using Moq;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Services.Accounting;

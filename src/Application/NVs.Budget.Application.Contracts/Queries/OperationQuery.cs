@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 
 namespace NVs.Budget.Application.Contracts.Queries;
 

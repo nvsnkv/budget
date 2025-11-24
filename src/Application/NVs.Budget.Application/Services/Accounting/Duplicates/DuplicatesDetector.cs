@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 
 namespace NVs.Budget.Application.Services.Accounting.Duplicates;

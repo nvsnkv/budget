@@ -1,8 +1,8 @@
-﻿using NVs.Budget.Application.Contracts.Entities.Budgeting;
+﻿using NVs.Budget.Application.Contracts.Entities.Accounting;
 
 namespace NVs.Budget.Application.Services.Accounting.Transfers;
 
-internal class TransfersListBuilder(TransferDetector detector)
+internal class TransfersListBuilder(TransferDetector detector, DetectionAccuracy? tagIf)
 {
     private readonly List<TrackedOperation> _parts = new();
 
@@ -20,12 +20,14 @@ internal class TransfersListBuilder(TransferDetector detector)
             {
                 _parts.Remove(part);
 
-                source.Tag(TransferTags.Transfer);
-                source.Tag(TransferTags.Source);
+                if (tagIf.HasValue && detectionResult.Value.Accuracy >= tagIf.Value)
+                {
+                    source.Tag(TransferTags.Transfer);
+                    source.Tag(TransferTags.Source);
 
-                sink.Tag(TransferTags.Transfer);
-                sink.Tag(TransferTags.Sink);
-
+                    sink.Tag(TransferTags.Transfer);
+                    sink.Tag(TransferTags.Sink);
+                }
 
                 return detectionResult.Value;
             }

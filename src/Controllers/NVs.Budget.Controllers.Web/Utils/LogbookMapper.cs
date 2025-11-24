@@ -1,3 +1,4 @@
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Domain.Aggregates;
 
@@ -16,7 +17,7 @@ public class LogbookMapper(OperationMapper operationMapper)
         // Only include operations if there are no children (leaf node)
         var operations = children.Count == 0
             ? logbook.Operations
-                .Cast<Application.Contracts.Entities.Budgeting.TrackedOperation>()
+                .Cast<TrackedOperation>()
                 .Select(operationMapper.ToResponse)
                 .ToList()
             : new List<OperationResponse>();

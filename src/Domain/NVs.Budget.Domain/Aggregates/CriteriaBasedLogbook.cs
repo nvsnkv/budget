@@ -25,7 +25,7 @@ public class CriteriaBasedLogbook : Logbook
     {
         if (!Criterion.Matched(o))
             return Result.Fail(new OperationDidNotMatchCriteriaError()
-                .WithTransactionId(o)
+                .WithOperationId(o)
                 .WithMetadata(nameof(Criterion), Criterion)
             );
 
@@ -34,7 +34,7 @@ public class CriteriaBasedLogbook : Logbook
         {
             var subcriterion = Criterion.GetMatchedSubcriterion(o);
             if (subcriterion is null)
-                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithTransactionId(o)
+                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithOperationId(o)
                     .WithMetadata(nameof(Criterion), Criterion)
                 );
 

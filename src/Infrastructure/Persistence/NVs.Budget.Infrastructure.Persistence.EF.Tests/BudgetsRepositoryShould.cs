@@ -2,7 +2,7 @@
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;

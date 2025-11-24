@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Extensions;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 

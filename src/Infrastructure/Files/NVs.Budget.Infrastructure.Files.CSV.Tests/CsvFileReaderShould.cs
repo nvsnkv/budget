@@ -3,7 +3,7 @@ using System.Text;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 
 namespace NVs.Budget.Infrastructure.Files.CSV.Tests;

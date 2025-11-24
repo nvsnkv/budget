@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using NMoneys;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.Extensions;
@@ -84,6 +85,10 @@ public class Transfer : IEnumerable<Operation>
     public string Comment { get; }
 
     public Money Fee { get; }
+
+    public DateTime StartedAt  => Source.Timestamp;
+
+    public DateTime CompletedAt => Sink.Timestamp; 
 
     public Operation AsTransaction()
     {

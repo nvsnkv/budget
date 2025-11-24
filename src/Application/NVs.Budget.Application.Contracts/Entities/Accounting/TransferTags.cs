@@ -1,7 +1,7 @@
 ﻿using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Services.Accounting.Transfers;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public static class TransferTags
 {

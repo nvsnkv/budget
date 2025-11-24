@@ -9,6 +9,8 @@ internal class StoredTransfer(string comment) : DbRecord
 
     public StoredMoney Fee { get; set; } = StoredMoney.Zero;
     public string Comment { get; set; } = comment;
+    public DateTime StartedAt { get; set; }
+    public DateTime CompletedAt { get; set; }
 
     public virtual StoredOperation Source { get; set; } = StoredOperation.Invalid;
     public virtual StoredOperation Sink { get; set; } = StoredOperation.Invalid;

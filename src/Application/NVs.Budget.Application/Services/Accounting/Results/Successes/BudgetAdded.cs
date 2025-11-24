@@ -7,6 +7,6 @@ internal class BudgetAdded : Success
 {
     public BudgetAdded(Domain.Entities.Budgets.Budget budget) : base("Budget was successfully added!")
     {
-        this.WithOperationId(budget);
+        this.WithBudgetId(budget);
     }
 }

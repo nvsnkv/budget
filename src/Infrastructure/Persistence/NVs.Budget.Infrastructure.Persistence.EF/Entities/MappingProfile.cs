@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
@@ -68,7 +68,14 @@ internal class MappingProfile : Profile
                 nameof(TrackedOperation.Timestamp).ToLower(),
                 opt => opt.MapFrom(t => t.Timestamp.ToLocalTime())
             );
-        CreateMap<TrackedTransfer, StoredTransfer>().ReverseMap();
+        CreateMap<TrackedTransfer, StoredTransfer>()
+            .ForMember(s => s.StartedAt, opt => opt.MapFrom(t => t.StartedAt.ToUniversalTime()))
+            .ForMember(s => s.CompletedAt, opt => opt.MapFrom(t => t.CompletedAt.ToUniversalTime()));
+
+        CreateMap<StoredTransfer, TrackedTransfer>()
+            .ForMember(t => t.StartedAt, opt => opt.MapFrom(s => s.StartedAt.ToLocalTime()))
+            .ForMember(t => t.CompletedAt, opt => opt.MapFrom(s => s.CompletedAt.ToLocalTime()));
+        
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
     }
 }

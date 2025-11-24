@@ -1,7 +1,7 @@
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Domain.Entities.Budgets;

@@ -1,5 +1,5 @@
 using MediatR;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
 

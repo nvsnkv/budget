@@ -1,4 +1,4 @@
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
 
 namespace NVs.Budget.Controllers.Web.Utils;

@@ -3,7 +3,7 @@ using FluentAssertions;
 using Moq;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;

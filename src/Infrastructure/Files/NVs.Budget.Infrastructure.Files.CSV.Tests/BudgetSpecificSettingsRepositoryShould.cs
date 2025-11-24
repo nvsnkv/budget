@@ -3,7 +3,7 @@ using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Infrastructure.Files.CSV.Persistence.Settings;
 using NVs.Budget.Utilities.Testing;

@@ -11,12 +11,12 @@ public static class ReasonExtensions
         return reason;
     }
 
-    public static T WithTransactionId<T>(this T reason, Operation t) where T: IReason
+    public static T WithOperationId<T>(this T reason, Operation t) where T: IReason
     {
         return reason.WithMetadata($"{nameof(Operation)}.{nameof(Operation.Id)}", t.Id);
     }
 
-    public static T WithOperationId<T>(this T reason, Entities.Budgets.Budget a) where T : IReason
+    public static T WithBudgetId<T>(this T reason, Entities.Budgets.Budget a) where T : IReason
     {
         return reason.WithMetadata($"{nameof(Entities.Budgets.Budget)}.{nameof(Entities.Budgets.Budget.Id)}", a.Id);
     }

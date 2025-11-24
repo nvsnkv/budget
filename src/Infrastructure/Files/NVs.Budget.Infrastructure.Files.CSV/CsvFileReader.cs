@@ -6,7 +6,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using FluentResults;
 using NMoneys;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Infrastructure.Files.CSV.Errors;
 

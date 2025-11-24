@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using FluentResults;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 
 namespace NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
 

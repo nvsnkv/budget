@@ -2,7 +2,7 @@
 using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 using NVs.Budget.Utilities.Expressions;

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 
 namespace NVs.Budget.Infrastructure.Files.CSV.Contracts;
 
