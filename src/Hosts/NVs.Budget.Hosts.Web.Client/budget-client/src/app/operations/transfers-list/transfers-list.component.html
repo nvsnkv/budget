@@ -213,8 +213,8 @@
           </div>
         } @else {
           <div class="transfers-count">
-            Total: {{ (transfersList.recorded?.length ?? 0) + (transfersList.unregistered?.length ?? 0) }} transfer(s)
-            ({{ transfersList.recorded?.length ?? 0 }} recorded, {{ transfersList.unregistered?.length ?? 0 }} unregistered)
+            Total: {{ transfersList.recorded.length + transfersList.unregistered.length }} transfer(s)
+            ({{ transfersList.recorded.length }} recorded, {{ transfersList.unregistered.length }} unregistered)
           </div>
         }
       } @else {

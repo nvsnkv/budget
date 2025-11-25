@@ -5,7 +5,6 @@ import { TuiChip } from '@taiga-ui/kit';
 import { TransferResponse } from '../../budget/models';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
-import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 
 @Component({
@@ -18,7 +17,6 @@ import { OperationsTableComponent } from '../operations-table/operations-table.c
     TuiChip,
     CurrencyFormatPipe,
     DateFormatPipe,
-    ObjectKeysPipe,
     OperationsTableComponent
   ],
   templateUrl: './transfers-table.component.html',
