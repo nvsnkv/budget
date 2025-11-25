@@ -115,46 +115,91 @@
     <!-- Filters -->
     <div class="filters-section">
       <h3 tuiTitle size="m">Filters</h3>
-      <app-criteria-filter
-        [initialCriteria]="currentCriteria"
-        [examples]="criteriaExamples"
-        [showExamplesInitially]="false"
-        (criteriaSubmitted)="onCriteriaSubmitted($event)"
-        (criteriaCleared)="onCriteriaCleared()">
-        
-        <div class="additional-filters">
-          <div class="filter-item">
-            <tui-textfield>
-              <label tuiLabel>Accuracy</label>
-              <select 
-                [(ngModel)]="accuracy"
-                (ngModelChange)="onAccuracyChange()"
-                class="select-input">
-                <option value="">All</option>
-                @for (option of accuracyOptions; track option) {
-                  <option [value]="option">{{ option }}</option>
-                }
-              </select>
-            </tui-textfield>
-          </div>
+      <div class="filters-grid">
+        <div class="filter-item">
+          <tui-textfield>
+            <label tuiLabel>From Date</label>
+            <input 
+              tuiTextfield 
+              [(ngModel)]="fromDate"
+              (ngModelChange)="onDateChange()"
+              type="date"
+            />
+          </tui-textfield>
         </div>
-      </app-criteria-filter>
+        
+        <div class="filter-item">
+          <tui-textfield>
+            <label tuiLabel>Till Date</label>
+            <input 
+              tuiTextfield 
+              [(ngModel)]="tillDate"
+              (ngModelChange)="onDateChange()"
+              type="date"
+            />
+          </tui-textfield>
+        </div>
+        
+        <div class="filter-item">
+          <tui-textfield>
+            <label tuiLabel>Accuracy</label>
+            <select 
+              [(ngModel)]="accuracy"
+              (ngModelChange)="onAccuracyChange()"
+              class="select-input">
+              <option value="">All</option>
+              @for (option of accuracyOptions; track option) {
+                <option [value]="option">{{ option }}</option>
+              }
+            </select>
+          </tui-textfield>
+        </div>
+        
+        <div class="filter-item filter-actions">
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="resetFilters()">
+            Reset Filters
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Transfers List -->
     <div class="transfers-section">
-      @if (transfers$ | async; as transfers) {
-        @if (transfers.length > 0) {
-          <app-transfers-table 
-            [transfers]="transfers" 
-            [showActions]="true"
-            (transferDeleted)="onDeleteTransfer($event)">
-          </app-transfers-table>
-          
-          <div class="transfers-count">
-            Total: {{ transfers.length }} transfer(s)
+      @if (transfers$ | async; as transfersList) {
+        <!-- Recorded Transfers -->
+        @if (transfersList.recorded && transfersList.recorded.length > 0) {
+          <div class="transfers-group">
+            <h3 tuiTitle size="m">Recorded Transfers ({{ transfersList.recorded.length }})</h3>
+            <app-transfers-table 
+              [transfers]="transfersList.recorded" 
+              [showActions]="true"
+              [showQuickRegister]="false"
+              (transferDeleted)="onDeleteTransfer($event)">
+            </app-transfers-table>
           </div>
-        } @else {
+        }
+
+        <!-- Unregistered Transfers -->
+        @if (transfersList.unregistered && transfersList.unregistered.length > 0) {
+          <div class="transfers-group">
+            <h3 tuiTitle size="m">Unregistered Transfers ({{ transfersList.unregistered.length }})</h3>
+            <app-transfers-table 
+              [transfers]="transfersList.unregistered" 
+              [showActions]="true"
+              [showQuickRegister]="true"
+              (transferDeleted)="onDeleteTransfer($event)"
+              (transferRegistered)="quickRegisterTransfer($event)">
+            </app-transfers-table>
+          </div>
+        }
+
+        @if ((!transfersList.recorded || transfersList.recorded.length === 0) && 
+             (!transfersList.unregistered || transfersList.unregistered.length === 0)) {
           <div class="empty-state">
             <p>No transfers found.</p>
             <button 
@@ -165,6 +210,11 @@
               (click)="toggleRegisterForm()">
               Register Transfer
             </button>
+          </div>
+        } @else {
+          <div class="transfers-count">
+            Total: {{ (transfersList.recorded?.length ?? 0) + (transfersList.unregistered?.length ?? 0) }} transfer(s)
+            ({{ transfersList.recorded?.length ?? 0 }} recorded, {{ transfersList.unregistered?.length ?? 0 }} unregistered)
           </div>
         }
       } @else {

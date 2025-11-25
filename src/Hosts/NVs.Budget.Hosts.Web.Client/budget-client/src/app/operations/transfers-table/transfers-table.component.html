@@ -55,6 +55,16 @@
                     ▶
                   }
                 </button>
+                @if (showQuickRegister) {
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="primary"
+                    size="s"
+                    (click)="registerTransfer(transfer)">
+                    Register
+                  </button>
+                }
                 <button 
                   tuiButton
                   type="button"
@@ -71,60 +81,13 @@
           <tr class="transfer-details-row">
             <td [attr.colspan]="showActions ? 6 : 5">
               <div class="transfer-details">
-                <div class="details-section">
-                  <h4>Source Operation</h4>
-                  <div class="operation-details">
-                    <div><strong>ID:</strong> {{ transfer.source.id }}</div>
-                    <div><strong>Date:</strong> {{ transfer.source.timestamp | dateFormat }}</div>
-                    <div><strong>Amount:</strong> {{ transfer.source.amount.value | currencyFormat: transfer.source.amount.currencyCode }}</div>
-                    <div><strong>Description:</strong> {{ transfer.source.description }}</div>
-                    @if (transfer.source.tags && transfer.source.tags.length > 0) {
-                      <div class="tags">
-                        <strong>Tags:</strong>
-                        @for (tag of transfer.source.tags; track tag) {
-                          <tui-chip size="xs">{{ tag }}</tui-chip>
-                        }
-                      </div>
-                    }
-                  </div>
+                <div class="operations-section">
+                  <h4>Operations in Transfer</h4>
+                  <app-operations-table 
+                    [operations]="getTransferOperations(transfer)"
+                    [showActions]="false">
+                  </app-operations-table>
                 </div>
-                <div class="details-section">
-                  <h4>Sink Operation</h4>
-                  <div class="operation-details">
-                    <div><strong>ID:</strong> {{ transfer.sink.id }}</div>
-                    <div><strong>Date:</strong> {{ transfer.sink.timestamp | dateFormat }}</div>
-                    <div><strong>Amount:</strong> {{ transfer.sink.amount.value | currencyFormat: transfer.sink.amount.currencyCode }}</div>
-                    <div><strong>Description:</strong> {{ transfer.sink.description }}</div>
-                    @if (transfer.sink.tags && transfer.sink.tags.length > 0) {
-                      <div class="tags">
-                        <strong>Tags:</strong>
-                        @for (tag of transfer.sink.tags; track tag) {
-                          <tui-chip size="xs">{{ tag }}</tui-chip>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-                @if (transfer.source.attributes && (transfer.source.attributes | objectKeys).length > 0) {
-                  <div class="details-section">
-                    <h4>Source Attributes</h4>
-                    <div class="attributes">
-                      @for (key of transfer.source.attributes | objectKeys; track key) {
-                        <div><strong>{{ key }}:</strong> {{ transfer.source.attributes![key] }}</div>
-                      }
-                    </div>
-                  </div>
-                }
-                @if (transfer.sink.attributes && (transfer.sink.attributes | objectKeys).length > 0) {
-                  <div class="details-section">
-                    <h4>Sink Attributes</h4>
-                    <div class="attributes">
-                      @for (key of transfer.sink.attributes | objectKeys; track key) {
-                        <div><strong>{{ key }}:</strong> {{ transfer.sink.attributes![key] }}</div>
-                      }
-                    </div>
-                  </div>
-                }
               </div>
             </td>
           </tr>

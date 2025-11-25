@@ -12,6 +12,11 @@ public record TransferResponse(
     string Accuracy
 );
 
+public record TransfersListResponse(
+    IReadOnlyCollection<TransferResponse> Recorded,
+    IReadOnlyCollection<TransferResponse> Unregistered
+);
+
 public record RegisterTransferRequest(
     Guid SourceId,
     Guid SinkId,

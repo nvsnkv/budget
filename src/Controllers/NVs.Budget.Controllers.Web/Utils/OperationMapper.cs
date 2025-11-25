@@ -2,6 +2,7 @@ using FluentResults;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Controllers.Web.Utils;
@@ -13,6 +14,27 @@ public class OperationMapper(MoneyMapper moneyMapper)
         return new OperationResponse(
             operation.Id,
             operation.Version ?? string.Empty,
+            operation.Timestamp,
+            new MoneyResponse(operation.Amount.Amount, operation.Amount.CurrencyCode.ToString()),
+            operation.Description,
+            operation.Budget.Id,
+            operation.Tags.Select(t => t.Value).ToList(),
+            operation.Attributes.Count > 0 ? new Dictionary<string, object>(operation.Attributes) : null
+        );
+    }
+
+    public OperationResponse ToResponse(Operation operation)
+    {
+        // If it's a TrackedOperation, use the TrackedOperation overload
+        if (operation is TrackedOperation trackedOperation)
+        {
+            return ToResponse(trackedOperation);
+        }
+
+        // Otherwise, map as base Operation
+        return new OperationResponse(
+            operation.Id,
+            string.Empty, // Operation doesn't have Version
             operation.Timestamp,
             new MoneyResponse(operation.Amount.Amount, operation.Amount.CurrencyCode.ToString()),
             operation.Description,

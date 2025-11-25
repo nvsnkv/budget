@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
-import { TransferResponse, RegisterTransferRequest } from '../../budget/models';
+import { TransferResponse, TransfersListResponse, RegisterTransferRequest } from '../../budget/models';
 import { 
   TuiButton, 
   TuiLoader,
@@ -15,8 +15,6 @@ import {
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { TransfersTableComponent } from '../transfers-table/transfers-table.component';
 import { NotificationService } from '../shared/notification.service';
-import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
-import { CriteriaExample } from '../shared/models/example.interface';
 
 @Component({
   selector: 'app-transfers-list',
@@ -30,19 +28,18 @@ import { CriteriaExample } from '../shared/models/example.interface';
     TuiLabel,
     TuiCardLarge,
     TuiTitle,
-    TransfersTableComponent,
-    CriteriaFilterComponent
+    TransfersTableComponent
   ],
   templateUrl: './transfers-list.component.html',
   styleUrls: ['./transfers-list.component.less']
 })
 export class TransfersListComponent implements OnInit {
   budgetId!: string;
-  transfers$!: Observable<TransferResponse[]>;
-  transfers: TransferResponse[] = [];
+  transfers$!: Observable<TransfersListResponse>;
   isLoading = false;
   
-  currentCriteria = '';
+  fromDate: string = '';
+  tillDate: string = '';
   accuracy = '';
   
   // Registration form
@@ -55,13 +52,6 @@ export class TransfersListComponent implements OnInit {
   };
   
   accuracyOptions = ['Likely', 'Exact'];
-  
-  criteriaExamples: CriteriaExample[] = [
-    { label: 'All transfers:', code: 'o => true' },
-    { label: 'Exact accuracy:', code: 'o => o.Tags.Any(t => t.Value == "Transfer")' },
-    { label: 'Likely accuracy:', code: 'o => o.Amount.Amount < 0' },
-    { label: 'By comment:', code: 'o => o.Description.Contains("transfer")' }
-  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -72,37 +62,59 @@ export class TransfersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.budgetId = this.route.snapshot.params['budgetId'];
+    // Set default dates: last month to now
+    const now = new Date();
+    this.tillDate = this.formatDateForInput(now);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    this.fromDate = this.formatDateForInput(lastMonth);
     this.loadTransfers();
   }
 
+  private formatDateForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private parseDateInput(dateString: string): Date | null {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? null : date;
+  }
+
   loadTransfers(): void {
+    const from = this.parseDateInput(this.fromDate);
+    const till = this.parseDateInput(this.tillDate);
+    
     this.transfers$ = this.operationsApi.searchTransfers(
       this.budgetId,
-      this.currentCriteria || undefined,
+      from || undefined,
+      till || undefined,
       this.accuracy || undefined
     ).pipe(
       catchError(error => {
         const errorMessage = this.notificationService.handleError(error, 'Failed to load transfers');
         this.notificationService.showError(errorMessage).subscribe();
-        return of([]);
+        return of({ recorded: [], unregistered: [] });
       })
     );
-    
-    this.transfers$.subscribe(transfers => this.transfers = transfers);
   }
 
-  onCriteriaSubmitted(criteria: string): void {
-    this.currentCriteria = criteria;
-    this.loadTransfers();
-  }
-
-  onCriteriaCleared(): void {
-    this.currentCriteria = '';
-    this.accuracy = '';
+  onDateChange(): void {
     this.loadTransfers();
   }
 
   onAccuracyChange(): void {
+    this.loadTransfers();
+  }
+
+  resetFilters(): void {
+    const now = new Date();
+    this.tillDate = this.formatDateForInput(now);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    this.fromDate = this.formatDateForInput(lastMonth);
+    this.accuracy = '';
     this.loadTransfers();
   }
 
@@ -169,6 +181,33 @@ export class TransfersListComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         const errorMessage = this.notificationService.handleError(error, 'Failed to delete transfer');
+        this.notificationService.showError(errorMessage).subscribe();
+      }
+    });
+  }
+
+  quickRegisterTransfer(transfer: TransferResponse): void {
+    this.isLoading = true;
+
+    const request: RegisterTransferRequest = {
+      sourceId: transfer.sourceId,
+      sinkId: transfer.sinkId,
+      comment: transfer.comment,
+      accuracy: transfer.accuracy,
+      fee: transfer.fee
+    };
+
+    this.operationsApi.registerTransfers(this.budgetId, {
+      transfers: [request]
+    }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.notificationService.showSuccess('Transfer registered successfully').subscribe();
+        this.loadTransfers();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        const errorMessage = this.notificationService.handleError(error, 'Failed to register transfer');
         this.notificationService.showError(errorMessage).subscribe();
       }
     });

@@ -11,7 +11,7 @@ import {
   DeleteResultResponse,
   RetagResultResponse,
   LogbookResponse,
-  TransferResponse,
+  TransfersListResponse,
   RegisterTransfersRequest,
   RemoveTransfersRequest
 } from '../budget/models';
@@ -182,17 +182,21 @@ export class OperationsApiService {
    */
   searchTransfers(
     budgetId: string,
-    criteria?: string,
+    from?: Date,
+    till?: Date,
     accuracy?: string
-  ): Observable<TransferResponse[]> {
+  ): Observable<TransfersListResponse> {
     const params: any = {};
-    if (criteria) {
-      params.criteria = criteria;
+    if (from) {
+      params.from = from.toISOString();
+    }
+    if (till) {
+      params.till = till.toISOString();
     }
     if (accuracy) {
       params.accuracy = accuracy;
     }
-    return this.http.get<TransferResponse[]>(
+    return this.http.get<TransfersListResponse>(
       `${this.baseUrl}/budget/${budgetId}/transfers`,
       { params, withCredentials: true }
     );

@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Asp.Versioning;
 using FluentResults;
 using MediatR;
@@ -12,7 +11,6 @@ using NVs.Budget.Application.Contracts.UseCases.Transfers;
 using NVs.Budget.Controllers.Web.Exceptions;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
-using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
 
@@ -23,24 +21,25 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 public class TransfersController(
     IMediator mediator,
     TransferMapper mapper,
-    OperationMapper operationMapper,
-    ReadableExpressionsParser parser) : Controller
+    OperationMapper operationMapper) : Controller
 {
     /// <summary>
     /// Searches for transfers in a specific budget
     /// </summary>
     /// <param name="budgetId">Budget ID from route</param>
-    /// <param name="criteria">Optional filter criteria expression for operations</param>
+    /// <param name="from">Start date for filtering transfers</param>
+    /// <param name="till">End date for filtering transfers</param>
     /// <param name="accuracy">Optional detection accuracy filter</param>
     /// <param name="ct">Cancellation token</param>
-    /// <returns>Collection of transfers</returns>
+    /// <returns>Collection of transfers (both recorded and unregistered)</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyCollection<TransferResponse>), 200)]
+    [ProducesResponseType(typeof(TransfersListResponse), 200)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
     [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
     public async Task<IActionResult> SearchTransfers(
         [FromRoute] Guid budgetId,
-        [FromQuery] string? criteria = null,
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? till = null,
         [FromQuery] string? accuracy = null,
         CancellationToken ct = default)
     {
@@ -53,22 +52,9 @@ public class TransfersController(
             return NotFound(new List<Error> { new($"Budget with ID {budgetId} not found or access denied") });
         }
 
-        // Parse criteria expression
-        Expression<Func<TrackedOperation, bool>>? conditions = null;
-        if (!string.IsNullOrWhiteSpace(criteria))
-        {
-            var criteriaResult = parser.ParseUnaryPredicate<TrackedOperation>(criteria);
-            if (criteriaResult.IsFailed)
-            {
-                return BadRequest(criteriaResult.Errors);
-            }
-            conditions = criteriaResult.Value.AsExpression();
-        }
-        else
-        {
-            // Default: all operations
-            conditions = o => true;
-        }
+        // Set default dates if not provided
+        var fromDate = from ?? DateTime.UtcNow.AddMonths(-1);
+        var tillDate = till ?? DateTime.UtcNow;
 
         // Parse accuracy if provided
         DetectionAccuracy? detectionAccuracy = null;
@@ -82,10 +68,14 @@ public class TransfersController(
             detectionAccuracy = accuracyResult.Value;
         }
 
-        var command = new SearchTransfersCommand(budget, conditions, detectionAccuracy);
-        var transfers = await mediator.Send(command, ct);
+        var command = new SearchTransfersCommand(budget, fromDate, tillDate, detectionAccuracy);
+        var transfersList = await mediator.Send(command, ct);
 
-        var response = transfers.Select(mapper.ToResponse).ToList();
+        // Return both recorded and unregistered transfers
+        var response = new TransfersListResponse(
+            transfersList.Recorded.Select(mapper.ToResponse).ToList(),
+            transfersList.Unregistered.Select(mapper.ToResponse).ToList()
+        );
         return Ok(response);
     }
 
@@ -125,9 +115,7 @@ public class TransfersController(
 
         // Get all operations by IDs
         var operationQuery = new OperationQuery(
-            o => operationIds.Contains(o.Id),
-            null,
-            false
+            o => operationIds.Contains(o.Id)
         );
         var listQuery = new ListOperationsQuery(operationQuery);
         

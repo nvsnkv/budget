@@ -3,10 +3,10 @@ namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 public sealed class TransfersList 
 {   
     private readonly List<TrackedTransfer> _recorded = new();
-    private readonly List<UnregisteredTransfer> _unregistereds = new();
+    private readonly List<UnregisteredTransfer> _unregistered = new();
 
     public IReadOnlyCollection<TrackedTransfer> Recorded => _recorded.AsReadOnly();
-    public IReadOnlyCollection<UnregisteredTransfer> Unregistereds => _unregistereds.AsReadOnly();
+    public IReadOnlyCollection<UnregisteredTransfer> Unregistered => _unregistered.AsReadOnly();
 
     public void Add(TrackedTransfer transfer)
     {
@@ -15,6 +15,6 @@ public sealed class TransfersList
 
     public void Add(UnregisteredTransfer transfer)
     {
-        _unregistereds.Add(transfer);
+        _unregistered.Add(transfer);
     }
 }

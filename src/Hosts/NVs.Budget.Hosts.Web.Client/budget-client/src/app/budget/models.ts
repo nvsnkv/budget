@@ -211,3 +211,8 @@ export interface RemoveTransfersRequest {
   sourceIds: string[];
   all: boolean;
 }
+
+export interface TransfersListResponse {
+  recorded: TransferResponse[];
+  unregistered: TransferResponse[];
+}

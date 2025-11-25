@@ -6,6 +6,7 @@ import { TransferResponse } from '../../budget/models';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
 import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
+import { OperationsTableComponent } from '../operations-table/operations-table.component';
 
 @Component({
   selector: 'app-transfers-table',
@@ -17,7 +18,8 @@ import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
     TuiChip,
     CurrencyFormatPipe,
     DateFormatPipe,
-    ObjectKeysPipe
+    ObjectKeysPipe,
+    OperationsTableComponent
   ],
   templateUrl: './transfers-table.component.html',
   styleUrls: ['./transfers-table.component.less']
@@ -25,7 +27,9 @@ import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
 export class TransfersTableComponent {
   @Input() transfers: TransferResponse[] = [];
   @Input() showActions = true;
+  @Input() showQuickRegister = false;
   @Output() transferDeleted = new EventEmitter<TransferResponse>();
+  @Output() transferRegistered = new EventEmitter<TransferResponse>();
   
   expandedTransferId: string | null = null;
 
@@ -35,6 +39,14 @@ export class TransfersTableComponent {
 
   deleteTransfer(transfer: TransferResponse): void {
     this.transferDeleted.emit(transfer);
+  }
+
+  registerTransfer(transfer: TransferResponse): void {
+    this.transferRegistered.emit(transfer);
+  }
+
+  getTransferOperations(transfer: TransferResponse) {
+    return [transfer.source, transfer.sink];
   }
 
   trackByIndex(index: number): number {

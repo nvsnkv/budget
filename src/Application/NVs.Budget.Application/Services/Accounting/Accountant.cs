@@ -159,7 +159,7 @@ internal class Accountant(
         }
         
         var operations = streamingOperationRepository.Get(
-            o => o.Timestamp >= from && o.Timestamp <= till && !o.Tags.Contains(TransferTags.Transfer), ct
+            o => o.Timestamp >= from && o.Timestamp <= till && o.Tags.All(t => t.Value != TransferTags.Transfer.Value), ct
             ).OrderByDescending(t => t.Timestamp);
         await foreach(var transfer in GetTransfers(operations, budget, null,  ct))
         {
