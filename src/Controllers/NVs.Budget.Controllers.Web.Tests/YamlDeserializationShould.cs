@@ -54,13 +54,15 @@ logbookCriteria:
         
         result.TaggingCriteria.Should().NotBeNull();
         result.TaggingCriteria.Should().HaveCount(1);
-        result.TaggingCriteria!.First().Tag.Should().Be("o => o.Description");
-        result.TaggingCriteria.First().Condition.Should().Be("o => o.Amount.Amount > 0");
+        var taggingCriterionResponse = result.TaggingCriteria!.First();
+        taggingCriterionResponse.Tag.Should().Be("o => o.Description");
+        taggingCriterionResponse.Condition.Should().Be("o => o.Amount.Amount > 0");
         
         result.TransferCriteria.Should().NotBeNull();
         result.TransferCriteria.Should().HaveCount(1);
-        result.TransferCriteria!.First().Accuracy.Should().Be("Exact");
-        result.TransferCriteria.First().Comment.Should().Be("Transfer");
+        var criterionResponse = result.TransferCriteria!.First();
+        criterionResponse.Accuracy.Should().Be("Exact");
+        criterionResponse.Comment.Should().Be("Transfer");
         
         result.LogbookCriteria.Should().NotBeNull();
         result.LogbookCriteria!.Description.Should().Be("Main criteria");
@@ -68,8 +70,9 @@ logbookCriteria:
         result.LogbookCriteria.Type.Should().Be("Any");
         result.LogbookCriteria.Tags.Should().Contain(new[] { "income", "expense" });
         result.LogbookCriteria.Subcriteria.Should().HaveCount(1);
-        result.LogbookCriteria.Subcriteria!.First().Description.Should().Be("Income subcriteria");
-        result.LogbookCriteria.Subcriteria.First().IsUniversal.Should().BeTrue();
+        var criteriaResponse = result.LogbookCriteria.Subcriteria!.First();
+        criteriaResponse.Description.Should().Be("Income subcriteria");
+        criteriaResponse.IsUniversal.Should().BeTrue();
     }
 
     [Fact]
@@ -186,13 +189,14 @@ subcriteria:
         result.Substitution.Should().Be("o => o.Description");
         
         result.Subcriteria.Should().HaveCount(1);
-        result.Subcriteria!.First().Description.Should().Be("Level 1");
-        result.Subcriteria.First().IsUniversal.Should().BeTrue();
+        var criteriaResponse = result.Subcriteria!.First();
+        criteriaResponse.Description.Should().Be("Level 1");
+        criteriaResponse.IsUniversal.Should().BeTrue();
         
-        result.Subcriteria.First().Subcriteria.Should().HaveCount(1);
-        result.Subcriteria.First().Subcriteria!.First().Description.Should().Be("Level 2");
-        result.Subcriteria.First().Subcriteria.First().Criteria.Should().Be("o => o.Amount.Amount > 0");
+        criteriaResponse.Subcriteria.Should().HaveCount(1);
+        var subcriteriaResponse = criteriaResponse.Subcriteria!.First();
+        subcriteriaResponse.Description.Should().Be("Level 2");
+        subcriteriaResponse.Criteria.Should().Be("o => o.Amount.Amount > 0");
     }
 
 }
-
