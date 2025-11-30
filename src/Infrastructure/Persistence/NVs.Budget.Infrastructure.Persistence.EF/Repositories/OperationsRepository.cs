@@ -79,7 +79,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
     public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
     {
         var queue = new Queue<TrackedOperation>();
-        await foreach (var u in operations.Select(TransferTags.Untag).WithCancellation(ct))
+        await foreach (var u in operations.WithCancellation(ct))
         {
             queue.Enqueue(u);
             if (queue.Count > BatchSize)

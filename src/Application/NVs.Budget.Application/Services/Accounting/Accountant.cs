@@ -95,7 +95,7 @@ internal class Accountant(
             {
                 if (mode == TaggingMode.FromScratch)
                 {
-                   operation.UntagAll();
+                   operation.ResetTagsExcept(TransferTags.All);
                 }
 
                 var tags = manager.GetTagsFor(operation);

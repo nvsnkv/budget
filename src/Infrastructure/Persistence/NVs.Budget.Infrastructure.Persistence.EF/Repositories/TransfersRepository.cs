@@ -28,7 +28,7 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
             .Include(t => t.Source).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
             .Include(t => t.Sink).ThenInclude(o => o.Budget).ThenInclude(a => a.Owners)
             .AsNoTracking()
-            .Where(queryable)
+            .Where(queryable.CombineWith(t => !t.Deleted && !t.Source.Deleted && !t.Sink.Deleted))
             .AsSplitQuery()
             .AsAsyncEnumerable()
             .Where(enumerable)

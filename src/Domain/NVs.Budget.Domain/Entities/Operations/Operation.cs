@@ -46,5 +46,10 @@ public class Operation : EntityBase<Guid>
 
     public void Untag(Tag value) => _tags.Remove(value);
 
-    public void UntagAll() => _tags.Clear();
+    public void ResetTagsExcept(params Tag[] tags)
+    {
+        var preserved = _tags.Intersect(tags);
+        _tags.Clear();
+        _tags.AddRange(preserved);
+    }
 }
