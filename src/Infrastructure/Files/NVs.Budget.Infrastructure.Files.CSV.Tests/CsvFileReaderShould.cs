@@ -145,11 +145,11 @@ public class CsvFileReaderShould
         
         results[0].Value.Attributes.Should().NotBeNull();
         results[0].Value.Attributes!["PaymentMethod"].Should().Be("Card");
-        results[0].Value.Attributes["Category"].Should().Be("Personal");
+        results[0].Value.Attributes!["Category"].Should().Be("Personal");
         
         results[1].Value.Attributes.Should().NotBeNull();
         results[1].Value.Attributes!["PaymentMethod"].Should().Be("Cash");
-        results[1].Value.Attributes["Category"].Should().Be("Business");
+        results[1].Value.Attributes!["Category"].Should().Be("Business");
     }
 
     [Fact]
@@ -858,4 +858,3 @@ public class CsvFileReaderShould
         return new StreamReader(stream, encoding);
     }
 }
-
