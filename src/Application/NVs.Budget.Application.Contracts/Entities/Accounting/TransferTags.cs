@@ -40,10 +40,7 @@ public static class TransferTags
 
     public static T TagEphemeral<T>(this T operation) where T:Operation
     {
-        operation.Tag(Transfer);
         operation.Tag(Ephemeral);
-        operation.Tag(Source);
-        operation.Tag(Sink);
 
         return operation;
     }
