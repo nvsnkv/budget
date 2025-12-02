@@ -8,14 +8,10 @@
 
         <app-criteria-filter
           [initialCriteria]="currentCriteria"
-          [examples]="criteriaExamples"
           [showExamplesInitially]="false"
           (criteriaSubmitted)="onCriteriaSubmitted($event)"
           (criteriaCleared)="onCriteriaCleared()">
 
-          <div class="additional-parameters">
-            <div class="date-range-section">
-              <div class="date-inputs">
                 <div class="date-field">
                   <tui-textfield>
                     <label tuiLabel>From Date</label>
@@ -37,14 +33,12 @@
                     />
                   </tui-textfield>
                 </div>
-              </div>
 
-              <div class="date-presets">
                 <button
                   tuiButton
                   type="button"
                   appearance="secondary"
-                  size="s"
+                  size="m"
                   (click)="setDateRange('currentMonth')">
                   Current Month
                 </button>
@@ -52,7 +46,7 @@
                   tuiButton
                   type="button"
                   appearance="secondary"
-                  size="s"
+                  size="m"
                   (click)="setDateRange('lastMonth')">
                   Last Month
                 </button>
@@ -60,7 +54,7 @@
                   tuiButton
                   type="button"
                   appearance="secondary"
-                  size="s"
+                  size="m"
                   (click)="setDateRange('currentYear')">
                   Current Year
                 </button>
@@ -68,14 +62,11 @@
                   tuiButton
                   type="button"
                   appearance="secondary"
-                  size="s"
+                  size="m"
                   (click)="setDateRange('lastYear')">
                   Last Year
                 </button>
-              </div>
-            </div>
 
-            <div class="cron-section">
               <div class="cron-field">
                 <tui-textfield>
                   <label tuiLabel>Cron Expression (optional - to split into periods)</label>
@@ -88,12 +79,6 @@
                 </tui-textfield>
               </div>
 
-              <app-examples-section
-                [examples]="cronExamples"
-                [expanded]="false">
-              </app-examples-section>
-            </div>
-          </div>
         </app-criteria-filter>
       </div>
 
@@ -228,4 +213,3 @@
     </div>
   </tui-loader>
 </div>
-
