@@ -2,7 +2,7 @@
   <div class="filter-field">
     <tui-textfield>
       <label tuiLabel>Criteria Expression (Ctrl+Enter to apply)</label>
-      <textarea 
+      <textarea
         tuiTextarea
         formControlName="criteria"
         rows="3"
@@ -13,23 +13,22 @@
   </div>
 
   @if (examples.length > 0) {
-    <app-examples-section 
-      [examples]="examples" 
+    <app-examples-section
+      [examples]="examples"
       [expanded]="showExamplesInitially">
     </app-examples-section>
   }
 
-  <ng-content></ng-content>
-
   <div class="filter-actions">
-    <button 
+    <ng-content></ng-content>
+    <button class="main-buttons"
       tuiButton
       type="submit"
       appearance="primary"
       size="m">
       Apply Filters
     </button>
-    <button 
+    <button class="main-buttons"
       tuiButton
       type="button"
       appearance="secondary"
@@ -39,4 +38,3 @@
     </button>
   </div>
 </form>
-

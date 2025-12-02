@@ -3,39 +3,15 @@
     <div class="header">
       <h2 tuiTitle size="l">Operations</h2>
       <div class="header-actions">
-        <button 
+        <button
           tuiButton
           type="button"
           appearance="primary"
           size="m"
-          (click)="navigateToImport()">
-          Import Operations
-        </button>
-        <button 
-          tuiButton
-          type="button"
-          appearance="secondary"
-          size="m"
           (click)="navigateToLogbook()">
           View Logbook
         </button>
-        <button 
-          tuiButton
-          type="button"
-          appearance="secondary"
-          size="m"
-          (click)="navigateToDuplicates()">
-          View Duplicates
-        </button>
-        <button 
-          tuiButton
-          type="button"
-          appearance="secondary"
-          size="m"
-          (click)="navigateToRetag()">
-          Retag Operations
-        </button>
-        <button 
+        <button
           tuiButton
           type="button"
           appearance="secondary"
@@ -43,7 +19,33 @@
           (click)="navigateToTransfers()">
           View Transfers
         </button>
-        <button 
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="navigateToDuplicates()">
+          View Duplicates
+        </button>
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="navigateToRetag()">
+          Retag Operations
+        </button>
+
+        <button
+          tuiButton
+          type="button"
+          appearance="primary"
+          size="m"
+          (click)="navigateToImport()">
+          Import Operations
+        </button>
+
+        <button
           tuiButton
           type="button"
           appearance="destructive"
@@ -51,7 +53,7 @@
           (click)="navigateToDelete()">
           Delete Operations
         </button>
-        <button 
+        <button
           tuiButton
           type="button"
           appearance="secondary"
@@ -64,38 +66,34 @@
 
     <!-- Filters -->
     <div class="filters-section">
-      <h3 tuiTitle size="m">Filters</h3>
       <app-criteria-filter
         [initialCriteria]="currentCriteria"
-        [examples]="criteriaExamples"
         [showExamplesInitially]="false"
         (criteriaSubmitted)="onCriteriaSubmitted($event)"
         (criteriaCleared)="onCriteriaCleared()">
-        
-        <div class="additional-filters">
-          <div class="filter-item">
-            <tui-textfield>
-              <label tuiLabel>Output Currency</label>
-              <input 
-                tuiTextfield 
+
+            <tui-textfield tuiChevron class="currency-selector">
+              <input
+                tuiSelect
+                placeholder="Output Currency"
+                tuiTextfieldSize="s"
                 [(ngModel)]="outputCurrency"
-                type="text" 
-                placeholder="e.g., USD, EUR"
+              />
+              <tui-data-list-wrapper
+                *tuiTextfieldDropdown
+                new
+                [items]="items"
               />
             </tui-textfield>
-          </div>
-          
-          <div class="filter-item">
+
             <label tuiLabel size="m">
-              <input 
+              <input
                 tuiCheckbox
-                type="checkbox" 
+                type="checkbox"
                 [(ngModel)]="excludeTransfers"
               />
               Exclude Transfers
             </label>
-          </div>
-        </div>
       </app-criteria-filter>
     </div>
 
@@ -103,20 +101,20 @@
     <div class="operations-section">
       @if (operations$ | async; as ops) {
         @if (ops.length > 0) {
-          <app-operations-table 
-            [operations]="operations" 
+          <app-operations-table
+            [operations]="operations"
             [showActions]="true"
             (operationDeleted)="onDeleteOperation($event)"
             (operationUpdated)="onUpdateOperation($event)">
           </app-operations-table>
-          
+
           <div class="operations-count">
             Total: {{ operations.length }} operations
           </div>
         } @else {
           <div class="empty-state">
             <p>No operations found.</p>
-            <button 
+            <button
               tuiButton
               type="button"
               appearance="primary"
@@ -134,4 +132,3 @@
     </div>
   </div>
 </div>
-

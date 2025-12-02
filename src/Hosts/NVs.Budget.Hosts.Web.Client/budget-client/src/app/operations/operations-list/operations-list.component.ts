@@ -5,15 +5,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { OperationResponse } from '../../budget/models';
-import { 
-  TuiButton, 
+import {
+  TuiButton,
   TuiLoader,
   TuiTitle,
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiCheckbox } from '@taiga-ui/kit';
+import {TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect} from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
@@ -29,12 +29,15 @@ import { CriteriaExample } from '../shared/models/example.interface';
     TuiButton,
     TuiLoader,
     TuiTextfield,
+    TuiChevron,
+    TuiDataListWrapper,
     TuiLabel,
     TuiCardLarge,
     TuiTitle,
     TuiCheckbox,
     OperationsTableComponent,
-    CriteriaFilterComponent
+    CriteriaFilterComponent,
+    TuiSelect
   ],
   templateUrl: './operations-list.component.html',
   styleUrls: ['./operations-list.component.less']
@@ -44,11 +47,11 @@ export class OperationsListComponent implements OnInit {
   operations$!: Observable<OperationResponse[]>;
   operations: OperationResponse[] = [];
   isLoading = false;
-  
-  currentCriteria = '';
+
+  currentCriteria = `o => o.Timestamp.Year == ${new Date().getFullYear()} && o.Timestamp.Month >= ${new Date().getMonth()}`;
   outputCurrency = '';
-  excludeTransfers = false;
-  
+  excludeTransfers = true;
+
   criteriaExamples: CriteriaExample[] = [
     { label: 'All operations:', code: 'o => true' },
     { label: 'Positive amounts:', code: 'o => o.Amount.Amount > 0' },
@@ -59,6 +62,8 @@ export class OperationsListComponent implements OnInit {
     { label: 'Without tags:', code: 'o => o.Tags.Count == 0' },
     { label: 'Amount range:', code: 'o => o.Amount.Amount >= -1000 && o.Amount.Amount <= -100' }
   ];
+
+  readonly items: string[] = ["RUB", "USD", "EUR"];
 
   constructor(
     private route: ActivatedRoute,
@@ -86,7 +91,7 @@ export class OperationsListComponent implements OnInit {
         return of([]);
       })
     );
-    
+
     // Subscribe to update the array for the table component
     this.operations$.subscribe(ops => this.operations = ops);
   }
@@ -133,17 +138,17 @@ export class OperationsListComponent implements OnInit {
 
   onDeleteOperation(operation: OperationResponse): void {
     const confirmMessage = `Are you sure you want to delete this operation?\n\n${operation.description}\n${operation.amount.value} ${operation.amount.currencyCode}\n\nThis action cannot be undone.`;
-    
+
     if (!confirm(confirmMessage)) {
       return;
     }
 
     this.isLoading = true;
-    
+
     this.operationsHelper.deleteOperation(this.budgetId, operation.id).subscribe({
       next: (result) => {
         this.isLoading = false;
-        
+
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
           this.notificationService.showError(`Failed to delete operation: ${errorMessage}`).subscribe();
@@ -162,11 +167,11 @@ export class OperationsListComponent implements OnInit {
 
   onUpdateOperation(operation: OperationResponse): void {
     this.isLoading = true;
-    
+
     this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
       next: (result) => {
         this.isLoading = false;
-        
+
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
           this.notificationService.showError(`Failed to update operation: ${errorMessage}`).subscribe();
@@ -183,4 +188,3 @@ export class OperationsListComponent implements OnInit {
     });
   }
 }
-
