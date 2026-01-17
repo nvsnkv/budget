@@ -3,7 +3,15 @@
     <div class="header">
       <h2 tuiTitle size="l">Transfers</h2>
       <div class="header-actions">
-        <button 
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="navigateToOperations()">
+          View Operations
+        </button>
+        <button
           tuiButton
           type="button"
           appearance="primary"
@@ -15,15 +23,7 @@
             Register Transfer
           }
         </button>
-        <button 
-          tuiButton
-          type="button"
-          appearance="secondary"
-          size="m"
-          (click)="navigateToOperations()">
-          View Operations
-        </button>
-        <button 
+        <button
           tuiButton
           type="button"
           appearance="secondary"
@@ -42,43 +42,43 @@
           <div class="form-item">
             <tui-textfield>
               <label tuiLabel>Source Operation ID</label>
-              <input 
-                tuiTextfield 
+              <input
+                tuiTextfield
                 [(ngModel)]="newTransfer.sourceId"
-                type="text" 
+                type="text"
                 placeholder="Enter source operation ID"
               />
             </tui-textfield>
           </div>
-          
+
           <div class="form-item">
             <tui-textfield>
               <label tuiLabel>Sink Operation ID</label>
-              <input 
-                tuiTextfield 
+              <input
+                tuiTextfield
                 [(ngModel)]="newTransfer.sinkId"
-                type="text" 
+                type="text"
                 placeholder="Enter sink operation ID"
               />
             </tui-textfield>
           </div>
-          
+
           <div class="form-item">
             <tui-textfield>
               <label tuiLabel>Comment</label>
-              <input 
-                tuiTextfield 
+              <input
+                tuiTextfield
                 [(ngModel)]="newTransfer.comment"
-                type="text" 
+                type="text"
                 placeholder="Enter transfer comment"
               />
             </tui-textfield>
           </div>
-          
+
           <div class="form-item">
             <tui-textfield>
               <label tuiLabel>Accuracy</label>
-              <select 
+              <select
                 [(ngModel)]="newTransfer.accuracy"
                 class="select-input">
                 @for (option of accuracyOptions; track option) {
@@ -88,9 +88,9 @@
             </tui-textfield>
           </div>
         </div>
-        
+
         <div class="form-actions">
-          <button 
+          <button
             tuiButton
             type="button"
             appearance="primary"
@@ -99,7 +99,7 @@
             (click)="registerTransfer()">
             Register Transfer
           </button>
-          <button 
+          <button
             tuiButton
             type="button"
             appearance="secondary"
@@ -119,31 +119,31 @@
         <div class="filter-item">
           <tui-textfield>
             <label tuiLabel>From Date</label>
-            <input 
-              tuiTextfield 
+            <input
+              tuiTextfield
               [(ngModel)]="fromDate"
               (ngModelChange)="onDateChange()"
               type="date"
             />
           </tui-textfield>
         </div>
-        
+
         <div class="filter-item">
           <tui-textfield>
             <label tuiLabel>Till Date</label>
-            <input 
-              tuiTextfield 
+            <input
+              tuiTextfield
               [(ngModel)]="tillDate"
               (ngModelChange)="onDateChange()"
               type="date"
             />
           </tui-textfield>
         </div>
-        
+
         <div class="filter-item">
           <tui-textfield>
             <label tuiLabel>Accuracy</label>
-            <select 
+            <select
               [(ngModel)]="accuracy"
               (ngModelChange)="onAccuracyChange()"
               class="select-input">
@@ -154,9 +154,9 @@
             </select>
           </tui-textfield>
         </div>
-        
+
         <div class="filter-item filter-actions">
-          <button 
+          <button
             tuiButton
             type="button"
             appearance="secondary"
@@ -175,8 +175,8 @@
         @if (transfersList.recorded && transfersList.recorded.length > 0) {
           <div class="transfers-group">
             <h3 tuiTitle size="m">Recorded Transfers ({{ transfersList.recorded.length }})</h3>
-            <app-transfers-table 
-              [transfers]="transfersList.recorded" 
+            <app-transfers-table
+              [transfers]="transfersList.recorded"
               [showActions]="true"
               [showQuickRegister]="false"
               (transferDeleted)="onDeleteTransfer($event)">
@@ -188,8 +188,8 @@
         @if (transfersList.unregistered && transfersList.unregistered.length > 0) {
           <div class="transfers-group">
             <h3 tuiTitle size="m">Unregistered Transfers ({{ transfersList.unregistered.length }})</h3>
-            <app-transfers-table 
-              [transfers]="transfersList.unregistered" 
+            <app-transfers-table
+              [transfers]="transfersList.unregistered"
               [showActions]="true"
               [showQuickRegister]="true"
               (transferDeleted)="onDeleteTransfer($event)"
@@ -198,11 +198,11 @@
           </div>
         }
 
-        @if ((!transfersList.recorded || transfersList.recorded.length === 0) && 
+        @if ((!transfersList.recorded || transfersList.recorded.length === 0) &&
              (!transfersList.unregistered || transfersList.unregistered.length === 0)) {
           <div class="empty-state">
             <p>No transfers found.</p>
-            <button 
+            <button
               tuiButton
               type="button"
               appearance="primary"
@@ -225,4 +225,3 @@
     </div>
   </div>
 </div>
-
