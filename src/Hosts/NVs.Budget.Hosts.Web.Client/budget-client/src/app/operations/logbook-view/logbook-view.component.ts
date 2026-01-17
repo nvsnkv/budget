@@ -43,7 +43,6 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     TuiLabel,
     TuiAccordion,
     CriteriaFilterComponent,
-    ExamplesSectionComponent,
     DateFormatPipe,
     CurrencyFormatPipe
   ],
