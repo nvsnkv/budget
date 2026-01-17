@@ -50,4 +50,17 @@ public class CriteriaBasedLogbook : Logbook
     }
 
     protected override Logbook CreateSubRangedLogbook() => new CriteriaBasedLogbook(Criterion);
+
+    public override Logbook this[DateTime from, DateTime till]
+    {
+        get
+        {
+            if (IsEmpty)
+            {
+                return new CriteriaBasedLogbook(Criterion);
+            }
+
+            return base[from, till];
+        }
+    }
 }
