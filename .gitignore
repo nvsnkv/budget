@@ -1,7 +1,8 @@
-﻿/src/.idea/
+/src/.idea/
 bin
 obj
 *.user
 /dist/
 server.env
 certs/
+docker-registry-config.json
