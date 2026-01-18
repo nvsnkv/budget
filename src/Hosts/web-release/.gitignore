@@ -1,0 +1,14 @@
+# Environment configuration
+.env
+
+# Docker volumes
+data/
+
+# Backup files
+*.sql
+*.sql.gz
+
+# Certificates
+*.pem
+*.crt
+*.key

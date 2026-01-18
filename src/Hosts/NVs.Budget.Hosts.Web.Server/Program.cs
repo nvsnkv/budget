@@ -66,6 +66,7 @@ app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, Cancell
         await migrator.MigrateAsync(ct);
     }
 });
+app.MapGet("/health", () => Results.NoContent());
 
 app.MapControllers();
 
