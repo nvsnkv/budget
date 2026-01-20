@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* 
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -26,5 +27,5 @@ RUN dotnet publish "NVs.Budget.Hosts.Web.Client.csproj" -c $BUILD_CONFIGURATION 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY --from=node-builder /client/dist/budget-client /app/wwwroot
+COPY --from=node-builder /client/dist/budget-client/browser /app/wwwroot
 ENTRYPOINT ["dotnet", "NVs.Budget.Hosts.Web.Client.dll"]

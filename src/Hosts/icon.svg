@@ -1,0 +1,6 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Щит -->
+  <path d="M16 16h32v32c0,8 -8,12 -16,12s-16,-4 -16,-12z" fill="#6b7280" opacity="0.2"/>
+  <!-- График -->
+  <polyline points="16,48 24,32 32,40 40,24 48,32" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+</svg>

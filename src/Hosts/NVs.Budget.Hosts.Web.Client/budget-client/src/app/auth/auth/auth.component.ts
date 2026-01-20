@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../environments/environment'
 import { UserService } from '../user.service';
 import { TuiLink } from '@taiga-ui/core';
 
@@ -22,7 +21,7 @@ export class AuthComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.setBaseUrl(environment.apiUrl); // Set base URL for server
+    // Base URL is already set by APP_INITIALIZER
     this.checkAuthentication();
   }
 

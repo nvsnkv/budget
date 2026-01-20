@@ -1,4 +1,5 @@
+// Runtime configuration is loaded from /api/config endpoint
+// This file is kept for backwards compatibility
 export const environment = {
-    production: false,
-    apiUrl: 'https://localhost:7237'
+    production: false
 };

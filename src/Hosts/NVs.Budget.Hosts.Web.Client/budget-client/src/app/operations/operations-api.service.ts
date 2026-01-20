@@ -15,18 +15,23 @@ import {
   RegisterTransfersRequest,
   RemoveTransfersRequest
 } from '../budget/models';
-import { environment } from '../../environments/environment';
+import { AppConfigService } from '../config/app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OperationsApiService {
-  public readonly baseUrl = environment.apiUrl + '/api/v0.1';
+  public readonly baseUrl: string;
   private refresh$ = new BehaviorSubject<string | null>(null);
   
   private static readonly jsonHeaders = new HttpHeaders().set('Content-Type', 'application/json');
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private configService: AppConfigService
+  ) {
+    this.baseUrl = this.configService.apiUrl + '/api/v0.1';
+  }
 
   /**
    * Get all operations for a specific budget

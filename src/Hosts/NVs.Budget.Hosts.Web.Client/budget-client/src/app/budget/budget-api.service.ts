@@ -10,16 +10,21 @@ import {
   IError,
   FileReadingSettingResponse
 } from './models';
-import { environment } from '../../environments/environment';
+import { AppConfigService } from '../config/app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BudgetApiService {
-  public readonly baseUrl = environment.apiUrl + '/api/v0.1';
+  public readonly baseUrl: string;
   private refresh$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private configService: AppConfigService
+  ) {
+    this.baseUrl = this.configService.apiUrl + '/api/v0.1';
+  }
 
   /**
    * Get all budgets available to the current user

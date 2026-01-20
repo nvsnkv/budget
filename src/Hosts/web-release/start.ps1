@@ -152,26 +152,27 @@ Write-Host ""
 Write-Host "Application is available at:" -ForegroundColor Cyan
 
 # Get ports from .env or use defaults
-$https_port = ($env_content | Where-Object { $_ -match "^\s*NGINX_PORT\s*=" } | Select-Object -First 1)
-if ($https_port) {
-    $https_port = ($https_port -split "=", 2)[1].Trim()
+$client_port = ($env_content | Where-Object { $_ -match "^\s*CLIENT_PORT\s*=" } | Select-Object -First 1)
+if ($client_port) {
+    $client_port = ($client_port -split "=", 2)[1].Trim()
 }
 else {
-    $https_port = "25000"
+    $client_port = "25000"
 }
 
-$http_port = ($env_content | Where-Object { $_ -match "^\s*NGINX_HTTP_PORT\s*=" } | Select-Object -First 1)
-if ($http_port) {
-    $http_port = ($http_port -split "=", 2)[1].Trim()
+$server_port = ($env_content | Where-Object { $_ -match "^\s*SERVER_PORT\s*=" } | Select-Object -First 1)
+if ($server_port) {
+    $server_port = ($server_port -split "=", 2)[1].Trim()
 }
 else {
-    $http_port = "25001"
+    $server_port = "25001"
 }
 
-Write-Host "  HTTPS: https://localhost:$https_port" -ForegroundColor Green
-Write-Host "  HTTP:  http://localhost:$http_port (redirects to HTTPS)" -ForegroundColor Green
+Write-Host "  Client (Frontend): https://localhost:$client_port" -ForegroundColor Green
+Write-Host "  Server (API):      https://localhost:$server_port" -ForegroundColor Green
 Write-Host ""
 Write-Host "Note: Accept the self-signed certificate warning in your browser" -ForegroundColor Yellow
+Write-Host "Both services use Kestrel with HTTPS and shared SSL certificates" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "To view logs: docker-compose logs -f" -ForegroundColor Cyan
 Write-Host "To stop:      docker-compose down" -ForegroundColor Cyan
