@@ -1,0 +1,66 @@
+<div class="delete-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="delete-card">
+      <h2 tuiTitle size="l">Delete Operations</h2>
+      
+      <div class="danger-warning">
+        <h3>⚠️ Warning: Dangerous Operation</h3>
+        <p>This action will permanently delete all operations matching your criteria. This cannot be undone.</p>
+        <p>Please be careful and verify your criteria before executing the deletion.</p>
+      </div>
+
+      <app-criteria-filter
+        [initialCriteria]="'o => true'"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="onCriteriaSubmitted($event)">
+      </app-criteria-filter>
+
+      <div class="action-buttons">
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="viewOperations()">
+          View Operations List
+        </button>
+        @if (deleteResult) {
+          <button 
+            tuiButton
+            type="button"
+            appearance="flat"
+            size="m"
+            (click)="resetResult()">
+            Reset Results
+          </button>
+        }
+      </div>
+
+      @if (deleteResult) {
+        <div class="delete-result">
+          <h3 tuiTitle size="m">Deletion Results</h3>
+          <div class="result-stats">
+            @if (deleteResult.successes.length > 0) {
+              <div class="stat-item success">
+                <span class="stat-label">Successes:</span>
+                <span class="stat-value">{{ deleteResult.successes.length }}</span>
+              </div>
+            }
+            @if (deleteResult.errors.length > 0) {
+              <div class="stat-item error">
+                <span class="stat-label">Errors:</span>
+                <span class="stat-value">{{ deleteResult.errors.length }}</span>
+              </div>
+            }
+          </div>
+          
+          <app-operation-result
+            [successes]="deleteResult.successes"
+            [errors]="deleteResult.errors">
+          </app-operation-result>
+        </div>
+      }
+    </div>
+  </tui-loader>
+</div>

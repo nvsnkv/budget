@@ -1,4 +1,4 @@
-﻿using NVs.Budget.Domain.Entities.Accounts;
+﻿using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Application.Contracts.Entities;
 

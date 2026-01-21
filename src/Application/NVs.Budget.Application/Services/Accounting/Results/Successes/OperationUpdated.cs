@@ -8,6 +8,6 @@ internal class OperationUpdated : Success
 {
     public OperationUpdated(Operation operation) : base("Transaction was successfully updated!")
     {
-        this.WithTransactionId(operation);
+        this.WithOperationId(operation);
     }
 }

@@ -1,0 +1,128 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: budget-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-budgetdb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - budget-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local:17
+    container_name: budget-pgbackups
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-budgetdb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SCHEDULE: ${BACKUP_SCHEDULE:-@daily}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-4}
+      BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-6}
+      HEALTHCHECK_PORT: 8080
+    volumes:
+      - ${BACKUP_PATH}:/backups
+    networks:
+      - budget-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost:8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  cert-generator:
+    image: ${DOCKER_REGISTRY}/nvsnkv/certgen:${CERTGEN_VERSION:-latest}
+    container_name: budget-cert-generator
+    environment:
+      CERT_HOSTNAME: ${CERT_HOSTNAME:-localhost}
+      CERT_DIR: /certs
+      CERT_FILE: tls.crt
+      KEY_FILE: tls.key
+      CERT_DAYS: ${CERT_DAYS:-365}
+    volumes:
+      - certs:/certs
+    networks:
+      - budget-network
+
+  budget-server:
+    image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/budget-server:${IMAGE_VERSION:-latest}
+    container_name: budget-server
+    restart: unless-stopped
+    ports:
+      - "${SERVER_PORT:-25001}:8443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: https://+:8443
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /certs/tls.crt
+      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: /certs/tls.key
+      ConnectionStrings__BudgetContext: Host=postgres;Database=${POSTGRES_DB:-budgetdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__IdentityContext: Host=postgres;Database=${POSTGRES_DB:-budgetdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
+      Auth__Yandex__ClientId: ${YANDEX_OAUTH_CLIENT_ID}
+      Auth__Yandex__ClientSecret: ${YANDEX_OAUTH_CLIENT_SECRET}
+      FrontendUrl: https://${CERT_HOSTNAME:-localhost}:${CLIENT_PORT:-25000}
+      AllowedOrigins: https://${CERT_HOSTNAME:-localhost}:${CLIENT_PORT:-25000}
+    volumes:
+      - certs:/certs:ro
+    networks:
+      - budget-network
+    depends_on:
+      cert-generator:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost:8443/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  budget-client:
+    image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/budget-client:${IMAGE_VERSION:-latest}
+    container_name: budget-client
+    restart: unless-stopped
+    ports:
+      - "${CLIENT_PORT:-25000}:8443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: https://+:8443
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /certs/tls.crt
+      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: /certs/tls.key
+      ApiUrl: https://${CERT_HOSTNAME:-localhost}:${SERVER_PORT:-25001}
+    volumes:
+      - certs:/certs:ro
+    networks:
+      - budget-network
+    depends_on:
+      cert-generator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost:8443/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  budget-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  certs:

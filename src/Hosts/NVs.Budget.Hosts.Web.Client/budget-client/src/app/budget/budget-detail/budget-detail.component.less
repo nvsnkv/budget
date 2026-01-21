@@ -1,0 +1,435 @@
+.budget-detail-container {
+    margin: 0 auto;
+  padding: 2rem;
+}
+
+.budget-card {
+  margin-bottom: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.budget-info-section {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--tui-border-normal);
+  margin-bottom: 1.5rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: var(--tui-text-secondary);
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--tui-background-neutral-1);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.owners-section {
+  margin-top: 1.5rem;
+}
+
+.owners-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.budget-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.section-title-with-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  button {
+    min-width: 5rem;
+    font-size: 0.8125rem;
+  }
+}
+
+.criterion-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--tui-border-normal);
+}
+
+.read-only-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.criteria-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.criterion-card {
+  background: var(--tui-background-neutral-1);
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.criterion-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.criterion-label {
+  font-size: 0.875rem;
+  color: var(--tui-text-secondary);
+  font-weight: 500;
+}
+
+.criterion-value {
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  background: var(--tui-background-base);
+  border-radius: 4px;
+  word-break: break-all;
+  font-family: 'Courier New', monospace;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.loading-placeholder {
+  padding: 3rem;
+  text-align: center;
+  color: var(--tui-text-secondary);
+}
+
+tui-accordion-item {
+  margin-bottom: 0.5rem;
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+.logbook-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checkbox-field {
+  padding: 0.75rem 0;
+  
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    
+    input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+    }
+  }
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+}
+
+.radio-label {
+  font-size: 0.875rem;
+  color: var(--tui-text-secondary);
+  font-weight: 500;
+}
+
+.radio-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--tui-background-neutral-1);
+  }
+  
+  input[type="radio"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+  }
+}
+
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.select-label {
+  font-size: 0.875rem;
+  color: var(--tui-text-secondary);
+  font-weight: 500;
+}
+
+.tui-select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 8px;
+  background-color: var(--tui-background-base);
+  color: var(--tui-text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  
+  &:hover {
+    border-color: var(--tui-border-hover);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--tui-border-focus);
+    box-shadow: 0 0 0 3px var(--tui-background-accent-1);
+  }
+  
+  option {
+    padding: 0.5rem;
+  }
+}
+
+.subcriteria-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 2px dashed var(--tui-border-normal);
+  border-radius: 8px;
+  background: var(--tui-background-neutral-1-hover);
+  
+  h4 {
+    margin-bottom: 1rem;
+  }
+  
+  button {
+    margin-bottom: 1rem;
+  }
+}
+
+.subcriterion-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 8px;
+  background: var(--tui-background-base);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.subcriterion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--tui-border-normal);
+  
+  span {
+    font-weight: 600;
+    color: var(--tui-text-primary);
+  }
+}
+
+.subcriteria-fields {
+  padding-left: 1rem;
+  border-left: 3px solid var(--tui-primary);
+}
+
+.nested-subcriteria {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px dashed var(--tui-border-normal);
+  border-radius: 6px;
+  background: var(--tui-background-neutral-2);
+  
+  h5 {
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    color: var(--tui-text-secondary);
+  }
+  
+  button {
+    margin-bottom: 0.75rem;
+  }
+}
+
+.nested-subcriterion-card {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 6px;
+  background: var(--tui-background-base);
+}
+
+.nested-fields {
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--tui-secondary);
+}
+
+.level4-subcriteria {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--tui-border-normal);
+  border-radius: 6px;
+  background: var(--tui-background-neutral-1);
+  
+  h6 {
+    font-size: 0.8125rem;
+    margin-bottom: 0.5rem;
+    color: var(--tui-text-secondary);
+    font-weight: 600;
+  }
+  
+  button {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.level4-subcriterion-card {
+  margin-top: 0.5rem;
+  padding: 0.625rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 6px;
+  background: var(--tui-background-base);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.level4-fields {
+  padding-left: 0.625rem;
+  border-left: 2px solid var(--tui-accent);
+}
+
+.level5-subcriteria {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  border: 1px dashed var(--tui-border-normal);
+  border-radius: 4px;
+  background: var(--tui-background-neutral-2);
+  
+  h6 {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--tui-text-tertiary);
+    font-weight: 600;
+  }
+  
+  button {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.level5-subcriterion-card {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 4px;
+  background: var(--tui-background-base);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.level5-fields {
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--tui-info);
+}
+
+.nesting-note {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--tui-text-tertiary);
+  font-style: italic;
+}
+
+.subcriteria-display {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-left: 3px solid var(--tui-primary);
+  background: var(--tui-background-neutral-1-hover);
+  border-radius: 4px;
+}
+
+.subcriteria-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--tui-text-secondary);
+}
+

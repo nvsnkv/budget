@@ -1,7 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Errors.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Results;
 using NVs.Budget.Application.Contracts.Services;
@@ -51,8 +52,8 @@ internal class Accountant(
             {
                 if (budgets.Any(b => b.Id == o.Budget.Id)) return true;
                 errors.Add(new BudgetDoesNotBelongToCurrentOwnerError()
-                    .WithTransactionId(o)
-                    .WithOperationId(o.Budget));
+                    .WithOperationId(o)
+                    .WithBudgetId(o.Budget));
 
                 return false;
             });
@@ -65,7 +66,7 @@ internal class Accountant(
             .Select(r => r.Value);
 
 
-        var transfers = GetTransfers(saved, budget, ct)
+        var transfers = GetTransfers(saved, budget, options.TransferConfidenceLevel, ct)
             .Select(t => resultBuilder.Append(t))
             .Select(r => r.Value);
 
@@ -94,7 +95,7 @@ internal class Accountant(
             {
                 if (mode == TaggingMode.FromScratch)
                 {
-                   operation.UntagAll();
+                   operation.ResetTagsExcept(TransferTags.All);
                 }
 
                 var tags = manager.GetTagsFor(operation);
@@ -108,9 +109,9 @@ internal class Accountant(
         }
     }
 
-    private async IAsyncEnumerable<TrackedTransfer> GetTransfers(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, [EnumeratorCancellation] CancellationToken ct)
+    private async IAsyncEnumerable<TrackedTransfer> GetTransfers(IAsyncEnumerable<TrackedOperation> operations, TrackedBudget budget, DetectionAccuracy? tagIf, [EnumeratorCancellation] CancellationToken ct)
     {
-        var builder = new TransfersListBuilder(new TransferDetector(budget.TransferCriteria));
+        var builder = new TransfersListBuilder(new TransferDetector(budget.TransferCriteria), tagIf);
         await foreach (var operation in operations.WithCancellation(ct))
         {
             var transfer = builder.Add(operation);
@@ -146,6 +147,34 @@ internal class Accountant(
         return result;
     }
 
+    public async Task<TransfersList> GetTransfers(DateTime from, DateTime till, TrackedBudget budget, CancellationToken ct)
+    {
+        var registered = transfersRepository.Get(
+            t => t.StartedAt>=from || t.CompletedAt<=till, ct);
+        var result = new TransfersList();
+
+        await foreach (var transfer in registered.OrderByDescending(t => t.StartedAt).WithCancellation(ct))
+        {
+            result.Add(transfer);
+        }
+        
+        var operations = streamingOperationRepository.Get(
+            o => o.Timestamp >= from && o.Timestamp <= till && o.Tags.All(t => t.Value != TransferTags.Transfer.Value), ct
+            ).OrderByDescending(t => t.Timestamp);
+        await foreach(var transfer in GetTransfers(operations, budget, null,  ct))
+        {
+            result.Add(new UnregisteredTransfer(
+                (TrackedOperation)transfer.Source, 
+                (TrackedOperation)transfer.Sink, 
+                transfer.Fee, 
+                transfer.Comment, 
+                transfer.Accuracy)
+            );
+        }
+
+        return result;
+    }
+
     public async Task<Result> RegisterTransfers(IAsyncEnumerable<UnregisteredTransfer> transfers, CancellationToken ct)
     {
         var budgets = (await Manager.GetOwnedBudgets(ct)).Select(a => a.Id).ToList();
@@ -159,13 +188,13 @@ internal class Accountant(
         {
             if (budgets.All(a => a != transfer.Source.Budget.Id))
             {
-                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Source.Budget));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithBudgetId(transfer.Source.Budget));
                 continue;
             }
 
             if (budgets.All(a => a != transfer.Sink.Budget.Id))
             {
-                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithOperationId(transfer.Sink.Budget));
+                result.Reasons.Add(new BudgetDoesNotBelongToCurrentOwnerError().WithBudgetId(transfer.Sink.Budget));
                 continue;
             }
 
@@ -197,5 +226,56 @@ internal class Accountant(
         }
 
         return result;
+    }
+
+    public async Task<Result> RemoveTransfers(IAsyncEnumerable<TrackedTransfer> transfers, CancellationToken ct)
+    {
+        var successes = new List<ISuccess>();
+        var errors = new List<IError>();
+        
+        var operationsToUpdate = new List<TrackedOperation>();
+
+        await foreach (var transfer in transfers.WithCancellation(ct))
+        {
+            var result = await transfersRepository.Remove(transfer, ct);
+            if (result.IsSuccess)
+            {
+                successes.Add(new TransferRemoved(transfer));
+                foreach (var operation in transfer.Cast<TrackedOperation>())
+                {
+                    operation.Untag(TransferTags.Transfer);
+                    operation.Untag(TransferTags.Source);
+                    operation.Untag(TransferTags.Sink);
+                    
+                    operationsToUpdate.Add(operation);
+                }
+            }
+            else
+            {
+                errors.AddRange(result.Errors);
+            }
+        }
+
+        if (operationsToUpdate.Any())
+        {
+            var budgets = await Manager.GetOwnedBudgets(ct);
+            foreach (var operations in operationsToUpdate.GroupBy(o => o.Budget.Id))
+            {
+                var budget = budgets.FirstOrDefault(b => b.Id == operations.Key);
+                if (budget is null)
+                {
+                    errors.AddRange(operations.Select(o =>
+                        new BudgetDoesNotExistError(operations.Key).WithOperationId(o)));
+                }
+                else
+                {
+                    var result = await Update(operationsToUpdate.ToAsyncEnumerable(), budget, new (null, TaggingMode.Skip), ct);
+                    successes.AddRange(result.Successes);
+                    errors.AddRange(result.Errors);
+                }
+            }
+        }
+
+        return new Result().WithSuccesses(successes).WithErrors(errors);
     }
 }

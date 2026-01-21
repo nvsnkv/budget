@@ -1,6 +1,6 @@
 ﻿using FluentResults;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Domain.Entities.Budgets;
 
 namespace NVs.Budget.Application.Contracts.Services;
 

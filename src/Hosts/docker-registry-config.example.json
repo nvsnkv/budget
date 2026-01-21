@@ -1,0 +1,7 @@
+{
+  "Registry": "docker.io",
+  "Username": "your-username",
+  "EncryptedPassword": "01000000d08c9ddf0115d1118c7a00c04fc297eb...",
+  "Namespace": "your-namespace/budget",
+  "ConfiguredDate": "2026-01-17 12:00:00"
+}

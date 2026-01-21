@@ -61,6 +61,19 @@ public class CriteriaBasedLogbookShould : LogbookShould
     }
 
     [Fact]
+    public void ReturnCriteriaBasedLogbookForEmptyRange()
+    {
+        var criterion = new UniversalCriterion("Anyone");
+        var logbook = new CriteriaBasedLogbook(criterion);
+
+        var ranged = logbook[DateTime.MinValue, DateTime.MaxValue];
+
+        ranged.Should().BeOfType<CriteriaBasedLogbook>();
+        ((CriteriaBasedLogbook)ranged).Criterion.Should().Be(criterion);
+        ranged.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
     public void NotAddTransactionIfItDoesNotMatchCriterion()
     {
         var transaction = TestData.GenerateTestTransactions(1).First();

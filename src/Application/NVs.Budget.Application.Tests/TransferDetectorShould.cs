@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;

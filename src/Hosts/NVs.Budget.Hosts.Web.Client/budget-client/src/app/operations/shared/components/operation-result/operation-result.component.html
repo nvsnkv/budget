@@ -1,0 +1,60 @@
+<!-- Successes Section -->
+@if (successes.length > 0) {
+  <div class="successes-section">
+    <div class="section-header-with-toggle">
+      <h4>Success Messages ({{ successes.length }})</h4>
+      <button 
+        tuiButton
+        type="button"
+        appearance="flat"
+        size="xs"
+        (click)="toggleSuccesses()">
+        {{ showSuccesses ? '▼ Hide' : '▶ Show' }}
+      </button>
+    </div>
+    @if (showSuccesses) {
+      @for (success of successes; track $index) {
+        <div class="success-item">
+          <div class="success-message">{{ success.message || 'Success' }}</div>
+          <app-metadata-display [metadata]="success.metadata"></app-metadata-display>
+        </div>
+      }
+    }
+  </div>
+}
+
+<!-- Errors Section -->
+@if (errors.length > 0) {
+  <div class="errors-section">
+    <div class="section-header-with-toggle">
+      <h4>Errors ({{ errors.length }})</h4>
+      <button 
+        tuiButton
+        type="button"
+        appearance="flat"
+        size="xs"
+        (click)="toggleErrors()">
+        {{ showErrors ? '▼ Hide' : '▶ Show' }}
+      </button>
+    </div>
+    @if (showErrors) {
+      @for (error of errors; track $index) {
+        <div class="error-item">
+          <div class="error-message">{{ error.message || 'Error' }}</div>
+          <app-metadata-display [metadata]="error.metadata"></app-metadata-display>
+          @if (error.reasons && error.reasons.length > 0) {
+            <div class="nested-reasons">
+              <strong>Caused by:</strong>
+              <ul>
+                @for (reason of error.reasons; track $index) {
+                  <li>{{ reason.message || 'Unspecified reason' }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+}
+

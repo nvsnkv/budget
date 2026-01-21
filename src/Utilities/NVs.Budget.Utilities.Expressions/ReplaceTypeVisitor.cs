@@ -59,9 +59,32 @@ internal class ReplaceTypeVisitor : ExpressionVisitor
 
     private bool RequiresReplacement(IEnumerable<Type> types)
     {
-        var genericArgs = types.Where(t => t.IsGenericType).SelectMany(t => t.GetGenericArguments());
-        return types.Intersect(_mapping.Keys).Any()
-               || RequiresReplacement(genericArgs);
+        var queue = new Queue<Type>(types);
+        var seen = new HashSet<Type>();
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            if (!seen.Add(current))
+            {
+                continue;
+            }
+
+            if (_mapping.ContainsKey(current))
+            {
+                return true;
+            }
+
+            if (current.IsGenericType)
+            {
+                foreach (var arg in current.GetGenericArguments())
+                {
+                    queue.Enqueue(arg);
+                }
+            }
+        }
+
+        return false;
     }
 
 

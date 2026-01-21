@@ -2,13 +2,12 @@
 using Moq;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
-using NVs.Budget.Application.Services.Accounting.Results;
 using NVs.Budget.Application.Tests.Fakes;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Utilities.Expressions;
 using NVs.Budget.Utilities.Testing;
 

@@ -1,0 +1,45 @@
+@import '../shared/styles/mixins.less';
+
+.delete-container {
+  .page-container();
+}
+
+.delete-card {
+  .card-base();
+}
+
+.danger-warning {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--tui-error-bg);
+  border: 2px solid var(--tui-error-fill);
+  border-radius: 0.5rem;
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: var(--tui-error-fill);
+    font-size: 1.125rem;
+  }
+  
+  p {
+    margin: 0.5rem 0;
+    color: var(--tui-text-primary);
+    line-height: 1.5;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.delete-result {
+  .result-section-base();
+}
+
+.result-stats {
+  .result-stats-base();
+}
+

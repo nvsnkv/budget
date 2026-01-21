@@ -1,0 +1,217 @@
+<div class="operations-table-container">
+  <table class="operations-table">
+    <thead>
+      <tr>
+        <th class="col-timestamp">Date & Time</th>
+        <th class="col-description">Description</th>
+        <th class="col-amount">Amount</th>
+        <th class="col-tags">Tags</th>
+        <th class="col-attributes">Attributes</th>
+        @if (showActions) {
+          <th class="col-actions">Actions</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (operation of operations; track operation.id) {
+        <tr class="operation-row" [class.editing]="isEditing(operation.id)">
+          <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
+          <td class="col-description">
+            @if (isEditing(operation.id) && editingOperation) {
+              <input 
+                class="edit-input" 
+                [(ngModel)]="editingOperation.description"
+                placeholder="Description"
+              />
+            } @else {
+              {{ operation.description }}
+            }
+          </td>
+          <td class="col-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">
+            @if (isEditing(operation.id) && editingOperation) {
+              <div class="amount-edit">
+                <input 
+                  class="edit-input amount-input" 
+                  type="number" 
+                  [(ngModel)]="editingOperation.amount"
+                  step="0.01"
+                />
+                <input 
+                  class="edit-input currency-input" 
+                  [(ngModel)]="editingOperation.currencyCode"
+                  placeholder="USD"
+                  maxlength="3"
+                />
+              </div>
+            } @else {
+              {{ operation.amount.value | currencyFormat: operation.amount.currencyCode }}
+            }
+          </td>
+          <td class="col-tags">
+            @if (isEditing(operation.id) && editingOperation) {
+              <div class="tags-edit">
+                @for (tag of editingOperation.tags; track trackByIndex($index); let i = $index) {
+                  <div class="tag-edit-item">
+                    <input 
+                      class="edit-input tag-input" 
+                      [(ngModel)]="editingOperation.tags[i]"
+                      placeholder="tag"
+                    />
+                    <button 
+                      tuiButton
+                      type="button"
+                      appearance="icon"
+                      size="xs"
+                      (click)="removeTag(i)">
+                      ✕
+                    </button>
+                  </div>
+                }
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="flat"
+                  size="xs"
+                  (click)="addTag()">
+                  + Add Tag
+                </button>
+              </div>
+            } @else {
+              <div class="tags-inline">
+                @for (tag of operation.tags; track tag) {
+                  <tui-chip size="xs">{{ tag }}</tui-chip>
+                }
+              </div>
+            }
+          </td>
+          <td class="col-attributes">
+            @if (isEditing(operation.id) && editingOperation) {
+              <div class="attributes-edit">
+                @for (key of editingOperation.attributes | objectKeys; track key) {
+                  <div class="attribute-edit-item">
+                    <input 
+                      class="edit-input attr-key-input" 
+                      [value]="key"
+                      (blur)="updateAttributeKey(key, $any($event.target).value)"
+                      placeholder="key"
+                    />
+                    <input 
+                      class="edit-input attr-value-input" 
+                      [(ngModel)]="editingOperation.attributes[key]"
+                      placeholder="value"
+                    />
+                    <button 
+                      tuiButton
+                      type="button"
+                      appearance="icon"
+                      size="xs"
+                      (click)="removeAttribute(key)">
+                      ✕
+                    </button>
+                  </div>
+                }
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="flat"
+                  size="xs"
+                  (click)="addAttribute()">
+                  + Add Attribute
+                </button>
+              </div>
+            } @else {
+              @if (operation.attributes && (operation.attributes | objectKeys).length > 0) {
+                <div class="attributes-inline">
+                  @for (key of operation.attributes | objectKeys; track key) {
+                    <tui-chip size="xs" class="attr-chip">
+                      {{ key }}: {{ operation.attributes![key] }}
+                    </tui-chip>
+                  }
+                </div>
+              } @else {
+                <span class="no-attributes">—</span>
+              }
+            }
+          </td>
+          @if (showActions) {
+            <td class="col-actions">
+              @if (isEditing(operation.id)) {
+                <div class="actions-buttons edit-mode">
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="primary"
+                    size="xs"
+                    (click)="saveEdit(operation)">
+                    💾
+                  </button>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="secondary"
+                    size="xs"
+                    (click)="cancelEdit()">
+                    ✕
+                  </button>
+                </div>
+              } @else {
+                <div class="actions-buttons">
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleOperationDetails(operation.id)">
+                    {{ expandedOperationId === operation.id ? '▼' : '▶' }}
+                  </button>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="icon"
+                    size="xs"
+                    title="Edit operation"
+                    (click)="startEdit(operation)">
+                    ✏️
+                  </button>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="icon"
+                    size="xs"
+                    title="Delete operation"
+                    (click)="deleteOperation(operation)">
+                    🗑️
+                  </button>
+                </div>
+              }
+            </td>
+          }
+        </tr>
+        
+        @if (expandedOperationId === operation.id) {
+          <tr class="operation-details-row">
+            <td [attr.colspan]="showActions ? 6 : 5">
+              <tui-expand [expanded]="true">
+                <div class="operation-details">
+                  <div class="detail-row">
+                    <span class="detail-label">Operation ID:</span>
+                    <span class="detail-value"><code>{{ operation.id }}</code></span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Budget ID:</span>
+                    <span class="detail-value"><code>{{ operation.budgetId }}</code></span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Version:</span>
+                    <span class="detail-value"><code>{{ operation.version }}</code></span>
+                  </div>
+                </div>
+              </tui-expand>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+

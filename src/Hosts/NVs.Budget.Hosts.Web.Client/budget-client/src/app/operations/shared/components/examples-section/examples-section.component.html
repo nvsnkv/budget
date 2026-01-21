@@ -1,0 +1,25 @@
+<div class="examples-section">
+  <div class="examples-header">
+    <h4>{{ title }}</h4>
+    <button 
+      tuiButton
+      type="button"
+      appearance="flat"
+      size="xs"
+      (click)="toggle()">
+      {{ expanded ? '▼ Hide' : '▶ Show' }}
+    </button>
+  </div>
+  
+  @if (expanded) {
+    <div class="examples-list">
+      @for (example of examples; track example.code) {
+        <div class="example-item">
+          <strong>{{ example.label }}</strong>
+          <code>{{ example.code }}</code>
+        </div>
+      }
+    </div>
+  }
+</div>
+

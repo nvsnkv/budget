@@ -1,7 +1,8 @@
-﻿using NVs.Budget.Domain.Entities.Operations;
+﻿using System.Diagnostics.CodeAnalysis;
+using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
-namespace NVs.Budget.Application.Services.Accounting.Transfers;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public static class TransferTags
 {
@@ -9,6 +10,25 @@ public static class TransferTags
     public static readonly Tag Source = new(nameof(Domain.Entities.Transactions.Transfer.Source));
     public static readonly Tag Sink = new(nameof(Domain.Entities.Transactions.Transfer.Sink));
     public static readonly Tag Ephemeral = new(nameof(Ephemeral));
+
+    private static Tag[]? _tags;
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "it's a static class, all private fields looks better with underscore")]
+    private static readonly object _tagsLock = new ();
+    public static Tag[] All
+    {
+        get
+        {
+            if (_tags is null)
+            {
+                lock (_tagsLock)
+                {
+                    _tags ??= [Transfer, Source, Sink, Ephemeral];
+                }
+            }
+
+            return _tags;
+        }
+    }
 
     public static T TagSource<T>(this T operation) where T:Operation
     {
@@ -20,10 +40,7 @@ public static class TransferTags
 
     public static T TagEphemeral<T>(this T operation) where T:Operation
     {
-        operation.Tag(Transfer);
         operation.Tag(Ephemeral);
-        operation.Tag(Source);
-        operation.Tag(Sink);
 
         return operation;
     }

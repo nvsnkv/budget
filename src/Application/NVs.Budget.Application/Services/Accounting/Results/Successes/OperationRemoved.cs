@@ -8,6 +8,6 @@ internal class OperationRemoved : Success
 {
     public OperationRemoved(Operation operation) : base("Transaction was successfully removed!")
     {
-        this.WithTransactionId(operation);
+        this.WithOperationId(operation);
     }
 }

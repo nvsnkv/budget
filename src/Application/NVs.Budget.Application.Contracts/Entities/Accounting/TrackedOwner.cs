@@ -1,6 +1,6 @@
-﻿using NVs.Budget.Domain.Entities.Accounts;
+﻿using NVs.Budget.Domain.Entities.Budgets;
 
-namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public class TrackedOwner(Guid id, string name) : Owner(id, name), ITrackableEntity<Guid>
 {

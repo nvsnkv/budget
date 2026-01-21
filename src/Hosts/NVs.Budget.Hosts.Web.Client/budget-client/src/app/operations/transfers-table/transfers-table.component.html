@@ -1,0 +1,105 @@
+<div class="transfers-table-container">
+  <table class="transfers-table">
+    <thead>
+      <tr>
+        <th class="col-source">Source</th>
+        <th class="col-sink">Sink</th>
+        <th class="col-fee">Fee</th>
+        <th class="col-comment">Comment</th>
+        <th class="col-accuracy">Accuracy</th>
+        @if (showActions) {
+          <th class="col-actions">Actions</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (transfer of transfers; track transfer.sourceId) {
+        <tr class="transfer-row">
+          <td class="col-source">
+            <div class="operation-info">
+              <div class="operation-amount negative">
+                {{ transfer.source.amount.value | currencyFormat: transfer.source.amount.currencyCode }}
+              </div>
+              <div class="operation-description">{{ transfer.source.description }}</div>
+              <div class="operation-date">{{ transfer.source.timestamp | dateFormat }}</div>
+            </div>
+          </td>
+          <td class="col-sink">
+            <div class="operation-info">
+              <div class="operation-amount positive">
+                {{ transfer.sink.amount.value | currencyFormat: transfer.sink.amount.currencyCode }}
+              </div>
+              <div class="operation-description">{{ transfer.sink.description }}</div>
+              <div class="operation-date">{{ transfer.sink.timestamp | dateFormat }}</div>
+            </div>
+          </td>
+          <td class="col-fee" [class.positive]="transfer.fee.value > 0" [class.negative]="transfer.fee.value < 0">
+            {{ transfer.fee.value | currencyFormat: transfer.fee.currencyCode }}
+          </td>
+          <td class="col-comment">{{ transfer.comment }}</td>
+          <td class="col-accuracy">
+            <tui-chip size="s">{{ transfer.accuracy }}</tui-chip>
+          </td>
+          @if (showActions) {
+            <td class="col-actions">
+              <div class="action-buttons">
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="icon"
+                  size="s"
+                  (click)="toggleTransferDetails(transfer.sourceId)">
+                  @if (expandedTransferId === transfer.sourceId) {
+                    ▼
+                  } @else {
+                    ▶
+                  }
+                </button>
+                @if (showQuickRegister) {
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="primary"
+                    size="s"
+                    (click)="registerTransfer(transfer)">
+                    Register
+                  </button>
+                }
+                <button 
+                  tuiButton
+                  type="button"
+                  appearance="destructive"
+                  size="s"
+                  (click)="deleteTransfer(transfer)">
+                  Delete
+                </button>
+              </div>
+            </td>
+          }
+        </tr>
+        @if (expandedTransferId === transfer.sourceId) {
+          <tr class="transfer-details-row">
+            <td [attr.colspan]="showActions ? 6 : 5">
+              <div class="transfer-details">
+                <div class="operations-section">
+                  <h4>Operations in Transfer</h4>
+                  <app-operations-table 
+                    [operations]="getTransferOperations(transfer)"
+                    [showActions]="false">
+                  </app-operations-table>
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      } @empty {
+        <tr>
+          <td [attr.colspan]="showActions ? 6 : 5" class="empty-state">
+            No transfers found.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+

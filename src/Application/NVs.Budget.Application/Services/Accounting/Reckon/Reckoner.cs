@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
@@ -114,7 +114,7 @@ internal class Reckoner(
     {
         var result = new TrackedOperation(
             operation.Id, operation.Timestamp, operation.Amount, operation.Description,
-            AsTrackedAccount(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly()
+            AsTrackedBudget(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly()
         );
 
         result.TagEphemeral();
@@ -122,6 +122,6 @@ internal class Reckoner(
         return result;
     }
 
-    private TrackedBudget AsTrackedAccount(Domain.Entities.Accounts.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
+    private TrackedBudget AsTrackedBudget(Domain.Entities.Budgets.Budget budget) => budget is TrackedBudget ta ? ta : new TrackedBudget(budget.Id, budget.Name, budget.Owners, [], [], LogbookCriteria.Universal);
 
 }

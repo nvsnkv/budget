@@ -1,0 +1,22 @@
+<button tuiButton
+    tuiChevron
+    tuiDropdownOpen
+    type="button" 
+    [tuiDropdown]="content"> 
+        {{(selectedBudget$ | async)?.name ?? "Select budget from list..."}} 
+</button>
+
+<ng-template #content>
+    <tui-data-list role="menu" [emptyContent]="">
+        <tui-opt-group>
+            <a tuiOption *ngFor="let budget of budgetsSnapshot" [routerLink]="['/budget/', budget.id]" role="menuitem">
+                {{budget.name}}
+            </a>
+        </tui-opt-group>
+        <tui-opt-group>
+            <a tuiOption [routerLink]="['/budget/new']" role="menuitem">
+                Add new budget
+            </a>
+        </tui-opt-group>
+    </tui-data-list>
+</ng-template>

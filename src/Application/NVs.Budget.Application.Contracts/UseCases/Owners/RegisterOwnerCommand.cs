@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MediatR;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 
 namespace NVs.Budget.Application.Contracts.UseCases.Owners;
 

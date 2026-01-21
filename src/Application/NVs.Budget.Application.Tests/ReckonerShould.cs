@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Services.Accounting;
@@ -16,7 +14,7 @@ using NVs.Budget.Application.Services.Accounting.Exchange;
 using NVs.Budget.Application.Services.Accounting.Reckon;
 using NVs.Budget.Application.Services.Accounting.Transfers;
 using NVs.Budget.Application.Tests.Fakes;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Domain.ValueObjects.Criteria;
@@ -55,7 +53,7 @@ public class ReckonerShould
             manager);
 
         _data = new ReckonerTestData(_currentOwner, 2, 4, 6);
-        _storage.Budgets.Append(_data.AllAccounts);
+        _storage.Budgets.Append(_data.AllBudgets);
         _storage.Operations.Append(_data.AllTransactions);
 
     }

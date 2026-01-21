@@ -1,0 +1,418 @@
+<div class="reading-settings-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="settings-card">
+      <!-- Header -->
+      <div class="header">
+        <h2 tuiTitle size="l">File Reading Settings</h2>
+        <div class="header-actions">
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="goBack()">
+            Budget Details
+          </button>
+          @if (!isEditMode) {
+            <button 
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              (click)="startAddNew()">
+              Add New Pattern
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              (click)="downloadYaml()">
+              Download YAML
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              (click)="uploadYaml()">
+              Upload YAML
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Add New Pattern Form -->
+      @if (isAddingNew && settingsForm) {
+        <div class="edit-section">
+          <h3 tuiTitle size="m">Add New Pattern</h3>
+          <form [formGroup]="settingsForm" class="settings-form">
+            <div class="form-group">
+              <tui-textfield>
+                <label tuiLabel>Regex Pattern</label>
+                <input tuiTextfield formControlName="pattern" type="text" placeholder="e.g., ^.*\.csv$" />
+              </tui-textfield>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <tui-textfield>
+                  <label tuiLabel>Culture</label>
+                  <input tuiTextfield formControlName="culture" type="text" placeholder="e.g., en-US" />
+                </tui-textfield>
+              </div>
+
+              <div class="form-group">
+                <tui-textfield>
+                  <label tuiLabel>Encoding</label>
+                  <input tuiTextfield formControlName="encoding" type="text" placeholder="e.g., utf-8" />
+                </tui-textfield>
+              </div>
+
+              <div class="select-field">
+                <label class="select-label">DateTime Kind</label>
+                <select class="tui-select" formControlName="dateTimeKind">
+                  @for (option of dateTimeKindOptions; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- Fields -->
+            <div class="subsection">
+              <div class="subsection-header">
+                <h4 tuiTitle size="s">Fields</h4>
+                <button tuiButton type="button" appearance="flat" size="s" (click)="addField()">+ Add Field</button>
+              </div>
+              <div formArrayName="fields" class="key-value-list">
+                @for (field of fields.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="key-value-item">
+                    <tui-textfield class="key-input">
+                      <label tuiLabel>Key</label>
+                      <input tuiTextfield formControlName="key" type="text" />
+                    </tui-textfield>
+                    <tui-textfield class="value-input">
+                      <label tuiLabel>Value</label>
+                      <input tuiTextfield formControlName="value" type="text" />
+                    </tui-textfield>
+                    <button tuiButton type="button" appearance="destructive" size="s" (click)="removeField(i)">Remove</button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Attributes -->
+            <div class="subsection">
+              <div class="subsection-header">
+                <h4 tuiTitle size="s">Attributes</h4>
+                <button tuiButton type="button" appearance="flat" size="s" (click)="addAttribute()">+ Add Attribute</button>
+              </div>
+              <div formArrayName="attributes" class="key-value-list">
+                @for (attr of attributes.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="key-value-item">
+                    <tui-textfield class="key-input">
+                      <label tuiLabel>Key</label>
+                      <input tuiTextfield formControlName="key" type="text" />
+                    </tui-textfield>
+                    <tui-textfield class="value-input">
+                      <label tuiLabel>Value</label>
+                      <input tuiTextfield formControlName="value" type="text" />
+                    </tui-textfield>
+                    <button tuiButton type="button" appearance="destructive" size="s" (click)="removeAttribute(i)">Remove</button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Validation Rules -->
+            <div class="subsection">
+              <div class="subsection-header">
+                <h4 tuiTitle size="s">Validation Rules</h4>
+                <button tuiButton type="button" appearance="flat" size="s" (click)="addValidationRule()">+ Add Rule</button>
+              </div>
+              <div formArrayName="validation" class="validation-list">
+                @for (rule of validationRules.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="validation-item">
+                    <div class="validation-row">
+                      <tui-textfield class="pattern-input">
+                        <label tuiLabel>Field Pattern</label>
+                        <input tuiTextfield formControlName="pattern" type="text" />
+                      </tui-textfield>
+                      <div class="select-field condition-input">
+                        <label class="select-label">Condition</label>
+                        <select class="tui-select" formControlName="condition">
+                          @for (option of validationConditionOptions; track option) {
+                            <option [value]="option">{{ option }}</option>
+                          }
+                        </select>
+                      </div>
+                      <tui-textfield class="value-input">
+                        <label tuiLabel>Value</label>
+                        <input tuiTextfield formControlName="value" type="text" />
+                      </tui-textfield>
+                    </div>
+                    <div class="validation-row">
+                      <tui-textfield class="error-message-input">
+                        <label tuiLabel>Error Message</label>
+                        <input tuiTextfield formControlName="errorMessage" type="text" />
+                      </tui-textfield>
+                      <button tuiButton type="button" appearance="destructive" size="s" (click)="removeValidationRule(i)">Remove</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button 
+                tuiButton
+                type="button"
+                appearance="primary"
+                size="m"
+                [disabled]="!settingsForm.valid || isLoading"
+                (click)="saveSettings()">
+                Save
+              </button>
+              <button 
+                tuiButton
+                type="button"
+                appearance="flat"
+                size="m"
+                (click)="cancelEdit()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- Existing Patterns List -->
+      @if (!isAddingNew) {
+        <div class="patterns-list">
+          @if (getPatterns().length === 0) {
+            <p class="empty-state">No file reading patterns configured. Click "Add New Pattern" to create one.</p>
+          }
+          
+          @for (pattern of getPatterns(); track pattern) {
+            <div class="pattern-item">
+              <tui-accordion>
+                <tui-accordion-item [open]="editingPattern === pattern">
+                  <div class="pattern-header">
+                    <code class="pattern-code">{{ pattern }}</code>
+                  </div>
+                  
+                  <!-- Read-only View -->
+                  @if (editingPattern !== pattern) {
+                    <div class="pattern-content">
+                      <div class="pattern-details">
+                        <div class="detail-row">
+                          <span class="detail-label">Culture:</span>
+                          <span class="detail-value">{{ settings[pattern].culture }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <span class="detail-label">Encoding:</span>
+                          <span class="detail-value">{{ settings[pattern].encoding }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <span class="detail-label">DateTime Kind:</span>
+                          <span class="detail-value">{{ settings[pattern].dateTimeKind }}</span>
+                        </div>
+
+                        @if (Object.keys(settings[pattern].fields).length > 0) {
+                          <div class="detail-section">
+                            <h5 tuiTitle size="xs">Fields</h5>
+                            <ul class="detail-list">
+                              @for (field of Object.entries(settings[pattern].fields); track field[0]) {
+                                <li><strong>{{ field[0] }}:</strong> {{ field[1] }}</li>
+                              }
+                            </ul>
+                          </div>
+                        }
+
+                        @if (Object.keys(settings[pattern].attributes).length > 0) {
+                          <div class="detail-section">
+                            <h5 tuiTitle size="xs">Attributes</h5>
+                            <ul class="detail-list">
+                              @for (attr of Object.entries(settings[pattern].attributes); track attr[0]) {
+                                <li><strong>{{ attr[0] }}:</strong> {{ attr[1] }}</li>
+                              }
+                            </ul>
+                          </div>
+                        }
+
+                        @if (settings[pattern].validation.length > 0) {
+                          <div class="detail-section">
+                            <h5 tuiTitle size="xs">Validation Rules</h5>
+                            <ul class="detail-list">
+                              @for (rule of settings[pattern].validation; track $index) {
+                                <li>
+                                  <strong>{{ rule.pattern }}</strong> {{ rule.condition }} <code>{{ rule.value }}</code>
+                                  <br><em>Error: {{ rule.errorMessage }}</em>
+                                </li>
+                              }
+                            </ul>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="pattern-actions">
+                        <button tuiButton type="button" appearance="secondary" size="s" (click)="startEdit(pattern)">Edit</button>
+                        <button tuiButton type="button" appearance="destructive" size="s" (click)="deletePattern(pattern)">Delete</button>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Edit Form -->
+                  @if (editingPattern === pattern && settingsForm) {
+                    <div class="edit-section">
+                      <form [formGroup]="settingsForm" class="settings-form">
+                        <div class="form-group">
+                          <tui-textfield>
+                            <label tuiLabel>Regex Pattern</label>
+                            <input tuiTextfield formControlName="pattern" type="text" placeholder="e.g., ^.*\.csv$" />
+                          </tui-textfield>
+                        </div>
+
+                        <div class="form-row">
+                          <div class="form-group">
+                            <tui-textfield>
+                              <label tuiLabel>Culture</label>
+                              <input tuiTextfield formControlName="culture" type="text" placeholder="e.g., en-US" />
+                            </tui-textfield>
+                          </div>
+
+                          <div class="form-group">
+                            <tui-textfield>
+                              <label tuiLabel>Encoding</label>
+                              <input tuiTextfield formControlName="encoding" type="text" placeholder="e.g., utf-8" />
+                            </tui-textfield>
+                          </div>
+
+                          <div class="select-field">
+                            <label class="select-label">DateTime Kind</label>
+                            <select class="tui-select" formControlName="dateTimeKind">
+                              @for (option of dateTimeKindOptions; track option) {
+                                <option [value]="option">{{ option }}</option>
+                              }
+                            </select>
+                          </div>
+                        </div>
+
+                        <!-- Fields -->
+                        <div class="subsection">
+                          <div class="subsection-header">
+                            <h4 tuiTitle size="s">Fields</h4>
+                            <button tuiButton type="button" appearance="flat" size="s" (click)="addField()">+ Add Field</button>
+                          </div>
+                          <div formArrayName="fields" class="key-value-list">
+                            @for (field of fields.controls; track $index; let i = $index) {
+                              <div [formGroupName]="i" class="key-value-item">
+                                <tui-textfield class="key-input">
+                                  <label tuiLabel>Key</label>
+                                  <input tuiTextfield formControlName="key" type="text" />
+                                </tui-textfield>
+                                <tui-textfield class="value-input">
+                                  <label tuiLabel>Value</label>
+                                  <input tuiTextfield formControlName="value" type="text" />
+                                </tui-textfield>
+                                <button tuiButton type="button" appearance="destructive" size="s" (click)="removeField(i)">Remove</button>
+                              </div>
+                            }
+                          </div>
+                        </div>
+
+                        <!-- Attributes -->
+                        <div class="subsection">
+                          <div class="subsection-header">
+                            <h4 tuiTitle size="s">Attributes</h4>
+                            <button tuiButton type="button" appearance="flat" size="s" (click)="addAttribute()">+ Add Attribute</button>
+                          </div>
+                          <div formArrayName="attributes" class="key-value-list">
+                            @for (attr of attributes.controls; track $index; let i = $index) {
+                              <div [formGroupName]="i" class="key-value-item">
+                                <tui-textfield class="key-input">
+                                  <label tuiLabel>Key</label>
+                                  <input tuiTextfield formControlName="key" type="text" />
+                                </tui-textfield>
+                                <tui-textfield class="value-input">
+                                  <label tuiLabel>Value</label>
+                                  <input tuiTextfield formControlName="value" type="text" />
+                                </tui-textfield>
+                                <button tuiButton type="button" appearance="destructive" size="s" (click)="removeAttribute(i)">Remove</button>
+                              </div>
+                            }
+                          </div>
+                        </div>
+
+                        <!-- Validation Rules -->
+                        <div class="subsection">
+                          <div class="subsection-header">
+                            <h4 tuiTitle size="s">Validation Rules</h4>
+                            <button tuiButton type="button" appearance="flat" size="s" (click)="addValidationRule()">+ Add Rule</button>
+                          </div>
+                          <div formArrayName="validation" class="validation-list">
+                            @for (rule of validationRules.controls; track $index; let i = $index) {
+                              <div [formGroupName]="i" class="validation-item">
+                                <div class="validation-row">
+                                  <tui-textfield class="pattern-input">
+                                    <label tuiLabel>Field Pattern</label>
+                                    <input tuiTextfield formControlName="pattern" type="text" />
+                                  </tui-textfield>
+                                  <div class="select-field condition-input">
+                                    <label class="select-label">Condition</label>
+                                    <select class="tui-select" formControlName="condition">
+                                      @for (option of validationConditionOptions; track option) {
+                                        <option [value]="option">{{ option }}</option>
+                                      }
+                                    </select>
+                                  </div>
+                                  <tui-textfield class="value-input">
+                                    <label tuiLabel>Value</label>
+                                    <input tuiTextfield formControlName="value" type="text" />
+                                  </tui-textfield>
+                                </div>
+                                <div class="validation-row">
+                                  <tui-textfield class="error-message-input">
+                                    <label tuiLabel>Error Message</label>
+                                    <input tuiTextfield formControlName="errorMessage" type="text" />
+                                  </tui-textfield>
+                                  <button tuiButton type="button" appearance="destructive" size="s" (click)="removeValidationRule(i)">Remove</button>
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+
+                        <div class="form-actions">
+                          <button 
+                            tuiButton
+                            type="button"
+                            appearance="primary"
+                            size="m"
+                            [disabled]="!settingsForm.valid || isLoading"
+                            (click)="saveSettings()">
+                            Save Changes
+                          </button>
+                          <button 
+                            tuiButton
+                            type="button"
+                            appearance="flat"
+                            size="m"
+                            (click)="cancelEdit()">
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  }
+                </tui-accordion-item>
+              </tui-accordion>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </tui-loader>
+</div>
+

@@ -1,0 +1,70 @@
+<div class="duplicates-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge>
+      <div class="header">
+        <h2 tuiTitle size="l">Duplicate Operations</h2>
+        <div class="header-actions">
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="navigateToBudget()">
+            Budget Details
+          </button>
+          <button 
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="m"
+            (click)="navigateToOperations()">
+            View Operations List
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <app-criteria-filter
+        [initialCriteria]="'o => true'"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="onCriteriaSubmitted($event)"
+        (criteriaCleared)="onCriteriaCleared()">
+      </app-criteria-filter>
+
+      <!-- Duplicates List -->
+      <div class="duplicates-section">
+        @if (duplicateGroups.length > 0) {
+          <div class="duplicates-summary">
+            <h3 tuiTitle size="m">Found {{ duplicateGroups.length }} duplicate groups ({{ getTotalDuplicates() }} operations)</h3>
+          </div>
+
+          @for (group of duplicateGroups; track $index; let groupIdx = $index) {
+            <div class="duplicate-group">
+              <h4>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h4>
+              <app-operations-table 
+                [operations]="group" 
+                [showActions]="true"
+                (operationDeleted)="onDeleteOperation($event)"
+                (operationUpdated)="onUpdateOperation($event)">
+              </app-operations-table>
+            </div>
+          }
+        } @else {
+          <div class="empty-state">
+            <p>No duplicate operations found with the current criteria.</p>
+            <button 
+              tuiButton
+              type="button"
+              appearance="flat"
+              size="m"
+              (click)="clearFilters()">
+              Reset Filters
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </tui-loader>
+</div>
+

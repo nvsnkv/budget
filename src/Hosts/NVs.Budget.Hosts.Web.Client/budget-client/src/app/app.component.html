@@ -1,0 +1,26 @@
+<tui-root [attr.tuiTheme]="(isDarkTheme$ | async) ? 'dark' : null">
+    <header tuiNavigationHeader [class]="'flex-space-between'">
+        <span [class]="'flex'">
+            <span tuiNavigationLogo> <a routerLink="/" tuiLink>The Budget.</a></span>
+            <app-budget-selector *ngIf="isAuthenticated$ | async"/>
+        </span>
+        <span [class]="'flex'">
+            <button 
+                tuiIconButton
+                appearance="icon"
+                size="s"
+                (click)="toggleTheme()"
+                [attr.aria-label]="(isDarkTheme$ | async) ? 'Switch to light theme' : 'Switch to dark theme'"
+            >
+                <tui-icon [icon]="(isDarkTheme$ | async) ? '@tui.sun' : '@tui.moon'" />
+            </button>
+            <span *ngIf="isAuthenticated$ | async">
+                <span>{{ownerName$ | async}}</span>
+            </span>
+            <app-auth></app-auth>
+        </span>
+    </header>
+    <main tuiNavigationMain>
+        <router-outlet />
+    </main>
+</tui-root>

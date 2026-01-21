@@ -1,0 +1,93 @@
+<div class="index-container">
+  @if (isAuthenticated$ | async) {
+    <div class="budgets-page">
+      <div class="page-header">
+        <h1 tuiTitle size="xl">My Budgets</h1>
+        <button 
+          tuiButton
+          type="button"
+          appearance="primary"
+          size="m"
+          (click)="createNewBudget()">
+          + Create New Budget
+        </button>
+      </div>
+
+      @if (budgets$ | async; as budgets) {
+        @if (budgets.length > 0) {
+          <div class="budgets-grid">
+            @for (budget of budgets; track budget.id) {
+              <div 
+                tuiCardLarge
+                class="budget-item"
+                (click)="viewBudget(budget.id)">
+                <h3 tuiTitle size="m">{{ budget.name }}</h3>
+                
+                <div class="budget-summary">
+                  <div class="summary-row">
+                    <span class="summary-label">Owners:</span>
+                    <div class="owners-chips">
+                      @for (owner of budget.owners; track owner.id) {
+                        <tui-chip size="s">
+                          {{ owner.name }}
+                        </tui-chip>
+                      }
+                    </div>
+                  </div>
+                  
+                  <div class="summary-row">
+                    <span class="summary-label">Tagging Rules:</span>
+                    <tui-chip size="s">
+                      {{ budget.taggingCriteria.length }}
+                    </tui-chip>
+                  </div>
+                  
+                  <div class="summary-row">
+                    <span class="summary-label">Transfer Rules:</span>
+                    <tui-chip size="s">
+                      {{ budget.transferCriteria.length }}
+                    </tui-chip>
+                  </div>
+                </div>
+
+                <div class="budget-actions">
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="secondary-destructive"
+                    size="s"
+                    (click)="deleteBudget(budget, $event)">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div tuiCardLarge class="empty-state">
+            <h3 tuiTitle size="m">No budgets yet</h3>
+            <p>Create your first budget to get started!</p>
+            <button 
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              (click)="createNewBudget()">
+              Create Budget
+            </button>
+          </div>
+        }
+      } @else {
+        <tui-loader [showLoader]="true">
+          <div class="loading-placeholder">Loading budgets...</div>
+        </tui-loader>
+      }
+    </div>
+  } @else {
+    <div tuiCardLarge class="welcome-card">
+      <h2 tuiTitle size="l">Welcome to Budget Manager</h2>
+      <p>Please log in to manage your budgets.</p>
+    </div>
+  }
+</div>
+

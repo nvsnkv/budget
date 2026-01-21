@@ -25,7 +25,7 @@ public class CriteriaBasedLogbook : Logbook
     {
         if (!Criterion.Matched(o))
             return Result.Fail(new OperationDidNotMatchCriteriaError()
-                .WithTransactionId(o)
+                .WithOperationId(o)
                 .WithMetadata(nameof(Criterion), Criterion)
             );
 
@@ -34,7 +34,7 @@ public class CriteriaBasedLogbook : Logbook
         {
             var subcriterion = Criterion.GetMatchedSubcriterion(o);
             if (subcriterion is null)
-                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithTransactionId(o)
+                return Result.Fail(new OperationDidNotMatchSubcriteriaError().WithOperationId(o)
                     .WithMetadata(nameof(Criterion), Criterion)
                 );
 
@@ -50,4 +50,17 @@ public class CriteriaBasedLogbook : Logbook
     }
 
     protected override Logbook CreateSubRangedLogbook() => new CriteriaBasedLogbook(Criterion);
+
+    public override Logbook this[DateTime from, DateTime till]
+    {
+        get
+        {
+            if (IsEmpty)
+            {
+                return new CriteriaBasedLogbook(Criterion);
+            }
+
+            return base[from, till];
+        }
+    }
 }

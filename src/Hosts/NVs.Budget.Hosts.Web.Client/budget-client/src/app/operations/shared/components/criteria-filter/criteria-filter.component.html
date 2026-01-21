@@ -1,0 +1,40 @@
+<form [formGroup]="filterForm" class="criteria-filter" (submit)="apply(); $event.preventDefault()">
+  <div class="filter-field">
+    <tui-textfield>
+      <label tuiLabel>Criteria Expression (Ctrl+Enter to apply)</label>
+      <textarea
+        tuiTextarea
+        formControlName="criteria"
+        rows="3"
+        placeholder="e.g., o => o.Amount.Amount > 100"
+        (appCtrlEnter)="apply()"
+      ></textarea>
+    </tui-textfield>
+  </div>
+
+  @if (examples.length > 0) {
+    <app-examples-section
+      [examples]="examples"
+      [expanded]="showExamplesInitially">
+    </app-examples-section>
+  }
+
+  <div class="filter-actions">
+    <ng-content></ng-content>
+    <button class="main-buttons"
+      tuiButton
+      type="submit"
+      appearance="primary"
+      size="m">
+      Apply Filters
+    </button>
+    <button class="main-buttons"
+      tuiButton
+      type="button"
+      appearance="secondary"
+      size="m"
+      (click)="clear()">
+      Clear
+    </button>
+  </div>
+</form>

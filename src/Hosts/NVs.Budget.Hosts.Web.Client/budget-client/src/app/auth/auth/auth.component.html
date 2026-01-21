@@ -1,0 +1,2 @@
+<a *ngIf="isAuthenticated" tuiLink href="{{BaseUrl + '/auth/logout'}}">Logout</a>
+<a *ngIf="!isAuthenticated" tuiLink href="{{BaseUrl + '/auth/login'}}">Login</a>

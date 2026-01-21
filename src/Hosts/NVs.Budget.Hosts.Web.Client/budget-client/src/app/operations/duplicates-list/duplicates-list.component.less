@@ -1,0 +1,53 @@
+@import '../shared/styles/mixins.less';
+
+.duplicates-container {
+  .page-container();
+}
+
+.header {
+  .header-with-actions();
+  margin-bottom: 2rem;
+}
+
+.duplicates-section {
+  margin-top: 2rem;
+}
+
+.duplicates-summary {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--tui-warning-bg);
+  border-left: 3px solid var(--tui-warning-fill);
+  border-radius: 0.25rem;
+  
+  h3 {
+    margin: 0;
+    color: var(--tui-text-primary);
+  }
+}
+
+.duplicate-group {
+  margin-bottom: 2rem;
+  
+  h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--tui-text-primary);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--tui-warning-bg);
+    border-left: 3px solid var(--tui-warning-fill);
+    border-radius: 0.25rem 0.25rem 0 0;
+  }
+}
+
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--tui-text-secondary);
+  
+  p {
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
+  }
+}
+

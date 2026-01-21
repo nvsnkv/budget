@@ -1,10 +1,8 @@
-﻿using System.Linq.Expressions;
-using FluentResults;
+﻿using FluentResults;
 using NVs.Budget.Application.Contracts.Criteria;
-using NVs.Budget.Application.Contracts.Entities.Budgeting;
+using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Services.Accounting.Results.Errors;
 using NVs.Budget.Domain.Extensions;
-using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Application.Services.Accounting.Transfers;
 

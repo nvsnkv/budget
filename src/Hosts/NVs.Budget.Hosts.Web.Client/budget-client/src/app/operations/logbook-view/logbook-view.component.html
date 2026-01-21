@@ -1,0 +1,215 @@
+<div class="logbook-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="logbook-card">
+      <h2 tuiTitle size="l">Operations Logbook</h2>
+
+      <div class="filters-section">
+        <h3 tuiTitle size="m">Filters</h3>
+
+        <app-criteria-filter
+          [initialCriteria]="currentCriteria"
+          [showExamplesInitially]="false"
+          (criteriaSubmitted)="onCriteriaSubmitted($event)"
+          (criteriaCleared)="onCriteriaCleared()">
+
+                <div class="date-field">
+                  <tui-textfield>
+                    <label tuiLabel>From Date</label>
+                    <input
+                      tuiTextfield
+                      type="datetime-local"
+                      [(ngModel)]="fromDate"
+                    />
+                  </tui-textfield>
+                </div>
+
+                <div class="date-field">
+                  <tui-textfield>
+                    <label tuiLabel>Till Date</label>
+                    <input
+                      tuiTextfield
+                      type="datetime-local"
+                      [(ngModel)]="tillDate"
+                    />
+                  </tui-textfield>
+                </div>
+
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="m"
+                  (click)="setDateRange('currentMonth')">
+                  Current Month
+                </button>
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="m"
+                  (click)="setDateRange('lastMonth')">
+                  Last Month
+                </button>
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="m"
+                  (click)="setDateRange('currentYear')">
+                  Current Year
+                </button>
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="secondary"
+                  size="m"
+                  (click)="setDateRange('lastYear')">
+                  Last Year
+                </button>
+
+              <div class="cron-field">
+                <tui-textfield>
+                  <label tuiLabel>Cron Expression (optional - to split into periods)</label>
+                  <input
+                    tuiTextfield
+                    type="text"
+                    [(ngModel)]="cronExpression"
+                    placeholder="e.g., 0 0 1 * * for monthly"
+                  />
+                </tui-textfield>
+              </div>
+
+        </app-criteria-filter>
+      </div>
+
+      <div class="action-buttons">
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="viewOperations()">
+          View Operations List
+        </button>
+      </div>
+
+      @if (logbook) {
+        <div class="logbook-section">
+          <h3 tuiTitle size="m">Logbook Statistics</h3>
+
+          @if (criteriaRows.length > 0 && ranges.length > 0) {
+            <div class="logbook-table-container">
+              <table class="logbook-table">
+                <thead>
+                  <tr>
+                    <th class="criteria-column">Category</th>
+                    @for (range of ranges; track range.name) {
+                      <th class="range-column" [title]="(range.from | dateFormat) + ' - ' + (range.till | dateFormat)">
+                        {{ range.name }}
+                      </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of criteriaRows; track row.path) {
+                    @if (isRowVisible(row)) {
+                      <tr class="criteria-row" [class.has-children]="row.hasChildren" [attr.data-level]="row.level">
+                        <td class="criteria-cell" [style.padding-left.rem]="row.level * 2">
+                          <div class="criteria-info">
+                            @if (row.hasChildren) {
+                              <span class="expand-icon" (click)="toggleRow(row.path)">
+                                {{ isRowExpanded(row.path) ? '▼' : '▶' }}
+                              </span>
+                            } @else {
+                              <span class="expand-icon placeholder"></span>
+                            }
+                            <span class="criteria-name">{{ row.description }}</span>
+                          </div>
+                        </td>
+                        @for (range of ranges; track range.name) {
+                          <td class="data-cell"
+                              [class.clickable]="hasOperationsInRange(row, range.name)"
+                              [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + getEntryForRange(row, range.name)?.operationsCount + ' operations' : ''"
+                              (click)="hasOperationsInRange(row, range.name) && viewGroupOperations(row, range.name, $event)">
+                            @if (getEntryForRange(row, range.name); as entry) {
+                              @if (entry.sum.value !== 0) {
+                                <div class="sum-value"
+                                     [class.positive]="entry.sum.value > 0"
+                                     [class.negative]="entry.sum.value < 0">
+                                  {{ entry.sum.value | currencyFormat }}
+                                </div>
+                              } @else {
+                                <div class="empty-cell">-</div>
+                              }
+                            } @else {
+                              <div class="empty-cell">-</div>
+                            }
+                          </td>
+                        }
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <p>No logbook data available for the selected criteria and date range.</p>
+            </div>
+          }
+
+          @if (logbook.errors.length > 0) {
+            <div class="logbook-errors">
+              <h4 tuiTitle size="s">Errors ({{ logbook.errors.length }})</h4>
+              <div class="error-list">
+                @for (error of logbook.errors; track $index) {
+                  <div class="error-item">
+                    <div class="error-message">
+                      <strong>{{ error.message || 'Unknown error' }}</strong>
+                    </div>
+
+                    @if (hasMetadata(error)) {
+                      <div class="error-metadata">
+                        <div class="metadata-label">Metadata:</div>
+                        <div class="metadata-content">
+                          @for (key of getMetadataKeys(error.metadata!); track key) {
+                            <div class="metadata-item">
+                              <span class="metadata-key">{{ key }}:</span>
+                              <span class="metadata-value">{{ formatMetadataValue(error.metadata![key]) }}</span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    @if (hasNestedReasons(error)) {
+                      <div class="nested-reasons">
+                        <div class="nested-label">Nested Reasons:</div>
+                        <div class="nested-content">
+                          @for (reason of error.reasons; track $index) {
+                            <div class="nested-reason">
+                              {{ reason.message || 'No message' }}
+                              @if (hasMetadata(reason)) {
+                                <div class="reason-metadata">
+                                  @for (key of getMetadataKeys(reason.metadata!); track key) {
+                                    <div class="metadata-item small">
+                                      <span class="metadata-key">{{ key }}:</span>
+                                      <span class="metadata-value">{{ formatMetadataValue(reason.metadata![key]) }}</span>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </tui-loader>
+</div>

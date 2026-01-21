@@ -12,13 +12,13 @@ public class Operation : EntityBase<Guid>
     public DateTime Timestamp { get; }
     public Money Amount { get; }
     public string Description { get; }
-    public Accounts.Budget Budget { get; }
+    public Budgets.Budget Budget { get; }
 
     public IReadOnlyCollection<Tag> Tags => _tags.AsReadOnly();
 
     public IDictionary<string, object> Attributes { get; } = new AttributesDictionary(new Dictionary<string, object>());
 
-    public Operation(Guid id, DateTime timestamp, Money amount, string description, Accounts.Budget budget, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
+    public Operation(Guid id, DateTime timestamp, Money amount, string description, Budgets.Budget budget, IEnumerable<Tag> tags, IReadOnlyDictionary<string, object>? attributes) : base(id)
     {
         Timestamp = timestamp;
         Amount = amount;
@@ -46,5 +46,10 @@ public class Operation : EntityBase<Guid>
 
     public void Untag(Tag value) => _tags.Remove(value);
 
-    public void UntagAll() => _tags.Clear();
+    public void ResetTagsExcept(params Tag[] tags)
+    {
+        var preserved = _tags.Intersect(tags);
+        _tags.Clear();
+        _tags.AddRange(preserved);
+    }
 }

@@ -1,0 +1,72 @@
+<div class="retag-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="retag-card">
+      <h2 tuiTitle size="l">Retag Operations</h2>
+
+      <app-criteria-filter
+        [initialCriteria]="currentCriteria"
+        [examples]="criteriaExamples"
+        [showExamplesInitially]="false"
+        (criteriaSubmitted)="retagOperations($event)">
+        
+        <div class="retag-options">
+          <label tuiLabel size="m" class="from-scratch-checkbox">
+            <input 
+              tuiCheckbox
+              type="checkbox" 
+              [(ngModel)]="fromScratch"
+            />
+            Retag from scratch (remove all existing tags first)
+          </label>
+        </div>
+      </app-criteria-filter>
+
+      <div class="action-buttons">
+        <button 
+          tuiButton
+          type="button"
+          appearance="secondary"
+          size="m"
+          (click)="viewOperations()">
+          View Operations List
+        </button>
+        @if (retagResult) {
+          <button 
+            tuiButton
+            type="button"
+            appearance="flat"
+            size="m"
+            (click)="resetResult()">
+            Reset Results
+          </button>
+        }
+      </div>
+
+      @if (retagResult) {
+        <div class="retag-result">
+          <h3 tuiTitle size="m">Retagging Results</h3>
+          <div class="result-stats">
+            @if (retagResult.successes.length > 0) {
+              <div class="stat-item success">
+                <span class="stat-label">Successes:</span>
+                <span class="stat-value">{{ retagResult.successes.length }}</span>
+              </div>
+            }
+            @if (retagResult.errors.length > 0) {
+              <div class="stat-item error">
+                <span class="stat-label">Errors:</span>
+                <span class="stat-value">{{ retagResult.errors.length }}</span>
+              </div>
+            }
+          </div>
+          
+          <app-operation-result
+            [successes]="retagResult.successes"
+            [errors]="retagResult.errors">
+          </app-operation-result>
+        </div>
+      }
+    </div>
+  </tui-loader>
+</div>
+

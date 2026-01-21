@@ -1,5 +1,5 @@
 ﻿using NMoneys;
 
-namespace NVs.Budget.Application.Contracts.Entities.Budgeting;
+namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 
 public record UnregisteredTransfer(TrackedOperation Source, TrackedOperation Sink, Money Fee, string Comment, DetectionAccuracy Accuracy);

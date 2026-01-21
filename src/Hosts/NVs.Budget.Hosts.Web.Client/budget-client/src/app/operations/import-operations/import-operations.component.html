@@ -1,0 +1,151 @@
+<div class="import-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div tuiCardLarge class="import-card">
+      <h2 tuiTitle size="l">Import Operations</h2>
+      
+      @if (budget) {
+        <form [formGroup]="importForm" class="import-form">
+          <div class="form-section">
+            <h3 tuiTitle size="m">Upload CSV File</h3>
+            <p class="help-text">
+              The CSV file will be parsed using the reading settings configured for this budget.
+              Make sure you have configured the reading settings before importing.
+            </p>
+            
+            <div class="file-input-container">
+              <input 
+                type="file" 
+                accept=".csv"
+                (change)="onFileSelected($event)"
+                class="file-input"
+                #fileInput
+              />
+              <button 
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="m"
+                (click)="fileInput.click()">
+                Choose CSV File
+              </button>
+              @if (selectedFile) {
+                <span class="file-selected">✓ {{ selectedFile.name }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-section">
+            <tui-textfield>
+              <label tuiLabel>File Pattern (Optional)</label>
+              <input 
+                tuiTextfield 
+                formControlName="filePattern" 
+                type="text" 
+                placeholder="e.g., .*\.csv or specific pattern"
+              />
+            </tui-textfield>
+            <p class="help-text">
+              Regex pattern to match reading settings. Leave empty to auto-match by filename.
+            </p>
+          </div>
+
+          <div class="form-section">
+            <tui-textfield>
+              <label tuiLabel>Transfer Confidence Level (Optional)</label>
+              <input 
+                tuiTextfield 
+                formControlName="transferConfidenceLevel" 
+                type="text" 
+                placeholder="e.g., High, Exact"
+              />
+            </tui-textfield>
+            <p class="help-text">
+              Specify the confidence level for transfer detection: Exact, Likely, or leave empty for default.
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              tuiButton
+              type="button"
+              appearance="primary"
+              size="m"
+              [disabled]="!selectedFile || isLoading"
+              (click)="importCsv()">
+              Import Operations
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
+              (click)="viewOperations()">
+              View Operations List
+            </button>
+          </div>
+        </form>
+
+        @if (importResult) {
+          <div class="import-result">
+            <h3 tuiTitle size="m">Import Results</h3>
+            <div class="result-stats">
+              <div class="stat-item success">
+                <span class="stat-label">Registered:</span>
+                <span class="stat-value">{{ importResult.registered }}</span>
+              </div>
+              <div class="stat-item warning">
+                <span class="stat-label">Duplicates:</span>
+                <span class="stat-value">{{ importResult.duplicates }}</span>
+              </div>
+              @if (importResult.errors.length > 0) {
+                <div class="stat-item error">
+                  <span class="stat-label">Errors:</span>
+                  <span class="stat-value">{{ importResult.errors.length }}</span>
+                </div>
+              }
+              @if (importResult.successes.length > 0) {
+                <div class="stat-item info">
+                  <span class="stat-label">Successes:</span>
+                  <span class="stat-value">{{ importResult.successes.length }}</span>
+                </div>
+              }
+            </div>
+            
+            <!-- Duplicates Section -->
+            @if (importResult.duplicates > 0) {
+              <div class="duplicates-section">
+                <div class="section-header-with-toggle">
+                  <h4>Duplicates ({{ importResult.duplicates }} groups)</h4>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleDuplicates()">
+                    {{ showDuplicates ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showDuplicates) {
+                  @for (group of getDuplicatesList(); track $index; let groupIdx = $index) {
+                    <div class="duplicate-group">
+                      <h5>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h5>
+                      <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
+                    </div>
+                  }
+                }
+              </div>
+            }
+            
+            <app-operation-result
+              [successes]="importResult.successes"
+              [errors]="importResult.errors">
+            </app-operation-result>
+          </div>
+        }
+      } @else {
+        <div class="loading-placeholder">Loading budget...</div>
+      }
+    </div>
+  </tui-loader>
+</div>
+

@@ -1,0 +1,6 @@
+# Generated certificates
+certs/
+
+# Environment file with secrets
+server.env
+

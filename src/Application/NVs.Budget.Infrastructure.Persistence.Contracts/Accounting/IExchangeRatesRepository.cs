@@ -1,5 +1,5 @@
 ﻿using NMoneys;
-using NVs.Budget.Domain.Entities.Accounts;
+using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.ValueObjects;
 
 namespace NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;

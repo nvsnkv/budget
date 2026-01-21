@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: "budgetdb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - budgetdb-data:/var/lib/postgresql/data
+    ports:
+      - "20000:5432"
+
+  dev-certs:
+    build:
+      context: .
+      dockerfile: ./dev-certs.Dockerfile
+      args:
+        - APP_UID=1000
+    volumes:
+      - certs:/https
+
+volumes:
+  budgetdb-data:
+  certs:
