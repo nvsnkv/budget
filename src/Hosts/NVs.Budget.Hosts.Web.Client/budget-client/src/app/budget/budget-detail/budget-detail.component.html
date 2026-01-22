@@ -19,6 +19,14 @@
               type="button"
               appearance="secondary"
               size="m"
+              (click)="toggleOwnersEdit()">
+              Share Budget
+            </button>
+            <button 
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="m"
               (click)="navigateToReadingSettings()">
               File Reading Settings
             </button>
@@ -80,6 +88,45 @@
                 </tui-chip>
               }
             </div>
+            @if (!isEditMode && isOwnersEditMode) {
+              <div class="owners-edit">
+                <p class="owners-hint">Select owners that can access this budget.</p>
+                @if (availableOwners.length > 0) {
+                  <div class="owners-checkboxes">
+                    @for (owner of availableOwners; track owner.id) {
+                      <label class="owner-checkbox">
+                        <input 
+                          type="checkbox"
+                          [checked]="selectedOwnerIds.has(owner.id)"
+                          (change)="toggleOwnerSelection(owner.id, $event)" />
+                        <span>{{ owner.name }}</span>
+                      </label>
+                    }
+                  </div>
+                } @else {
+                  <div class="owners-empty">No owners available to share.</div>
+                }
+                <div class="owners-actions">
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="primary"
+                    size="m"
+                    [disabled]="isLoading || selectedOwnerIds.size === 0"
+                    (click)="saveOwners()">
+                    Save Owners
+                  </button>
+                  <button 
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="m"
+                    (click)="cancelOwnersEdit()">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
           </div>
         </div>
 

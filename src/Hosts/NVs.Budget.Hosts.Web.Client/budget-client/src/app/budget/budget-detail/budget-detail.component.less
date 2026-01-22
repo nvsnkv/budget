@@ -57,6 +57,57 @@
   margin-top: 0.75rem;
 }
 
+.owners-edit {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 8px;
+  background: var(--tui-background-neutral-1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.owners-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--tui-text-secondary);
+}
+
+.owners-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.owner-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--tui-background-base);
+  border: 1px solid var(--tui-border-normal);
+  cursor: pointer;
+  font-size: 0.875rem;
+
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+  }
+}
+
+.owners-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.owners-empty {
+  font-size: 0.875rem;
+  color: var(--tui-text-tertiary);
+}
+
 .budget-form {
   display: flex;
   flex-direction: column;

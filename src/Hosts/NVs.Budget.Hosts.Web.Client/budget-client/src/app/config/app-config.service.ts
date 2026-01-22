@@ -23,12 +23,12 @@ export class AppConfigService {
       console.error('Failed to load application configuration:', error);
       // Fallback to default config
       this.config = {
-        apiUrl: 'https://localhost:25001'
+        apiUrl: 'https://localhost:7237'
       };
     });
   }
 
   get apiUrl(): string {
-    return this.config?.apiUrl || 'https://localhost:25001';
+    return this.config?.apiUrl || 'https://localhost:7237';
   }
 }

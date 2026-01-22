@@ -98,14 +98,9 @@ To stop all services, close all windows and run: docker compose down
 
 "@ -ForegroundColor Cyan
 
-# Start server in a new PowerShell window
 $serverScript = Join-Path $PSScriptRoot "start-server.ps1"
- wt sp -d . pwsh $serverScript
+ wt --window 0 sp -H pwsh $serverScript
 
-# Wait a moment before starting client
-Start-Sleep -Seconds 2
-
-# Start client in a new PowerShell window
 $clientScript = Join-Path $PSScriptRoot "start-client.ps1"
 pwsh $clientScript
 

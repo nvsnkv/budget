@@ -1,4 +1,4 @@
-﻿using FluentResults;
+using FluentResults;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Errors.Accounting;
@@ -38,12 +38,12 @@ internal class BudgetManager(IBudgetsRepository repository, IUser currentUser) :
         var found = (await repository.Get(a => a.Id == budget.Id, ct)).FirstOrDefault();
         if (found is null) return Result.Fail(new BudgetDoesNotExistError(budget.Id));
 
-        foreach (var exOwner in found.Owners.Except(owners).ToList())
+        foreach (var exOwner in found.Owners.Except(owners, EntityComparer<Owner>.Instance).ToList())
         {
             found.RemoveOwner(exOwner);
         }
 
-        foreach (var owner in owners.Except(found.Owners).ToList())
+        foreach (var owner in owners.Except(found.Owners, EntityComparer<Owner>.Instance).ToList())
         {
             found.AddOwner(owner);
         }

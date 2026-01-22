@@ -8,7 +8,8 @@ import {
   ChangeBudgetOwnersRequest, 
   MergeBudgetsRequest,
   IError,
-  FileReadingSettingResponse
+  FileReadingSettingResponse,
+  Owner
 } from './models';
 import { AppConfigService } from '../config/app-config.service';
 
@@ -35,6 +36,13 @@ export class BudgetApiService {
       switchMap(() => 
         this.http.get<BudgetResponse[]>(`${this.baseUrl}/budget`, { withCredentials: true })
       ));
+  }
+
+  /**
+   * Get all available owners
+   */
+  getOwners(): Observable<Owner[]> {
+    return this.http.get<Owner[]>(`${this.baseUrl}/owners`, { withCredentials: true });
   }
 
   /**

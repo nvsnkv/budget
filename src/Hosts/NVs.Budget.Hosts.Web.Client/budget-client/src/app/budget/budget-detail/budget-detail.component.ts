@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } fr
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map, switchMap, catchError, of, tap } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
-import { BudgetResponse, UpdateBudgetRequest, Owner } from '../models';
+import { BudgetResponse, UpdateBudgetRequest, Owner, ChangeBudgetOwnersRequest } from '../models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -45,8 +45,12 @@ export class BudgetDetailComponent implements OnInit {
   budget: BudgetResponse | null = null;
   
   budgetForm!: FormGroup;
+  ownersForm!: FormGroup;
   isEditMode = false;
+  isOwnersEditMode = false;
   isLoading = false;
+  availableOwners: Owner[] = [];
+  selectedOwnerIds = new Set<string>();
 
   // Section visibility toggles
   showTaggingCriteria = true;
@@ -72,6 +76,7 @@ export class BudgetDetailComponent implements OnInit {
         tap(budget => {
           this.budget = budget || null;
           this.initForm();
+          this.initOwnersForm();
         }),
         catchError(error => {
           console.error('Error fetching budget:', error);
@@ -80,6 +85,8 @@ export class BudgetDetailComponent implements OnInit {
         })
       ))
     );
+
+    this.loadOwners();
   }
 
   initForm(): void {
@@ -102,6 +109,16 @@ export class BudgetDetailComponent implements OnInit {
         }))
       ),
       logbookCriteria: this.createLogbookCriteriaGroup(this.budget.logbookCriteria)
+    });
+  }
+
+  initOwnersForm(): void {
+    if (!this.budget) return;
+
+    const initialOwnerIds = this.budget.owners.map(owner => owner.id);
+    this.selectedOwnerIds = new Set(initialOwnerIds);
+    this.ownersForm = this.fb.group({
+      ownerIds: [initialOwnerIds, Validators.required]
     });
   }
 
@@ -171,6 +188,62 @@ export class BudgetDetailComponent implements OnInit {
     if (!this.isEditMode) {
       this.initForm();
     }
+    if (this.isEditMode) {
+      this.isOwnersEditMode = false;
+    }
+  }
+
+  toggleOwnersEdit(): void {
+    this.isOwnersEditMode = !this.isOwnersEditMode;
+    if (this.isOwnersEditMode) {
+      this.initOwnersForm();
+    }
+  }
+
+  cancelOwnersEdit(): void {
+    this.isOwnersEditMode = false;
+    this.initOwnersForm();
+  }
+
+  toggleOwnerSelection(ownerId: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedOwnerIds.add(ownerId);
+    } else {
+      this.selectedOwnerIds.delete(ownerId);
+    }
+    this.syncOwnerIdsControl();
+  }
+
+  saveOwners(): void {
+    if (!this.budget) return;
+
+    const ownerIds = Array.from(this.selectedOwnerIds);
+    if (ownerIds.length === 0) {
+      this.showError('Please select at least one owner.');
+      return;
+    }
+
+    const request: ChangeBudgetOwnersRequest = {
+      budget: {
+        id: this.budget.id,
+        version: this.budget.version
+      },
+      ownerIds
+    };
+
+    this.isLoading = true;
+    this.apiService.changeBudgetOwners(request).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.isOwnersEditMode = false;
+        this.showSuccess('Budget owners updated successfully');
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.handleError(error, 'Failed to update budget owners');
+      }
+    });
   }
 
   addTaggingCriterion(): void {
@@ -206,6 +279,12 @@ export class BudgetDetailComponent implements OnInit {
 
   toggleLogbookCriteria(): void {
     this.showLogbookCriteria = !this.showLogbookCriteria;
+  }
+
+  private syncOwnerIdsControl(): void {
+    if (!this.ownersForm) return;
+    this.ownersForm.get('ownerIds')?.setValue(Array.from(this.selectedOwnerIds));
+    this.ownersForm.get('ownerIds')?.markAsDirty();
   }
 
   buildLogbookCriteriaFromForm(formGroup: FormGroup): any {
@@ -399,6 +478,19 @@ export class BudgetDetailComponent implements OnInit {
       closeable: true,
       dismissible: true
     }).subscribe();
+  }
+
+  private loadOwners(): void {
+    this.apiService.getOwners().subscribe({
+      next: (owners) => {
+        this.availableOwners = owners;
+        this.initOwnersForm();
+      },
+      error: (error) => {
+        console.error('Error fetching owners:', error);
+        this.showError('Failed to load owners list');
+      }
+    });
   }
 }
 
