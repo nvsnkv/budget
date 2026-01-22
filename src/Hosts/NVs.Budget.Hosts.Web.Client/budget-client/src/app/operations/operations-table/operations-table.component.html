@@ -2,9 +2,33 @@
   <table class="operations-table">
     <thead>
       <tr>
-        <th class="col-timestamp">Date & Time</th>
-        <th class="col-description">Description</th>
-        <th class="col-amount">Amount</th>
+        <th class="col-timestamp">
+          <button
+            type="button"
+            class="column-sort"
+            (click)="toggleSort('timestamp')">
+            Date & Time
+            <span class="sort-indicator">{{ getSortIndicator('timestamp') }}</span>
+          </button>
+        </th>
+        <th class="col-description">
+          <button
+            type="button"
+            class="column-sort"
+            (click)="toggleSort('description')">
+            Description
+            <span class="sort-indicator">{{ getSortIndicator('description') }}</span>
+          </button>
+        </th>
+        <th class="col-amount">
+          <button
+            type="button"
+            class="column-sort"
+            (click)="toggleSort('amount')">
+            Amount
+            <span class="sort-indicator">{{ getSortIndicator('amount') }}</span>
+          </button>
+        </th>
         <th class="col-tags">Tags</th>
         <th class="col-attributes">Attributes</th>
         @if (showActions) {
@@ -13,7 +37,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (operation of operations; track operation.id) {
+      @for (operation of displayedOperations; track operation.id) {
         <tr class="operation-row" [class.editing]="isEditing(operation.id)">
           <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
           <td class="col-description">

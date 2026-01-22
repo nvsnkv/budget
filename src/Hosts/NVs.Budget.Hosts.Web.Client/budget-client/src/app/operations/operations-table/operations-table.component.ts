@@ -43,6 +43,50 @@ export class OperationsTableComponent {
   expandedOperationId: string | null = null;
   editingOperationId: string | null = null;
   editingOperation: EditableOperation | null = null;
+  sortField: 'amount' | 'timestamp' | 'description' | null = null;
+  sortDirection: 'asc' | 'desc' | null = null;
+
+  get displayedOperations(): OperationResponse[] {
+    if (!this.sortField || !this.sortDirection) return this.operations;
+
+    const directionMultiplier = this.sortDirection === 'asc' ? 1 : -1;
+
+    return [...this.operations].sort((left, right) => {
+      switch (this.sortField) {
+        case 'amount':
+          return (left.amount.value - right.amount.value) * directionMultiplier;
+        case 'timestamp':
+          return (Date.parse(left.timestamp) - Date.parse(right.timestamp)) * directionMultiplier;
+        case 'description':
+          return left.description.localeCompare(right.description, undefined, { sensitivity: 'base' }) * directionMultiplier;
+      }
+
+      return 0;
+    });
+  }
+
+  toggleSort(field: 'amount' | 'timestamp' | 'description'): void {
+    if (this.sortField !== field) {
+      this.sortField = field;
+      this.sortDirection = 'desc';
+      return;
+    }
+
+    if (!this.sortDirection) {
+      this.sortDirection = 'desc';
+      return;
+    }
+
+    this.sortDirection = this.sortDirection === 'desc' ? 'asc' : null;
+    if (!this.sortDirection) {
+      this.sortField = null;
+    }
+  }
+
+  getSortIndicator(field: 'amount' | 'timestamp' | 'description'): string {
+    if (this.sortField !== field || !this.sortDirection) return '↕';
+    return this.sortDirection === 'asc' ? '↑' : '↓';
+  }
 
   toggleOperationDetails(operationId: string): void {
     this.expandedOperationId = this.expandedOperationId === operationId ? null : operationId;
