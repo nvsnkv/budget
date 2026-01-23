@@ -177,9 +177,26 @@
   font-size: 1rem;
 }
 
+.group-sort-indicator {
+  color: var(--tui-text-secondary);
+  font-size: 0.75rem;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.range-sort-indicator {
+  color: var(--tui-text-secondary);
+  font-size: 0.75rem;
+}
+
 .data-cell {
-  min-width: 120px;
+  min-width: 130px;
   text-align: right;
+  position: relative;
 
   &.clickable {
     cursor: pointer;
@@ -189,6 +206,27 @@
       background: var(--tui-background-neutral-2);
       transform: scale(1.02);
     }
+  }
+}
+
+.data-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.group-sort-toggle {
+  border: none;
+  background: transparent;
+  color: var(--tui-text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+
+  &:hover {
+    color: var(--tui-text-primary);
   }
 }
 

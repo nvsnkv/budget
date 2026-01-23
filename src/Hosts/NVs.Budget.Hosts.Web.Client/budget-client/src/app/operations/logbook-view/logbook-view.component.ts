@@ -25,6 +25,7 @@ interface CriteriaRow {
   level: number;
   rangeData: Map<string, LogbookEntryResponse>;
   hasChildren: boolean;
+  children: CriteriaRow[];
 }
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
@@ -61,7 +62,9 @@ export class LogbookViewComponent implements OnInit {
   
   ranges: NamedRangeResponse[] = [];
   criteriaRows: CriteriaRow[] = [];
+  private criteriaTree: CriteriaRow[] = [];
   expandedRows = new Set<string>();
+  private groupSorts = new Map<string, { rangeName: string; direction: 'asc' | 'desc' }>();
   
   criteriaExamples: CriteriaExample[] = [
     { label: 'All operations:', code: 'o => true' },
@@ -163,6 +166,8 @@ export class LogbookViewComponent implements OnInit {
     this.logbook = null;
     this.ranges = [];
     this.criteriaRows = [];
+    this.criteriaTree = [];
+    this.groupSorts.clear();
 
     const from = this.fromDate ? new Date(this.fromDate) : undefined;
     const till = this.tillDate ? new Date(this.tillDate) : undefined;
@@ -180,12 +185,14 @@ export class LogbookViewComponent implements OnInit {
         
         if (result.ranges && result.ranges.length > 0) {
           this.ranges = result.ranges.map(r => r.range);
-          this.criteriaRows = this.buildCriteriaRows(result.ranges);
+          this.criteriaTree = this.buildCriteriaTree(result.ranges);
+          this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
           
           // Restore expansion state if it exists, otherwise start fresh
           const savedState = this.logbookStateService.getState(this.budgetId);
           if (savedState) {
             this.expandedRows = savedState.expandedRows;
+            this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
             
             // Restore scroll position after view is rendered
             setTimeout(() => {
@@ -193,6 +200,7 @@ export class LogbookViewComponent implements OnInit {
             }, 100);
           } else {
             this.expandedRows.clear();
+            this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
           }
         }
         
@@ -209,25 +217,18 @@ export class LogbookViewComponent implements OnInit {
     });
   }
 
-  private buildCriteriaRows(rangedEntries: RangedLogbookEntryResponse[]): CriteriaRow[] {
-    const rows: CriteriaRow[] = [];
-    
-    // Get all unique criteria paths from the first range to establish row structure
-    if (rangedEntries.length === 0) return rows;
-    
+  private buildCriteriaTree(rangedEntries: RangedLogbookEntryResponse[]): CriteriaRow[] {
+    if (rangedEntries.length === 0) return [];
     const firstEntry = rangedEntries[0].entry;
-    this.collectCriteriaPaths(firstEntry, '', 0, rows, rangedEntries);
-    
-    return rows;
+    return [this.buildCriteriaNode(firstEntry, '', 0, rangedEntries)];
   }
 
-  private collectCriteriaPaths(
+  private buildCriteriaNode(
     entry: LogbookEntryResponse, 
     parentPath: string, 
     level: number,
-    rows: CriteriaRow[],
     rangedEntries: RangedLogbookEntryResponse[]
-  ): void {
+  ): CriteriaRow {
     const currentPath = parentPath ? `${parentPath}/${entry.description}` : entry.description;
     
     // Create range data map for this criteria
@@ -240,22 +241,19 @@ export class LogbookViewComponent implements OnInit {
       }
     }
     
-    const hasChildren = entry.children && entry.children.length > 0;
+    const children = entry.children?.map(child =>
+      this.buildCriteriaNode(child, currentPath, level + 1, rangedEntries)
+    ) ?? [];
+    const hasChildren = children.length > 0;
     
-    rows.push({
+    return {
       description: entry.description,
       path: currentPath,
       level,
       rangeData,
-      hasChildren
-    });
-    
-    // Recursively add children
-    if (hasChildren) {
-      for (const child of entry.children) {
-        this.collectCriteriaPaths(child, currentPath, level + 1, rows, rangedEntries);
-      }
-    }
+      hasChildren,
+      children
+    };
   }
 
   private findEntryByPath(entry: LogbookEntryResponse, targetPath: string): LogbookEntryResponse | null {
@@ -283,6 +281,7 @@ export class LogbookViewComponent implements OnInit {
     } else {
       this.expandedRows.add(path);
     }
+    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
   }
 
   isRowExpanded(path: string): boolean {
@@ -301,6 +300,92 @@ export class LogbookViewComponent implements OnInit {
       }
     }
     return true;
+  }
+
+  toggleGroupSort(row: CriteriaRow, rangeName: string, event: Event): void {
+    event.stopPropagation();
+    const existing = this.groupSorts.get(row.path);
+    if (!existing || existing.rangeName !== rangeName) {
+      this.groupSorts.set(row.path, { rangeName, direction: 'desc' });
+    } else if (existing.direction === 'desc') {
+      this.groupSorts.set(row.path, { rangeName, direction: 'asc' });
+    } else {
+      this.groupSorts.delete(row.path);
+    }
+    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+  }
+
+  resetSorting(): void {
+    if (this.groupSorts.size === 0) return;
+    this.groupSorts.clear();
+    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+  }
+
+  get hasActiveSorts(): boolean {
+    return this.groupSorts.size > 0;
+  }
+
+  getGroupSortIndicator(row: CriteriaRow, rangeName: string): string {
+    const existing = this.groupSorts.get(row.path);
+    if (!existing || existing.rangeName !== rangeName) return '↕';
+    return existing.direction === 'asc' ? '↑' : '↓';
+  }
+
+  getRowSortIndicator(row: CriteriaRow): string {
+    const existing = this.groupSorts.get(row.path);
+    if (!existing) return '';
+    return existing.direction === 'asc' ? '↑' : '↓';
+  }
+
+  getRangeSortIndicator(rangeName: string): string {
+    const directions = new Set<'asc' | 'desc'>();
+    for (const sort of this.groupSorts.values()) {
+      if (sort.rangeName === rangeName) {
+        directions.add(sort.direction);
+      }
+    }
+    if (directions.size === 0) return '';
+    if (directions.size > 1) return '↕';
+    return directions.has('asc') ? '↑' : '↓';
+  }
+
+  private flattenCriteriaRows(tree: CriteriaRow[]): CriteriaRow[] {
+    const rows: CriteriaRow[] = [];
+    for (const root of tree) {
+      this.addFlattenedRow(root, rows);
+    }
+    return rows;
+  }
+
+  private addFlattenedRow(row: CriteriaRow, rows: CriteriaRow[]): void {
+    rows.push(row);
+    if (!row.hasChildren || !this.expandedRows.has(row.path)) {
+      return;
+    }
+    const children = this.getSortedChildren(row);
+    for (const child of children) {
+      this.addFlattenedRow(child, rows);
+    }
+  }
+
+  private getSortedChildren(row: CriteriaRow): CriteriaRow[] {
+    const sortConfig = this.groupSorts.get(row.path);
+    const children = [...row.children];
+    if (!sortConfig) return children;
+
+    const directionMultiplier = sortConfig.direction === 'asc' ? 1 : -1;
+    return children.sort((left, right) => {
+      const leftValue = this.getRangeSum(left, sortConfig.rangeName);
+      const rightValue = this.getRangeSum(right, sortConfig.rangeName);
+      if (leftValue === rightValue) {
+        return left.description.localeCompare(right.description, undefined, { sensitivity: 'base' });
+      }
+      return (leftValue - rightValue) * directionMultiplier;
+    });
+  }
+
+  private getRangeSum(row: CriteriaRow, rangeName: string): number {
+    return row.rangeData.get(rangeName)?.sum.value ?? 0;
   }
 
   viewGroupOperations(row: CriteriaRow, rangeName: string, event: Event): void {
