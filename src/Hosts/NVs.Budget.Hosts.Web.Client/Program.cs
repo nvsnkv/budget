@@ -11,4 +11,7 @@ app.MapGet("/api/config", (IConfiguration configuration) =>
     return Results.Ok(new { apiUrl });
 });
 
+// Fallback to index.html for client-side routing
+app.MapFallbackToFile("index.html");
+
 app.Run();
