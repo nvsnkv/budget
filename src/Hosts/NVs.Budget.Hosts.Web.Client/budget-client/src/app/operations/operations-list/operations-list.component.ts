@@ -187,4 +187,34 @@ export class OperationsListComponent implements OnInit {
       }
     });
   }
+
+  onUpdateOperationNote(operation: OperationResponse): void {
+    const current = this.operations.find(o => o.id === operation.id);
+    const previousNotes = current?.notes ?? '';
+
+    this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
+      next: (result) => {
+        if (result.errors && result.errors.length > 0) {
+          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+          this.notificationService.showError(`Failed to update notes: ${errorMessage}`).subscribe();
+          if (current) {
+            current.notes = previousNotes;
+          }
+          return;
+        }
+
+        const updatedOperation = result.updatedOperations?.[0] ?? operation;
+        this.operations = this.operations.map(item =>
+          item.id === updatedOperation.id ? updatedOperation : item
+        );
+      },
+      error: (error) => {
+        const errorMessage = this.notificationService.handleError(error, 'Failed to update notes');
+        this.notificationService.showError(errorMessage).subscribe();
+        if (current) {
+          current.notes = previousNotes;
+        }
+      }
+    });
+  }
 }

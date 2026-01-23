@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Diagnostics;
 using NMoneys;
 using NVs.Budget.Domain.Entities.Operations;
@@ -110,7 +110,7 @@ public class Transfer : IEnumerable<Operation>
             { nameof(Sink), Sink.Id }
         };
 
-        return new Operation(Guid.Empty, timestamp, amount, description, budget, tags, attributes);
+        return new Operation(Guid.Empty, timestamp, amount, description, string.Empty, budget, tags, attributes);
     }
 
     public IEnumerator<Operation> GetEnumerator() => new Enumerator(this);

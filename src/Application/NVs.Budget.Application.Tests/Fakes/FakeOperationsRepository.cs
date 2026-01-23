@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FluentResults;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -18,6 +18,7 @@ internal class FakeOperationsRepository : FakeRepository<TrackedOperation>, IStr
             operation.Timestamp,
             operation.Amount,
             operation.Description,
+            string.Empty,
             budget,
             Enumerable.Empty<Tag>(),
             operation.Attributes)

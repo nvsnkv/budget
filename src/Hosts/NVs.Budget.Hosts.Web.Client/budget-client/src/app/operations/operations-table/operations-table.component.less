@@ -126,6 +126,35 @@
         
         &.col-description {
           color: var(--tui-text-primary);
+
+          .description-content,
+          .description-edit {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+          }
+
+          .description-text {
+            white-space: pre-wrap;
+          }
+
+          .notes-input {
+            width: 100%;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            background: transparent;
+            color: var(--tui-text-secondary);
+            font-size: 0.8rem;
+            font-family: inherit;
+
+            &:focus {
+              outline: none;
+              border-color: var(--tui-border-normal);
+              background: var(--tui-background-base);
+              color: var(--tui-text-primary);
+            }
+          }
         }
         
         &.col-amount {

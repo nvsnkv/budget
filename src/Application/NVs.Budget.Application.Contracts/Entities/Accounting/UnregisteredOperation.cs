@@ -1,4 +1,4 @@
-﻿using NMoneys;
+using NMoneys;
 
 namespace NVs.Budget.Application.Contracts.Entities.Accounting;
 

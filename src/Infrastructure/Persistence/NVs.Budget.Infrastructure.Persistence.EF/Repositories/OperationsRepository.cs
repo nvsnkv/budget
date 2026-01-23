@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using AutoMapper;
 using FluentResults;
@@ -63,7 +63,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 return Result.Fail(new BudgetDoesNotExistsError(budget));
             }
 
-            var storedOperation = new StoredOperation(Guid.Empty, u.Timestamp.ToUniversalTime(), u.Description)
+            var storedOperation = new StoredOperation(Guid.Empty, u.Timestamp.ToUniversalTime(), u.Description, string.Empty)
             {
                 Budget = storedBudget,
                 Amount = mapper.Map<StoredMoney>(u.Amount),
@@ -157,6 +157,12 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             if (target.Description != u.Description)
             {
                 target.Description = u.Description;
+                hasChanges = true;
+            }
+
+            if (target.Notes != u.Notes)
+            {
+                target.Notes = u.Notes;
                 hasChanges = true;
             }
 

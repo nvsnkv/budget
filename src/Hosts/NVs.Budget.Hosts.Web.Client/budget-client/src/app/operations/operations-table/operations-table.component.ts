@@ -11,6 +11,7 @@ import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
 interface EditableOperation {
   id: string;
   description: string;
+  notes: string;
   amount: number;
   currencyCode: string;
   tags: string[];
@@ -35,16 +36,26 @@ interface EditableOperation {
   styleUrls: ['./operations-table.component.less']
 })
 export class OperationsTableComponent {
-  @Input() operations: OperationResponse[] = [];
+  private _operations: OperationResponse[] = [];
+  @Input() set operations(value: OperationResponse[]) {
+    this._operations = value;
+    this.syncNoteDrafts(value);
+  }
+
+  get operations(): OperationResponse[] {
+    return this._operations;
+  }
   @Input() showActions = true;
   @Output() operationDeleted = new EventEmitter<OperationResponse>();
   @Output() operationUpdated = new EventEmitter<OperationResponse>();
+  @Output() operationNoteUpdated = new EventEmitter<OperationResponse>();
   
   expandedOperationId: string | null = null;
   editingOperationId: string | null = null;
   editingOperation: EditableOperation | null = null;
   sortField: 'amount' | 'timestamp' | 'description' | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
+  noteDrafts: Record<string, string> = {};
 
   get displayedOperations(): OperationResponse[] {
     if (!this.sortField || !this.sortDirection) return this.operations;
@@ -101,6 +112,7 @@ export class OperationsTableComponent {
     this.editingOperation = {
       id: operation.id,
       description: operation.description,
+      notes: operation.notes ?? '',
       amount: operation.amount.value,
       currencyCode: operation.amount.currencyCode,
       tags: [...operation.tags],
@@ -119,6 +131,7 @@ export class OperationsTableComponent {
     const updatedOperation: OperationResponse = {
       ...operation,
       description: this.editingOperation.description,
+      notes: this.editingOperation.notes,
       amount: {
         value: this.editingOperation.amount,
         currencyCode: this.editingOperation.currencyCode
@@ -128,6 +141,7 @@ export class OperationsTableComponent {
     };
 
     this.operationUpdated.emit(updatedOperation);
+    this.noteDrafts[operation.id] = updatedOperation.notes;
     this.editingOperationId = null;
     this.editingOperation = null;
   }
@@ -170,6 +184,39 @@ export class OperationsTableComponent {
       const value = this.editingOperation.attributes[oldKey];
       delete this.editingOperation.attributes[oldKey];
       this.editingOperation.attributes[newKey] = value;
+    }
+  }
+
+  beginNotesEdit(operation: OperationResponse): void {
+    if (!(operation.id in this.noteDrafts)) {
+      this.noteDrafts[operation.id] = operation.notes ?? '';
+    }
+  }
+
+  saveNotes(operation: OperationResponse): void {
+    const currentNotes = operation.notes ?? '';
+    const nextNotes = (this.noteDrafts[operation.id] ?? '').trimEnd();
+    if (nextNotes === currentNotes) {
+      return;
+    }
+
+    this.noteDrafts[operation.id] = nextNotes;
+    this.operationNoteUpdated.emit({
+      ...operation,
+      notes: nextNotes
+    });
+  }
+
+  private syncNoteDrafts(operations: OperationResponse[]): void {
+    const seenIds = new Set(operations.map(operation => operation.id));
+    for (const operation of operations) {
+      this.noteDrafts[operation.id] = operation.notes ?? '';
+    }
+
+    for (const id of Object.keys(this.noteDrafts)) {
+      if (!seenIds.has(id)) {
+        delete this.noteDrafts[id];
+      }
     }
   }
 }

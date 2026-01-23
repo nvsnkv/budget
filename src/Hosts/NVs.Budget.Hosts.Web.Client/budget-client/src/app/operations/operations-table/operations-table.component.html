@@ -42,13 +42,29 @@
           <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
           <td class="col-description">
             @if (isEditing(operation.id) && editingOperation) {
-              <input 
-                class="edit-input" 
-                [(ngModel)]="editingOperation.description"
-                placeholder="Description"
-              />
+              <div class="description-edit">
+                <input 
+                  class="edit-input" 
+                  [(ngModel)]="editingOperation.description"
+                  placeholder="Description"
+                />
+                <input 
+                  class="edit-input notes-input"
+                  [(ngModel)]="editingOperation.notes"
+                  placeholder="Notes"
+                />
+              </div>
             } @else {
-              {{ operation.description }}
+              <div class="description-content">
+                <div class="description-text">{{ operation.description }}</div>
+                <input
+                  class="notes-input"
+                  [(ngModel)]="noteDrafts[operation.id]"
+                  (focus)="beginNotesEdit(operation)"
+                  (blur)="saveNotes(operation)"
+                  placeholder="Notes"
+                />
+              </div>
             }
           </td>
           <td class="col-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">

@@ -1,4 +1,4 @@
-﻿using NMoneys;
+using NMoneys;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
@@ -9,10 +9,11 @@ public class  TrackedOperation(
     DateTime timestamp,
     Money amount,
     string description,
+    string notes,
     Domain.Entities.Budgets.Budget budget,
     IEnumerable<Tag> tags,
     IReadOnlyDictionary<string, object>? attributes)
-    : Operation(id, timestamp, amount, description, budget, tags, attributes), ITrackableEntity<Guid>
+    : Operation(id, timestamp, amount, description, notes, budget, tags, attributes), ITrackableEntity<Guid>
 {
     public string? Version { get; set; }
     public bool IsRegistered  => !string.IsNullOrEmpty(Version);
