@@ -57,13 +57,51 @@
             } @else {
               <div class="description-content">
                 <div class="description-text">{{ operation.description }}</div>
-                <input
-                  class="notes-input"
-                  [(ngModel)]="noteDrafts[operation.id]"
-                  (focus)="beginNotesEdit(operation)"
-                  (blur)="saveNotes(operation)"
-                  placeholder="Notes"
-                />
+                @if (noteEditingId === operation.id) {
+                  <div class="notes-inline">
+                    <input
+                      class="notes-input"
+                      [(ngModel)]="noteDrafts[operation.id]"
+                      (blur)="onNoteBlur(operation)"
+                      (keydown.enter)="onNoteEnter(operation, $event)"
+                      placeholder="Notes"
+                      autofocus
+                    />
+                    <span class="note-status" [attr.data-status]="noteSaveStatus[operation.id] || 'idle'">
+                      @if (noteSaveStatus[operation.id] === 'saved') {
+                        ✔
+                      } @else if (noteSaveStatus[operation.id] === 'error') {
+                        ✖
+                      } @else if (noteSaveStatus[operation.id] === 'saving') {
+                        …
+                      }
+                    </span>
+                  </div>
+                } @else {
+                  <div class="notes-inline notes-display" (click)="startNoteEdit(operation)">
+                    <span class="notes-text" [class.empty]="!operation.notes">
+                      {{ operation.notes || 'Add note' }}
+                    </span>
+                    <button
+                      tuiButton
+                      type="button"
+                      appearance="icon"
+                      size="xs"
+                      class="notes-edit-button"
+                      (click)="startNoteEdit(operation); $event.stopPropagation()">
+                      ✏️
+                    </button>
+                    <span class="note-status" [attr.data-status]="noteSaveStatus[operation.id] || 'idle'">
+                      @if (noteSaveStatus[operation.id] === 'saved') {
+                        ✔
+                      } @else if (noteSaveStatus[operation.id] === 'error') {
+                        ✖
+                      } @else if (noteSaveStatus[operation.id] === 'saving') {
+                        …
+                      }
+                    </span>
+                  </div>
+                }
               </div>
             }
           </td>

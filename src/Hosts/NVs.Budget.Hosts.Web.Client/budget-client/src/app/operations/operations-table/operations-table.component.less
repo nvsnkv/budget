@@ -134,6 +134,29 @@
             gap: 0.35rem;
           }
 
+          .notes-inline {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+          }
+
+          .notes-display {
+            cursor: text;
+          }
+
+          .notes-text.empty {
+            color: var(--tui-text-tertiary);
+            font-style: italic;
+          }
+
+          .notes-edit-button {
+            opacity: 0.6;
+          }
+
+          .notes-display:hover .notes-edit-button {
+            opacity: 1;
+          }
+
           .description-text {
             white-space: pre-wrap;
           }
@@ -153,6 +176,21 @@
               border-color: var(--tui-border-normal);
               background: var(--tui-background-base);
               color: var(--tui-text-primary);
+            }
+          }
+
+          .note-status {
+            min-width: 0.9rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            color: var(--tui-text-tertiary);
+
+            &[data-status='saved'] {
+              color: var(--tui-success-fill);
+            }
+
+            &[data-status='error'] {
+              color: var(--tui-error-fill);
             }
           }
         }

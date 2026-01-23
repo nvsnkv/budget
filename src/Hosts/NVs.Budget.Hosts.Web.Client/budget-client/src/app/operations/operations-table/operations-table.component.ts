@@ -56,6 +56,9 @@ export class OperationsTableComponent {
   sortField: 'amount' | 'timestamp' | 'description' | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
   noteDrafts: Record<string, string> = {};
+  noteSaveStatus: Record<string, 'idle' | 'saving' | 'saved' | 'error'> = {};
+  private pendingNoteSaves: Record<string, string> = {};
+  noteEditingId: string | null = null;
 
   get displayedOperations(): OperationResponse[] {
     if (!this.sortField || !this.sortDirection) return this.operations;
@@ -191,6 +194,12 @@ export class OperationsTableComponent {
     if (!(operation.id in this.noteDrafts)) {
       this.noteDrafts[operation.id] = operation.notes ?? '';
     }
+    this.noteSaveStatus[operation.id] = 'idle';
+  }
+
+  startNoteEdit(operation: OperationResponse): void {
+    this.noteEditingId = operation.id;
+    this.beginNotesEdit(operation);
   }
 
   saveNotes(operation: OperationResponse): void {
@@ -201,6 +210,8 @@ export class OperationsTableComponent {
     }
 
     this.noteDrafts[operation.id] = nextNotes;
+    this.pendingNoteSaves[operation.id] = nextNotes;
+    this.noteSaveStatus[operation.id] = 'saving';
     this.operationNoteUpdated.emit({
       ...operation,
       notes: nextNotes
@@ -211,13 +222,35 @@ export class OperationsTableComponent {
     const seenIds = new Set(operations.map(operation => operation.id));
     for (const operation of operations) {
       this.noteDrafts[operation.id] = operation.notes ?? '';
+      if (this.pendingNoteSaves[operation.id] !== undefined) {
+        if (operation.notes === this.pendingNoteSaves[operation.id]) {
+          this.noteSaveStatus[operation.id] = 'saved';
+          delete this.pendingNoteSaves[operation.id];
+        } else {
+          this.noteSaveStatus[operation.id] = 'error';
+          delete this.pendingNoteSaves[operation.id];
+        }
+      }
     }
 
     for (const id of Object.keys(this.noteDrafts)) {
       if (!seenIds.has(id)) {
         delete this.noteDrafts[id];
+        delete this.noteSaveStatus[id];
+        delete this.pendingNoteSaves[id];
       }
     }
+  }
+
+  onNoteEnter(operation: OperationResponse, event: Event): void {
+    event.preventDefault();
+    this.saveNotes(operation);
+    (event.target as HTMLInputElement).blur();
+  }
+
+  onNoteBlur(operation: OperationResponse): void {
+    this.saveNotes(operation);
+    this.noteEditingId = null;
   }
 }
 
