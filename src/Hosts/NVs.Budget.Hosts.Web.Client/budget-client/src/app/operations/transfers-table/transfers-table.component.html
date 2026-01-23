@@ -2,6 +2,15 @@
   <table class="transfers-table">
     <thead>
       <tr>
+        @if (enableSelection) {
+          <th class="col-select">
+            <input
+              type="checkbox"
+              [checked]="isAllSelected()"
+              (change)="toggleSelectAll($any($event.target).checked)"
+            />
+          </th>
+        }
         <th class="col-source">Source</th>
         <th class="col-sink">Sink</th>
         <th class="col-fee">Fee</th>
@@ -15,6 +24,15 @@
     <tbody>
       @for (transfer of transfers; track transfer.sourceId) {
         <tr class="transfer-row">
+          @if (enableSelection) {
+            <td class="col-select">
+              <input
+                type="checkbox"
+                [checked]="isSelected(transfer)"
+                (change)="toggleSelection(transfer, $any($event.target).checked)"
+              />
+            </td>
+          }
           <td class="col-source">
             <div class="operation-info">
               <div class="operation-amount negative">
@@ -79,7 +97,7 @@
         </tr>
         @if (expandedTransferId === transfer.sourceId) {
           <tr class="transfer-details-row">
-            <td [attr.colspan]="showActions ? 6 : 5">
+            <td [attr.colspan]="(showActions ? 6 : 5) + (enableSelection ? 1 : 0)">
               <div class="transfer-details">
                 <div class="operations-section">
                   <h4>Operations in Transfer</h4>
@@ -94,7 +112,7 @@
         }
       } @empty {
         <tr>
-          <td [attr.colspan]="showActions ? 6 : 5" class="empty-state">
+          <td [attr.colspan]="(showActions ? 6 : 5) + (enableSelection ? 1 : 0)" class="empty-state">
             No transfers found.
           </td>
         </tr>

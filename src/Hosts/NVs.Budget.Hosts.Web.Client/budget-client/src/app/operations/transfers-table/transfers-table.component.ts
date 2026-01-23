@@ -26,10 +26,13 @@ export class TransfersTableComponent {
   @Input() transfers: TransferResponse[] = [];
   @Input() showActions = true;
   @Input() showQuickRegister = false;
+  @Input() enableSelection = false;
   @Output() transferDeleted = new EventEmitter<TransferResponse>();
   @Output() transferRegistered = new EventEmitter<TransferResponse>();
+  @Output() selectionChanged = new EventEmitter<TransferResponse[]>();
   
   expandedTransferId: string | null = null;
+  selectedTransferIds = new Set<string>();
 
   toggleTransferDetails(transferId: string): void {
     this.expandedTransferId = this.expandedTransferId === transferId ? null : transferId;
@@ -41,6 +44,38 @@ export class TransfersTableComponent {
 
   registerTransfer(transfer: TransferResponse): void {
     this.transferRegistered.emit(transfer);
+  }
+
+  toggleSelection(transfer: TransferResponse, isSelected: boolean): void {
+    if (isSelected) {
+      this.selectedTransferIds.add(transfer.sourceId);
+    } else {
+      this.selectedTransferIds.delete(transfer.sourceId);
+    }
+    this.emitSelection();
+  }
+
+  toggleSelectAll(isSelected: boolean): void {
+    this.selectedTransferIds.clear();
+    if (isSelected) {
+      for (const transfer of this.transfers) {
+        this.selectedTransferIds.add(transfer.sourceId);
+      }
+    }
+    this.emitSelection();
+  }
+
+  isSelected(transfer: TransferResponse): boolean {
+    return this.selectedTransferIds.has(transfer.sourceId);
+  }
+
+  isAllSelected(): boolean {
+    return this.transfers.length > 0 && this.selectedTransferIds.size === this.transfers.length;
+  }
+
+  private emitSelection(): void {
+    const selectedTransfers = this.transfers.filter(transfer => this.selectedTransferIds.has(transfer.sourceId));
+    this.selectionChanged.emit(selectedTransfers);
   }
 
   getTransferOperations(transfer: TransferResponse) {

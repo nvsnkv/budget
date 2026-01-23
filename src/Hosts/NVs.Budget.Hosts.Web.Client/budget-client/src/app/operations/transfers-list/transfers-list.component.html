@@ -174,13 +174,29 @@
         <!-- Recorded Transfers -->
         @if (transfersList.recorded && transfersList.recorded.length > 0) {
           <div class="transfers-group">
-            <h3 tuiTitle size="m">Recorded Transfers ({{ transfersList.recorded.length }})</h3>
-            <app-transfers-table
-              [transfers]="transfersList.recorded"
-              [showActions]="true"
-              [showQuickRegister]="false"
-              (transferDeleted)="onDeleteTransfer($event)">
-            </app-transfers-table>
+            <div class="transfers-group-header">
+              <h3 tuiTitle size="m">Recorded Transfers ({{ transfersList.recorded.length }})</h3>
+              <button
+                tuiButton
+                type="button"
+                appearance="icon"
+                size="s"
+                (click)="toggleRecordedTransfers()">
+                @if (showRecordedTransfers) {
+                  ▼
+                } @else {
+                  ▶
+                }
+              </button>
+            </div>
+            @if (showRecordedTransfers) {
+              <app-transfers-table
+                [transfers]="transfersList.recorded"
+                [showActions]="true"
+                [showQuickRegister]="false"
+                (transferDeleted)="onDeleteTransfer($event)">
+              </app-transfers-table>
+            }
           </div>
         }
 
@@ -188,12 +204,25 @@
         @if (transfersList.unregistered && transfersList.unregistered.length > 0) {
           <div class="transfers-group">
             <h3 tuiTitle size="m">Unregistered Transfers ({{ transfersList.unregistered.length }})</h3>
+            <div class="form-actions">
+              <button
+                tuiButton
+                type="button"
+                appearance="primary"
+                size="m"
+                [disabled]="isLoading || selectedUnregisteredTransfers.length === 0"
+                (click)="registerSelectedTransfers()">
+                Register Selected ({{ selectedUnregisteredTransfers.length }})
+              </button>
+            </div>
             <app-transfers-table
               [transfers]="transfersList.unregistered"
               [showActions]="true"
               [showQuickRegister]="true"
+              [enableSelection]="true"
               (transferDeleted)="onDeleteTransfer($event)"
-              (transferRegistered)="quickRegisterTransfer($event)">
+              (transferRegistered)="quickRegisterTransfer($event)"
+              (selectionChanged)="onUnregisteredSelectionChanged($event)">
             </app-transfers-table>
           </div>
         }

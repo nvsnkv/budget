@@ -37,6 +37,8 @@ export class TransfersListComponent implements OnInit {
   budgetId!: string;
   transfers$!: Observable<TransfersListResponse>;
   isLoading = false;
+  selectedUnregisteredTransfers: TransferResponse[] = [];
+  showRecordedTransfers = true;
   
   fromDate: string = '';
   tillDate: string = '';
@@ -211,6 +213,46 @@ export class TransfersListComponent implements OnInit {
         this.notificationService.showError(errorMessage).subscribe();
       }
     });
+  }
+
+  onUnregisteredSelectionChanged(transfers: TransferResponse[]): void {
+    this.selectedUnregisteredTransfers = transfers;
+  }
+
+  registerSelectedTransfers(): void {
+    if (this.selectedUnregisteredTransfers.length === 0) {
+      this.notificationService.showError('Select at least one transfer to register').subscribe();
+      return;
+    }
+
+    this.isLoading = true;
+    const requests = this.selectedUnregisteredTransfers.map(transfer => ({
+      sourceId: transfer.sourceId,
+      sinkId: transfer.sinkId,
+      comment: transfer.comment,
+      accuracy: transfer.accuracy,
+      fee: transfer.fee
+    }));
+
+    this.operationsApi.registerTransfers(this.budgetId, {
+      transfers: requests
+    }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.notificationService.showSuccess('Transfers registered successfully').subscribe();
+        this.selectedUnregisteredTransfers = [];
+        this.loadTransfers();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        const errorMessage = this.notificationService.handleError(error, 'Failed to register transfers');
+        this.notificationService.showError(errorMessage).subscribe();
+      }
+    });
+  }
+
+  toggleRecordedTransfers(): void {
+    this.showRecordedTransfers = !this.showRecordedTransfers;
   }
 
   navigateToOperations(): void {
