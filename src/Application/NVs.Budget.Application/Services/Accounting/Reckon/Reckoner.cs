@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -113,7 +113,7 @@ internal class Reckoner(
     private TrackedOperation AsTrackedOperation(Operation operation)
     {
         var result = new TrackedOperation(
-            operation.Id, operation.Timestamp, operation.Amount, operation.Description,
+            operation.Id, operation.Timestamp, operation.Amount, operation.Description, operation.Notes,
             AsTrackedBudget(operation.Budget), operation.Tags, operation.Attributes.AsReadOnly()
         );
 

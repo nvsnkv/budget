@@ -2,9 +2,33 @@
   <table class="operations-table">
     <thead>
       <tr>
-        <th class="col-timestamp">Date & Time</th>
-        <th class="col-description">Description</th>
-        <th class="col-amount">Amount</th>
+        <th class="col-timestamp">
+          <button
+            type="button"
+            class="column-sort"
+            (click)="toggleSort('timestamp')">
+            Date & Time
+            <span class="sort-indicator">{{ getSortIndicator('timestamp') }}</span>
+          </button>
+        </th>
+        <th class="col-description">
+          <button
+            type="button"
+            class="column-sort"
+            (click)="toggleSort('description')">
+            Description
+            <span class="sort-indicator">{{ getSortIndicator('description') }}</span>
+          </button>
+        </th>
+        <th class="col-amount">
+          <button
+            type="button"
+            class="column-sort"
+            (click)="toggleSort('amount')">
+            Amount
+            <span class="sort-indicator">{{ getSortIndicator('amount') }}</span>
+          </button>
+        </th>
         <th class="col-tags">Tags</th>
         <th class="col-attributes">Attributes</th>
         @if (showActions) {
@@ -13,18 +37,72 @@
       </tr>
     </thead>
     <tbody>
-      @for (operation of operations; track operation.id) {
+      @for (operation of displayedOperations; track operation.id) {
         <tr class="operation-row" [class.editing]="isEditing(operation.id)">
           <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
           <td class="col-description">
             @if (isEditing(operation.id) && editingOperation) {
-              <input 
-                class="edit-input" 
-                [(ngModel)]="editingOperation.description"
-                placeholder="Description"
-              />
+              <div class="description-edit">
+                <input 
+                  class="edit-input" 
+                  [(ngModel)]="editingOperation.description"
+                  placeholder="Description"
+                />
+                <input 
+                  class="edit-input notes-input"
+                  [(ngModel)]="editingOperation.notes"
+                  placeholder="Notes"
+                />
+              </div>
             } @else {
-              {{ operation.description }}
+              <div class="description-content">
+                <div class="description-text">{{ operation.description }}</div>
+                @if (noteEditingId === operation.id) {
+                  <div class="notes-inline">
+                    <input
+                      class="notes-input"
+                      [(ngModel)]="noteDrafts[operation.id]"
+                      (blur)="onNoteBlur(operation)"
+                      (keydown.enter)="onNoteEnter(operation, $event)"
+                      placeholder="Notes"
+                      autofocus
+                    />
+                    <span class="note-status" [attr.data-status]="noteSaveStatus[operation.id] || 'idle'">
+                      @if (noteSaveStatus[operation.id] === 'saved') {
+                        ✔
+                      } @else if (noteSaveStatus[operation.id] === 'error') {
+                        ✖
+                      } @else if (noteSaveStatus[operation.id] === 'saving') {
+                        …
+                      }
+                    </span>
+                  </div>
+                } @else {
+                  <div class="notes-inline notes-display" (click)="startNoteEdit(operation)">
+                    <span class="notes-text" [class.empty]="!operation.notes">
+                      {{ operation.notes || 'Add note' }}
+                    </span>
+                    <button
+                      tuiButton
+                      type="button"
+                      appearance="icon"
+                      size="xs"
+                      class="notes-edit-button"
+                      (click)="startNoteEdit(operation); $event.stopPropagation()">
+                      ✏️
+                    </button>
+                    <span class="note-status" [attr.data-status]="noteSaveStatus[operation.id] || 'idle'">
+                      @if (noteSaveStatus[operation.id] === 'saved') {
+                        ✔
+                      } @else if (noteSaveStatus[operation.id] === 'error') {
+                        ✖
+                      } @else if (noteSaveStatus[operation.id] === 'saving') {
+                        …
+                      }
+                    </span>
+                  </div>
+                }
+              </div>
             }
           </td>
           <td class="col-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">

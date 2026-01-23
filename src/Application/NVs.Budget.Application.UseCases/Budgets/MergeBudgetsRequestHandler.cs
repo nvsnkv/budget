@@ -29,7 +29,7 @@ internal class MergeBudgetsRequestHandler(IBudgetManager manager, IReckoner reck
             var source = orderedBudgets[i];
 
             var operations = reckoner.GetOperations(new(o => o.Budget.Id == source.Id), cancellationToken)
-                .Select(o => new TrackedOperation(o.Id, o.Timestamp, o.Amount, o.Description, sink, o.Tags, o.Attributes.AsReadOnly()){ Version = o.Version });
+                .Select(o => new TrackedOperation(o.Id, o.Timestamp, o.Amount, o.Description, o.Notes, sink, o.Tags, o.Attributes.AsReadOnly()){ Version = o.Version });
 
             var updateRes = await accountant.Update(operations, sink, new(null, TaggingMode.Skip), cancellationToken);
             result.Reasons.AddRange(updateRes.Reasons);

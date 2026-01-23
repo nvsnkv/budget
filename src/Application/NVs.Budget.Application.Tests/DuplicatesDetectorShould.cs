@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Application.Contracts.Options;
@@ -34,6 +34,7 @@ public class DuplicatesDetectorShould
             operation.Timestamp + offset,
             operation.Amount,
             operation.Description,
+            operation.Notes,
             operation.Budget,
             operation.Tags,
             operation.Attributes.AsReadOnly()

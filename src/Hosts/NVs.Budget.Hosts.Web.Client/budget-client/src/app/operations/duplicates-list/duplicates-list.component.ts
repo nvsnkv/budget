@@ -147,5 +147,43 @@ export class DuplicatesListComponent implements OnInit {
       }
     });
   }
+
+  onUpdateOperationNote(operation: OperationResponse): void {
+    const current = this.findOperation(operation.id);
+    const previousNotes = current?.notes ?? '';
+
+    this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
+      next: (result) => {
+        if (result.errors && result.errors.length > 0) {
+          const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
+          this.notificationService.showError(`Failed to update notes: ${errorMessage}`).subscribe();
+          if (current) {
+            current.notes = previousNotes;
+          }
+          return;
+        }
+
+        const updatedOperation = result.updatedOperations?.[0] ?? operation;
+        this.replaceOperation(updatedOperation);
+      },
+      error: (error) => {
+        const errorMessage = this.notificationService.handleError(error, 'Failed to update notes');
+        this.notificationService.showError(errorMessage).subscribe();
+        if (current) {
+          current.notes = previousNotes;
+        }
+      }
+    });
+  }
+
+  private replaceOperation(updated: OperationResponse): void {
+    this.duplicateGroups = this.duplicateGroups.map(group =>
+      group.map(item => item.id === updated.id ? updated : item)
+    );
+  }
+
+  private findOperation(operationId: string): OperationResponse | undefined {
+    return this.duplicateGroups.flat().find(operation => operation.id === operationId);
+  }
 }
 

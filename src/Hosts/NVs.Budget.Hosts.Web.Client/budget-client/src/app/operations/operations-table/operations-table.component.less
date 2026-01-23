@@ -42,10 +42,39 @@
         min-width: 300px;
       }
       
+      .column-sort {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        justify-content: flex-start;
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--tui-text-primary);
+        }
+      }
+
+      .sort-indicator {
+        font-size: 0.75rem;
+        line-height: 1;
+        color: var(--tui-text-action);
+      }
+
       &.col-amount {
         width: 150px;
         text-align: right;
         white-space: nowrap;
+
+        .column-sort {
+          justify-content: flex-end;
+        }
       }
       
       &.col-tags {
@@ -97,6 +126,73 @@
         
         &.col-description {
           color: var(--tui-text-primary);
+
+          .description-content,
+          .description-edit {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+          }
+
+          .notes-inline {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+          }
+
+          .notes-display {
+            cursor: text;
+          }
+
+          .notes-text.empty {
+            color: var(--tui-text-tertiary);
+            font-style: italic;
+          }
+
+          .notes-edit-button {
+            opacity: 0.6;
+          }
+
+          .notes-display:hover .notes-edit-button {
+            opacity: 1;
+          }
+
+          .description-text {
+            white-space: pre-wrap;
+          }
+
+          .notes-input {
+            width: 100%;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            background: transparent;
+            color: var(--tui-text-secondary);
+            font-size: 0.8rem;
+            font-family: inherit;
+
+            &:focus {
+              outline: none;
+              border-color: var(--tui-border-normal);
+              background: var(--tui-background-base);
+              color: var(--tui-text-primary);
+            }
+          }
+
+          .note-status {
+            min-width: 0.9rem;
+            font-size: 0.8rem;
+            line-height: 1;
+            color: var(--tui-text-tertiary);
+
+            &[data-status='saved'] {
+              color: var(--tui-success-fill);
+            }
+
+            &[data-status='error'] {
+              color: var(--tui-error-fill);
+            }
+          }
         }
         
         &.col-amount {

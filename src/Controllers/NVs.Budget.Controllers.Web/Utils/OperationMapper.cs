@@ -17,6 +17,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
             operation.Timestamp,
             new MoneyResponse(operation.Amount.Amount, operation.Amount.CurrencyCode.ToString()),
             operation.Description,
+            operation.Notes,
             operation.Budget.Id,
             operation.Tags.Select(t => t.Value).ToList(),
             operation.Attributes.Count > 0 ? new Dictionary<string, object>(operation.Attributes) : null
@@ -38,6 +39,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
             operation.Timestamp,
             new MoneyResponse(operation.Amount.Amount, operation.Amount.CurrencyCode.ToString()),
             operation.Description,
+            operation.Notes,
             operation.Budget.Id,
             operation.Tags.Select(t => t.Value).ToList(),
             operation.Attributes.Count > 0 ? new Dictionary<string, object>(operation.Attributes) : null
@@ -82,6 +84,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
             request.Timestamp,
             moneyResult.Value,
             request.Description,
+            request.Notes ?? string.Empty,
             budget,
             tags,
             attributes

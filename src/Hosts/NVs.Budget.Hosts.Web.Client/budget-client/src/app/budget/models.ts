@@ -91,6 +91,7 @@ export interface OperationResponse {
   timestamp: string;
   amount: MoneyResponse;
   description: string;
+  notes: string;
   budgetId: string;
   tags: string[];
   attributes?: Record<string, any>;
@@ -102,6 +103,7 @@ export interface UpdateOperationRequest {
   timestamp: string;
   amount: MoneyResponse;
   description: string;
+  notes: string;
   tags: string[];
   attributes?: Record<string, any>;
 }

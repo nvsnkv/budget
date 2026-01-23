@@ -1,4 +1,4 @@
-﻿using NMoneys;
+using NMoneys;
 using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
@@ -28,6 +28,7 @@ internal class MoneyConverter(IExchangeRatesRepository repository, IExchangeRate
             operation.Timestamp,
             new Money(operation.Amount.Amount * rate.Rate, targetCurrency),
             operation.Description,
+            operation.Notes,
             operation.Budget,
             operation.Tags.ToList(),
             new Dictionary<string, object>(operation.Attributes)

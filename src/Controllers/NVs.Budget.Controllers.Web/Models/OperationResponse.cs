@@ -8,6 +8,7 @@ public record OperationResponse(
     DateTime Timestamp,
     MoneyResponse Amount,
     string Description,
+    string Notes,
     Guid BudgetId,
     IReadOnlyCollection<string> Tags,
     Dictionary<string, object>? Attributes
@@ -22,6 +23,7 @@ public record UnregisteredOperationRequest(
     DateTime Timestamp,
     MoneyResponse Amount,
     string Description,
+    string? Notes,
     Dictionary<string, object>? Attributes
 );
 
@@ -31,6 +33,7 @@ public record UpdateOperationRequest(
     DateTime Timestamp,
     MoneyResponse Amount,
     string Description,
+    string? Notes,
     IReadOnlyCollection<string> Tags,
     Dictionary<string, object>? Attributes
 );
