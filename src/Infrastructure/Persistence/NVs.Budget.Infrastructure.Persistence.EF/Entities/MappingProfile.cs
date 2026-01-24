@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -29,7 +29,11 @@ internal class MappingProfile : Profile
 
         CreateMap<Currency, CurrencyIsoCode>().ConvertUsing(c => c.IsoCode);
         CreateMap<CurrencyIsoCode, Currency>().ConstructUsing(c => Currency.Get(c));
-        CreateMap<Money, StoredMoney>().ReverseMap();
+        CreateMap<Money, StoredMoney>()
+            .ForCtorParam(nameof(StoredMoney.Amount), opt => opt.MapFrom(s => s.Amount))
+            .ForCtorParam(nameof(StoredMoney.CurrencyCode), opt => opt.MapFrom(s => s.CurrencyCode));
+        CreateMap<StoredMoney, Money>()
+            .ConstructUsing(s => new Money(s.Amount, Currency.Get(s.CurrencyCode)));
 
         CreateMap<Tag, StoredTag>().ReverseMap();
         CreateMap<Owner, StoredOwner>().ReverseMap();
