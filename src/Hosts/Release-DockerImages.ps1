@@ -317,22 +317,9 @@ function Main {
     if (-not $SkipBuild) {
         Write-Step "Starting Docker Image Build Process"
         
-        # Build Server
-        $serverDockerfile = Join-Path $hostsDir "NVs.Budget.Hosts.Web.Server\Dockerfile"
-        $serverSuccess = Build-DockerImage `
-            -Name "Server" `
-            -DockerfilePath $serverDockerfile `
-            -Context $repoRoot `
-            -Tag $serverLocalTag
-        
-        if (-not $serverSuccess) {
-            Write-ErrorMessage "Server build failed. Aborting."
-            exit 1
-        }
-        
-        # Build Client
-        $clientDockerfile = Join-Path $hostsDir "NVs.Budget.Hosts.Web.Client\Dockerfile"
-        $clientContext = Join-Path $hostsDir "NVs.Budget.Hosts.Web.Client"
+        # Build Client first (Angular build only)
+        $clientDockerfile = Join-Path $srcDir "Controllers\NVs.Budget.Controllers.Web.Client\Dockerfile"
+        $clientContext = Join-Path $srcDir "Controllers\NVs.Budget.Controllers.Web.Client"
         $clientSuccess = Build-DockerImage `
             -Name "Client" `
             -DockerfilePath $clientDockerfile `
@@ -341,6 +328,29 @@ function Main {
         
         if (-not $clientSuccess) {
             Write-ErrorMessage "Client build failed. Aborting."
+            exit 1
+        }
+        
+        # Build Server with client image as build arg
+        $serverDockerfile = Join-Path $hostsDir "NVs.Budget.Hosts.Web.Server\Dockerfile"
+        Write-Step "Building Server (with client assets)"
+        Write-Info "Dockerfile: $serverDockerfile"
+        Write-Info "Context: $repoRoot"
+        Write-Info "Tag: $serverLocalTag"
+        Write-Info "Client Image: $clientLocalTag"
+        
+        try {
+            docker build -f $serverDockerfile --build-arg CLIENT_IMAGE=$clientLocalTag -t $serverLocalTag $repoRoot
+            
+            if ($LASTEXITCODE -ne 0) {
+                Write-ErrorMessage "Failed to build Server"
+                exit 1
+            }
+            
+            Write-Success "Successfully built Server"
+        }
+        catch {
+            Write-ErrorMessage "Error building Server : $_"
             exit 1
         }
         
@@ -363,23 +373,17 @@ function Main {
             Write-Warning "Failed to login to registry. Skipping push."
         }
         else {
-            # Push Server
+            # Push Server (client is only an intermediate build image, not pushed)
             $serverPushSuccess = Publish-DockerImage `
                 -LocalTag $serverLocalTag `
                 -RemoteTag $serverRemoteTag `
                 -Name "Server"
             
-            # Push Client
-            $clientPushSuccess = Publish-DockerImage `
-                -LocalTag $clientLocalTag `
-                -RemoteTag $clientRemoteTag `
-                -Name "Client"
-            
-            if ($serverPushSuccess -and $clientPushSuccess) {
-                Write-Success "`nAll images published successfully!"
+            if ($serverPushSuccess) {
+                Write-Success "`nServer image published successfully!"
                 Write-Host ""
                 Write-Info "Server Image: $serverRemoteTag"
-                Write-Info "Client Image: $clientRemoteTag"
+                Write-Info "Note: Client is now embedded in the server image"
             }
             else {
                 Write-ErrorMessage "`nSome images failed to publish"
@@ -399,14 +403,13 @@ function Main {
     Write-Step "Release Process Complete"
     Write-Host ""
     Write-Success "Local images are tagged as:"
-    Write-Host "  - $serverLocalTag"
-    Write-Host "  - $clientLocalTag"
+    Write-Host "  - $serverLocalTag (includes embedded client)"
+    Write-Host "  - $clientLocalTag (intermediate build image)"
     
     if ($config -and $config.Registry -and -not $SkipPush) {
         Write-Host ""
         Write-Success "Remote images are available at:"
-        Write-Host "  - $serverRemoteTag"
-        Write-Host "  - $clientRemoteTag"
+        Write-Host "  - $serverRemoteTag (includes embedded client)"
     }
     
     Write-Host ""

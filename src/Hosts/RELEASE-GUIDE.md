@@ -70,17 +70,18 @@ The script will save these settings in `docker-registry-config.json` for future 
 
 1. **Validates Environment**: Checks that Docker is installed and accessible
 2. **Loads/Creates Configuration**: Uses saved registry config or prompts for new configuration
-3. **Builds Server Image**: 
+3. **Builds Client Image** (Angular build only): 
+   - Uses `Controllers/NVs.Budget.Controllers.Web.Client/Dockerfile`
+   - Build context: `Controllers/NVs.Budget.Controllers.Web.Client` directory
+   - Builds Angular production bundle
+   - Tags as `budget-client:<version>` (intermediate build image)
+4. **Builds Server Image** (with embedded client): 
    - Uses `NVs.Budget.Hosts.Web.Server/Dockerfile`
    - Build context: Repository root
+   - Copies client assets from client image via build arg
    - Tags as `budget-server:<version>`
-4. **Builds Client Image**: 
-   - Uses `NVs.Budget.Hosts.Web.Client/Dockerfile`
-   - Build context: `src` directory
-   - Includes Angular build
-   - Tags as `budget-client:<version>`
 5. **Logs into Registry**: Authenticates with the configured Docker registry
-6. **Pushes Images**: Tags and pushes both images to the registry
+6. **Pushes Server Image**: Tags and pushes the server image (which includes the embedded client) to the registry
 
 ## Registry Configuration
 
@@ -191,8 +192,9 @@ For local testing without pushing to registry:
 Then run locally:
 ```powershell
 docker run -p 5153:5153 budget-server:dev
-docker run -p 8080:8080 budget-client:dev
 ```
+
+Note: The client is now embedded in the server image, so only the server container is needed.
 
 ## Version Tagging Strategy
 

@@ -75,8 +75,9 @@ services:
       ConnectionStrings__IdentityContext: Host=postgres;Database=${POSTGRES_DB:-budgetdb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD}
       Auth__Yandex__ClientId: ${YANDEX_OAUTH_CLIENT_ID}
       Auth__Yandex__ClientSecret: ${YANDEX_OAUTH_CLIENT_SECRET}
-      FrontendUrl: https://${CERT_HOSTNAME:-localhost}:${CLIENT_PORT:-25000}
-      AllowedOrigins: https://${CERT_HOSTNAME:-localhost}:${CLIENT_PORT:-25000}
+      FrontendUrl: https://${CERT_HOSTNAME:-localhost}:${SERVER_PORT:-25001}
+      AllowedOrigins: https://${CERT_HOSTNAME:-localhost}:${SERVER_PORT:-25001}
+      ApiUrl: https://${CERT_HOSTNAME:-localhost}:${SERVER_PORT:-25001}
     volumes:
       - certs:/certs:ro
     networks:
@@ -86,32 +87,6 @@ services:
         condition: service_completed_successfully
       postgres:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f -k https://localhost:8443/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  budget-client:
-    image: ${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/budget-client:${IMAGE_VERSION:-latest}
-    container_name: budget-client
-    restart: unless-stopped
-    ports:
-      - "${CLIENT_PORT:-25000}:8443"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: https://+:8443
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /certs/tls.crt
-      ASPNETCORE_Kestrel__Certificates__Default__KeyPath: /certs/tls.key
-      ApiUrl: https://${CERT_HOSTNAME:-localhost}:${SERVER_PORT:-25001}
-    volumes:
-      - certs:/certs:ro
-    networks:
-      - budget-network
-    depends_on:
-      cert-generator:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "curl -f -k https://localhost:8443/health || exit 1"]
       interval: 30s

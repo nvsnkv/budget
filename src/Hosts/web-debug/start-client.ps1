@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 Write-Host "Starting Budget Client..." -ForegroundColor Green
 
 # Navigate to client directory
-$clientPath = Join-Path $PSScriptRoot "..\NVs.Budget.Hosts.Web.Client\budget-client"
+$clientPath = Join-Path $PSScriptRoot "..\..\Controllers\NVs.Budget.Controllers.Web.Client\budget-client"
 Set-Location $clientPath
 
 # Check if node_modules exists

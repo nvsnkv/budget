@@ -1,4 +1,4 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Application", "1. Application", "{4D906D63-8704-470A-B3BF-64A314A8B1A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain", "Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj", "{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}"
@@ -53,7 +53,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web", "Controllers\NVs.Budget.Controllers.Web\NVs.Budget.Controllers.Web.csproj", "{EB175F71-CAA9-496A-839A-6597EC28CE7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Hosts.Web.Client", "Hosts\NVs.Budget.Hosts.Web.Client\NVs.Budget.Hosts.Web.Client.csproj", "{8F054687-62ED-4A70-88FC-5D868673758F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web.Client", "Controllers\NVs.Budget.Controllers.Web.Client\NVs.Budget.Controllers.Web.Client.csproj", "{8F054687-62ED-4A70-88FC-5D868673758F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web.Tests", "Controllers\NVs.Budget.Controllers.Web.Tests\NVs.Budget.Controllers.Web.Tests.csproj", "{28534653-368D-47F5-8C29-44D7D92C9AAA}"
 EndProject

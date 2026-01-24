@@ -3,6 +3,7 @@ using NVs.Budget.Application.Contracts.Entities;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.UseCases;
 using NVs.Budget.Controllers.Web;
+using NVs.Budget.Controllers.Web.Client;
 using NVs.Budget.Infrastructure.ExchangeRates.CBRF;
 using NVs.Budget.Infrastructure.Files.CSV;
 using NVs.Budget.Infrastructure.Identity.OpenIddict.Yandex;
@@ -50,7 +51,8 @@ builder.Services
     })
     .AddCsvFiles(contentConnectionString)
     .AddSingleton(ReadableExpressionsParser.Default)
-    .AddWebControllers();
+    .AddWebControllers()
+    .AddClientControllers();
 
 var app = builder.Build();
 app.UseSerilogRequestLogging();
@@ -58,7 +60,6 @@ app.UseYandexAuth(frontendUrl)
     .UseWebControllers(app.Environment.IsDevelopment());
 
 app.UseCors();
-app.MapGet("/", () => Results.Redirect(frontendUrl));
 app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, CancellationToken ct) =>
 {
     foreach (var migrator in migrators)
@@ -69,5 +70,8 @@ app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, Cancell
 app.MapGet("/health", () => Results.Ok());
 
 app.MapControllers();
+
+// Client SPA hosting - must be after API routes
+app.UseClientControllers();
 
 app.Run();
