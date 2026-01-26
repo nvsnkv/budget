@@ -476,6 +476,7 @@ public class OperationsController(
     /// <param name="till">End date for filtering operations</param>
     /// <param name="criteria">Optional additional filter criteria expression</param>
     /// <param name="cronExpression">Optional cron expression to divide logbook into ranges</param>
+    /// <param name="outputCurrency">Optional output currency for conversion</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Logbook with aggregated statistics divided by ranges</returns>
     [HttpGet("logbook")]
@@ -488,6 +489,7 @@ public class OperationsController(
         [FromQuery] DateTime? till = null,
         [FromQuery] string? criteria = null,
         [FromQuery] string? cronExpression = null,
+        [FromQuery] string? outputCurrency = null,
         CancellationToken ct = default)
     {
         // Validate budget access
@@ -531,8 +533,22 @@ public class OperationsController(
             filter = filter.CombineWith(userCriteria);
         }
 
+        // Parse output currency if provided
+        NMoneys.Currency? currency = null;
+        if (!string.IsNullOrWhiteSpace(outputCurrency))
+        {
+            try
+            {
+                currency = NMoneys.Currency.Get(outputCurrency);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new List<Error> { new($"Invalid currency code: {outputCurrency}. {ex.Message}") });
+            }
+        }
+
         // Execute query
-        var query = new CalcOperationsStatisticsQuery(budget.LogbookCriteria.GetCriterion(), filter);
+        var query = new CalcOperationsStatisticsQuery(budget.LogbookCriteria.GetCriterion(), filter, currency, true);
         var result = await mediator.Send(query, ct);
 
         if (result.IsFailed)

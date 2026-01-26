@@ -16,11 +16,48 @@
   }
 }
 
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h3 {
+    margin-bottom: 0;
+  }
+}
+
+.header {
+  .header-with-actions();
+}
+
 .additional-parameters {
   margin-top: 1rem;
+  margin-bottom: 1rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .date-range-section {
@@ -50,6 +87,14 @@
 
 .cron-field {
   margin-bottom: 0.5rem;
+}
+
+.currency-section {
+  display: flex;
+}
+
+.currency-selector {
+  min-width: 12rem;
 }
 
 .action-buttons {

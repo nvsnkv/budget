@@ -35,6 +35,7 @@ export class LogbookGroupComponent implements OnInit {
   tillDate!: string;
   criteria?: string;
   cronExpression?: string;
+  outputCurrency?: string;
   
   isLoading = false;
   operations: OperationResponse[] = [];
@@ -56,6 +57,7 @@ export class LogbookGroupComponent implements OnInit {
     this.tillDate = this.route.snapshot.queryParams['till'] || '';
     this.criteria = this.route.snapshot.queryParams['criteria'];
     this.cronExpression = this.route.snapshot.queryParams['cronExpression'];
+    this.outputCurrency = this.route.snapshot.queryParams['outputCurrency'];
     
     const pathParts = this.criteriaPath.split('/');
     const criteriaName = pathParts[pathParts.length - 1] || 'Group';
@@ -67,15 +69,16 @@ export class LogbookGroupComponent implements OnInit {
   loadOperations(): void {
     this.isLoading = true;
     
-    const from = this.fromDate ? new Date(this.fromDate) : undefined;
-    const till = this.tillDate ? new Date(this.tillDate) : undefined;
+    const from = this.fromDate ? this.parseDateInput(this.fromDate) : undefined;
+    const till = this.tillDate ? this.parseDateInput(this.tillDate) : undefined;
 
     this.operationsApi.getLogbook(
       this.budgetId,
       from,
       till,
       this.criteria,
-      this.cronExpression
+      this.cronExpression,
+      this.outputCurrency
     ).subscribe({
       next: (result: LogbookResponse) => {
         this.isLoading = false;
@@ -126,9 +129,18 @@ export class LogbookGroupComponent implements OnInit {
         from: this.fromDate,
         till: this.tillDate,
         criteria: this.criteria,
-        cronExpression: this.cronExpression
+        cronExpression: this.cronExpression,
+        outputCurrency: this.outputCurrency
       }
     });
+  }
+
+  private parseDateInput(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return new Date(value);
+    }
+    return new Date(year, month - 1, day);
   }
 
   onDeleteOperation(operation: OperationResponse): void {

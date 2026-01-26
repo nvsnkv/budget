@@ -1,5 +1,6 @@
 using FluentResults;
 using MediatR;
+using NVs.Budget.Application.Contracts.Queries;
 using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Domain.Aggregates;
@@ -12,8 +13,15 @@ internal class CalcOperationsStatisticsQueryHandler(IReckoner reckoner) : IReque
     {
         var reasons = new List<IReason>();
 
-        var operations = reckoner.GetOperations(new(request.OperationsFilter, null, true), cancellationToken);
-        var logbook = new CriteriaBasedLogbook(request.Criterion);
+        var logbookQuery = new LogbookQuery(
+            request.Criterion,
+            request.OutputCurrency,
+            request.OperationsFilter,
+            request.ExcludeTransfers
+        );
+
+        var operations = reckoner.GetOperations(logbookQuery, cancellationToken);
+        var logbook = new CriteriaBasedLogbook(logbookQuery.LogbookCriterion);
 
         await foreach (var operation in operations)
         {

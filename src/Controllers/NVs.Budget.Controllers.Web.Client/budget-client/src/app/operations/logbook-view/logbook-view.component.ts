@@ -11,7 +11,7 @@ import {
   TuiLabel
 } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiAccordion } from '@taiga-ui/kit';
+import { TuiAccordion, TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
 import { ExamplesSectionComponent } from '../shared/components/examples-section/examples-section.component';
@@ -43,6 +43,10 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     TuiTextfield,
     TuiLabel,
     TuiAccordion,
+    TuiCheckbox,
+    TuiChevron,
+    TuiDataListWrapper,
+    TuiSelect,
     CriteriaFilterComponent,
     DateFormatPipe,
     CurrencyFormatPipe
@@ -59,6 +63,12 @@ export class LogbookViewComponent implements OnInit {
   fromDate: string = '';
   tillDate: string = '';
   cronExpression = '';
+  outputCurrency = '';
+  useDatePresets = true;
+  useCronPresets = false;
+  selectedDatePreset: 'lastYear' | 'currentYear' | 'lastMonth' | 'currentMonth' | null = null;
+  selectedCronPreset: 'monthly' | 'yearly' | null = null;
+  showFilters = true;
   
   ranges: NamedRangeResponse[] = [];
   criteriaRows: CriteriaRow[] = [];
@@ -82,6 +92,8 @@ export class LogbookViewComponent implements OnInit {
     { label: 'Bi-weekly:', code: '0 0 1,15 * *' },
     { label: 'Quarterly:', code: '0 0 1 1,4,7,10 *' }
   ];
+
+  readonly items: string[] = ["RUB", "USD", "EUR"];
 
   constructor(
     private route: ActivatedRoute,
@@ -114,6 +126,10 @@ export class LogbookViewComponent implements OnInit {
     if (queryParams['cronExpression']) {
       this.cronExpression = queryParams['cronExpression'];
     }
+
+    if (queryParams['outputCurrency']) {
+      this.outputCurrency = queryParams['outputCurrency'];
+    }
     
     this.loadLogbook();
   }
@@ -126,6 +142,9 @@ export class LogbookViewComponent implements OnInit {
   onCriteriaCleared(): void {
     this.currentCriteria = '';
     this.cronExpression = '';
+    this.outputCurrency = '';
+    this.selectedDatePreset = null;
+    this.selectedCronPreset = null;
     this.resetToDefaultDateRange();
     this.clearStateAndReload();
   }
@@ -144,7 +163,8 @@ export class LogbookViewComponent implements OnInit {
         from: this.fromDate || undefined,
         till: this.tillDate || undefined,
         criteria: this.currentCriteria || undefined,
-        cronExpression: this.cronExpression || undefined
+        cronExpression: this.cronExpression || undefined,
+        outputCurrency: this.outputCurrency || undefined
       },
       queryParamsHandling: 'merge'
     });
@@ -155,10 +175,10 @@ export class LogbookViewComponent implements OnInit {
   private resetToDefaultDateRange(): void {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     
-    this.fromDate = firstDay.toISOString().slice(0, 16);
-    this.tillDate = lastDay.toISOString().slice(0, 16);
+    this.fromDate = this.toDateInputValue(firstDay);
+    this.tillDate = this.toDateInputValue(lastDay);
   }
 
   loadLogbook(): void {
@@ -169,15 +189,16 @@ export class LogbookViewComponent implements OnInit {
     this.criteriaTree = [];
     this.groupSorts.clear();
 
-    const from = this.fromDate ? new Date(this.fromDate) : undefined;
-    const till = this.tillDate ? new Date(this.tillDate) : undefined;
+    const from = this.fromDate ? this.parseDateInput(this.fromDate) : undefined;
+    const till = this.tillDate ? this.parseDateInput(this.tillDate) : undefined;
 
     this.operationsApi.getLogbook(
       this.budgetId,
       from,
       till,
       this.currentCriteria || undefined,
-      this.cronExpression || undefined
+      this.cronExpression || undefined,
+      this.outputCurrency || undefined
     ).subscribe({
       next: (result) => {
         this.isLoading = false;
@@ -199,7 +220,7 @@ export class LogbookViewComponent implements OnInit {
               window.scrollTo(0, savedState.scrollPosition);
             }, 100);
           } else {
-            this.expandedRows.clear();
+            this.expandAllRows();
             this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
           }
         }
@@ -302,6 +323,20 @@ export class LogbookViewComponent implements OnInit {
     return true;
   }
 
+  get isAllExpanded(): boolean {
+    const expandable = this.getExpandablePaths();
+    return expandable.length > 0 && expandable.every(path => this.expandedRows.has(path));
+  }
+
+  toggleExpandAll(): void {
+    if (this.isAllExpanded) {
+      this.expandedRows.clear();
+    } else {
+      this.expandAllRows();
+    }
+    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+  }
+
   toggleGroupSort(row: CriteriaRow, rangeName: string, event: Event): void {
     event.stopPropagation();
     const existing = this.groupSorts.get(row.path);
@@ -388,6 +423,22 @@ export class LogbookViewComponent implements OnInit {
     return row.rangeData.get(rangeName)?.sum.value ?? 0;
   }
 
+  private expandAllRows(): void {
+    this.expandedRows = new Set(this.getExpandablePaths());
+  }
+
+  private getExpandablePaths(): string[] {
+    const paths: string[] = [];
+    const walk = (row: CriteriaRow) => {
+      if (row.hasChildren) {
+        paths.push(row.path);
+        row.children.forEach(walk);
+      }
+    };
+    this.criteriaTree.forEach(walk);
+    return paths;
+  }
+
   viewGroupOperations(row: CriteriaRow, rangeName: string, event: Event): void {
     event.stopPropagation();
     
@@ -405,7 +456,8 @@ export class LogbookViewComponent implements OnInit {
         from: this.fromDate,
         till: this.tillDate,
         criteria: this.currentCriteria || undefined,
-        cronExpression: this.cronExpression || undefined
+        cronExpression: this.cronExpression || undefined,
+        outputCurrency: this.outputCurrency || undefined
       }
     });
   }
@@ -431,25 +483,45 @@ export class LogbookViewComponent implements OnInit {
     switch (type) {
       case 'currentMonth':
         from = new Date(now.getFullYear(), now.getMonth(), 1);
-        till = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        till = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         break;
       case 'lastMonth':
         from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        till = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+        till = new Date(now.getFullYear(), now.getMonth(), 0);
         break;
       case 'currentYear':
         from = new Date(now.getFullYear(), 0, 1);
-        till = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+        till = new Date(now.getFullYear(), 11, 31);
         break;
       case 'lastYear':
         from = new Date(now.getFullYear() - 1, 0, 1);
-        till = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
+        till = new Date(now.getFullYear() - 1, 11, 31);
         break;
     }
 
-    this.fromDate = from.toISOString().slice(0, 16);
-    this.tillDate = till.toISOString().slice(0, 16);
-    this.clearStateAndReload();
+    this.fromDate = this.toDateInputValue(from);
+    this.tillDate = this.toDateInputValue(till);
+    this.selectedDatePreset = type;
+  }
+
+  setCronPreset(type: 'monthly' | 'yearly'): void {
+    this.cronExpression = type === 'monthly' ? '0 0 1 * *' : '0 0 1 1 *';
+    this.selectedCronPreset = type;
+  }
+
+  private parseDateInput(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return new Date(value);
+    }
+    return new Date(year, month - 1, day);
+  }
+
+  private toDateInputValue(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   hasMetadata(error: any): boolean {

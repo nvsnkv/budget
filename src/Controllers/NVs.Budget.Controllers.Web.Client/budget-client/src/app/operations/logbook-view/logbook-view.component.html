@@ -1,88 +1,10 @@
 <div class="logbook-container">
   <tui-loader [overlay]="true" [showLoader]="isLoading">
     <div tuiCardLarge class="logbook-card">
+      <div class="header">
       <h2 tuiTitle size="l">Operations Logbook</h2>
 
-      <div class="filters-section">
-        <h3 tuiTitle size="m">Filters</h3>
-
-        <app-criteria-filter
-          [initialCriteria]="currentCriteria"
-          [showExamplesInitially]="false"
-          (criteriaSubmitted)="onCriteriaSubmitted($event)"
-          (criteriaCleared)="onCriteriaCleared()">
-
-                <div class="date-field">
-                  <tui-textfield>
-                    <label tuiLabel>From Date</label>
-                    <input
-                      tuiTextfield
-                      type="datetime-local"
-                      [(ngModel)]="fromDate"
-                    />
-                  </tui-textfield>
-                </div>
-
-                <div class="date-field">
-                  <tui-textfield>
-                    <label tuiLabel>Till Date</label>
-                    <input
-                      tuiTextfield
-                      type="datetime-local"
-                      [(ngModel)]="tillDate"
-                    />
-                  </tui-textfield>
-                </div>
-
-                <button
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="m"
-                  (click)="setDateRange('currentMonth')">
-                  Current Month
-                </button>
-                <button
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="m"
-                  (click)="setDateRange('lastMonth')">
-                  Last Month
-                </button>
-                <button
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="m"
-                  (click)="setDateRange('currentYear')">
-                  Current Year
-                </button>
-                <button
-                  tuiButton
-                  type="button"
-                  appearance="secondary"
-                  size="m"
-                  (click)="setDateRange('lastYear')">
-                  Last Year
-                </button>
-
-              <div class="cron-field">
-                <tui-textfield>
-                  <label tuiLabel>Cron Expression (optional - to split into periods)</label>
-                  <input
-                    tuiTextfield
-                    type="text"
-                    [(ngModel)]="cronExpression"
-                    placeholder="e.g., 0 0 1 * * for monthly"
-                  />
-                </tui-textfield>
-              </div>
-
-        </app-criteria-filter>
-      </div>
-
-      <div class="action-buttons">
+      <div class="header-actions">
         <button
           tuiButton
           type="button"
@@ -91,20 +13,195 @@
           (click)="viewOperations()">
           View Operations List
         </button>
-        <button
-          tuiButton
-          type="button"
-          appearance="secondary"
-          size="m"
-          [disabled]="!hasActiveSorts"
-          (click)="resetSorting()">
-          Reset Sorting
-        </button>
+      </div>
+    </div>
+
+      <div class="filters-section">
+        <div class="filters-header">
+          <h3 tuiTitle size="m">Filters</h3>
+          <button
+            tuiButton
+            type="button"
+            appearance="secondary"
+            size="s"
+            (click)="showFilters = !showFilters">
+            {{ showFilters ? 'Hide Filters' : 'Show Filters' }}
+          </button>
+        </div>
+        @if (showFilters) {
+        <div class="additional-parameters">
+        <div class="date-range-section">
+              <div class="section-header">
+                <h4 tuiTitle size="s">Date Range</h4>
+                <label class="mode-toggle" tuiLabel>
+                  <input
+                    tuiCheckbox
+                    type="checkbox"
+                    [(ngModel)]="useDatePresets"
+                  />
+                  Use presets
+                </label>
+              </div>
+
+              @if (!useDatePresets) {
+            <div class="date-inputs">
+              <div class="date-field">
+                <tui-textfield>
+                  <label tuiLabel>From Date</label>
+                  <input
+                    tuiTextfield
+                    type="date"
+                    [(ngModel)]="fromDate"
+                  />
+                </tui-textfield>
+              </div>
+
+              <div class="date-field">
+                <tui-textfield>
+                  <label tuiLabel>Till Date</label>
+                  <input
+                    tuiTextfield
+                    type="date"
+                    [(ngModel)]="tillDate"
+                  />
+                </tui-textfield>
+              </div>
+            </div>
+          } @else {
+            <div class="preset-buttons">
+              <button
+                tuiButton
+                type="button"
+                    [appearance]="selectedDatePreset === 'lastYear' ? 'primary' : 'secondary'"
+                size="s"
+                (click)="setDateRange('lastYear')">
+                Last Year
+              </button>
+              <button
+                tuiButton
+                type="button"
+                    [appearance]="selectedDatePreset === 'currentYear' ? 'primary' : 'secondary'"
+                size="s"
+                (click)="setDateRange('currentYear')">
+                This Year
+              </button>
+              <button
+                tuiButton
+                type="button"
+                    [appearance]="selectedDatePreset === 'lastMonth' ? 'primary' : 'secondary'"
+                size="s"
+                (click)="setDateRange('lastMonth')">
+                Last Month
+              </button>
+              <button
+                tuiButton
+                type="button"
+                    [appearance]="selectedDatePreset === 'currentMonth' ? 'primary' : 'secondary'"
+                size="s"
+                (click)="setDateRange('currentMonth')">
+                This Month
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="cron-section">
+              <div class="section-header">
+                <h4 tuiTitle size="s">Cron Expression</h4>
+                <label class="mode-toggle" tuiLabel>
+                  <input
+                    tuiCheckbox
+                    type="checkbox"
+                    [(ngModel)]="useCronPresets"
+                  />
+                  Use presets
+                </label>
+              </div>
+
+              @if (!useCronPresets) {
+            <div class="cron-field">
+              <tui-textfield>
+                <label tuiLabel>Cron Expression (optional - to split into periods)</label>
+                <input
+                  tuiTextfield
+                  type="text"
+                  [(ngModel)]="cronExpression"
+                  placeholder="e.g., 0 0 1 * * for monthly"
+                />
+              </tui-textfield>
+            </div>
+          } @else {
+            <div class="preset-buttons">
+              <button
+                tuiButton
+                type="button"
+                    [appearance]="selectedCronPreset === 'monthly' ? 'primary' : 'secondary'"
+                size="s"
+                (click)="setCronPreset('monthly')">
+                Monthly
+              </button>
+              <button
+                tuiButton
+                type="button"
+                    [appearance]="selectedCronPreset === 'yearly' ? 'primary' : 'secondary'"
+                size="s"
+                (click)="setCronPreset('yearly')">
+                Yearly
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+        <app-criteria-filter
+          [initialCriteria]="currentCriteria"
+          [showExamplesInitially]="false"
+          (criteriaSubmitted)="onCriteriaSubmitted($event)"
+          (criteriaCleared)="onCriteriaCleared()">            
+            <div class="currency-section">
+              <tui-textfield tuiChevron class="currency-selector">
+                <input
+                  tuiSelect
+                  placeholder="Output Currency"
+                  tuiTextfieldSize="s"
+                  [(ngModel)]="outputCurrency"
+                />
+                <tui-data-list-wrapper
+                  *tuiTextfieldDropdown
+                  new
+                  [items]="items"
+                />
+              </tui-textfield>
+            </div>
+
+        </app-criteria-filter>
+        }
       </div>
 
       @if (logbook) {
         <div class="logbook-section">
-          <h3 tuiTitle size="m">Logbook Statistics</h3>
+          <div class="header">
+            <h3 tuiTitle size="m">Logbook Statistics</h3>
+            <div class="header-actions">
+              <button
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="m"
+                (click)="toggleExpandAll()">
+                {{ isAllExpanded ? 'Collapse All' : 'Expand All' }}
+              </button>
+              <button
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="m"
+                [disabled]="!hasActiveSorts"
+                (click)="resetSorting()">
+                Reset Sorting
+              </button>
+            </div>
+          </div>
 
           @if (criteriaRows.length > 0 && ranges.length > 0) {
             <div class="logbook-table-container">
