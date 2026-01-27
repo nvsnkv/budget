@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using FluentResults;
 using NCrontab;
 
@@ -43,11 +44,15 @@ public class RangeBuilder
 
     private IEnumerable<NamedRange> GenerateRangesFrom(List<DateTime> occurrences)
     {
+        var least = occurrences.First();
+        var last = occurrences.Last();
+        var format = (last-least) > TimeSpan.FromDays(365) ? "yy/dd/MM" : "dd/MM";
+        
         var i = 1;
         while (i < occurrences.Count)
         {
             yield return new NamedRange(
-                occurrences[i - 1].ToString("dd/MM"),
+                occurrences[i - 1].ToString(format),
                 occurrences[i - 1],
                 occurrences[i]
             );
