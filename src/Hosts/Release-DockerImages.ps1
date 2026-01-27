@@ -8,7 +8,7 @@
     optionally tags them with version information, and pushes them to a Docker registry.
 
 .PARAMETER Version
-    Version tag for the images (e.g., "1.0.0", "latest"). Default is "latest"
+    Version tag for the images (e.g., "1.0.0", "2026.1.1"). If not specified, automatically generates next version in format Year.Month.Number (e.g., 2026.1.1, 2026.1.2)
 
 .PARAMETER SkipBuild
     Skip building images and only push existing ones
@@ -19,9 +19,15 @@
 .PARAMETER ConfigureRegistry
     Force reconfiguration of Docker registry settings
 
+.PARAMETER CleanupOldImages
+    Remove old Docker images, keeping only the specified number of recent versions (default: 5)
+
+.PARAMETER KeepVersions
+    Number of recent versions to keep when cleaning up old images (default: 5)
+
 .EXAMPLE
     .\Release-DockerImages.ps1
-    Builds and pushes images with version "latest"
+    Automatically generates next version (e.g., 2026.1.1) and builds/pushes images
 
 .EXAMPLE
     .\Release-DockerImages.ps1 -Version "1.2.3"
@@ -30,12 +36,16 @@
 .EXAMPLE
     .\Release-DockerImages.ps1 -SkipPush
     Builds images locally without pushing to registry
+
+.EXAMPLE
+    .\Release-DockerImages.ps1 -CleanupOldImages -KeepVersions 3
+    Builds with auto-version and removes old images, keeping only 3 most recent versions
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$false)]
-    [string]$Version = "latest",
+    [string]$Version = "",
     
     [Parameter(Mandatory=$false)]
     [switch]$SkipBuild,
@@ -44,7 +54,13 @@ param(
     [switch]$SkipPush,
     
     [Parameter(Mandatory=$false)]
-    [switch]$ConfigureRegistry
+    [switch]$ConfigureRegistry,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$CleanupOldImages,
+    
+    [Parameter(Mandatory=$false)]
+    [int]$KeepVersions = 5
 )
 
 # Script configuration
@@ -83,6 +99,190 @@ function Write-ErrorMessage {
 function Write-Step {
     param([string]$Message)
     Write-ColorOutput "`n==> $Message" "Magenta"
+}
+
+# Get next version in format Year.Month.Number
+function Get-NextVersion {
+    param(
+        [string]$ImageName,
+        [string]$RegistryPrefix = $null
+    )
+    
+    $currentYear = (Get-Date).Year
+    $currentMonth = (Get-Date).Month
+    $versionPattern = "^${currentYear}\.${currentMonth}\.(\d+)$"
+    
+    $existingVersions = @()
+    
+    # Get local image tags
+    try {
+        $localImages = docker images --format "{{.Tag}}" "${ImageName}" 2>$null
+        if ($localImages) {
+            $existingVersions += $localImages | Where-Object { $_ -match $versionPattern }
+        }
+    }
+    catch {
+        Write-Warning "Could not query local images: $_"
+    }
+    
+    # Get remote tags if registry is configured
+    if ($RegistryPrefix) {
+        try {
+            $remoteImage = "${RegistryPrefix}/${ImageName}"
+            $remoteTags = docker images --format "{{.Tag}}" $remoteImage 2>$null
+            if ($remoteTags) {
+                $existingVersions += $remoteTags | Where-Object { $_ -match $versionPattern }
+            }
+        }
+        catch {
+            Write-Warning "Could not query remote images: $_"
+        }
+    }
+    
+    # Find the highest number for current year.month
+    $maxNumber = 0
+    foreach ($version in $existingVersions) {
+        if ($version -match $versionPattern) {
+            $number = [int]$matches[1]
+            if ($number -gt $maxNumber) {
+                $maxNumber = $number
+            }
+        }
+    }
+    
+    # Return next version
+    $nextNumber = $maxNumber + 1
+    return "${currentYear}.${currentMonth}.${nextNumber}"
+}
+
+# Clean up old Docker images
+function Remove-OldImages {
+    param(
+        [string]$ImageName,
+        [string]$RegistryPrefix = $null,
+        [int]$KeepCount = 5
+    )
+    
+    Write-Step "Cleaning up old images (keeping $KeepCount most recent)"
+    
+    $allImages = @()
+    
+    # Get local images (both base name and registry-prefixed if pulled)
+    $imagePatterns = @($ImageName)
+    if ($RegistryPrefix) {
+        $imagePatterns += "${RegistryPrefix}/${ImageName}"
+    }
+    
+    foreach ($pattern in $imagePatterns) {
+        try {
+            $dockerOutput = docker images --format "{{.Repository}}:{{.Tag}}|{{.ID}}" $pattern 2>&1
+            if ($dockerOutput -and $LASTEXITCODE -eq 0) {
+                foreach ($line in $dockerOutput) {
+                    if ([string]::IsNullOrWhiteSpace($line)) { continue }
+                    
+                    $parts = $line -split '\|'
+                    if ($parts.Length -ge 2) {
+                        $fullName = $parts[0].Trim()
+                        $id = $parts[1].Trim()
+                        
+                        # Extract tag from full name
+                        if ($fullName -match '^[^:]+:(.+)$') {
+                            $tag = $matches[1]
+                            
+                            # Only process version tags in format Year.Month.Number
+                            if ($tag -match '^\d{4}\.\d+\.\d+$') {
+                                # Check if we already have this tag (avoid duplicates)
+                                $existing = $allImages | Where-Object { $_.Tag -eq $tag }
+                                if (-not $existing) {
+                                    $allImages += @{
+                                        Tag = $tag
+                                        Id = $id
+                                        FullName = $fullName
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch {
+            Write-Warning "Could not query images for pattern '$pattern': $_"
+        }
+    }
+    
+    if ($allImages.Count -eq 0) {
+        Write-Info "No versioned images found to clean up."
+        return
+    }
+    
+    if ($allImages.Count -le $KeepCount) {
+        Write-Info "Found $($allImages.Count) versioned image(s). No cleanup needed (keeping $KeepCount)."
+        return
+    }
+    
+    # Sort by version (newest first)
+    # Convert version string to numeric value for proper sorting
+    $sortedImages = $allImages | Sort-Object {
+        $parts = $_.Tag -split '\.'
+        if ($parts.Length -eq 3) {
+            try {
+                [int]$parts[0] * 10000 + [int]$parts[1] * 100 + [int]$parts[2]
+            }
+            catch {
+                0
+            }
+        }
+        else {
+            0
+        }
+    } -Descending
+    
+    # Get images to remove (everything after KeepCount)
+    $imagesToRemove = $sortedImages | Select-Object -Skip $KeepCount
+    
+    if ($imagesToRemove.Count -eq 0) {
+        Write-Info "No images to remove."
+        return
+    }
+    
+    Write-Info "Found $($allImages.Count) versioned image(s). Removing $($imagesToRemove.Count) old image(s)..."
+    
+    $removedCount = 0
+    $failedCount = 0
+    
+    foreach ($image in $imagesToRemove) {
+        try {
+            Write-Info "Removing $($image.FullName)..."
+            $removeOutput = docker rmi $image.FullName 2>&1
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Success "Removed $($image.FullName)"
+                $removedCount++
+            }
+            else {
+                $errorMsg = $removeOutput | Out-String
+                if ($errorMsg -match "image is being used|image has dependent child images") {
+                    Write-Warning "Skipped $($image.FullName) (image is in use)"
+                }
+                else {
+                    Write-Warning "Failed to remove $($image.FullName): $errorMsg"
+                }
+                $failedCount++
+            }
+        }
+        catch {
+            Write-Warning "Error removing $($image.FullName): $_"
+            $failedCount++
+        }
+    }
+    
+    if ($removedCount -gt 0) {
+        Write-Success "Cleanup complete. Removed $removedCount image(s), kept $KeepCount most recent version(s)."
+    }
+    if ($failedCount -gt 0) {
+        Write-Warning "$failedCount image(s) could not be removed (may be in use)."
+    }
 }
 
 # Load or create registry configuration
@@ -296,6 +496,22 @@ function Main {
     $serverImageName = "budget-server"
     $clientImageName = "budget-client"
     
+    # Determine registry prefix for version detection
+    $registryPrefix = $null
+    if ($config -and $config.Registry) {
+        $registryPrefix = "$($config.Registry)"
+        if ($config.Namespace) {
+            $registryPrefix = "$registryPrefix/$($config.Namespace)"
+        }
+    }
+    
+    # Auto-generate version if not provided
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        Write-Step "Auto-generating next version"
+        $Version = Get-NextVersion -ImageName $serverImageName -RegistryPrefix $registryPrefix
+        Write-Success "Generated version: $Version"
+    }
+    
     # Local tags
     $serverLocalTag = "${serverImageName}:${Version}"
     $clientLocalTag = "${clientImageName}:${Version}"
@@ -305,10 +521,6 @@ function Main {
     $clientRemoteTag = $null
     
     if ($config -and $config.Registry) {
-        $registryPrefix = "$($config.Registry)"
-        if ($config.Namespace) {
-            $registryPrefix = "$registryPrefix/$($config.Namespace)"
-        }
         $serverRemoteTag = "${registryPrefix}/${serverImageName}:${Version}"
         $clientRemoteTag = "${registryPrefix}/${clientImageName}:${Version}"
     }
@@ -397,6 +609,11 @@ function Main {
     }
     else {
         Write-Warning "`nSkipping push phase"
+    }
+    
+    # Cleanup old images if requested
+    if ($CleanupOldImages) {
+        Remove-OldImages -ImageName $serverImageName -RegistryPrefix $registryPrefix -KeepCount $KeepVersions
     }
     
     Write-Host ""
