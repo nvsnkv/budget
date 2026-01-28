@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, switchMap, of, throwError } from 'rxjs';
+import { Observable, switchMap, throwError } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
 import { OperationResponse, BudgetResponse, UpdateResultResponse } from '../../budget/models';
@@ -25,6 +25,13 @@ export class OperationsHelperService {
    * Update a single operation
    */
   updateOperation(budgetId: string, operation: OperationResponse): Observable<UpdateResultResponse> {
+    return this.updateOperations(budgetId, [operation]);
+  }
+
+  /**
+   * Update multiple operations
+   */
+  updateOperations(budgetId: string, operations: OperationResponse[]): Observable<UpdateResultResponse> {
     return this.budgetApi.getAllBudgets().pipe(
       switchMap((budgetList: BudgetResponse[]) => {
         const budget = budgetList.find((b: BudgetResponse) => b.id === budgetId);
@@ -34,7 +41,7 @@ export class OperationsHelperService {
         }
 
         const request = {
-          operations: [operation],
+          operations,
           budgetVersion: budget.version,
           transferConfidenceLevel: undefined,
           taggingMode: 'Skip'

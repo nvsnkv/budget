@@ -165,24 +165,25 @@ export class OperationsListComponent implements OnInit {
     });
   }
 
-  onUpdateOperation(operation: OperationResponse): void {
+  onUpdateOperations(operations: OperationResponse[]): void {
     this.isLoading = true;
 
-    this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
+    this.operationsHelper.updateOperations(this.budgetId, operations).subscribe({
       next: (result) => {
         this.isLoading = false;
 
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
-          this.notificationService.showError(`Failed to update operation: ${errorMessage}`).subscribe();
+          this.notificationService.showError(`Failed to update operations: ${errorMessage}`).subscribe();
         } else {
-          this.notificationService.showSuccess('Operation updated successfully').subscribe();
+          const count = result.updatedOperations?.length ?? operations.length;
+          this.notificationService.showSuccess(`Updated ${count} operation${count === 1 ? '' : 's'} successfully`).subscribe();
           this.loadOperations();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        const errorMessage = this.notificationService.handleError(error, 'Failed to update operation');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to update operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
     });

@@ -47,25 +47,29 @@ export class OperationsTableComponent {
   }
   @Input() showActions = true;
   @Output() operationDeleted = new EventEmitter<OperationResponse>();
-  @Output() operationUpdated = new EventEmitter<OperationResponse>();
+  @Output() operationsUpdated = new EventEmitter<OperationResponse[]>();
   @Output() operationNoteUpdated = new EventEmitter<OperationResponse>();
   
   expandedOperationId: string | null = null;
-  editingOperationId: string | null = null;
-  editingOperation: EditableOperation | null = null;
+  editingOperations: Record<string, EditableOperation> = {};
   sortField: 'amount' | 'timestamp' | 'description' | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
   noteDrafts: Record<string, string> = {};
   noteSaveStatus: Record<string, 'idle' | 'saving' | 'saved' | 'error'> = {};
   private pendingNoteSaves: Record<string, string> = {};
   noteEditingId: string | null = null;
+  showEditedOnly = false;
 
   get displayedOperations(): OperationResponse[] {
-    if (!this.sortField || !this.sortDirection) return this.operations;
+    const baseOperations = this.showEditedOnly
+      ? this.operations.filter(operation => this.editingOperations[operation.id])
+      : this.operations;
+
+    if (!this.sortField || !this.sortDirection) return baseOperations;
 
     const directionMultiplier = this.sortDirection === 'asc' ? 1 : -1;
 
-    return [...this.operations].sort((left, right) => {
+    return [...baseOperations].sort((left, right) => {
       switch (this.sortField) {
         case 'amount':
           return (left.amount.value - right.amount.value) * directionMultiplier;
@@ -111,8 +115,7 @@ export class OperationsTableComponent {
   }
 
   startEdit(operation: OperationResponse): void {
-    this.editingOperationId = operation.id;
-    this.editingOperation = {
+    this.editingOperations[operation.id] = {
       id: operation.id,
       description: operation.description,
       notes: operation.notes ?? '',
@@ -123,45 +126,53 @@ export class OperationsTableComponent {
     };
   }
 
-  cancelEdit(): void {
-    this.editingOperationId = null;
-    this.editingOperation = null;
+  cancelEdit(operationId: string): void {
+    delete this.editingOperations[operationId];
   }
 
-  saveEdit(operation: OperationResponse): void {
-    if (!this.editingOperation) return;
+  saveAllEdits(): void {
+    const updatedOperations = this.operations
+      .filter(operation => this.editingOperations[operation.id])
+      .map(operation => this.buildUpdatedOperation(operation, this.editingOperations[operation.id]));
 
-    const updatedOperation: OperationResponse = {
-      ...operation,
-      description: this.editingOperation.description,
-      notes: this.editingOperation.notes,
-      amount: {
-        value: this.editingOperation.amount,
-        currencyCode: this.editingOperation.currencyCode
-      },
-      tags: this.editingOperation.tags,
-      attributes: this.editingOperation.attributes
-    };
+    if (updatedOperations.length === 0) {
+      return;
+    }
 
-    this.operationUpdated.emit(updatedOperation);
-    this.noteDrafts[operation.id] = updatedOperation.notes;
-    this.editingOperationId = null;
-    this.editingOperation = null;
+    this.operationsUpdated.emit(updatedOperations);
+    for (const updated of updatedOperations) {
+      this.noteDrafts[updated.id] = updated.notes ?? '';
+    }
+    this.editingOperations = {};
   }
 
   isEditing(operationId: string): boolean {
-    return this.editingOperationId === operationId;
+    return Boolean(this.editingOperations[operationId]);
   }
 
-  addTag(): void {
-    if (this.editingOperation) {
-      this.editingOperation.tags.push('');
+  get hasPendingEdits(): boolean {
+    return Object.keys(this.editingOperations).length > 0;
+  }
+
+  get pendingEditsCount(): number {
+    return Object.keys(this.editingOperations).length;
+  }
+
+  toggleShowEditedOnly(): void {
+    this.showEditedOnly = !this.showEditedOnly;
+  }
+
+  addTag(operationId: string): void {
+    const editingOperation = this.editingOperations[operationId];
+    if (editingOperation) {
+      editingOperation.tags.push('');
     }
   }
 
-  removeTag(index: number): void {
-    if (this.editingOperation) {
-      this.editingOperation.tags.splice(index, 1);
+  removeTag(operationId: string, index: number): void {
+    const editingOperation = this.editingOperations[operationId];
+    if (editingOperation) {
+      editingOperation.tags.splice(index, 1);
     }
   }
 
@@ -169,24 +180,27 @@ export class OperationsTableComponent {
     return index;
   }
 
-  addAttribute(): void {
-    if (this.editingOperation) {
-      const key = `key${Object.keys(this.editingOperation.attributes).length + 1}`;
-      this.editingOperation.attributes[key] = '';
+  addAttribute(operationId: string): void {
+    const editingOperation = this.editingOperations[operationId];
+    if (editingOperation) {
+      const key = `key${Object.keys(editingOperation.attributes).length + 1}`;
+      editingOperation.attributes[key] = '';
     }
   }
 
-  removeAttribute(key: string): void {
-    if (this.editingOperation) {
-      delete this.editingOperation.attributes[key];
+  removeAttribute(operationId: string, key: string): void {
+    const editingOperation = this.editingOperations[operationId];
+    if (editingOperation) {
+      delete editingOperation.attributes[key];
     }
   }
 
-  updateAttributeKey(oldKey: string, newKey: string): void {
-    if (this.editingOperation && oldKey !== newKey && newKey) {
-      const value = this.editingOperation.attributes[oldKey];
-      delete this.editingOperation.attributes[oldKey];
-      this.editingOperation.attributes[newKey] = value;
+  updateAttributeKey(operationId: string, oldKey: string, newKey: string): void {
+    const editingOperation = this.editingOperations[operationId];
+    if (editingOperation && oldKey !== newKey && newKey) {
+      const value = editingOperation.attributes[oldKey];
+      delete editingOperation.attributes[oldKey];
+      editingOperation.attributes[newKey] = value;
     }
   }
 
@@ -240,6 +254,14 @@ export class OperationsTableComponent {
         delete this.pendingNoteSaves[id];
       }
     }
+    for (const id of Object.keys(this.editingOperations)) {
+      if (!seenIds.has(id)) {
+        delete this.editingOperations[id];
+      }
+    }
+    if (this.showEditedOnly && Object.keys(this.editingOperations).length === 0) {
+      this.showEditedOnly = false;
+    }
   }
 
   onNoteEnter(operation: OperationResponse, event: Event): void {
@@ -251,6 +273,23 @@ export class OperationsTableComponent {
   onNoteBlur(operation: OperationResponse): void {
     this.saveNotes(operation);
     this.noteEditingId = null;
+  }
+
+  private buildUpdatedOperation(
+    operation: OperationResponse,
+    editingOperation: EditableOperation
+  ): OperationResponse {
+    return {
+      ...operation,
+      description: editingOperation.description,
+      notes: editingOperation.notes,
+      amount: {
+        value: editingOperation.amount,
+        currencyCode: editingOperation.currencyCode
+      },
+      tags: editingOperation.tags,
+      attributes: editingOperation.attributes
+    };
   }
 }
 

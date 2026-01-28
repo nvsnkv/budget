@@ -41,16 +41,16 @@
         <tr class="operation-row" [class.editing]="isEditing(operation.id)">
           <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
           <td class="col-description">
-            @if (isEditing(operation.id) && editingOperation) {
+            @if (isEditing(operation.id)) {
               <div class="description-edit">
                 <input 
                   class="edit-input" 
-                  [(ngModel)]="editingOperation.description"
+                  [(ngModel)]="editingOperations[operation.id].description"
                   placeholder="Description"
                 />
                 <input 
                   class="edit-input notes-input"
-                  [(ngModel)]="editingOperation.notes"
+                  [(ngModel)]="editingOperations[operation.id].notes"
                   placeholder="Notes"
                 />
               </div>
@@ -106,17 +106,17 @@
             }
           </td>
           <td class="col-amount" [class.positive]="operation.amount.value > 0" [class.negative]="operation.amount.value < 0">
-            @if (isEditing(operation.id) && editingOperation) {
+            @if (isEditing(operation.id)) {
               <div class="amount-edit">
                 <input 
                   class="edit-input amount-input" 
                   type="number" 
-                  [(ngModel)]="editingOperation.amount"
+                  [(ngModel)]="editingOperations[operation.id].amount"
                   step="0.01"
                 />
                 <input 
                   class="edit-input currency-input" 
-                  [(ngModel)]="editingOperation.currencyCode"
+                  [(ngModel)]="editingOperations[operation.id].currencyCode"
                   placeholder="USD"
                   maxlength="3"
                 />
@@ -126,13 +126,13 @@
             }
           </td>
           <td class="col-tags">
-            @if (isEditing(operation.id) && editingOperation) {
+            @if (isEditing(operation.id)) {
               <div class="tags-edit">
-                @for (tag of editingOperation.tags; track trackByIndex($index); let i = $index) {
+                @for (tag of editingOperations[operation.id].tags; track trackByIndex($index); let i = $index) {
                   <div class="tag-edit-item">
                     <input 
                       class="edit-input tag-input" 
-                      [(ngModel)]="editingOperation.tags[i]"
+                      [(ngModel)]="editingOperations[operation.id].tags[i]"
                       placeholder="tag"
                     />
                     <button 
@@ -140,7 +140,7 @@
                       type="button"
                       appearance="icon"
                       size="xs"
-                      (click)="removeTag(i)">
+                      (click)="removeTag(operation.id, i)">
                       ✕
                     </button>
                   </div>
@@ -150,7 +150,7 @@
                   type="button"
                   appearance="flat"
                   size="xs"
-                  (click)="addTag()">
+                  (click)="addTag(operation.id)">
                   + Add Tag
                 </button>
               </div>
@@ -163,19 +163,19 @@
             }
           </td>
           <td class="col-attributes">
-            @if (isEditing(operation.id) && editingOperation) {
+            @if (isEditing(operation.id)) {
               <div class="attributes-edit">
-                @for (key of editingOperation.attributes | objectKeys; track key) {
+                @for (key of editingOperations[operation.id].attributes | objectKeys; track key) {
                   <div class="attribute-edit-item">
                     <input 
                       class="edit-input attr-key-input" 
                       [value]="key"
-                      (blur)="updateAttributeKey(key, $any($event.target).value)"
+                      (blur)="updateAttributeKey(operation.id, key, $any($event.target).value)"
                       placeholder="key"
                     />
                     <input 
                       class="edit-input attr-value-input" 
-                      [(ngModel)]="editingOperation.attributes[key]"
+                      [(ngModel)]="editingOperations[operation.id].attributes[key]"
                       placeholder="value"
                     />
                     <button 
@@ -183,7 +183,7 @@
                       type="button"
                       appearance="icon"
                       size="xs"
-                      (click)="removeAttribute(key)">
+                      (click)="removeAttribute(operation.id, key)">
                       ✕
                     </button>
                   </div>
@@ -193,7 +193,7 @@
                   type="button"
                   appearance="flat"
                   size="xs"
-                  (click)="addAttribute()">
+                  (click)="addAttribute(operation.id)">
                   + Add Attribute
                 </button>
               </div>
@@ -218,17 +218,9 @@
                   <button 
                     tuiButton
                     type="button"
-                    appearance="primary"
-                    size="xs"
-                    (click)="saveEdit(operation)">
-                    💾
-                  </button>
-                  <button 
-                    tuiButton
-                    type="button"
                     appearance="secondary"
                     size="xs"
-                    (click)="cancelEdit()">
+                    (click)="cancelEdit(operation.id)">
                     ✕
                   </button>
                 </div>
@@ -290,6 +282,37 @@
         }
       }
     </tbody>
+    @if (showActions) {
+      <tfoot>
+        <tr class="operations-footer-row">
+          <td [attr.colspan]="6">
+            <div class="table-footer-actions">
+              <label class="edited-only-toggle">
+                <input
+                  type="checkbox"
+                  [checked]="showEditedOnly"
+                  (change)="toggleShowEditedOnly()"
+                />
+                Show edited only
+              </label>
+              <span class="edited-count">
+                {{ pendingEditsCount }} edited
+              </span>
+              @if (hasPendingEdits) {
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="primary"
+                  size="s"
+                  (click)="saveAllEdits()">
+                  Save all
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    }
   </table>
 </div>
 
