@@ -45,7 +45,7 @@
               <app-operations-table 
                 [operations]="group" 
                 [showActions]="true"
-                (operationDeleted)="onDeleteOperation($event)"
+                (operationsDeleted)="onDeleteOperations($event)"
                 (operationsUpdated)="onUpdateOperations($event)"
                 (operationNoteUpdated)="onUpdateOperationNote($event)">
               </app-operations-table>

@@ -143,8 +143,11 @@ export class LogbookGroupComponent implements OnInit {
     return new Date(year, month - 1, day);
   }
 
-  onDeleteOperation(operation: OperationResponse): void {
-    const confirmMessage = `Are you sure you want to delete this operation?\n\n${operation.description}\n${operation.amount.value} ${operation.amount.currencyCode}\n\nThis action cannot be undone.`;
+  onDeleteOperations(operations: OperationResponse[]): void {
+    const count = operations.length;
+    if (count === 0) return;
+
+    const confirmMessage = `Are you sure you want to delete ${count} operation${count === 1 ? '' : 's'}?\n\nThis action cannot be undone.`;
     
     if (!confirm(confirmMessage)) {
       return;
@@ -152,21 +155,21 @@ export class LogbookGroupComponent implements OnInit {
 
     this.isLoading = true;
     
-    this.operationsHelper.deleteOperation(this.budgetId, operation.id).subscribe({
+    this.operationsHelper.deleteOperations(this.budgetId, operations.map(operation => operation.id)).subscribe({
       next: (result) => {
         this.isLoading = false;
         
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
-          this.notificationService.showError(`Failed to delete operation: ${errorMessage}`).subscribe();
+          this.notificationService.showError(`Failed to delete operations: ${errorMessage}`).subscribe();
         } else {
-          this.notificationService.showSuccess('Operation deleted successfully').subscribe();
+          this.notificationService.showSuccess(`Deleted ${count} operation${count === 1 ? '' : 's'} successfully`).subscribe();
           this.loadOperations();
         }
       },
       error: (error) => {
         this.isLoading = false;
-        const errorMessage = this.notificationService.handleError(error, 'Failed to delete operation');
+        const errorMessage = this.notificationService.handleError(error, 'Failed to delete operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
     });

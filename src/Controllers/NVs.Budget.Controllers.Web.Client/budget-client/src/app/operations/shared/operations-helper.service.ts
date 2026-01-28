@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, switchMap, throwError } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { OperationResponse, BudgetResponse, UpdateResultResponse } from '../../budget/models';
+import { OperationResponse, BudgetResponse, UpdateResultResponse, DeleteResultResponse } from '../../budget/models';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +16,17 @@ export class OperationsHelperService {
   /**
    * Delete a single operation by ID
    */
-  deleteOperation(budgetId: string, operationId: string): Observable<any> {
-    const criteria = `o => o.Id == Guid.Parse("${operationId}")`;
+  deleteOperation(budgetId: string, operationId: string): Observable<DeleteResultResponse> {
+    return this.deleteOperations(budgetId, [operationId]);
+  }
+
+  /**
+   * Delete multiple operations by IDs
+   */
+  deleteOperations(budgetId: string, operationIds: string[]): Observable<DeleteResultResponse> {
+    const criteria = operationIds.length === 1
+      ? `o => o.Id == Guid.Parse("${operationIds[0]}")`
+      : `o => ${operationIds.map(id => `o.Id == Guid.Parse("${id}")`).join(' || ')}`;
     return this.operationsApi.removeOperations(budgetId, { criteria });
   }
 

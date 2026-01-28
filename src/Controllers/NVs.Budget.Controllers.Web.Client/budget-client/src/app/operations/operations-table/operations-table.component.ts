@@ -46,23 +46,24 @@ export class OperationsTableComponent {
     return this._operations;
   }
   @Input() showActions = true;
-  @Output() operationDeleted = new EventEmitter<OperationResponse>();
   @Output() operationsUpdated = new EventEmitter<OperationResponse[]>();
+  @Output() operationsDeleted = new EventEmitter<OperationResponse[]>();
   @Output() operationNoteUpdated = new EventEmitter<OperationResponse>();
   
   expandedOperationId: string | null = null;
   editingOperations: Record<string, EditableOperation> = {};
+  pendingDeleteIds = new Set<string>();
   sortField: 'amount' | 'timestamp' | 'description' | null = null;
   sortDirection: 'asc' | 'desc' | null = null;
   noteDrafts: Record<string, string> = {};
   noteSaveStatus: Record<string, 'idle' | 'saving' | 'saved' | 'error'> = {};
   private pendingNoteSaves: Record<string, string> = {};
   noteEditingId: string | null = null;
-  showEditedOnly = false;
+  showChangedOnly = false;
 
   get displayedOperations(): OperationResponse[] {
-    const baseOperations = this.showEditedOnly
-      ? this.operations.filter(operation => this.editingOperations[operation.id])
+    const baseOperations = this.showChangedOnly
+      ? this.operations.filter(operation => this.isChanged(operation.id))
       : this.operations;
 
     if (!this.sortField || !this.sortDirection) return baseOperations;
@@ -110,8 +111,14 @@ export class OperationsTableComponent {
     this.expandedOperationId = this.expandedOperationId === operationId ? null : operationId;
   }
 
-  deleteOperation(operation: OperationResponse): void {
-    this.operationDeleted.emit(operation);
+  toggleDelete(operation: OperationResponse): void {
+    if (this.pendingDeleteIds.has(operation.id)) {
+      this.pendingDeleteIds.delete(operation.id);
+      return;
+    }
+
+    this.pendingDeleteIds.add(operation.id);
+    delete this.editingOperations[operation.id];
   }
 
   startEdit(operation: OperationResponse): void {
@@ -146,8 +153,26 @@ export class OperationsTableComponent {
     this.editingOperations = {};
   }
 
+  deleteAllMarked(): void {
+    const operationsToDelete = this.operations.filter(operation => this.pendingDeleteIds.has(operation.id));
+    if (operationsToDelete.length === 0) {
+      return;
+    }
+
+    this.operationsDeleted.emit(operationsToDelete);
+    this.pendingDeleteIds.clear();
+  }
+
   isEditing(operationId: string): boolean {
     return Boolean(this.editingOperations[operationId]);
+  }
+
+  isDeleting(operationId: string): boolean {
+    return this.pendingDeleteIds.has(operationId);
+  }
+
+  isChanged(operationId: string): boolean {
+    return this.isEditing(operationId) || this.isDeleting(operationId);
   }
 
   get hasPendingEdits(): boolean {
@@ -158,8 +183,16 @@ export class OperationsTableComponent {
     return Object.keys(this.editingOperations).length;
   }
 
-  toggleShowEditedOnly(): void {
-    this.showEditedOnly = !this.showEditedOnly;
+  get hasPendingDeletes(): boolean {
+    return this.pendingDeleteIds.size > 0;
+  }
+
+  get pendingDeletesCount(): number {
+    return this.pendingDeleteIds.size;
+  }
+
+  toggleShowChangedOnly(): void {
+    this.showChangedOnly = !this.showChangedOnly;
   }
 
   addTag(operationId: string): void {
@@ -259,8 +292,13 @@ export class OperationsTableComponent {
         delete this.editingOperations[id];
       }
     }
-    if (this.showEditedOnly && Object.keys(this.editingOperations).length === 0) {
-      this.showEditedOnly = false;
+    for (const id of Array.from(this.pendingDeleteIds)) {
+      if (!seenIds.has(id)) {
+        this.pendingDeleteIds.delete(id);
+      }
+    }
+    if (this.showChangedOnly && !this.hasPendingEdits && !this.hasPendingDeletes) {
+      this.showChangedOnly = false;
     }
   }
 

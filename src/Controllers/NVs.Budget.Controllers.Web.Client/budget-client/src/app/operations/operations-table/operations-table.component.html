@@ -38,7 +38,7 @@
     </thead>
     <tbody>
       @for (operation of displayedOperations; track operation.id) {
-        <tr class="operation-row" [class.editing]="isEditing(operation.id)">
+        <tr class="operation-row" [class.editing]="isEditing(operation.id)" [class.deleting]="isDeleting(operation.id)">
           <td class="col-timestamp">{{ operation.timestamp | dateFormat }}</td>
           <td class="col-description">
             @if (isEditing(operation.id)) {
@@ -240,6 +240,7 @@
                     appearance="icon"
                     size="xs"
                     title="Edit operation"
+                    [disabled]="isDeleting(operation.id)"
                     (click)="startEdit(operation)">
                     ✏️
                   </button>
@@ -248,9 +249,11 @@
                     type="button"
                     appearance="icon"
                     size="xs"
-                    title="Delete operation"
-                    (click)="deleteOperation(operation)">
-                    🗑️
+                    [class.delete-marked]="isDeleting(operation.id)"
+                    [disabled]="isEditing(operation.id)"
+                    [title]="isDeleting(operation.id) ? 'Undo delete' : 'Mark for delete'"
+                    (click)="toggleDelete(operation)">
+                    {{ isDeleting(operation.id) ? '↩' : '🗑️' }}
                   </button>
                 </div>
               }
@@ -290,14 +293,21 @@
               <label class="edited-only-toggle">
                 <input
                   type="checkbox"
-                  [checked]="showEditedOnly"
-                  (change)="toggleShowEditedOnly()"
+                  [checked]="showChangedOnly"
+                  (change)="toggleShowChangedOnly()"
                 />
-                Show edited only
+                Show changed only
               </label>
-              <span class="edited-count">
-                {{ pendingEditsCount }} edited
-              </span>
+              @if (pendingEditsCount > 0) {
+                <span class="edited-count">
+                  {{ pendingEditsCount }} edited
+                </span>
+              }
+              @if (pendingDeletesCount > 0) {
+                <span class="deleted-count">
+                  {{ pendingDeletesCount }} deleted
+                </span>
+              }
               @if (hasPendingEdits) {
                 <button
                   tuiButton
@@ -306,6 +316,16 @@
                   size="s"
                   (click)="saveAllEdits()">
                   Save all
+                </button>
+              }
+              @if (hasPendingDeletes) {
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="destructive"
+                  size="s"
+                  (click)="deleteAllMarked()">
+                  Delete marked
                 </button>
               }
             </div>
