@@ -281,11 +281,11 @@
   font-size: 1rem;
 
   &.positive {
-    color: var(--tui-success-fill);
+    color: var(--tui-success-fill, #2e7d32);
   }
 
   &.negative {
-    color: var(--tui-error-fill);
+    color: var(--tui-error-fill, #c62828);
   }
 }
 
@@ -314,13 +314,13 @@
 .logbook-errors {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: var(--tui-error-bg);
-  border: 2px solid var(--tui-error-fill);
+  background: var(--tui-error-bg, #fdecea);
+  border: 2px solid var(--tui-error-fill, #c62828);
   border-radius: 0.5rem;
 
   h4 {
     margin: 0 0 1rem 0;
-    color: var(--tui-error-fill);
+    color: var(--tui-error-fill, #c62828);
   }
 }
 
@@ -336,7 +336,7 @@
   border-radius: 0.25rem;
   color: var(--tui-text-primary);
   font-size: 0.875rem;
-  border-left: 3px solid var(--tui-error-fill);
+  border-left: 3px solid var(--tui-error-fill, #c62828);
 }
 
 .error-message {

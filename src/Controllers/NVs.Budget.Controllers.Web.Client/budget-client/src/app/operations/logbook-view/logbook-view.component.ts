@@ -59,6 +59,8 @@ export class LogbookViewComponent implements OnInit {
   isLoading = false;
   logbook: LogbookResponse | null = null;
   showRelative = false;
+  invertRelative = false;
+  highlightRelative = true;
   
   currentCriteria = '';
   fromDate: string = '';
@@ -95,6 +97,10 @@ export class LogbookViewComponent implements OnInit {
   ];
 
   readonly items: string[] = ["RUB", "USD", "EUR"];
+  private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
   private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
@@ -458,15 +464,23 @@ export class LogbookViewComponent implements OnInit {
     if (currentValue === 0) {
       return null;
     }
-    const base = baseInfo.value;
-    if (!Number.isFinite(base) || !Number.isFinite(currentValue)) {
+    let previous = 0;
+    for (let i = rangeIndex - 1; i >= baseInfo.index; i -= 1) {
+      const candidateRangeName = this.ranges[i].name;
+      const candidateValue = this.getRangeSum(row, candidateRangeName);
+      if (candidateValue !== 0) {
+        previous = candidateValue;
+        break;
+      }
+    }
+    if (previous === 0) {
       return null;
     }
-    if (base === 0) {
-      return currentValue === 0 ? 0 : null;
+    if (!Number.isFinite(previous) || !Number.isFinite(currentValue)) {
+      return null;
     }
-    const delta = currentValue - base;
-    return (delta / Math.abs(base)) * 100;
+    const delta = currentValue - previous;
+    return (delta / Math.abs(previous)) * 100;
   }
 
   private expandAllRows(): void {
@@ -522,8 +536,12 @@ export class LogbookViewComponent implements OnInit {
     if (value === null || !Number.isFinite(value)) {
       return { value: null, display: '-' };
     }
-    const sign = value > 0 ? '+' : '';
-    return { value, display: `${sign}${this.relativeNumberFormat.format(value)}%` };
+    const adjustedValue = this.invertRelative ? -value : value;
+    const sign = adjustedValue > 0 ? '▲ ' : adjustedValue < 0 ? '▼ ' : '';
+    return {
+      value: adjustedValue,
+      display: `${sign}${this.relativeNumberFormat.format(Math.abs(adjustedValue))}%`
+    };
   }
 
   hasOperationsInRange(row: CriteriaRow, rangeName: string): boolean {

@@ -191,6 +191,24 @@
                 />
                 Relative (%)
               </label>
+              @if (showRelative) {
+                <label class="mode-toggle" tuiLabel>
+                  <input
+                    tuiCheckbox
+                    type="checkbox"
+                    [(ngModel)]="invertRelative"
+                  />
+                  Invert sign
+                </label>
+                <label class="mode-toggle" tuiLabel>
+                  <input
+                    tuiCheckbox
+                    type="checkbox"
+                    [(ngModel)]="highlightRelative"
+                  />
+                  Highlight changes
+                </label>
+              }
               <button
                 tuiButton
                 type="button"
@@ -282,8 +300,8 @@
                                     @if (relativeChange.value !== null) {
                                       <div class="sum-value relative-value"
                                            [class.base-value]="relativeChange.display === 'base'"
-                                           [class.positive]="relativeChange.value > 0"
-                                           [class.negative]="relativeChange.value < 0">
+                                           [class.positive]="highlightRelative && relativeChange.value > 0"
+                                           [class.negative]="highlightRelative && relativeChange.value < 0">
                                         {{ relativeChange.display }}
                                       </div>
                                     } @else {
