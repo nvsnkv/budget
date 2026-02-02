@@ -58,6 +58,7 @@ export class LogbookViewComponent implements OnInit {
   budgetId!: string;
   isLoading = false;
   logbook: LogbookResponse | null = null;
+  showRelative = false;
   
   currentCriteria = '';
   fromDate: string = '';
@@ -94,6 +95,10 @@ export class LogbookViewComponent implements OnInit {
   ];
 
   readonly items: string[] = ["RUB", "USD", "EUR"];
+  private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -423,6 +428,47 @@ export class LogbookViewComponent implements OnInit {
     return row.rangeData.get(rangeName)?.sum.value ?? 0;
   }
 
+  private getBaseInfo(row: CriteriaRow): { index: number; value: number } | null {
+    for (let i = 0; i < this.ranges.length; i += 1) {
+      const candidateRangeName = this.ranges[i].name;
+      const candidateValue = this.getRangeSum(row, candidateRangeName);
+      if (candidateValue !== 0) {
+        return { index: i, value: candidateValue };
+      }
+    }
+    return null;
+  }
+
+  private getRelativeChangeValue(row: CriteriaRow, rangeName: string): number | null {
+    if (this.ranges.length === 0) {
+      return null;
+    }
+    const rangeIndex = this.ranges.findIndex(range => range.name === rangeName);
+    const currentValue = this.getRangeSum(row, rangeName);
+    const baseInfo = this.getBaseInfo(row);
+    if (!baseInfo) {
+      return null;
+    }
+    if (rangeIndex < baseInfo.index) {
+      return null;
+    }
+    if (rangeIndex === baseInfo.index) {
+      return 0;
+    }
+    if (currentValue === 0) {
+      return null;
+    }
+    const base = baseInfo.value;
+    if (!Number.isFinite(base) || !Number.isFinite(currentValue)) {
+      return null;
+    }
+    if (base === 0) {
+      return currentValue === 0 ? 0 : null;
+    }
+    const delta = currentValue - base;
+    return (delta / Math.abs(base)) * 100;
+  }
+
   private expandAllRows(): void {
     this.expandedRows = new Set(this.getExpandablePaths());
   }
@@ -464,6 +510,20 @@ export class LogbookViewComponent implements OnInit {
 
   getEntryForRange(row: CriteriaRow, rangeName: string): LogbookEntryResponse | undefined {
     return row.rangeData.get(rangeName);
+  }
+
+  getRelativeChangeInfo(row: CriteriaRow, rangeName: string): { value: number | null; display: string } {
+    const rangeIndex = this.ranges.findIndex(range => range.name === rangeName);
+    const baseInfo = this.getBaseInfo(row);
+    if (baseInfo && rangeIndex === baseInfo.index) {
+      return { value: 0, display: 'base' };
+    }
+    const value = this.getRelativeChangeValue(row, rangeName);
+    if (value === null || !Number.isFinite(value)) {
+      return { value: null, display: '-' };
+    }
+    const sign = value > 0 ? '+' : '';
+    return { value, display: `${sign}${this.relativeNumberFormat.format(value)}%` };
   }
 
   hasOperationsInRange(row: CriteriaRow, rangeName: string): boolean {

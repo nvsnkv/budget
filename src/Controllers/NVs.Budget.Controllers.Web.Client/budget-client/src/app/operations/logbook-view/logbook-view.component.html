@@ -183,6 +183,14 @@
           <div class="header">
             <h3 tuiTitle size="m">Logbook Statistics</h3>
             <div class="header-actions">
+              <label class="mode-toggle" tuiLabel>
+                <input
+                  tuiCheckbox
+                  type="checkbox"
+                  [(ngModel)]="showRelative"
+                />
+                Relative (%)
+              </label>
               <button
                 tuiButton
                 type="button"
@@ -259,14 +267,29 @@
                                 </button>
                               }
                               @if (getEntryForRange(row, range.name); as entry) {
-                                @if (entry.sum.value !== 0) {
-                                  <div class="sum-value"
-                                       [class.positive]="entry.sum.value > 0"
-                                       [class.negative]="entry.sum.value < 0">
-                                    {{ entry.sum.value | currencyFormat }}
-                                  </div>
+                                @if (!showRelative) {
+                                  @if (entry.sum.value !== 0) {
+                                    <div class="sum-value"
+                                         [class.positive]="entry.sum.value > 0"
+                                         [class.negative]="entry.sum.value < 0">
+                                      {{ entry.sum.value | currencyFormat }}
+                                    </div>
+                                  } @else {
+                                    <div class="empty-cell">-</div>
+                                  }
                                 } @else {
-                                  <div class="empty-cell">-</div>
+                                  @if (getRelativeChangeInfo(row, range.name); as relativeChange) {
+                                    @if (relativeChange.value !== null) {
+                                      <div class="sum-value relative-value"
+                                           [class.base-value]="relativeChange.display === 'base'"
+                                           [class.positive]="relativeChange.value > 0"
+                                           [class.negative]="relativeChange.value < 0">
+                                        {{ relativeChange.display }}
+                                      </div>
+                                    } @else {
+                                      <div class="empty-cell">-</div>
+                                    }
+                                  }
                                 }
                               } @else {
                                 <div class="empty-cell">-</div>
