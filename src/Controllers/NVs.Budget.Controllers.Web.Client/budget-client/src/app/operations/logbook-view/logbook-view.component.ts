@@ -100,11 +100,7 @@ export class LogbookViewComponent implements OnInit {
   private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
-  });
-  private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  });
+  }); 
 
   constructor(
     private route: ActivatedRoute,
