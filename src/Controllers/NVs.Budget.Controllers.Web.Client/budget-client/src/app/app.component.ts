@@ -9,6 +9,7 @@ import { CommonModule } from "@angular/common";
 import { map } from "rxjs";
 import { BudgetSelectorComponent } from "./budget/budget-selector/budget-selector.component";
 import { ThemeService } from "./theme.service";
+import { AppVersionService } from "./app-version.service";
 
 if (environment.production) {
   enableProdMode();
@@ -28,8 +29,13 @@ export class AppComponent {
   get userId$() { return this.user.current$.pipe(map(u => u.id)); }
   get ownerName$() { return this.user.current$.pipe(map(u => u.ownerInfo?.name)); }
   get isDarkTheme$() { return this.theme.isDark$; }
+  get appVersion$() { return this.versionService.getVersion(); }
 
-  constructor(private user: UserService, private theme: ThemeService) {  }  
+  constructor(
+    private user: UserService,
+    private theme: ThemeService,
+    private versionService: AppVersionService
+  ) {  }  
   
   toggleTheme(): void {
     this.theme.toggleTheme();

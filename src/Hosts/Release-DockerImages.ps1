@@ -448,6 +448,48 @@ function Publish-DockerImage {
     }
 }
 
+# Create git tag for release version
+function Ensure-GitTag {
+    param(
+        [string]$RepositoryRoot,
+        [string]$Version
+    )
+    
+    Write-Step "Creating Git tag"
+    
+    try {
+        git -C $RepositoryRoot --version | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Git is not available"
+        }
+    }
+    catch {
+        Write-Warning "Git is not available. Skipping tag creation."
+        return
+    }
+    
+    try {
+        $existingTag = git -C $RepositoryRoot tag --list $Version
+        if (-not [string]::IsNullOrWhiteSpace($existingTag)) {
+            Write-Info "Git tag '$Version' already exists. Skipping creation."
+            return
+        }
+        
+        git -C $RepositoryRoot tag -a $Version -m "Release $Version"
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-ErrorMessage "Failed to create git tag '$Version'"
+            exit 1
+        }
+        
+        Write-Success "Created git tag '$Version'"
+    }
+    catch {
+        Write-ErrorMessage "Failed to create git tag '$Version': $_"
+        exit 1
+    }
+}
+
 # Main script execution
 function Main {
     Write-ColorOutput @"
@@ -511,6 +553,9 @@ function Main {
         $Version = Get-NextVersion -ImageName $serverImageName -RegistryPrefix $registryPrefix
         Write-Success "Generated version: $Version"
     }
+    
+    # Create git tag before building images
+    Ensure-GitTag -RepositoryRoot $repoRoot -Version $Version
     
     # Local tags
     $serverLocalTag = "${serverImageName}:${Version}"
