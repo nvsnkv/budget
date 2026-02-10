@@ -1,7 +1,7 @@
 <div class="budget-detail-container">
   @if (budget$ | async; as budget) {
     <tui-loader [overlay]="true" [showLoader]="isLoading">
-      <div tuiCardLarge class="budget-card">
+      <div class="budget-card">
         <!-- Header with title and actions -->
         <h2 tuiTitle size="l">{{ budget.name }}</h2>
         <div class="header-actions">

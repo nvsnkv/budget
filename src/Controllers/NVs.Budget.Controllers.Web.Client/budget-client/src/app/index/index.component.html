@@ -17,8 +17,7 @@
         @if (budgets.length > 0) {
           <div class="budgets-grid">
             @for (budget of budgets; track budget.id) {
-              <div 
-                tuiCardLarge
+              <div
                 class="budget-item"
                 (click)="viewBudget(budget.id)">
                 <h3 tuiTitle size="m">{{ budget.name }}</h3>
@@ -64,7 +63,7 @@
             }
           </div>
         } @else {
-          <div tuiCardLarge class="empty-state">
+          <div class="empty-state">
             <h3 tuiTitle size="m">No budgets yet</h3>
             <p>Create your first budget to get started!</p>
             <button 
@@ -84,7 +83,7 @@
       }
     </div>
   } @else {
-    <div tuiCardLarge class="welcome-card">
+    <div class="welcome-card">
       <h2 tuiTitle size="l">Welcome to Budget Manager</h2>
       <p>Please log in to manage your budgets.</p>
     </div>
