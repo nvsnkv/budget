@@ -1,2 +1,15 @@
 @import 'node_modules/@taiga-ui/core/styles/taiga-ui-theme.less';
 @import 'node_modules/@taiga-ui/core/styles/taiga-ui-fonts.less';
+
+// Taiga surfaces/cards can trap wheel scroll by using overscroll containment.
+// Force normal scroll chaining so page scroll works while cursor is over those blocks.
+[tuiCardLarge],
+[tuiCardMedium],
+[data-surface] {
+  overscroll-behavior: auto !important;
+}
+
+[tuiCardLarge] > *,
+[tuiCardMedium] > * {
+  overscroll-behavior: auto !important;
+}
