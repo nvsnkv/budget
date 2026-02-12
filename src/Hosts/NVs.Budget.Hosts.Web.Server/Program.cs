@@ -67,6 +67,21 @@ app.MapGet("/admin/patch-db", async (IEnumerable<IDbMigrator> migrators, Cancell
         await migrator.MigrateAsync(ct);
     }
 });
+app.MapPost("/admin/rollback-last-migration", async (bool confirm, IEnumerable<IDbMigrator> migrators, CancellationToken ct) =>
+{
+    if (!confirm)
+    {
+        return Results.BadRequest("Set query parameter 'confirm=true' to rollback last migration.");
+    }
+
+    var rollbacks = new List<MigrationRollbackResult>();
+    foreach (var migrator in migrators)
+    {
+        rollbacks.Add(await migrator.RollbackLastMigrationAsync(ct));
+    }
+
+    return Results.Ok(rollbacks);
+});
 app.MapGet("/health", () => Results.Ok());
 
 app.MapControllers();
