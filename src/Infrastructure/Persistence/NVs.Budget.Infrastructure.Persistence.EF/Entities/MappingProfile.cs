@@ -59,6 +59,7 @@ internal class MappingProfile : Profile
         CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
         CreateMap<TransferCriterion, StoredTransferCriterion>().ReverseMap();
         CreateMap<LogbookCriteria, StoredLogbookCriteria>().ReverseMap();
+        CreateMap<LogbookCriteria, StoredNamedLogbookCriteria>().ReverseMap();
 
         CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
         CreateMap<TrackedBudget, StoredBudget>().ReverseMap();

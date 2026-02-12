@@ -158,6 +158,7 @@ export class OperationsApiService {
    */
   getLogbook(
     budgetId: string,
+    logbookId: string,
     from?: Date,
     till?: Date,
     criteria?: string,
@@ -171,6 +172,7 @@ export class OperationsApiService {
     if (till) {
       params.till = till.toISOString();
     }
+    params.logbookId = logbookId;
     if (criteria) {
       params.criteria = criteria;
     }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
+import { BudgetApiService } from '../../budget/budget-api.service';
 import { 
   TuiButton, 
   TuiLoader,
@@ -10,13 +11,12 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiAccordion, TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
 import { ExamplesSectionComponent } from '../shared/components/examples-section/examples-section.component';
 import { CriteriaExample } from '../shared/models/example.interface';
-import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse } from '../../budget/models';
+import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse, LogbookCriteriaResponse } from '../../budget/models';
 import { LogbookStateService } from './logbook-state.service';
 
 interface CriteriaRow {
@@ -38,7 +38,6 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     FormsModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     TuiTextfield,
     TuiLabel,
@@ -72,6 +71,8 @@ export class LogbookViewComponent implements OnInit {
   selectedDatePreset: 'lastYear' | 'currentYear' | 'lastMonth' | 'currentMonth' | null = null;
   selectedCronPreset: 'monthly' | 'yearly' | null = null;
   showFilters = true;
+  namedCriteria: LogbookCriteriaResponse[] = [];
+  selectedLogbookId = '';
   
   ranges: NamedRangeResponse[] = [];
   criteriaRows: CriteriaRow[] = [];
@@ -106,6 +107,7 @@ export class LogbookViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
+    private budgetApi: BudgetApiService,
     private notificationService: NotificationService,
     private logbookStateService: LogbookStateService
   ) {
@@ -137,8 +139,11 @@ export class LogbookViewComponent implements OnInit {
     if (queryParams['outputCurrency']) {
       this.outputCurrency = queryParams['outputCurrency'];
     }
-    
-    this.loadLogbook();
+    if (queryParams['logbookId']) {
+      this.selectedLogbookId = queryParams['logbookId'];
+    }
+
+    this.loadNamedCriteriaAndLogbook();
   }
 
   onCriteriaSubmitted(criteria: string): void {
@@ -169,6 +174,7 @@ export class LogbookViewComponent implements OnInit {
       queryParams: {
         from: this.fromDate || undefined,
         till: this.tillDate || undefined,
+        logbookId: this.selectedLogbookId || undefined,
         criteria: this.currentCriteria || undefined,
         cronExpression: this.cronExpression || undefined,
         outputCurrency: this.outputCurrency || undefined
@@ -177,6 +183,11 @@ export class LogbookViewComponent implements OnInit {
     });
     
     this.loadLogbook();
+  }
+
+  onSelectedLogbookChange(selected: string | null): void {
+    this.selectedLogbookId = selected ?? '';
+    this.clearStateAndReload();
   }
 
   private resetToDefaultDateRange(): void {
@@ -189,6 +200,12 @@ export class LogbookViewComponent implements OnInit {
   }
 
   loadLogbook(): void {
+    if (!this.selectedLogbookId) {
+      this.logbook = null;
+      this.notificationService.showError('Please select a logbook criteria').subscribe();
+      return;
+    }
+
     this.isLoading = true;
     this.logbook = null;
     this.ranges = [];
@@ -201,6 +218,7 @@ export class LogbookViewComponent implements OnInit {
 
     this.operationsApi.getLogbook(
       this.budgetId,
+      this.selectedLogbookId,
       from,
       till,
       this.currentCriteria || undefined,
@@ -241,6 +259,22 @@ export class LogbookViewComponent implements OnInit {
         this.isLoading = false;
         const errorMessage = this.notificationService.handleError(error, 'Failed to load logbook');
         this.notificationService.showError(errorMessage).subscribe();
+      }
+    });
+  }
+
+  private loadNamedCriteriaAndLogbook(): void {
+    this.budgetApi.getBudgetById(this.budgetId).subscribe({
+      next: budget => {
+        this.namedCriteria = budget?.logbookCriteria ?? [];
+        if (!this.selectedLogbookId && this.namedCriteria.length > 0) {
+          this.selectedLogbookId = this.namedCriteria[0].criteriaId;
+        }
+        this.loadLogbook();
+      },
+      error: () => {
+        this.namedCriteria = [];
+        this.loadLogbook();
       }
     });
   }
@@ -511,6 +545,7 @@ export class LogbookViewComponent implements OnInit {
         criteriaPath: row.path,
         from: this.fromDate,
         till: this.tillDate,
+        logbookId: this.selectedLogbookId || undefined,
         criteria: this.currentCriteria || undefined,
         cronExpression: this.cronExpression || undefined,
         outputCurrency: this.outputCurrency || undefined

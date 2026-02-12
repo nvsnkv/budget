@@ -6,6 +6,8 @@ using NVs.Budget.Utilities.Expressions;
 namespace NVs.Budget.Application.Contracts.Criteria;
 
 public class LogbookCriteria(
+    Guid criteriaId,
+    string name,
     string description,
     IReadOnlyCollection<LogbookCriteria>? subcriteria,
     TagBasedCriterionType? type,
@@ -14,8 +16,10 @@ public class LogbookCriteria(
     ReadableExpression<Func<Operation, bool>>? criteria,
     bool? isUniversal)
 {
-    public static readonly LogbookCriteria Universal = new(string.Empty, null, null, null, null, null, true);
+    public static readonly LogbookCriteria Universal = new(Guid.NewGuid(), "Default", string.Empty, null, null, null, null, null, true);
 
+    public Guid CriteriaId { get; } = criteriaId;
+    public string Name { get; } = name;
     public string Description { get; } = description;
     public IReadOnlyCollection<LogbookCriteria>? Subcriteria { get; } = subcriteria;
     public TagBasedCriterionType? Type { get; } = type;

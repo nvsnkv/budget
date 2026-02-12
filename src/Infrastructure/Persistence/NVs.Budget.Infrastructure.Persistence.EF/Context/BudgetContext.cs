@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NMoneys;
 using NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
@@ -50,11 +50,11 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
         bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
         bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(c => c.Budget);
         bBuilder.OwnsMany<StoredTransferCriterion>(b => b.TransferCriteria).WithOwner(c => c.Budget);
-        bBuilder.OwnsOne<StoredLogbookCriteria>(b => b.LogbookCriteria, d =>
+        bBuilder.OwnsMany<StoredNamedLogbookCriteria>(b => b.LogbookCriteria, d =>
         {
-            d.ToJson();
-            d.OwnsMany<StoredTag>(c => c.Tags);
-            d.OwnsMany<StoredLogbookCriteria>(c => c.Subcriteria, c => ConfigureSubcriteria(c));
+            d.WithOwner();
+            d.ToJson("LogbookCriteria");
+            ConfigureSubcriteria(d);
         });
 
         var tBuilder = modelBuilder.Entity<StoredTransfer>();
@@ -84,8 +84,31 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
         base.OnModelCreating(modelBuilder);
     }
 
-    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredLogbookCriteria, StoredLogbookCriteria> s, int recursion = 10)
+    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredBudget, StoredNamedLogbookCriteria> s, int recursion = 3)
     {
+        s.WithOwner();
+        s.OwnsMany<StoredTag>(e => e.Tags);
+        var remainingDepth = recursion - 1;
+        if (remainingDepth > 0)
+        {
+            s.OwnsMany<StoredLogbookCriteria>(e => e.Subcriteria, e => ConfigureSubcriteria(e, remainingDepth));
+        }
+    }
+
+    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredNamedLogbookCriteria, StoredLogbookCriteria> s, int recursion = 3)
+    {
+        s.WithOwner();
+        s.OwnsMany<StoredTag>(e => e.Tags);
+        var remainingDepth = recursion - 1;
+        if (remainingDepth > 0)
+        {
+            s.OwnsMany<StoredLogbookCriteria>(e => e.Subcriteria, e => ConfigureSubcriteria(e, remainingDepth));
+        }
+    }
+
+    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredLogbookCriteria, StoredLogbookCriteria> s, int recursion = 3)
+    {
+        s.WithOwner();
         s.OwnsMany<StoredTag>(e => e.Tags);
         var remainingDepth = recursion - 1;
         if (remainingDepth > 0)

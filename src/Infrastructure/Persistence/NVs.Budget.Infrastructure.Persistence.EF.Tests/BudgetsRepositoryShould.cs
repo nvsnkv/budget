@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
@@ -52,9 +52,13 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
     public async Task UpdateLogbookCriteriaForBudget()
     {
         var expected = new LogbookCriteria(
+            Guid.NewGuid(),
+            "Primary",
             manager.TestData.Fixture.Create<string>(),
             [
                 new LogbookCriteria(
+                    Guid.NewGuid(),
+                    "Child 1",
                     manager.TestData.Fixture.Create<string>(),
                     null,
                     manager.TestData.Fixture.Create<TagBasedCriterionType>(),
@@ -62,6 +66,8 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
                     null, null, null
                 ),
                 new LogbookCriteria(
+                    Guid.NewGuid(),
+                    "Child 2",
                     manager.TestData.Fixture.Create<string>(),
                     null, null, null, manager.TestData.Fixture.Create<ReadableExpression<Func<Operation, string>>>(),
                     null, null
@@ -81,7 +87,8 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
         var result = await _repo.Update(updated, CancellationToken.None);
         result.Should().BeSuccess();
 
-        result.Value.LogbookCriteria.Should().BeEquivalentTo(expected);
+        result.Value.LogbookCriteria.Should().ContainSingle();
+        result.Value.LogbookCriteria.Single().Should().BeEquivalentTo(expected);
     }
 
     [Fact]
@@ -147,11 +154,11 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
 
         updated.Version = target.Version;
 
-        var criteria = new LogbookCriteria("Universal", [
-            new LogbookCriteria("odds", [
-                new LogbookCriteria("subst", null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(), null, null)
+        var criteria = new LogbookCriteria(Guid.NewGuid(), "Universal", "Universal", [
+            new LogbookCriteria(Guid.NewGuid(), "odds", "odds", [
+                new LogbookCriteria(Guid.NewGuid(), "subst", "subst", null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(), null, null)
             ], TagBasedCriterionType.Including, [new("Odd")], null, null, null),
-            new LogbookCriteria("evens", null, TagBasedCriterionType.Including, [new("Evens")], null, null, null)
+            new LogbookCriteria(Guid.NewGuid(), "evens", "evens", null, TagBasedCriterionType.Including, [new("Evens")], null, null, null)
             ],
             null, null, null, null, true
         );
@@ -161,7 +168,41 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
         var result = await _repo.Update(updated, CancellationToken.None);
         result.Should().BeSuccess();
         var red = (await _repo.Get(a => a.Id == id, CancellationToken.None)).Single();
-        red.LogbookCriteria.Should().BeEquivalentTo(criteria);
+        red.LogbookCriteria.Should().ContainSingle();
+        red.LogbookCriteria.Single().Should().BeEquivalentTo(criteria);
+    }
+
+    [Fact]
+    public async Task UpdateSingleLogbookWithoutAffectingOtherLogbooks()
+    {
+        var id = manager.TestData.Budgets.First().Id;
+        var targets = await _repo.Get(a => a.Id == id, CancellationToken.None);
+        var target = targets.Single();
+
+        var primary = new LogbookCriteria(Guid.NewGuid(), "Primary", "Primary criteria", null, null, null, null, null, true);
+        var secondary = new LogbookCriteria(Guid.NewGuid(), "Secondary", "Secondary criteria", null, null, null, null, null, true);
+
+        var seed = new TrackedBudget(target.Id, target.Name, target.Owners, target.TaggingCriteria, target.TransferCriteria, [primary, secondary])
+        {
+            Version = target.Version
+        };
+        var seedResult = await _repo.Update(seed, CancellationToken.None);
+        seedResult.Should().BeSuccess();
+
+        var updatedPrimary = new LogbookCriteria(primary.CriteriaId, primary.Name, "Updated primary", null, null, null, null, null, true);
+
+        var update = new TrackedBudget(target.Id, target.Name, target.Owners, target.TaggingCriteria, target.TransferCriteria, [updatedPrimary, secondary])
+        {
+            Version = seedResult.Value.Version
+        };
+
+        var updateResult = await _repo.Update(update, CancellationToken.None);
+        updateResult.Should().BeSuccess();
+
+        var reloaded = (await _repo.Get(a => a.Id == id, CancellationToken.None)).Single();
+        reloaded.LogbookCriteria.Should().HaveCount(2);
+        reloaded.LogbookCriteria.Single(l => l.CriteriaId == updatedPrimary.CriteriaId).Description.Should().Be("Updated primary");
+        reloaded.LogbookCriteria.Single(l => l.CriteriaId == secondary.CriteriaId).Description.Should().Be("Secondary criteria");
     }
 
 }

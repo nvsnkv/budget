@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;

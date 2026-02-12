@@ -32,16 +32,20 @@ transferCriteria:
     comment: Transfer
     criterion: (source, sink) => source.Amount.Amount == sink.Amount.Amount * -1
 logbookCriteria:
-  description: Main criteria
-  isUniversal: false
-  type: Any
-  tags:
-    - income
-    - expense
-  substitution: o => o.Description
-  subcriteria:
-    - description: Income subcriteria
-      isUniversal: true
+  - criteriaId: 11111111-1111-1111-1111-111111111111
+    name: Main
+    description: Main criteria
+    isUniversal: false
+    type: Any
+    tags:
+      - income
+      - expense
+    substitution: o => o.Description
+    subcriteria:
+      - criteriaId: 11111111-1111-1111-1111-111111111112
+        name: Income
+        description: Income subcriteria
+        isUniversal: true
 ";
 
         // Act
@@ -65,12 +69,14 @@ logbookCriteria:
         criterionResponse.Comment.Should().Be("Transfer");
         
         result.LogbookCriteria.Should().NotBeNull();
-        result.LogbookCriteria!.Description.Should().Be("Main criteria");
-        result.LogbookCriteria.IsUniversal.Should().BeFalse();
-        result.LogbookCriteria.Type.Should().Be("Any");
-        result.LogbookCriteria.Tags.Should().Contain(new[] { "income", "expense" });
-        result.LogbookCriteria.Subcriteria.Should().HaveCount(1);
-        var criteriaResponse = result.LogbookCriteria.Subcriteria!.First();
+        result.LogbookCriteria.Should().HaveCount(1);
+        var logbookCriteria = result.LogbookCriteria!.First();
+        logbookCriteria.Description.Should().Be("Main criteria");
+        logbookCriteria.IsUniversal.Should().BeFalse();
+        logbookCriteria.Type.Should().Be("Any");
+        logbookCriteria.Tags.Should().Contain(new[] { "income", "expense" });
+        logbookCriteria.Subcriteria.Should().HaveCount(1);
+        var criteriaResponse = logbookCriteria.Subcriteria!.First();
         criteriaResponse.Description.Should().Be("Income subcriteria");
         criteriaResponse.IsUniversal.Should().BeTrue();
     }
@@ -83,8 +89,10 @@ logbookCriteria:
 name: Simple Budget
 version: v1.0
 logbookCriteria:
-  description: Universal
-  isUniversal: true
+  - criteriaId: 11111111-1111-1111-1111-111111111113
+    name: Universal
+    description: Universal
+    isUniversal: true
 ";
 
         // Act
@@ -97,7 +105,8 @@ logbookCriteria:
         result.TaggingCriteria.Should().BeNullOrEmpty();
         result.TransferCriteria.Should().BeNullOrEmpty();
         result.LogbookCriteria.Should().NotBeNull();
-        result.LogbookCriteria!.IsUniversal.Should().BeTrue();
+        result.LogbookCriteria.Should().HaveCount(1);
+        result.LogbookCriteria!.First().IsUniversal.Should().BeTrue();
     }
 
     [Fact]
@@ -164,6 +173,8 @@ taggingCriteria:
     {
         // Arrange
         var yaml = @"
+criteriaId: 11111111-1111-1111-1111-111111111120
+name: Root
 description: Root criteria
 type: Any
 tags:
@@ -171,10 +182,14 @@ tags:
   - tag2
 substitution: o => o.Description
 subcriteria:
-  - description: Level 1
+  - criteriaId: 11111111-1111-1111-1111-111111111121
+    name: Level 1
+    description: Level 1
     isUniversal: true
     subcriteria:
-      - description: Level 2
+      - criteriaId: 11111111-1111-1111-1111-111111111122
+        name: Level 2
+        description: Level 2
         criteria: o => o.Amount.Amount > 0
 ";
 

@@ -1,4 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Application", "1. Application", "{4D906D63-8704-470A-B3BF-64A314A8B1A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Domain", "Domain\NVs.Budget.Domain\NVs.Budget.Domain.csproj", "{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}"
@@ -75,6 +76,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Infrastructure.Files.CSV.Tests", "Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV.Tests\NVs.Budget.Infrastructure.Files.CSV.Tests.csproj", "{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Controllers", "Controllers", "{1582161F-C08D-4502-B946-E9B0D209844A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVs.Budget.Controllers.Web.IntegrationTests", "Controllers\NVs.Budget.Controllers.Web.IntegrationTests\NVs.Budget.Controllers.Web.IntegrationTests.csproj", "{9FB315AD-D890-4270-A527-53A7330C48DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,6 +117,7 @@ Global
 		{E9FA870F-88B4-49A3-8FC3-514DF54B23A0} = {63BD943D-0D12-4C50-A4DB-3F86BBFC0396}
 		{1F75A498-5698-41E4-B8B6-3C5035D4BAC0} = {63BD943D-0D12-4C50-A4DB-3F86BBFC0396}
 		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A} = {63BD943D-0D12-4C50-A4DB-3F86BBFC0396}
+		{9FB315AD-D890-4270-A527-53A7330C48DD} = {1582161F-C08D-4502-B946-E9B0D209844A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A757A6B7-3317-493A-B9CB-DA97CCCA6A7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -226,5 +232,9 @@ Global
 		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FDB9523-4A5F-40DA-971A-E9F63A6F5D5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FB315AD-D890-4270-A527-53A7330C48DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FB315AD-D890-4270-A527-53A7330C48DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FB315AD-D890-4270-A527-53A7330C48DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FB315AD-D890-4270-A527-53A7330C48DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

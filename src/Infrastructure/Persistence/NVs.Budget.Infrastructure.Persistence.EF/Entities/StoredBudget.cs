@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
@@ -23,5 +23,5 @@ internal class StoredBudget(Guid id, string name) : DbRecord, ITrackableEntity<G
     public virtual IList<StoredTaggingCriterion> TaggingCriteria { get; init; } = new List<StoredTaggingCriterion>();
     public virtual IList<StoredTransferCriterion> TransferCriteria { get; init; } = new List<StoredTransferCriterion>();
 
-    public virtual StoredLogbookCriteria LogbookCriteria { get; set; } = StoredLogbookCriteria.Universal;
+    public virtual IList<StoredNamedLogbookCriteria> LogbookCriteria { get; set; } = new List<StoredNamedLogbookCriteria>();
 }

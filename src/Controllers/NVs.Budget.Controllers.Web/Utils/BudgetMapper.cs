@@ -18,7 +18,7 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             budget.Owners,
             budget.TaggingCriteria.Select(ToResponse).ToList(),
             budget.TransferCriteria.Select(ToResponse).ToList(),
-            ToResponse(budget.LogbookCriteria)
+            budget.LogbookCriteria.Select(ToResponse).ToList()
         );
     }
 
@@ -45,6 +45,8 @@ public class BudgetMapper(ReadableExpressionsParser parser)
     {
         return new LogbookCriteriaResponse
         {
+            CriteriaId = criteria.CriteriaId,
+            Name = criteria.Name,
             Description = criteria.Description,
             Subcriteria = criteria.Subcriteria?.Select(ToResponse).ToList(),
             Type = criteria.Type?.ToString(),
@@ -90,6 +92,16 @@ public class BudgetMapper(ReadableExpressionsParser parser)
 
     public Result<LogbookCriteria> FromRequest(LogbookCriteriaResponse request)
     {
+        if (request.CriteriaId == Guid.Empty)
+        {
+            return Result.Fail<LogbookCriteria>("CriteriaId is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return Result.Fail<LogbookCriteria>("Name is required");
+        }
+
         // Parse subcriteria recursively if present
         List<LogbookCriteria>? subcriteria = null;
         if (request.Subcriteria != null)
@@ -149,6 +161,8 @@ public class BudgetMapper(ReadableExpressionsParser parser)
         }
 
         return Result.Ok(new LogbookCriteria(
+            request.CriteriaId,
+            request.Name.Trim(),
             request.Description,
             subcriteria,
             type,
@@ -158,4 +172,5 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             request.IsUniversal
         ));
     }
+
 }

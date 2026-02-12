@@ -474,6 +474,7 @@ public class OperationsController(
     /// <param name="budgetId">Budget ID from route</param>
     /// <param name="from">Start date for filtering operations</param>
     /// <param name="till">End date for filtering operations</param>
+    /// <param name="logbookId">Selected logbook identifier</param>
     /// <param name="criteria">Optional additional filter criteria expression</param>
     /// <param name="cronExpression">Optional cron expression to divide logbook into ranges</param>
     /// <param name="outputCurrency">Optional output currency for conversion</param>
@@ -487,11 +488,17 @@ public class OperationsController(
         [FromRoute] Guid budgetId,
         [FromQuery] DateTime? from = null,
         [FromQuery] DateTime? till = null,
+        [FromQuery] Guid logbookId = default,
         [FromQuery] string? criteria = null,
         [FromQuery] string? cronExpression = null,
         [FromQuery] string? outputCurrency = null,
         CancellationToken ct = default)
     {
+        if (logbookId == Guid.Empty)
+        {
+            return BadRequest(new List<Error> { new("Query parameter 'logbookId' is required") });
+        }
+
         // Validate budget access
         var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
         var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
@@ -547,8 +554,14 @@ public class OperationsController(
             }
         }
 
+        var selectedLogbook = budget.LogbookCriteria.FirstOrDefault(l => l.CriteriaId == logbookId);
+        if (selectedLogbook == null)
+        {
+            return BadRequest(new List<Error> { new($"Logbook with ID '{logbookId}' was not found for this budget") });
+        }
+
         // Execute query
-        var query = new CalcOperationsStatisticsQuery(budget.LogbookCriteria.GetCriterion(), filter, currency, true);
+        var query = new CalcOperationsStatisticsQuery(selectedLogbook.GetCriterion(), filter, currency, true);
         var result = await mediator.Send(query, ct);
 
         if (result.IsFailed)

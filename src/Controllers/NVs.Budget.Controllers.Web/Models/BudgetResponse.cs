@@ -9,7 +9,7 @@ public record BudgetResponse(
     IReadOnlyCollection<Owner> Owners,
     IReadOnlyCollection<TaggingCriterionResponse> TaggingCriteria,
     IReadOnlyCollection<TransferCriterionResponse> TransferCriteria,
-    LogbookCriteriaResponse LogbookCriteria
+    IReadOnlyCollection<LogbookCriteriaResponse> LogbookCriteria
 );
 
 public class TaggingCriterionResponse
@@ -44,6 +44,8 @@ public class TransferCriterionResponse
 
 public class LogbookCriteriaResponse
 {
+    public Guid CriteriaId { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public List<LogbookCriteriaResponse>? Subcriteria { get; set; }
     public string? Type { get; set; }
@@ -55,6 +57,8 @@ public class LogbookCriteriaResponse
     // Constructor for backward compatibility with tests
     public LogbookCriteriaResponse() { }
     public LogbookCriteriaResponse(
+        Guid criteriaId,
+        string name,
         string description,
         IReadOnlyCollection<LogbookCriteriaResponse>? subcriteria,
         string? type,
@@ -63,6 +67,8 @@ public class LogbookCriteriaResponse
         string? criteria,
         bool? isUniversal)
     {
+        CriteriaId = criteriaId;
+        Name = name;
         Description = description;
         Subcriteria = subcriteria?.ToList();
         Type = type;
@@ -79,5 +85,5 @@ public class UpdateBudgetRequest
     public string Version { get; set; } = string.Empty;
     public List<TaggingCriterionResponse>? TaggingCriteria { get; set; }
     public List<TransferCriterionResponse>? TransferCriteria { get; set; }
-    public LogbookCriteriaResponse? LogbookCriteria { get; set; }
+    public List<LogbookCriteriaResponse>? LogbookCriteria { get; set; }
 }

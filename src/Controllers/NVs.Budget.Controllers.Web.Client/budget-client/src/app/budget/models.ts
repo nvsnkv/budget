@@ -16,6 +16,8 @@ export interface TransferCriterionResponse {
 }
 
 export interface LogbookCriteriaResponse {
+  criteriaId: string;
+  name: string;
   description: string;
   subcriteria?: LogbookCriteriaResponse[];
   type?: string;
@@ -32,7 +34,7 @@ export interface BudgetResponse {
   owners: Owner[];
   taggingCriteria: TaggingCriterionResponse[];
   transferCriteria: TransferCriterionResponse[];
-  logbookCriteria: LogbookCriteriaResponse;
+  logbookCriteria: LogbookCriteriaResponse[];
 }
 
 export interface BudgetIdentifier {
@@ -54,7 +56,7 @@ export interface UpdateBudgetRequest {
   version: string;
   taggingCriteria?: TaggingCriterionResponse[];
   transferCriteria?: TransferCriterionResponse[];
-  logbookCriteria?: LogbookCriteriaResponse;
+  logbookCriteria?: LogbookCriteriaResponse[];
 }
 
 export interface MergeBudgetsRequest {

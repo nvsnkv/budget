@@ -7,7 +7,6 @@ import {
   TuiLoader,
   TuiTitle
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
@@ -20,7 +19,6 @@ import { LogbookResponse, OperationResponse } from '../../budget/models';
     CommonModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     OperationsTableComponent
   ],
@@ -36,6 +34,7 @@ export class LogbookGroupComponent implements OnInit {
   criteria?: string;
   cronExpression?: string;
   outputCurrency?: string;
+  logbookId = '';
   
   isLoading = false;
   operations: OperationResponse[] = [];
@@ -58,6 +57,7 @@ export class LogbookGroupComponent implements OnInit {
     this.criteria = this.route.snapshot.queryParams['criteria'];
     this.cronExpression = this.route.snapshot.queryParams['cronExpression'];
     this.outputCurrency = this.route.snapshot.queryParams['outputCurrency'];
+    this.logbookId = this.route.snapshot.queryParams['logbookId'] || '';
     
     const pathParts = this.criteriaPath.split('/');
     const criteriaName = pathParts[pathParts.length - 1] || 'Group';
@@ -67,6 +67,11 @@ export class LogbookGroupComponent implements OnInit {
   }
 
   loadOperations(): void {
+    if (!this.logbookId) {
+      this.notificationService.showError('Missing logbookId in route query parameters').subscribe();
+      return;
+    }
+
     this.isLoading = true;
     
     const from = this.fromDate ? this.parseDateInput(this.fromDate) : undefined;
@@ -74,6 +79,7 @@ export class LogbookGroupComponent implements OnInit {
 
     this.operationsApi.getLogbook(
       this.budgetId,
+      this.logbookId,
       from,
       till,
       this.criteria,
@@ -128,6 +134,7 @@ export class LogbookGroupComponent implements OnInit {
       queryParams: {
         from: this.fromDate,
         till: this.tillDate,
+        logbookId: this.logbookId,
         criteria: this.criteria,
         cronExpression: this.cronExpression,
         outputCurrency: this.outputCurrency

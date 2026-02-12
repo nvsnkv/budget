@@ -29,6 +29,19 @@
           </button>
         </div>
         @if (showFilters) {
+        @if (namedCriteria.length > 0) {
+          <div class="logbook-selector">
+            <label class="select-label">Logbook</label>
+            <select
+              class="tui-select"
+              [(ngModel)]="selectedLogbookId"
+              (ngModelChange)="onSelectedLogbookChange($event)">
+              @for (logbook of namedCriteria; track logbook.criteriaId || $index) {
+                <option [value]="logbook.criteriaId">{{ logbook.name || ('Criteria ' + ($index + 1)) }}</option>
+              }
+            </select>
+          </div>
+        }
         <div class="additional-parameters">
         <div class="date-range-section">
               <div class="section-header">

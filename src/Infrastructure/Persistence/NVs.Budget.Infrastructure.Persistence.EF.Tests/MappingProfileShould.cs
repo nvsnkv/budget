@@ -57,8 +57,12 @@ public class MappingProfileShould
     private static void SetupLogbookCriteria(Fixture fixture)
     {
         fixture.Inject(new LogbookCriteria(
+            Guid.NewGuid(),
+            "Root",
             fixture.Create<string>(),
             [new LogbookCriteria(
+                Guid.NewGuid(),
+                "Child 1",
                 fixture.Create<string>(),
                 null,
                 fixture.Create<TagBasedCriterionType>(),
@@ -66,6 +70,8 @@ public class MappingProfileShould
                 null, null, null
                     ),
             new LogbookCriteria(
+                Guid.NewGuid(),
+                "Child 2",
                 fixture.Create<string>(),
                 null, null, null, fixture.Create<ReadableExpression<Func<Operation, string>>>(),
                 null, null

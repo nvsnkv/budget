@@ -270,10 +270,10 @@
             </div>
 
             <!-- Logbook Criteria -->
-            <div class="form-section" [formGroup]="logbookCriteria">
+            <div class="form-section">
               <div class="section-header">
                 <div class="section-title-with-toggle">
-                  <h3 tuiTitle size="m">Logbook Criteria</h3>
+                  <h3 tuiTitle size="m">Named Logbook Criteria</h3>
                   <button 
                     tuiButton
                     type="button"
@@ -286,6 +286,47 @@
               </div>
               
               @if (showLogbookCriteria) {
+                <div class="logbook-management" formArrayName="namedCriteria">
+                  <div class="logbook-list">
+                    @for (logbook of namedCriteria.controls; track $index; let idx = $index) {
+                      <div class="logbook-item" [class.selected]="idx === selectedLogbookIndex">
+                        <button
+                          tuiButton
+                          type="button"
+                          appearance="flat"
+                          size="s"
+                          (click)="selectLogbook(idx)">
+                          {{ ($any(logbook).get('name')?.value || ('Logbook ' + (idx + 1))) }}
+                        </button>
+                        <button
+                          tuiButton
+                          type="button"
+                          appearance="destructive"
+                          size="xs"
+                          (click)="removeLogbook(idx)">
+                          Remove
+                        </button>
+                      </div>
+                    }
+                  </div>
+                  <button
+                    tuiButton
+                    type="button"
+                    appearance="secondary"
+                    size="s"
+                    (click)="addLogbook()">
+                    + Add Logbook
+                  </button>
+                </div>
+
+                <div class="selected-logbook" [formGroup]="$any(namedCriteria.at(selectedLogbookIndex))">
+                  <tui-textfield>
+                    <label tuiLabel>Logbook Name</label>
+                    <input tuiTextfield formControlName="name" type="text" placeholder="Logbook name" />
+                  </tui-textfield>
+                </div>
+
+                <div [formGroup]="logbookCriteria">
                 <div class="logbook-fields">
                 <tui-textfield>
                   <label tuiLabel>Description</label>
@@ -781,6 +822,7 @@
                   }
                 </div>
               </div>
+              </div>
             }
             </div>
 
@@ -852,9 +894,19 @@
 
             <!-- Logbook Criteria Display -->
             <div class="criteria-section">
-              <h3 tuiTitle size="m">Logbook Criteria</h3>
-              @if (budget.logbookCriteria) {
-                <ng-container *ngTemplateOutlet="logbookCriteriaTemplate; context: { $implicit: budget.logbookCriteria, level: 0 }"></ng-container>
+              <h3 tuiTitle size="m">Named Logbook Criteria</h3>
+              @if (budget.logbookCriteria && budget.logbookCriteria.length > 0) {
+                @for (logbook of budget.logbookCriteria; track logbook.criteriaId || $index) {
+                  <div class="criterion-card">
+                    <div class="criterion-row">
+                      <span class="criterion-label">Name:</span>
+                      <span class="criterion-value">{{ logbook.name || ('Criteria ' + ($index + 1)) }}</span>
+                    </div>
+                    <ng-container *ngTemplateOutlet="logbookCriteriaTemplate; context: { $implicit: logbook, level: 0 }"></ng-container>
+                  </div>
+                }
+              } @else {
+                <div class="criterion-card">No named logbook criteria configured.</div>
               }
             </div>
           </div>

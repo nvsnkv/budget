@@ -199,16 +199,63 @@ public class BudgetController(
             }
         }
 
-        // Parse logbook criteria if provided
-        LogbookCriteria logbookCriteria = budget.LogbookCriteria;
-        if (request.LogbookCriteria != null)
+        // Parse named logbook criteria if provided
+        IReadOnlyCollection<LogbookCriteria> logbookCriteria = budget.LogbookCriteria;
+        if (request.LogbookCriteria is { Count: > 0 })
         {
-            var parseResult = mapper.FromRequest(request.LogbookCriteria);
-            if (parseResult.IsFailed)
+            var parsedCriteria = new List<LogbookCriteria>();
+            foreach (var criteria in request.LogbookCriteria)
             {
-                return BadRequest(parseResult.Errors);
+                if (criteria == null)
+                {
+                    continue;
+                }
+
+                if (criteria.CriteriaId == Guid.Empty)
+                {
+                    return BadRequest(new List<Error> { new("Each named logbook criteria must have a non-empty criteriaId") });
+                }
+
+                if (string.IsNullOrWhiteSpace(criteria.Name))
+                {
+                    return BadRequest(new List<Error> { new("Each named logbook criteria must have a non-empty name") });
+                }
+
+                var parseResult = mapper.FromRequest(criteria);
+                if (parseResult.IsFailed)
+                {
+                    return BadRequest(parseResult.Errors);
+                }
+
+                parsedCriteria.Add(parseResult.Value);
             }
-            logbookCriteria = parseResult.Value;
+
+            if (parsedCriteria.Count == 0)
+            {
+                return BadRequest(new List<Error> { new("At least one named logbook criteria is required") });
+            }
+
+            var duplicateNames = parsedCriteria
+                .GroupBy(l => l.Name, StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+            if (duplicateNames.Count > 0)
+            {
+                return BadRequest(new List<Error> { new($"Logbook criteria names must be unique. Duplicates: {string.Join(", ", duplicateNames)}") });
+            }
+
+            var duplicateIds = parsedCriteria
+                .GroupBy(l => l.CriteriaId)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+            if (duplicateIds.Count > 0)
+            {
+                return BadRequest(new List<Error> { new($"Logbook criteria IDs must be unique. Duplicates: {string.Join(", ", duplicateIds)}") });
+            }
+
+            logbookCriteria = parsedCriteria;
         }
 
         // Create updated budget with new properties using user-provided version

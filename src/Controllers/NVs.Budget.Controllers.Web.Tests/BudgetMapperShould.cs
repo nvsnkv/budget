@@ -65,6 +65,7 @@ public class BudgetMapperShould
         response.TaggingCriteria.Should().HaveCount(1);
         response.TransferCriteria.Should().HaveCount(1);
         response.LogbookCriteria.Should().NotBeNull();
+        response.LogbookCriteria.Should().HaveCount(1);
     }
 
     [Fact]
@@ -95,6 +96,7 @@ public class BudgetMapperShould
         var tagCriterion = response.TaggingCriteria.First();
         tagCriterion.Tag.Should().Be("o => \"MyTag\"");
         tagCriterion.Condition.Should().Be("o => o.Description.Contains(\"test\")");
+        response.LogbookCriteria.Should().HaveCount(1);
     }
 
     [Fact]
@@ -285,6 +287,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Universal",
             "Universal",
             null,
             null,
@@ -308,6 +312,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "With Substitution",
             "With Substitution",
             null,
             null,
@@ -332,6 +338,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "With Criteria",
             "With Criteria",
             null,
             null,
@@ -356,6 +364,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "With Tags",
             "With Tags",
             null,
             "OneOf",
@@ -381,6 +391,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Invalid Type",
             "Invalid Type",
             null,
             "InvalidType",
@@ -404,6 +416,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Invalid Substitution",
             "Invalid Substitution",
             null,
             null,
@@ -427,6 +441,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Invalid Criteria",
             "Invalid Criteria",
             null,
             null,
@@ -449,10 +465,12 @@ public class BudgetMapperShould
     public void ParseRecursiveLogbookSubcriteria()
     {
         // Arrange
-        var subCriterion1 = new LogbookCriteriaResponse("Sub1", null, null, null, null, null, true);
-        var subCriterion2 = new LogbookCriteriaResponse("Sub2", null, null, null, null, "o => o.Amount.Amount < 0", null);
+        var subCriterion1 = new LogbookCriteriaResponse(Guid.NewGuid(), "Sub1", "Sub1", null, null, null, null, null, true);
+        var subCriterion2 = new LogbookCriteriaResponse(Guid.NewGuid(), "Sub2", "Sub2", null, null, null, null, "o => o.Amount.Amount < 0", null);
 
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Parent",
             "Parent",
             new[] { subCriterion1, subCriterion2 },
             null,
@@ -478,6 +496,8 @@ public class BudgetMapperShould
     {
         // Arrange
         var invalidSubCriterion = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Invalid Sub",
             "Invalid Sub",
             null,
             null,
@@ -488,6 +508,8 @@ public class BudgetMapperShould
         );
 
         var request = new LogbookCriteriaResponse(
+            Guid.NewGuid(),
+            "Parent",
             "Parent",
             new[] { invalidSubCriterion },
             null,

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +26,11 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
 
         var budget = new StoredBudget(Guid.Empty, newBudget.Name)
         {
-            Owners = { storedOwner }
+            Owners = { storedOwner },
+            LogbookCriteria =
+            [
+                Mapper.Map<StoredNamedLogbookCriteria>(NVs.Budget.Application.Contracts.Criteria.LogbookCriteria.Universal)
+            ]
         };
 
         BumpVersion(budget);
@@ -94,7 +98,7 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             target.TransferCriteria.Add(criterion);
         }
 
-        target.LogbookCriteria = Mapper.Map<StoredLogbookCriteria>(updated.LogbookCriteria);
+        target.LogbookCriteria = updated.LogbookCriteria.Select(Mapper.Map<StoredNamedLogbookCriteria>).ToList();
 
         await context.SaveChangesAsync(ct);
         return Result.Ok(target);

@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } fr
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map, switchMap, catchError, of, tap } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
-import { BudgetResponse, UpdateBudgetRequest, Owner, ChangeBudgetOwnersRequest } from '../models';
+import { BudgetResponse, UpdateBudgetRequest, Owner, ChangeBudgetOwnersRequest, LogbookCriteriaResponse } from '../models';
 import { 
   TuiButton, 
   TuiDialogService, 
@@ -18,7 +18,6 @@ import {
   TuiChip,
   TuiTextarea
 } from '@taiga-ui/kit';
-import { TuiCardLarge } from '@taiga-ui/layout';
 
 @Component({
   selector: 'app-budget-detail',
@@ -30,7 +29,6 @@ import { TuiCardLarge } from '@taiga-ui/layout';
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiAccordion,
     TuiChip,
     TuiTextarea,
@@ -59,6 +57,7 @@ export class BudgetDetailComponent implements OnInit {
 
   // LogbookCriteria type options
   readonly tagBasedCriterionTypes = ['Including', 'Excluding', 'OneOf'];
+  selectedLogbookIndex = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -108,8 +107,15 @@ export class BudgetDetailComponent implements OnInit {
           criterion: [tc.criterion, Validators.required]
         }))
       ),
-      logbookCriteria: this.createLogbookCriteriaGroup(this.budget.logbookCriteria)
+      namedCriteria: this.fb.array(this.getInitialNamedCriteria().map(logbook =>
+        this.fb.group({
+          id: [logbook.criteriaId || this.createCriteriaId(), Validators.required],
+          name: [logbook.name || 'Default', Validators.required],
+          criteria: this.createLogbookCriteriaGroup(logbook)
+        })
+      ))
     });
+    this.selectedLogbookIndex = 0;
   }
 
   initOwnersForm(): void {
@@ -139,6 +145,8 @@ export class BudgetDetailComponent implements OnInit {
     }
 
     const group = this.fb.group({
+      criteriaId: [criteria.criteriaId || this.createCriteriaId(), Validators.required],
+      name: [criteria.name || criteria.description || 'Criteria', Validators.required],
       criteriaType: [criteriaType],
       description: [criteria.description || '', Validators.required],
       isUniversal: [isUniversal],
@@ -161,6 +169,8 @@ export class BudgetDetailComponent implements OnInit {
   addSubcriterion(criteriaGroup: FormGroup): void {
     const subcriteria = this.getSubcriteria(criteriaGroup);
     subcriteria.push(this.createLogbookCriteriaGroup({
+      criteriaId: this.createCriteriaId(),
+      name: 'Subcriterion',
       description: '',
       subcriteria: []
     }));
@@ -179,8 +189,12 @@ export class BudgetDetailComponent implements OnInit {
     return this.budgetForm?.get('transferCriteria') as FormArray;
   }
 
+  get namedCriteria(): FormArray {
+    return this.budgetForm?.get('namedCriteria') as FormArray;
+  }
+
   get logbookCriteria(): FormGroup {
-    return this.budgetForm?.get('logbookCriteria') as FormGroup;
+    return this.namedCriteria.at(this.selectedLogbookIndex)?.get('criteria') as FormGroup;
   }
 
   toggleEditMode(): void {
@@ -281,6 +295,41 @@ export class BudgetDetailComponent implements OnInit {
     this.showLogbookCriteria = !this.showLogbookCriteria;
   }
 
+  selectLogbook(index: number): void {
+    if (index < 0 || index >= this.namedCriteria.length) {
+      return;
+    }
+
+    this.selectedLogbookIndex = index;
+  }
+
+  addLogbook(): void {
+    const defaultCriteria = this.createLogbookCriteriaGroup({
+      description: 'New logbook',
+      isUniversal: true,
+      subcriteria: []
+    });
+
+    this.namedCriteria.push(this.fb.group({
+      id: [this.createCriteriaId(), Validators.required],
+      name: [`Logbook ${this.namedCriteria.length + 1}`, Validators.required],
+      criteria: defaultCriteria
+    }));
+    this.selectedLogbookIndex = this.namedCriteria.length - 1;
+  }
+
+  removeLogbook(index: number): void {
+    if (this.namedCriteria.length <= 1) {
+      this.showError('At least one logbook is required.');
+      return;
+    }
+
+    this.namedCriteria.removeAt(index);
+    if (this.selectedLogbookIndex >= this.namedCriteria.length) {
+      this.selectedLogbookIndex = this.namedCriteria.length - 1;
+    }
+  }
+
   private syncOwnerIdsControl(): void {
     if (!this.ownersForm) return;
     this.ownersForm.get('ownerIds')?.setValue(Array.from(this.selectedOwnerIds));
@@ -295,6 +344,8 @@ export class BudgetDetailComponent implements OnInit {
     const isUniversal = formGroup.get('isUniversal')?.value;
 
     const baseCriteria: any = {
+      criteriaId: formGroup.get('criteriaId')?.value || this.createCriteriaId(),
+      name: (formGroup.get('name')?.value || formGroup.get('description')?.value || 'Criteria').trim(),
       description,
       substitution: substitution || undefined
     };
@@ -334,14 +385,23 @@ export class BudgetDetailComponent implements OnInit {
     this.isLoading = true;
     const formValue = this.budgetForm.value;
     
-    const logbookCriteria = this.buildLogbookCriteriaFromForm(this.logbookCriteria);
+    const logbookCriteria: LogbookCriteriaResponse[] = this.namedCriteria.controls.map(control => {
+      const namedCriterion = control as FormGroup;
+      const criteriaGroup = namedCriterion.get('criteria') as FormGroup;
+      const builtCriteria = this.buildLogbookCriteriaFromForm(criteriaGroup) as LogbookCriteriaResponse;
+      return {
+        ...builtCriteria,
+        criteriaId: namedCriterion.get('id')?.value,
+        name: (namedCriterion.get('name')?.value || 'Default').trim()
+      };
+    });
     
     const request: UpdateBudgetRequest = {
       name: formValue.name,
       version: this.budget.version,
       taggingCriteria: formValue.taggingCriteria,
       transferCriteria: formValue.transferCriteria,
-      logbookCriteria: logbookCriteria
+      logbookCriteria
     };
 
     this.apiService.updateBudget(this.budget.id, request).subscribe({
@@ -491,6 +551,29 @@ export class BudgetDetailComponent implements OnInit {
         this.showError('Failed to load owners list');
       }
     });
+  }
+
+  private getInitialNamedCriteria(): LogbookCriteriaResponse[] {
+    if (!this.budget) {
+      return [];
+    }
+
+    if (this.budget.logbookCriteria && this.budget.logbookCriteria.length > 0) {
+      return this.budget.logbookCriteria;
+    }
+
+    return [{
+      criteriaId: this.createCriteriaId(),
+      name: 'Default',
+      description: '',
+      isUniversal: true
+    }];
+  }
+
+  private createCriteriaId(): string {
+    return typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 }
 
