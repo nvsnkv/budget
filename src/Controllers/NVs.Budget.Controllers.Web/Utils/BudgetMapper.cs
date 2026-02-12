@@ -92,7 +92,7 @@ public class BudgetMapper(ReadableExpressionsParser parser)
 
     public Result<LogbookCriteria> FromRequest(LogbookCriteriaResponse request)
     {
-        if (request.CriteriaId == Guid.Empty)
+        if (request.CriteriaId == Guid.Empty && request.IsUniversal != true)
         {
             return Result.Fail<LogbookCriteria>("CriteriaId is required");
         }

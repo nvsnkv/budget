@@ -73,7 +73,7 @@ public class TrackedBudget : Domain.Entities.Budgets.Budget, ITrackableEntity<Gu
         }
 
         var normalized = criteriaCollection
-            .Where(c => c.CriteriaId != Guid.Empty && !string.IsNullOrWhiteSpace(c.Name))
+            .Where(c => !string.IsNullOrWhiteSpace(c.Name))
             .GroupBy(c => c.CriteriaId)
             .Select(g => g.First())
             .ToList();

@@ -4,9 +4,10 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Entities;
 
 internal class StoredLogbookCriteria
 {
+    private static readonly Guid DefaultCriteriaId = Guid.Empty;
     public static readonly StoredLogbookCriteria Universal = new()
     {
-        CriteriaId = Guid.NewGuid(),
+        CriteriaId = DefaultCriteriaId,
         Name = "Default"
     };
 

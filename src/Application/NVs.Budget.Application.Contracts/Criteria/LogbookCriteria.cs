@@ -16,7 +16,8 @@ public class LogbookCriteria(
     ReadableExpression<Func<Operation, bool>>? criteria,
     bool? isUniversal)
 {
-    public static readonly LogbookCriteria Universal = new(Guid.NewGuid(), "Default", string.Empty, null, null, null, null, null, true);
+    private static readonly Guid DefaultCriteriaId = Guid.Empty;
+    public static readonly LogbookCriteria Universal = new(DefaultCriteriaId, "Default", string.Empty, null, null, null, null, null, true);
 
     public Guid CriteriaId { get; } = criteriaId;
     public string Name { get; } = name;

@@ -86,7 +86,6 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
 
     private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredBudget, StoredNamedLogbookCriteria> s, int recursion = 3)
     {
-        s.WithOwner();
         s.OwnsMany<StoredTag>(e => e.Tags);
         var remainingDepth = recursion - 1;
         if (remainingDepth > 0)

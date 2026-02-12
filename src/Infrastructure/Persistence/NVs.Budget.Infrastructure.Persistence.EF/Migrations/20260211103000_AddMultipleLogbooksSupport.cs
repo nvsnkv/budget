@@ -14,10 +14,12 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
         {
             migrationBuilder.Sql(
                 """
+                CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
                 UPDATE budget."Budgets"
                 SET "LogbookCriteria" = jsonb_build_array(
                     jsonb_build_object(
-                        'CriteriaId', "Id",
+                        'CriteriaId', gen_random_uuid(),
                         'Name', 'Default',
                         'Description', COALESCE("LogbookCriteria"->>'Description', ''),
                         'Subcriteria', COALESCE("LogbookCriteria"->'Subcriteria', '[]'::jsonb),

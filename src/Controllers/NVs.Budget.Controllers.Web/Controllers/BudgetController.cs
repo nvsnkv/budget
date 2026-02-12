@@ -211,7 +211,7 @@ public class BudgetController(
                     continue;
                 }
 
-                if (criteria.CriteriaId == Guid.Empty)
+                if (criteria.CriteriaId == Guid.Empty && criteria.IsUniversal != true)
                 {
                     return BadRequest(new List<Error> { new("Each named logbook criteria must have a non-empty criteriaId") });
                 }
