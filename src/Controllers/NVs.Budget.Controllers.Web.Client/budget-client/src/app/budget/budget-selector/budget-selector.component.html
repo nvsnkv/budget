@@ -9,7 +9,7 @@
 <ng-template #content>
     <tui-data-list role="menu" [emptyContent]="">
         <tui-opt-group>
-            <a tuiOption *ngFor="let budget of budgetsSnapshot" [routerLink]="['/budget/', budget.id]" role="menuitem">
+            <a tuiOption *ngFor="let budget of budgetsSnapshot" [routerLink]="['/budget', budget.id, 'operations']" role="menuitem">
                 {{budget.name}}
             </a>
         </tui-opt-group>

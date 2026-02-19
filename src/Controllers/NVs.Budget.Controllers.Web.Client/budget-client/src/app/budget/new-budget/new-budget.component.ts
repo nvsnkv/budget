@@ -37,7 +37,7 @@ export class NewBudgetComponent {
     this.budgetService.createBudget(request).subscribe({
       next: (response) => {
         this.resetForm();
-        this.router.navigate(['/budget', response.id]);
+        this.router.navigate(['/budget', response.id, 'operations']);
       },
       error: (error) => {
         this.handleError(error);

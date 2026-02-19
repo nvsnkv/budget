@@ -48,7 +48,7 @@ export class IndexComponent {
   }
 
   viewBudget(budgetId: string): void {
-    this.router.navigate(['/budget', budgetId]);
+    this.router.navigate(['/budget', budgetId, 'operations']);
   }
 
   deleteBudget(budget: BudgetResponse, event: Event): void {
