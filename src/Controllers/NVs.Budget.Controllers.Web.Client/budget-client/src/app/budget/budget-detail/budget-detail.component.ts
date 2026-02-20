@@ -1,6 +1,6 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map, switchMap, catchError, of, tap } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
@@ -18,19 +18,18 @@ import {
   TuiChip,
   TuiTextarea
 } from '@taiga-ui/kit';
-import { TuiCardLarge } from '@taiga-ui/layout';
 
 @Component({
   selector: 'app-budget-detail',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     TuiButton,
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiAccordion,
     TuiChip,
     TuiTextarea,
@@ -51,6 +50,8 @@ export class BudgetDetailComponent implements OnInit {
   isLoading = false;
   availableOwners: Owner[] = [];
   selectedOwnerIds = new Set<string>();
+  selectedLogbookCriteriaIndex = 0;
+  selectedReadOnlyLogbookCriteriaDescription = '';
 
   // Section visibility toggles
   showTaggingCriteria = true;
@@ -92,6 +93,10 @@ export class BudgetDetailComponent implements OnInit {
   initForm(): void {
     if (!this.budget) return;
 
+    const existingLogbookCriteria = this.budget.logbookCriteria?.length
+      ? this.budget.logbookCriteria
+      : [{ description: 'Default', isUniversal: true }];
+
     this.budgetForm = this.fb.group({
       name: [this.budget.name, Validators.required],
       version: [this.budget.version],
@@ -108,8 +113,14 @@ export class BudgetDetailComponent implements OnInit {
           criterion: [tc.criterion, Validators.required]
         }))
       ),
-      logbookCriteria: this.createLogbookCriteriaGroup(this.budget.logbookCriteria)
+      logbookCriteria: this.fb.array(
+        existingLogbookCriteria.map(criteria => this.createLogbookCriteriaGroup(criteria)),
+        [this.uniqueLogbookCriteriaNamesValidator]
+      )
     });
+
+    this.selectedLogbookCriteriaIndex = 0;
+    this.selectedReadOnlyLogbookCriteriaDescription = existingLogbookCriteria[0]?.description ?? '';
   }
 
   initOwnersForm(): void {
@@ -179,8 +190,54 @@ export class BudgetDetailComponent implements OnInit {
     return this.budgetForm?.get('transferCriteria') as FormArray;
   }
 
+  get logbookCriteriaCollection(): FormArray {
+    return this.budgetForm?.get('logbookCriteria') as FormArray;
+  }
+
   get logbookCriteria(): FormGroup {
-    return this.budgetForm?.get('logbookCriteria') as FormGroup;
+    const array = this.logbookCriteriaCollection;
+    if (!array || array.length === 0) {
+      return this.createLogbookCriteriaGroup({ description: '', subcriteria: [] });
+    }
+
+    const index = Math.min(this.selectedLogbookCriteriaIndex, array.length - 1);
+    return array.at(index) as FormGroup;
+  }
+
+  get selectedLogbookCriteriaName(): string {
+    const criteria = this.getSelectedReadOnlyLogbookCriteria();
+    return criteria?.description ?? '';
+  }
+
+  setSelectedLogbookCriteriaIndex(index: number): void {
+    if (!Number.isFinite(index)) {
+      return;
+    }
+
+    const bounded = Math.max(0, Math.min(index, this.logbookCriteriaCollection.length - 1));
+    this.selectedLogbookCriteriaIndex = bounded;
+  }
+
+  addLogbookCriteria(): void {
+    this.logbookCriteriaCollection.push(this.createLogbookCriteriaGroup({
+      description: '',
+      subcriteria: []
+    }));
+    this.logbookCriteriaCollection.updateValueAndValidity();
+    this.selectedLogbookCriteriaIndex = this.logbookCriteriaCollection.length - 1;
+  }
+
+  removeLogbookCriteria(index: number): void {
+    if (this.logbookCriteriaCollection.length <= 1) {
+      this.showError('At least one LogbookCriteria is required.');
+      return;
+    }
+
+    this.logbookCriteriaCollection.removeAt(index);
+    this.logbookCriteriaCollection.updateValueAndValidity();
+    if (this.selectedLogbookCriteriaIndex >= this.logbookCriteriaCollection.length) {
+      this.selectedLogbookCriteriaIndex = this.logbookCriteriaCollection.length - 1;
+    }
   }
 
   toggleEditMode(): void {
@@ -333,15 +390,16 @@ export class BudgetDetailComponent implements OnInit {
 
     this.isLoading = true;
     const formValue = this.budgetForm.value;
-    
-    const logbookCriteria = this.buildLogbookCriteriaFromForm(this.logbookCriteria);
+    const logbookCriteria = this.logbookCriteriaCollection.controls.map(ctrl =>
+      this.buildLogbookCriteriaFromForm(ctrl as FormGroup)
+    );
     
     const request: UpdateBudgetRequest = {
       name: formValue.name,
       version: this.budget.version,
       taggingCriteria: formValue.taggingCriteria,
       transferCriteria: formValue.transferCriteria,
-      logbookCriteria: logbookCriteria
+      logbookCriteria
     };
 
     this.apiService.updateBudget(this.budget.id, request).subscribe({
@@ -492,5 +550,29 @@ export class BudgetDetailComponent implements OnInit {
       }
     });
   }
+
+  getSelectedReadOnlyLogbookCriteria(): any {
+    if (!this.budget?.logbookCriteria?.length) {
+      return null;
+    }
+
+    return this.budget.logbookCriteria.find(c =>
+      c.description === this.selectedReadOnlyLogbookCriteriaDescription
+    ) ?? this.budget.logbookCriteria[0];
+  }
+
+  private uniqueLogbookCriteriaNamesValidator = (control: AbstractControl): ValidationErrors | null => {
+    const array = control as FormArray;
+    if (!array || array.length === 0) {
+      return null;
+    }
+
+    const normalized = array.controls
+      .map(group => String(group.get('description')?.value ?? '').trim().toLowerCase())
+      .filter(Boolean);
+
+    const unique = new Set(normalized);
+    return unique.size === normalized.length ? null : { duplicateLogbookCriteriaNames: true };
+  };
 }
 

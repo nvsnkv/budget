@@ -32,16 +32,16 @@ transferCriteria:
     comment: Transfer
     criterion: (source, sink) => source.Amount.Amount == sink.Amount.Amount * -1
 logbookCriteria:
-  description: Main criteria
-  isUniversal: false
-  type: Any
-  tags:
-    - income
-    - expense
-  substitution: o => o.Description
-  subcriteria:
-    - description: Income subcriteria
-      isUniversal: true
+  - description: Main criteria
+    isUniversal: false
+    type: Any
+    tags:
+      - income
+      - expense
+    substitution: o => o.Description
+    subcriteria:
+      - description: Income subcriteria
+        isUniversal: true
 ";
 
         // Act
@@ -65,12 +65,14 @@ logbookCriteria:
         criterionResponse.Comment.Should().Be("Transfer");
         
         result.LogbookCriteria.Should().NotBeNull();
-        result.LogbookCriteria!.Description.Should().Be("Main criteria");
-        result.LogbookCriteria.IsUniversal.Should().BeFalse();
-        result.LogbookCriteria.Type.Should().Be("Any");
-        result.LogbookCriteria.Tags.Should().Contain(new[] { "income", "expense" });
-        result.LogbookCriteria.Subcriteria.Should().HaveCount(1);
-        var criteriaResponse = result.LogbookCriteria.Subcriteria!.First();
+        result.LogbookCriteria.Should().HaveCount(1);
+        var logbookCriteria = result.LogbookCriteria!.First();
+        logbookCriteria.Description.Should().Be("Main criteria");
+        logbookCriteria.IsUniversal.Should().BeFalse();
+        logbookCriteria.Type.Should().Be("Any");
+        logbookCriteria.Tags.Should().Contain(new[] { "income", "expense" });
+        logbookCriteria.Subcriteria.Should().HaveCount(1);
+        var criteriaResponse = logbookCriteria.Subcriteria!.First();
         criteriaResponse.Description.Should().Be("Income subcriteria");
         criteriaResponse.IsUniversal.Should().BeTrue();
     }
@@ -83,8 +85,8 @@ logbookCriteria:
 name: Simple Budget
 version: v1.0
 logbookCriteria:
-  description: Universal
-  isUniversal: true
+  - description: Universal
+    isUniversal: true
 ";
 
         // Act
@@ -97,7 +99,8 @@ logbookCriteria:
         result.TaggingCriteria.Should().BeNullOrEmpty();
         result.TransferCriteria.Should().BeNullOrEmpty();
         result.LogbookCriteria.Should().NotBeNull();
-        result.LogbookCriteria!.IsUniversal.Should().BeTrue();
+        result.LogbookCriteria.Should().HaveCount(1);
+        result.LogbookCriteria!.First().IsUniversal.Should().BeTrue();
     }
 
     [Fact]

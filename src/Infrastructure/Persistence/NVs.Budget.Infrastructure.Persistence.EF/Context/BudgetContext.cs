@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NMoneys;
 using NVs.Budget.Infrastructure.Persistence.EF.Context.DictionariesSupport;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -9,6 +10,8 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Context;
 
 internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContext(options)
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.General);
+
     public DbSet<StoredOwner> Owners { get; init; } = null!;
 
     public DbSet<StoredBudget> Budgets { get; init; } = null!;
@@ -50,19 +53,28 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
         bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
         bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(c => c.Budget);
         bBuilder.OwnsMany<StoredTransferCriterion>(b => b.TransferCriteria).WithOwner(c => c.Budget);
-        bBuilder.OwnsOne<StoredLogbookCriteria>(b => b.LogbookCriteria, d =>
-        {
-            d.ToJson();
-            d.OwnsMany<StoredTag>(c => c.Tags);
-            d.OwnsMany<StoredLogbookCriteria>(c => c.Subcriteria, c => ConfigureSubcriteria(c));
-        });
+        var logbookCriteriaComparer = new ValueComparer<IList<StoredLogbookCriteria>>(
+            (left, right) => JsonSerializer.Serialize(left ?? new List<StoredLogbookCriteria>(), JsonOptions) == JsonSerializer.Serialize(right ?? new List<StoredLogbookCriteria>(), JsonOptions),
+            value => JsonSerializer.Serialize(value ?? new List<StoredLogbookCriteria>(), JsonOptions).GetHashCode(),
+            value => JsonSerializer.Deserialize<List<StoredLogbookCriteria>>(JsonSerializer.Serialize(value ?? new List<StoredLogbookCriteria>(), JsonOptions), JsonOptions) ?? new List<StoredLogbookCriteria>()
+        );
+        bBuilder.Property(b => b.LogbookCriteria)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                value => JsonSerializer.Serialize(value, JsonOptions),
+                value => JsonSerializer.Deserialize<List<StoredLogbookCriteria>>(value, JsonOptions) ?? new List<StoredLogbookCriteria>())
+            .Metadata.SetValueComparer(logbookCriteriaComparer);
 
         var tBuilder = modelBuilder.Entity<StoredTransfer>();
         tBuilder.OwnsOne(t => t.Fee);
 
         var oBuilder = modelBuilder.Entity<StoredOperation>();
         oBuilder.OwnsOne(t => t.Amount);
-        oBuilder.OwnsMany(t => t.Tags).WithOwner();
+        oBuilder.OwnsMany(t => t.Tags, tags =>
+        {
+            tags.WithOwner().HasForeignKey("StoredOperationId");
+            tags.ToTable("Operations_Tags");
+        });
         oBuilder.Property(t => t.Attributes)
             .HasColumnType("jsonb")
             .HasConversion(
@@ -82,16 +94,5 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
 
 
         base.OnModelCreating(modelBuilder);
-    }
-
-    private void ConfigureSubcriteria(OwnedNavigationBuilder<StoredLogbookCriteria, StoredLogbookCriteria> s, int recursion = 10)
-    {
-        s.OwnsMany<StoredTag>(e => e.Tags);
-        var remainingDepth = recursion - 1;
-        if (remainingDepth > 0)
-        {
-            s.OwnsMany<StoredLogbookCriteria>(e => e.Subcriteria, e => ConfigureSubcriteria(e, remainingDepth));
-        }
-
     }
 }

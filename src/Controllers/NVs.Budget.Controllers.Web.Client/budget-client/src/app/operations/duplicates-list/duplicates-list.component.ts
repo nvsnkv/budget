@@ -8,7 +8,6 @@ import {
   TuiLoader,
   TuiTitle
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
@@ -22,7 +21,6 @@ import { CriteriaExample } from '../shared/models/example.interface';
     CommonModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     OperationsTableComponent,
     CriteriaFilterComponent

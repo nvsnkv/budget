@@ -23,8 +23,11 @@ if (environment.production) {
 })
 export class AppComponent {
   title = 'budget-client';
+  private readonly newBudgetRoutePattern = new RegExp("^/budget/new(?:/|$)");
   private readonly budgetIdPattern = new RegExp("^/budget/([^/]+)");
   private readonly operationsContextPattern = new RegExp("^/budget/[^/]+/(operations|transfers)(?:/|$)");
+  private readonly detailsContextPattern = new RegExp("^/budget/[^/]+/details(?:/|$)");
+  private readonly readingSettingsContextPattern = new RegExp("^/budget/[^/]+/reading-settings(?:/|$)");
 
   get currentUser$() { return this.user.current$; }
   get isAuthenticated$() { return this.user.current$.pipe(map(u => u.isAuthenticated)); }
@@ -54,8 +57,24 @@ export class AppComponent {
 
     this.navLinks$ = combineLatest([this.selectedBudgetId$, this.currentUrl$]).pipe(
       map(([budgetId, url]) => {
+        if (this.newBudgetRoutePattern.test(url)) {
+          return [];
+        }
+
         if (!budgetId) {
           return [];
+        }
+
+        const isDetailsSelected = this.detailsContextPattern.test(url);
+        const isReadingSettingsSelected = this.readingSettingsContextPattern.test(url);
+        const baseLinks = [
+          { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
+          { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
+          { label: 'details', commands: ['/budget', budgetId, 'details'] }
+        ];
+
+        if (isDetailsSelected || isReadingSettingsSelected) {
+          baseLinks.push({ label: 'file reading settings', commands: ['/budget', budgetId, 'reading-settings'] });
         }
 
         if (this.operationsContextPattern.test(url)) {
@@ -65,15 +84,11 @@ export class AppComponent {
             { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
             { label: 'import', commands: ['/budget', budgetId, 'operations', 'import'] },
             { label: 'delete', commands: ['/budget', budgetId, 'operations', 'delete'] },
-            { label: 'settings', commands: ['/budget', budgetId, 'reading-settings'] }
+            { label: 'details', commands: ['/budget', budgetId, 'details'] }
           ];
         }
 
-        return [
-          { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
-          { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
-          { label: 'settings', commands: ['/budget', budgetId, 'reading-settings'] }
-        ];
+        return baseLinks;
       })
     );
   }  

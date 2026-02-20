@@ -12,7 +12,7 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
+import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { TransfersTableComponent } from '../transfers-table/transfers-table.component';
 import { NotificationService } from '../shared/notification.service';
 
@@ -26,8 +26,10 @@ import { NotificationService } from '../shared/notification.service';
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiTitle,
+    TuiChevron,
+    TuiDataListWrapper,
+    TuiSelect,
     TransfersTableComponent
   ],
   templateUrl: './transfers-list.component.html',
@@ -43,6 +45,7 @@ export class TransfersListComponent implements OnInit {
   fromDate: string = '';
   tillDate: string = '';
   accuracy = '';
+  accuracyFilter = 'All';
   
   // Registration form
   showRegisterForm = false;
@@ -54,6 +57,7 @@ export class TransfersListComponent implements OnInit {
   };
   
   accuracyOptions = ['Likely', 'Exact'];
+  readonly accuracyFilterOptions = ['All', ...this.accuracyOptions];
 
   constructor(
     private route: ActivatedRoute,
@@ -108,6 +112,7 @@ export class TransfersListComponent implements OnInit {
   }
 
   onAccuracyChange(): void {
+    this.accuracy = this.accuracyFilter === 'All' ? '' : this.accuracyFilter;
     this.loadTransfers();
   }
 
@@ -117,6 +122,7 @@ export class TransfersListComponent implements OnInit {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
     this.fromDate = this.formatDateForInput(lastMonth);
     this.accuracy = '';
+    this.accuracyFilter = 'All';
     this.loadTransfers();
   }
 

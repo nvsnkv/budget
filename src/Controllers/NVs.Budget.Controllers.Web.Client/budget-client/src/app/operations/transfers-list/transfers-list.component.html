@@ -60,15 +60,18 @@
           </div>
 
           <div class="form-item">
-            <tui-textfield>
+            <tui-textfield tuiChevron>
               <label tuiLabel>Accuracy</label>
-              <select
+              <input
+                tuiSelect
                 [(ngModel)]="newTransfer.accuracy"
-                class="select-input">
-                @for (option of accuracyOptions; track option) {
-                  <option [value]="option">{{ option }}</option>
-                }
-              </select>
+                tuiTextfieldSize="s"
+              />
+              <tui-data-list-wrapper
+                *tuiTextfieldDropdown
+                new
+                [items]="accuracyOptions"
+              />
             </tui-textfield>
           </div>
         </div>
@@ -125,17 +128,19 @@
         </div>
 
         <div class="filter-item">
-          <tui-textfield>
+          <tui-textfield tuiChevron>
             <label tuiLabel>Accuracy</label>
-            <select
-              [(ngModel)]="accuracy"
+            <input
+              tuiSelect
+              [(ngModel)]="accuracyFilter"
               (ngModelChange)="onAccuracyChange()"
-              class="select-input">
-              <option value="">All</option>
-              @for (option of accuracyOptions; track option) {
-                <option [value]="option">{{ option }}</option>
-              }
-            </select>
+              tuiTextfieldSize="s"
+            />
+            <tui-data-list-wrapper
+              *tuiTextfieldDropdown
+              new
+              [items]="accuracyFilterOptions"
+            />
           </tui-textfield>
         </div>
 

@@ -9,7 +9,6 @@ import {
   TuiTitle,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiCheckbox } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../shared/notification.service';
@@ -26,7 +25,6 @@ import { OperationResult } from '../shared/models/result.interface';
     FormsModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     TuiLabel,
     TuiCheckbox,

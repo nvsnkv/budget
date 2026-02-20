@@ -6,7 +6,6 @@ import { BudgetApiService } from '../budget/budget-api.service';
 import { BudgetResponse } from '../budget/models';
 import { Observable, map, catchError, of } from 'rxjs';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiChip } from '@taiga-ui/kit';
 
 @Component({
@@ -16,7 +15,6 @@ import { TuiChip } from '@taiga-ui/kit';
     CommonModule,
     AsyncPipe, 
     TuiButton,
-    TuiCardLarge,
     TuiChip,
     TuiLoader,
     TuiTitle

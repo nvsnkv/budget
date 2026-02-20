@@ -12,7 +12,6 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import {TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect} from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
@@ -32,7 +31,6 @@ import { CriteriaExample } from '../shared/models/example.interface';
     TuiChevron,
     TuiDataListWrapper,
     TuiLabel,
-    TuiCardLarge,
     TuiTitle,
     TuiCheckbox,
     OperationsTableComponent,

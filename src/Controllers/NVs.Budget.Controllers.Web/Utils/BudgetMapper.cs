@@ -18,7 +18,7 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             budget.Owners,
             budget.TaggingCriteria.Select(ToResponse).ToList(),
             budget.TransferCriteria.Select(ToResponse).ToList(),
-            ToResponse(budget.LogbookCriteria)
+            budget.LogbookCriteria.Select(ToResponse).ToList()
         );
     }
 
@@ -94,6 +94,18 @@ public class BudgetMapper(ReadableExpressionsParser parser)
         List<LogbookCriteria>? subcriteria = null;
         if (request.Subcriteria != null)
         {
+            var duplicateNames = request.Subcriteria
+                .GroupBy(c => c.Description.Trim(), StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateNames.Count != 0)
+            {
+                return Result.Fail<LogbookCriteria>(
+                    $"Duplicate LogbookCriteria descriptions are not allowed: {string.Join(", ", duplicateNames)}");
+            }
+
             subcriteria = new List<LogbookCriteria>();
             foreach (var sub in request.Subcriteria)
             {
@@ -157,5 +169,34 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             criteria,
             request.IsUniversal
         ));
+    }
+
+    public Result<IReadOnlyCollection<LogbookCriteria>> FromRequest(IReadOnlyCollection<LogbookCriteriaResponse> requests)
+    {
+        var parsed = new List<LogbookCriteria>();
+        foreach (var request in requests)
+        {
+            var parseResult = FromRequest(request);
+            if (parseResult.IsFailed)
+            {
+                return Result.Fail<IReadOnlyCollection<LogbookCriteria>>(parseResult.Errors);
+            }
+
+            parsed.Add(parseResult.Value);
+        }
+
+        var duplicateNames = parsed
+            .GroupBy(c => c.Description.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToList();
+
+        if (duplicateNames.Count != 0)
+        {
+            return Result.Fail<IReadOnlyCollection<LogbookCriteria>>(
+                $"Duplicate LogbookCriteria descriptions are not allowed: {string.Join(", ", duplicateNames)}");
+        }
+
+        return Result.Ok<IReadOnlyCollection<LogbookCriteria>>(parsed);
     }
 }

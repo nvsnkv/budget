@@ -17,7 +17,6 @@ import {
 import {
   TuiAccordion
 } from '@taiga-ui/kit';
-import { TuiCardLarge } from '@taiga-ui/layout';
 
 @Component({
   selector: 'app-reading-settings',
@@ -29,7 +28,6 @@ import { TuiCardLarge } from '@taiga-ui/layout';
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiAccordion,
     TuiTitle,
     TuiDataList

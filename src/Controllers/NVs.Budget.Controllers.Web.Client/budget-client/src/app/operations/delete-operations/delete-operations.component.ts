@@ -7,7 +7,6 @@ import {
   TuiLoader,
   TuiTitle
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
 import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
@@ -21,7 +20,6 @@ import { OperationResult } from '../shared/models/result.interface';
     CommonModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     CriteriaFilterComponent,
     OperationResultComponent
