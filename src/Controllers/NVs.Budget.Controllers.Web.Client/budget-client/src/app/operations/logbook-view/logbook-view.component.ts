@@ -10,7 +10,6 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiAccordion, TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
@@ -39,7 +38,6 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     FormsModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     TuiTextfield,
     TuiLabel,

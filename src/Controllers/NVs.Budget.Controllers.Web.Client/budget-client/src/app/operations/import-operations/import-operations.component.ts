@@ -12,7 +12,6 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
@@ -28,7 +27,6 @@ import { ImportResult } from '../shared/models/result.interface';
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiTitle,
     OperationsTableComponent,
     OperationResultComponent

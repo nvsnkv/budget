@@ -7,7 +7,6 @@ import {
   TuiLoader,
   TuiTitle
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
@@ -20,7 +19,6 @@ import { LogbookResponse, OperationResponse } from '../../budget/models';
     CommonModule,
     TuiButton,
     TuiLoader,
-    TuiCardLarge,
     TuiTitle,
     OperationsTableComponent
   ],

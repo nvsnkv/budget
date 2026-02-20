@@ -12,7 +12,6 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
-import { TuiCardLarge } from '@taiga-ui/layout';
 import { TransfersTableComponent } from '../transfers-table/transfers-table.component';
 import { NotificationService } from '../shared/notification.service';
 
@@ -26,7 +25,6 @@ import { NotificationService } from '../shared/notification.service';
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiTitle,
     TransfersTableComponent
   ],

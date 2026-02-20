@@ -18,7 +18,6 @@ import {
   TuiChip,
   TuiTextarea
 } from '@taiga-ui/kit';
-import { TuiCardLarge } from '@taiga-ui/layout';
 
 @Component({
   selector: 'app-budget-detail',
@@ -31,7 +30,6 @@ import { TuiCardLarge } from '@taiga-ui/layout';
     TuiLoader,
     TuiTextfield,
     TuiLabel,
-    TuiCardLarge,
     TuiAccordion,
     TuiChip,
     TuiTextarea,
