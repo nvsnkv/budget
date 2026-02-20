@@ -147,6 +147,20 @@
           [showExamplesInitially]="false"
           (criteriaSubmitted)="onCriteriaSubmitted($event)"
           (criteriaCleared)="onCriteriaCleared()">            
+            @if (availableLogbookCriteria.length > 0) {
+              <div class="currency-section">
+                <div class="select-field">
+                  <label class="select-label">Logbook Criteria</label>
+                  <select class="tui-select"
+                          [(ngModel)]="selectedLogbookCriteria"
+                          [ngModelOptions]="{standalone: true}">
+                    @for (name of availableLogbookCriteria; track name) {
+                      <option [value]="name">{{ name }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
             <div class="currency-section">
               <tui-textfield tuiChevron class="currency-selector">
                 <input

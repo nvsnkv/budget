@@ -488,6 +488,7 @@ public class OperationsController(
         [FromQuery] DateTime? from = null,
         [FromQuery] DateTime? till = null,
         [FromQuery] string? criteria = null,
+        [FromQuery] string? logbookCriteria = null,
         [FromQuery] string? cronExpression = null,
         [FromQuery] string? outputCurrency = null,
         CancellationToken ct = default)
@@ -547,8 +548,20 @@ public class OperationsController(
             }
         }
 
+        var selectedLogbookCriteria = string.IsNullOrWhiteSpace(logbookCriteria)
+            ? budget.LogbookCriteria.FirstOrDefault()
+            : budget.LogbookCriteria.FirstOrDefault(c => c.Description.Equals(logbookCriteria, StringComparison.OrdinalIgnoreCase));
+
+        if (selectedLogbookCriteria is null)
+        {
+            return BadRequest(new List<Error>
+            {
+                new($"LogbookCriteria '{logbookCriteria}' was not found for this budget")
+            });
+        }
+
         // Execute query
-        var query = new CalcOperationsStatisticsQuery(budget.LogbookCriteria.GetCriterion(), filter, currency, true);
+        var query = new CalcOperationsStatisticsQuery(selectedLogbookCriteria.GetCriterion(), filter, currency, true);
         var result = await mediator.Send(query, ct);
 
         if (result.IsFailed)

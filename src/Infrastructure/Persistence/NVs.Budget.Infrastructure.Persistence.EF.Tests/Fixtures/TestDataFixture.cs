@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Budgets;
@@ -17,6 +17,7 @@ public class TestDataFixture
     public TestDataFixture()
     {
         Fixture.Inject(LogbookCriteria.Universal);
+        Fixture.Inject<IEnumerable<LogbookCriteria>>([LogbookCriteria.Universal]);
         var budgets = new List<TrackedBudget>();
 
         Owners = Fixture.Create<Generator<Owner>>().Take(2).ToList();

@@ -161,6 +161,7 @@ export class OperationsApiService {
     from?: Date,
     till?: Date,
     criteria?: string,
+    logbookCriteria?: string,
     cronExpression?: string,
     outputCurrency?: string
   ): Observable<LogbookResponse> {
@@ -173,6 +174,9 @@ export class OperationsApiService {
     }
     if (criteria) {
       params.criteria = criteria;
+    }
+    if (logbookCriteria) {
+      params.logbookCriteria = logbookCriteria;
     }
     if (cronExpression) {
       params.cronExpression = cronExpression;

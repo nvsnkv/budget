@@ -9,7 +9,7 @@ public record BudgetResponse(
     IReadOnlyCollection<Owner> Owners,
     IReadOnlyCollection<TaggingCriterionResponse> TaggingCriteria,
     IReadOnlyCollection<TransferCriterionResponse> TransferCriteria,
-    LogbookCriteriaResponse LogbookCriteria
+    IReadOnlyCollection<LogbookCriteriaResponse> LogbookCriteria
 );
 
 public class TaggingCriterionResponse
@@ -79,5 +79,5 @@ public class UpdateBudgetRequest
     public string Version { get; set; } = string.Empty;
     public List<TaggingCriterionResponse>? TaggingCriteria { get; set; }
     public List<TransferCriterionResponse>? TransferCriteria { get; set; }
-    public LogbookCriteriaResponse? LogbookCriteria { get; set; }
+    public List<LogbookCriteriaResponse>? LogbookCriteria { get; set; }
 }

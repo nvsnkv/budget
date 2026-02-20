@@ -18,6 +18,7 @@ import { ExamplesSectionComponent } from '../shared/components/examples-section/
 import { CriteriaExample } from '../shared/models/example.interface';
 import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse } from '../../budget/models';
 import { LogbookStateService } from './logbook-state.service';
+import { BudgetApiService } from '../../budget/budget-api.service';
 
 interface CriteriaRow {
   description: string;
@@ -67,6 +68,8 @@ export class LogbookViewComponent implements OnInit {
   tillDate: string = '';
   cronExpression = '';
   outputCurrency = '';
+  selectedLogbookCriteria = '';
+  availableLogbookCriteria: string[] = [];
   useDatePresets = true;
   useCronPresets = false;
   selectedDatePreset: 'lastYear' | 'currentYear' | 'lastMonth' | 'currentMonth' | null = null;
@@ -106,6 +109,7 @@ export class LogbookViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
+    private budgetApi: BudgetApiService,
     private notificationService: NotificationService,
     private logbookStateService: LogbookStateService
   ) {
@@ -129,6 +133,10 @@ export class LogbookViewComponent implements OnInit {
     if (queryParams['criteria']) {
       this.currentCriteria = queryParams['criteria'];
     }
+
+    if (queryParams['logbookCriteria']) {
+      this.selectedLogbookCriteria = queryParams['logbookCriteria'];
+    }
     
     if (queryParams['cronExpression']) {
       this.cronExpression = queryParams['cronExpression'];
@@ -138,7 +146,7 @@ export class LogbookViewComponent implements OnInit {
       this.outputCurrency = queryParams['outputCurrency'];
     }
     
-    this.loadLogbook();
+    this.loadBudgetCriterias();
   }
 
   onCriteriaSubmitted(criteria: string): void {
@@ -170,6 +178,7 @@ export class LogbookViewComponent implements OnInit {
         from: this.fromDate || undefined,
         till: this.tillDate || undefined,
         criteria: this.currentCriteria || undefined,
+        logbookCriteria: this.selectedLogbookCriteria || undefined,
         cronExpression: this.cronExpression || undefined,
         outputCurrency: this.outputCurrency || undefined
       },
@@ -204,6 +213,7 @@ export class LogbookViewComponent implements OnInit {
       from,
       till,
       this.currentCriteria || undefined,
+      this.selectedLogbookCriteria || undefined,
       this.cronExpression || undefined,
       this.outputCurrency || undefined
     ).subscribe({
@@ -512,6 +522,7 @@ export class LogbookViewComponent implements OnInit {
         from: this.fromDate,
         till: this.tillDate,
         criteria: this.currentCriteria || undefined,
+        logbookCriteria: this.selectedLogbookCriteria || undefined,
         cronExpression: this.cronExpression || undefined,
         outputCurrency: this.outputCurrency || undefined
       }
@@ -622,6 +633,27 @@ export class LogbookViewComponent implements OnInit {
 
   hasNestedReasons(error: any): boolean {
     return error.reasons && error.reasons.length > 0;
+  }
+
+  private loadBudgetCriterias(): void {
+    this.budgetApi.getBudgetById(this.budgetId).subscribe({
+      next: budget => {
+        const names = (budget?.logbookCriteria ?? [])
+          .map(c => c.description)
+          .filter(name => !!name);
+        this.availableLogbookCriteria = Array.from(new Set(names));
+
+        if (!this.selectedLogbookCriteria && this.availableLogbookCriteria.length > 0) {
+          this.selectedLogbookCriteria = this.availableLogbookCriteria[0];
+        }
+
+        this.loadLogbook();
+      },
+      error: () => {
+        this.availableLogbookCriteria = [];
+        this.loadLogbook();
+      }
+    });
   }
 }
 

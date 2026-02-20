@@ -21,6 +21,7 @@ public class BudgetSpecificSettingsRepositoryShould : IClassFixture<DbContextMan
         _repository = new BudgetSpecificSettingsRepository(manager.GetSettingsContext());
         _fixture = new Fixture() { Customizations = { new ReadableExpressionsBuilder() } };
         _fixture.Inject(LogbookCriteria.Universal);
+        _fixture.Inject<IEnumerable<LogbookCriteria>>([LogbookCriteria.Universal]);
     }
 
     [Fact]

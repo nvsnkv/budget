@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Domain.Entities.Budgets;
@@ -26,6 +26,7 @@ internal class ReckonerTestData
     {
         var fixture = new Fixture() { Customizations = { new ReadableExpressionsBuilder() }};
         fixture.Inject(LogbookCriteria.Universal);
+        fixture.Inject<IEnumerable<LogbookCriteria>>([LogbookCriteria.Universal]);
         OwnedBudgets = fixture
             .CreateMany<TrackedBudget>()
             .Take(ownedBudgetsCount)

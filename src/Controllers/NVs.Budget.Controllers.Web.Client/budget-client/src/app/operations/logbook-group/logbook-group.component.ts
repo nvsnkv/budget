@@ -34,6 +34,7 @@ export class LogbookGroupComponent implements OnInit {
   fromDate!: string;
   tillDate!: string;
   criteria?: string;
+  logbookCriteria?: string;
   cronExpression?: string;
   outputCurrency?: string;
   
@@ -56,6 +57,7 @@ export class LogbookGroupComponent implements OnInit {
     this.fromDate = this.route.snapshot.queryParams['from'] || '';
     this.tillDate = this.route.snapshot.queryParams['till'] || '';
     this.criteria = this.route.snapshot.queryParams['criteria'];
+    this.logbookCriteria = this.route.snapshot.queryParams['logbookCriteria'];
     this.cronExpression = this.route.snapshot.queryParams['cronExpression'];
     this.outputCurrency = this.route.snapshot.queryParams['outputCurrency'];
     
@@ -77,6 +79,7 @@ export class LogbookGroupComponent implements OnInit {
       from,
       till,
       this.criteria,
+      this.logbookCriteria,
       this.cronExpression,
       this.outputCurrency
     ).subscribe({
@@ -129,6 +132,7 @@ export class LogbookGroupComponent implements OnInit {
         from: this.fromDate,
         till: this.tillDate,
         criteria: this.criteria,
+        logbookCriteria: this.logbookCriteria,
         cronExpression: this.cronExpression,
         outputCurrency: this.outputCurrency
       }

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
@@ -17,6 +17,7 @@ public class TypeReplacerShould
     public TypeReplacerShould()
     {
         _fixture.Inject(LogbookCriteria.Universal);
+        _fixture.Inject<IEnumerable<LogbookCriteria>>([LogbookCriteria.Universal]);
     }
 
     [Fact]

@@ -48,7 +48,7 @@ public class BudgetMapperShould
             new[] { owner },
             new[] { taggingCriterion },
             new[] { transferCriterion },
-            logbookCriteria)
+            [logbookCriteria])
         {
             Version = "v1"
         };
@@ -65,6 +65,7 @@ public class BudgetMapperShould
         response.TaggingCriteria.Should().HaveCount(1);
         response.TransferCriteria.Should().HaveCount(1);
         response.LogbookCriteria.Should().NotBeNull();
+        response.LogbookCriteria.Should().HaveCount(1);
     }
 
     [Fact]
@@ -82,7 +83,7 @@ public class BudgetMapperShould
             new[] { owner },
             new[] { taggingCriterion },
             Array.Empty<TransferCriterion>(),
-            LogbookCriteria.Universal)
+            [LogbookCriteria.Universal])
         {
             Version = "v1"
         };
@@ -113,7 +114,7 @@ public class BudgetMapperShould
             new[] { owner },
             Array.Empty<TaggingCriterion>(),
             new[] { transferCriterion },
-            LogbookCriteria.Universal)
+            [LogbookCriteria.Universal])
         {
             Version = "v1"
         };
@@ -140,7 +141,7 @@ public class BudgetMapperShould
             new[] { owner },
             Array.Empty<TaggingCriterion>(),
             Array.Empty<TransferCriterion>(),
-            LogbookCriteria.Universal);
+            [LogbookCriteria.Universal]);
         // Version is null
 
         // Act
@@ -524,7 +525,7 @@ public class BudgetMapperShould
             new[] { owner },
             new[] { criterion },
             Array.Empty<TransferCriterion>(),
-            LogbookCriteria.Universal
+            [LogbookCriteria.Universal]
         ) { Version = "v1" };
         
         var response = _mapper.ToResponse(budget);

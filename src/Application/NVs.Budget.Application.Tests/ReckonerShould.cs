@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Moq;
@@ -37,6 +37,7 @@ public class ReckonerShould
     {
         _fixture.Customizations.Add(new ReadableExpressionsBuilder());
         _fixture.Inject(LogbookCriteria.Universal);
+        _fixture.Inject<IEnumerable<LogbookCriteria>>([LogbookCriteria.Universal]);
         _currentOwner = _fixture.Create<Owner>();
         Mock<IUser> user = new();
         user.Setup(u => u.AsOwner()).Returns(_currentOwner);

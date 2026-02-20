@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Criteria;
@@ -73,7 +73,7 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
         var id = manager.TestData.Budgets.First().Id;
         var targets = await _repo.Get(b => b.Id == id, CancellationToken.None);
         var target = targets.Single();
-        var updated = new TrackedBudget(target.Id, target.Name, target.Owners, target.TaggingCriteria, target.TransferCriteria, expected)
+        var updated = new TrackedBudget(target.Id, target.Name, target.Owners, target.TaggingCriteria, target.TransferCriteria, [expected])
         {
             Version = target.Version
         };
@@ -81,7 +81,57 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
         var result = await _repo.Update(updated, CancellationToken.None);
         result.Should().BeSuccess();
 
-        result.Value.LogbookCriteria.Should().BeEquivalentTo(expected);
+        result.Value.LogbookCriteria.Should().BeEquivalentTo([expected]);
+    }
+
+    [Fact]
+    public async Task UpdateBudgetWithMultipleLogbookCriteria()
+    {
+        var fixture = manager.TestData.Fixture;
+        var criteria = new[]
+        {
+            new LogbookCriteria(
+                "Income",
+                null,
+                TagBasedCriterionType.Including,
+                [new Tag("Income")],
+                null,
+                null,
+                null
+            ),
+            new LogbookCriteria(
+                "Expenses",
+                [
+                    new LogbookCriteria(
+                        "Food",
+                        null,
+                        null,
+                        null,
+                        null,
+                        fixture.Create<ReadableExpression<Func<Operation, bool>>>(),
+                        null
+                    )
+                ],
+                null,
+                null,
+                null,
+                null,
+                false
+            )
+        };
+
+        var id = manager.TestData.Budgets.First().Id;
+        var target = (await _repo.Get(b => b.Id == id, CancellationToken.None)).Single();
+        var updated = new TrackedBudget(target.Id, target.Name, target.Owners, target.TaggingCriteria, target.TransferCriteria, criteria)
+        {
+            Version = target.Version
+        };
+
+        var updateResult = await _repo.Update(updated, CancellationToken.None);
+        updateResult.Should().BeSuccess();
+
+        var red = (await _repo.Get(a => a.Id == id, CancellationToken.None)).Single();
+        red.LogbookCriteria.Should().BeEquivalentTo(criteria);
     }
 
     [Fact]
@@ -156,12 +206,12 @@ public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<Db
             null, null, null, null, true
         );
 
-        updated.SetLogbookCriteria(criteria);
+        updated.SetLogbookCriteria([criteria]);
 
         var result = await _repo.Update(updated, CancellationToken.None);
         result.Should().BeSuccess();
         var red = (await _repo.Get(a => a.Id == id, CancellationToken.None)).Single();
-        red.LogbookCriteria.Should().BeEquivalentTo(criteria);
+        red.LogbookCriteria.Should().BeEquivalentTo([criteria]);
     }
 
 }

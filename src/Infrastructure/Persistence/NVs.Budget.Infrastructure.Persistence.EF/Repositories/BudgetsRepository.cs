@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +43,6 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             .Include(a => a.Owners.Where(o => !o.Deleted))
             .Include(b => b.TaggingCriteria)
             .Include(b => b.TransferCriteria)
-            .Include(b => b.LogbookCriteria)
             .Where(expression);
     }
 
@@ -53,7 +52,6 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             .Include(b => b.Owners.Where(o => !o.Deleted))
             .Include(b => b.TaggingCriteria)
             .Include(b => b.TransferCriteria)
-            .Include(b => b.LogbookCriteria)
             .Where(b => b.Id == item.Id)
             .FirstOrDefaultAsync(ct);
     }
@@ -94,7 +92,11 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
             target.TransferCriteria.Add(criterion);
         }
 
-        target.LogbookCriteria = Mapper.Map<StoredLogbookCriteria>(updated.LogbookCriteria);
+        target.LogbookCriteria.Clear();
+        foreach (var criterion in updated.LogbookCriteria.Select(Mapper.Map<StoredLogbookCriteria>))
+        {
+            target.LogbookCriteria.Add(criterion);
+        }
 
         await context.SaveChangesAsync(ct);
         return Result.Ok(target);

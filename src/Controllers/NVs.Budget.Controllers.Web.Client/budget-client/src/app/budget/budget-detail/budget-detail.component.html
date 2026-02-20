@@ -267,9 +267,45 @@
                     {{ showLogbookCriteria ? '▼ Hide' : '▶ Show' }}
                   </button>
                 </div>
+                @if (showLogbookCriteria) {
+                  <button
+                    tuiButton
+                    type="button"
+                    appearance="secondary"
+                    size="s"
+                    (click)="addLogbookCriteria()">
+                    + Add Criteria
+                  </button>
+                }
               </div>
               
               @if (showLogbookCriteria) {
+                <div class="select-field">
+                  <label class="select-label">Selected Criteria</label>
+                  <select class="tui-select"
+                          [ngModel]="selectedLogbookCriteriaIndex"
+                          (ngModelChange)="setSelectedLogbookCriteriaIndex($event)"
+                          [ngModelOptions]="{standalone: true}">
+                    @for (criterion of logbookCriteriaCollection.controls; track $index; let idx = $index) {
+                      <option [ngValue]="idx">
+                        {{ criterion.get('description')?.value || ('Criteria ' + (idx + 1)) }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="criterion-actions-inline">
+                  <button
+                    tuiButton
+                    type="button"
+                    appearance="destructive"
+                    size="xs"
+                    (click)="removeLogbookCriteria(selectedLogbookCriteriaIndex)">
+                    Remove Selected Criteria
+                  </button>
+                </div>
+                @if (logbookCriteriaCollection.errors?.['duplicateLogbookCriteriaNames']) {
+                  <div class="validation-error">LogbookCriteria names must be unique.</div>
+                }
                 <div class="logbook-fields">
                 <tui-textfield>
                   <label tuiLabel>Description</label>
@@ -837,8 +873,20 @@
             <!-- Logbook Criteria Display -->
             <div class="criteria-section">
               <h3 tuiTitle size="m">Logbook Criteria</h3>
-              @if (budget.logbookCriteria) {
-                <ng-container *ngTemplateOutlet="logbookCriteriaTemplate; context: { $implicit: budget.logbookCriteria, level: 0 }"></ng-container>
+              @if (budget.logbookCriteria && budget.logbookCriteria.length > 0) {
+                <div class="select-field">
+                  <label class="select-label">Display Criteria</label>
+                  <select class="tui-select"
+                          [(ngModel)]="selectedReadOnlyLogbookCriteriaDescription"
+                          [ngModelOptions]="{standalone: true}">
+                    @for (criterion of budget.logbookCriteria; track criterion.description) {
+                      <option [value]="criterion.description">{{ criterion.description }}</option>
+                    }
+                  </select>
+                </div>
+                @if (getSelectedReadOnlyLogbookCriteria(); as selectedCriteria) {
+                  <ng-container *ngTemplateOutlet="logbookCriteriaTemplate; context: { $implicit: selectedCriteria, level: 0 }"></ng-container>
+                }
               }
             </div>
           </div>

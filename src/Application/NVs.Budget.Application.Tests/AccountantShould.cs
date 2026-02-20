@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using Moq;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities;
@@ -25,6 +25,7 @@ public class AccountantShould
     public AccountantShould()
     {
         _fixture.Inject(LogbookCriteria.Universal);
+        _fixture.Inject<IEnumerable<LogbookCriteria>>([LogbookCriteria.Universal]);
         _owner = _fixture.Create<Owner>();
         var user = new Mock<IUser>();
         user.Setup(u => u.AsOwner()).Returns(_owner);

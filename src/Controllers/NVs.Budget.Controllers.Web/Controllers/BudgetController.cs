@@ -200,7 +200,7 @@ public class BudgetController(
         }
 
         // Parse logbook criteria if provided
-        LogbookCriteria logbookCriteria = budget.LogbookCriteria;
+        IReadOnlyCollection<LogbookCriteria> logbookCriteria = budget.LogbookCriteria;
         if (request.LogbookCriteria != null)
         {
             var parseResult = mapper.FromRequest(request.LogbookCriteria);
