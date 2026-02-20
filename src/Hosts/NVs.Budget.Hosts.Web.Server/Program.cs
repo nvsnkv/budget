@@ -22,6 +22,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 builder.Host.UseSerilog(Log.Logger);
 
 builder.Services.AddLogging(b => b.AddSerilog(dispose: true));
