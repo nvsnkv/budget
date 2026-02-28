@@ -56,7 +56,9 @@ public class MappingProfileShould
 
     private static void SetupLogbookCriteria(Fixture fixture)
     {
-        fixture.Inject(new LogbookCriteria(
+        fixture.Inject((IEnumerable<LogbookCriteria>)
+        [
+            new LogbookCriteria(
             fixture.Create<string>(),
             [new LogbookCriteria(
                 fixture.Create<string>(),
@@ -71,7 +73,8 @@ public class MappingProfileShould
                 null, null
                 )],
             null, null, null, null, true
-            ));
+            )
+        ]);
     }
 
     private static void SetupOperationsForTransfersTest(Fixture fixture)
