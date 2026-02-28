@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="GitVersion.MsBuild" Version="6.5.1">
+      <PackageReference Include="GitVersion.MsBuild">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="AutoFixture" Version="4.18.1" />
-      <PackageReference Include="NMoneys" Version="7.3.0" />
+      <PackageReference Include="AutoFixture" />
+      <PackageReference Include="NMoneys" />
     </ItemGroup>
 
     <ItemGroup>

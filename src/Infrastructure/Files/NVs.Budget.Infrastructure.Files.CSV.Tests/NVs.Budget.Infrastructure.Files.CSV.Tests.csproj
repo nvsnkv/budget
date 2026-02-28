@@ -10,19 +10,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoFixture" Version="4.18.1" />
-        <PackageReference Include="FluentAssertions" Version="6.12.1" />
-        <PackageReference Include="FluentResults.Extensions.FluentAssertions" Version="2.1.2" />
-        <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="Testcontainers.PostgreSql" Version="3.10.0" />
-        <PackageReference Include="xunit" Version="2.4.2"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+        <PackageReference Include="AutoFixture" />
+        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="FluentResults.Extensions.FluentAssertions" />
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Testcontainers.PostgreSql" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="6.0.4">
+        <PackageReference Include="coverlet.collector">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
