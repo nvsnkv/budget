@@ -183,7 +183,7 @@ Before importing, ensure you have:
 
 1. **Navigate to the import page** for your budget
 2. **Select a CSV file** to import
-3. **Optional: Specify file pattern** - If you have multiple reading settings, provide a regex pattern to match the correct one (e.g., `.*sberbank.*\.csv`)
+3. **Optional: Specify file pattern** - If you have multiple reading settings, provide a regex pattern to match the correct one (e.g., `.*thebank.*\.csv`)
 4. **Optional: Set transfer confidence level** - Choose the minimum accuracy for automatic transfer detection:
    - `Exact` (100%) - Only detect transfers with high confidence
    - `Likely` (70%) - Also detect probable transfers (may require review)
