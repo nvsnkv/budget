@@ -11,6 +11,7 @@
                         *ngFor="let link of navLinks"
                         tuiLink
                         [routerLink]="link.commands"
+                        [attr.data-testid]="'nav-link-' + link.label"
                         routerLinkActive="active-nav-link"
                         [routerLinkActiveOptions]="{ exact: link.label !== 'operations' }"
                     >
@@ -27,7 +28,7 @@
                     <tui-icon [icon]="(isDarkTheme$ | async) ? '@tui.sun' : '@tui.moon'" />
                 </button>
                 <span *ngIf="isAuthenticated$ | async">
-                    <span>{{ownerName$ | async}}</span>
+                    <span data-testid="owner-name">{{ownerName$ | async}}</span>
                 </span>
                 <app-auth></app-auth>
             </span>

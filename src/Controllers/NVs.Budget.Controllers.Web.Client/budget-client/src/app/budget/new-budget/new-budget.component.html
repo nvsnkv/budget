@@ -2,6 +2,7 @@
     class="new-budget-form"
     tuiAppearance="floating"
     tuiForm="m"
+    data-testid="new-budget-form"
     [formGroup]="nameGroup"
     (ngSubmit)="onSubmit()"
 >
@@ -21,6 +22,7 @@
         <input
             formControlName="name"
             placeholder="My new budget"
+            data-testid="new-budget-name-input"
             tuiTextfield
         />
     </tui-textfield>
@@ -31,6 +33,7 @@
     <button
         tuiButton
         type="submit"
+        data-testid="new-budget-submit"
         [disabled]="nameGroup.invalid"
     >
         Create

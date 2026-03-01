@@ -14,3 +14,34 @@ ng serve
 ```
 
 Once the server is running, open your browser and navigate to `https://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+## UI integration tests (Playwright)
+
+Playwright smoke tests live in `e2e/smoke` and use deterministic network mocks for:
+- `/api/config`
+- `/auth/whoami`
+- core budget/operations API calls used by smoke scenarios
+
+Run the suite:
+
+```bash
+npm run test:e2e
+```
+
+Run with visible browser:
+
+```bash
+npm run test:e2e:headed
+```
+
+Open Playwright UI mode:
+
+```bash
+npm run test:e2e:ui
+```
+
+CI command:
+
+```bash
+npm run test:e2e
+```
