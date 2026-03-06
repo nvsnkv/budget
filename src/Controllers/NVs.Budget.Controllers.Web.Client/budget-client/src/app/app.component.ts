@@ -83,6 +83,7 @@ export class AppComponent {
             { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
             { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
             { label: 'import', commands: ['/budget', budgetId, 'operations', 'import'] },
+            { label: 'manual import', commands: ['/budget', budgetId, 'operations', 'manual-import'] },
             { label: 'delete', commands: ['/budget', budgetId, 'operations', 'delete'] },
             { label: 'details', commands: ['/budget', budgetId, 'details'] }
           ];

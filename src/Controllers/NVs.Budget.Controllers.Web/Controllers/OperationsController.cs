@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using Asp.Versioning;
 using FluentResults;
 using MediatR;
@@ -269,6 +270,109 @@ public class OperationsController(
                 .Cast<ISuccess>()
                 .ToList();
             
+            var response = new ImportResultResponse(
+                result.Operations.Select(mapper.ToResponse).OrderHistorically().ToList(),
+                result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).OrderHistorically().ToList(),
+                allErrors,
+                allSuccesses
+            );
+            return Ok(response);
+        }
+
+        return BadRequest(result.Errors);
+    }
+
+    /// <summary>
+    /// Imports new operations into a budget from manually entered JSON data
+    /// </summary>
+    /// <param name="budgetId">Budget ID from route</param>
+    /// <param name="budgetVersion">Budget version for optimistic concurrency</param>
+    /// <param name="transferConfidenceLevel">Optional transfer detection confidence level</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>Import result with success/failure details</returns>
+    [HttpPost("import/manual")]
+    [Consumes("application/json", "application/x-ndjson")]
+    [ProducesResponseType(typeof(ImportResultResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> ImportOperationsManually(
+        [FromRoute] Guid budgetId,
+        [FromQuery] string budgetVersion,
+        [FromQuery] string? transferConfidenceLevel = null,
+        CancellationToken ct = default)
+    {
+        // Validate budget access
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == budgetId);
+
+        if (budget == null)
+        {
+            throw new NotFoundException($"Budget with ID {budgetId} not found or access denied");
+        }
+
+        // Parse transfer confidence level
+        DetectionAccuracy? transferAccuracy = null;
+        if (!string.IsNullOrWhiteSpace(transferConfidenceLevel))
+        {
+            var accuracyResult = mapper.ParseDetectionAccuracy(transferConfidenceLevel);
+            if (accuracyResult.IsFailed)
+            {
+                return BadRequest(accuracyResult.Errors);
+            }
+            transferAccuracy = accuracyResult.Value;
+        }
+
+        // Update budget version for optimistic concurrency
+        budget.Version = budgetVersion;
+
+        // Read and parse operations from request body asynchronously
+        var parseErrors = new List<IError>();
+        var requestOperations = JsonSerializer.DeserializeAsyncEnumerable<UnregisteredOperationRequest>(
+            Request.Body,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web),
+            ct);
+
+        async IAsyncEnumerable<UnregisteredOperation> ReadOperationsAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            await foreach (var requestOperation in requestOperations.WithCancellation(cancellationToken))
+            {
+                if (requestOperation is null)
+                {
+                    parseErrors.Add(new Error("One of the manual operations is null"));
+                    continue;
+                }
+
+                var parseResult = mapper.FromRequest(requestOperation);
+                if (parseResult.IsSuccess)
+                {
+                    yield return parseResult.Value;
+                }
+                else
+                {
+                    parseErrors.AddRange(parseResult.Errors);
+                }
+            }
+        }
+
+        var options = new ImportOptions(transferAccuracy);
+        var command = new ImportOperationsCommand(
+            ReadOperationsAsync(ct),
+            budget,
+            options
+        );
+
+        var result = await mediator.Send(command, ct);
+
+        if (result.IsSuccess)
+        {
+            var importErrors = result.Reasons.Where(r => r is IError).Cast<IError>().ToList();
+            var allErrors = parseErrors.Concat(importErrors).ToList();
+
+            var allSuccesses = result.Reasons
+                .Where(r => r is ISuccess)
+                .Cast<ISuccess>()
+                .ToList();
+
             var response = new ImportResultResponse(
                 result.Operations.Select(mapper.ToResponse).OrderHistorically().ToList(),
                 result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).OrderHistorically().ToList(),

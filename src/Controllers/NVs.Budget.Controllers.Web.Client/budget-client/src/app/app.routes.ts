@@ -11,10 +11,12 @@ import { LogbookGroupComponent } from './operations/logbook-group/logbook-group.
 import { DuplicatesListComponent } from './operations/duplicates-list/duplicates-list.component';
 import { TransfersListComponent } from './operations/transfers-list/transfers-list.component';
 import { IndexComponent } from './index/index.component';
+import { ManualImportOperationsComponent } from './operations/manual-import-operations/manual-import-operations.component';
 
 export const routes: Routes = [
     { path: 'budget/new', component: NewBudgetComponent },
     { path: 'budget/:budgetId/operations/import', component: ImportOperationsComponent },
+    { path: 'budget/:budgetId/operations/manual-import', component: ManualImportOperationsComponent },
     { path: 'budget/:budgetId/operations/delete', component: DeleteOperationsComponent },
     { path: 'budget/:budgetId/operations/retag', component: RetagOperationsComponent },
     { path: 'budget/:budgetId/operations/logbook/group', component: LogbookGroupComponent },

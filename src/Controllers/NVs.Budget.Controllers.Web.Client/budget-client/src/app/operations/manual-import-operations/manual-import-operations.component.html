@@ -1,0 +1,185 @@
+<div class="manual-import-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div class="manual-import-card">
+      <div class="header">
+        <h2 tuiTitle size="l">Add Operations Manually</h2>
+        <div class="header-actions">
+          <button
+            tuiButton
+            type="button"
+            appearance="flat"
+            size="m"
+            (click)="viewOperations()">
+            Back to Operations
+          </button>
+        </div>
+      </div>
+
+      @if (budget) {
+        <div class="filters-section">
+          <h3 tuiTitle size="m">Import Options</h3>
+          <label class="field-label" for="manual-transfer-confidence">Transfer Confidence Level (Optional)</label>
+          <select
+            id="manual-transfer-confidence"
+            [(ngModel)]="transferConfidenceLevel">
+            <option value="">Default</option>
+            @for (item of confidenceItems; track item) {
+              <option [value]="item">{{ item }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="operations-section">
+          <div class="section-header">
+            <h3 tuiTitle size="m">Operations</h3>
+            <button
+              tuiButton
+              type="button"
+              appearance="secondary"
+              size="s"
+              (click)="addRow()">
+              + Add Row
+            </button>
+          </div>
+
+          <div class="manual-table-container">
+            <table class="manual-table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Amount</th>
+                  <th>Currency</th>
+                  <th>Description</th>
+                  <th>Attributes (JSON)</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of manualRows; track $index; let i = $index) {
+                  <tr>
+                    <td>
+                      <input
+                        type="datetime-local"
+                        [(ngModel)]="row.timestampLocal"
+                        [ngModelOptions]="{standalone: true}" />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        step="0.01"
+                        [(ngModel)]="row.amountValue"
+                        [ngModelOptions]="{standalone: true}" />
+                    </td>
+                    <td>
+                      <select
+                        [(ngModel)]="row.currencyCode"
+                        [ngModelOptions]="{standalone: true}">
+                        @for (item of currencyItems; track item) {
+                          <option [value]="item">{{ item }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        [(ngModel)]="row.description"
+                        [ngModelOptions]="{standalone: true}"
+                        placeholder="Description" />
+                    </td>
+                    <td>
+                      <app-attributes-editor
+                        [model]="row.attributes"
+                        (modelChange)="row.attributes = $event">
+                      </app-attributes-editor>
+                    </td>
+                    <td class="row-actions">
+                      <button
+                        tuiButton
+                        type="button"
+                        appearance="secondary-destructive"
+                        size="xs"
+                        (click)="removeRow(i)">
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            tuiButton
+            type="button"
+            appearance="primary"
+            size="m"
+            (click)="importManualOperations()"
+            [disabled]="isLoading">
+            Import Entered Operations
+          </button>
+        </div>
+
+        @if (importResult) {
+          <div class="import-result">
+            <h3 tuiTitle size="m">Import Results</h3>
+            <div class="result-stats">
+              <div class="stat-item success">
+                <span class="stat-label">Registered:</span>
+                <span class="stat-value">{{ importResult.registered }}</span>
+              </div>
+              <div class="stat-item warning">
+                <span class="stat-label">Duplicates:</span>
+                <span class="stat-value">{{ importResult.duplicates }}</span>
+              </div>
+              @if (importResult.errors.length > 0) {
+                <div class="stat-item error">
+                  <span class="stat-label">Errors:</span>
+                  <span class="stat-value">{{ importResult.errors.length }}</span>
+                </div>
+              }
+              @if (importResult.successes.length > 0) {
+                <div class="stat-item info">
+                  <span class="stat-label">Successes:</span>
+                  <span class="stat-value">{{ importResult.successes.length }}</span>
+                </div>
+              }
+            </div>
+
+            @if (importResult.duplicates > 0) {
+              <div class="duplicates-section">
+                <div class="section-header-with-toggle">
+                  <h4>Duplicates ({{ importResult.duplicates }} groups)</h4>
+                  <button
+                    tuiButton
+                    type="button"
+                    appearance="flat"
+                    size="xs"
+                    (click)="toggleDuplicates()">
+                    {{ showDuplicates ? '▼ Hide' : '▶ Show' }}
+                  </button>
+                </div>
+                @if (showDuplicates) {
+                  @for (group of getDuplicatesList(); track $index; let groupIdx = $index) {
+                    <div class="duplicate-group">
+                      <h5>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h5>
+                      <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
+                    </div>
+                  }
+                }
+              </div>
+            }
+
+            <app-operation-result
+              [successes]="importResult.successes"
+              [errors]="importResult.errors">
+            </app-operation-result>
+          </div>
+        }
+      } @else {
+        <div class="loading-placeholder">Loading budget...</div>
+      }
+    </div>
+  </tui-loader>
+</div>

@@ -7,6 +7,7 @@ import { TuiChip } from '@taiga-ui/kit';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
 import { ObjectKeysPipe } from '../shared/pipes/object-keys.pipe';
+import { AttributesEditorComponent } from '../shared/components/attributes-editor/attributes-editor.component';
 
 interface EditableOperation {
   id: string;
@@ -15,7 +16,7 @@ interface EditableOperation {
   amount: number;
   currencyCode: string;
   tags: string[];
-  attributes: Record<string, string>;
+  attributes: Record<string, any>;
 }
 
 @Component({
@@ -30,7 +31,8 @@ interface EditableOperation {
     TuiTextfield,
     CurrencyFormatPipe,
     DateFormatPipe,
-    ObjectKeysPipe
+    ObjectKeysPipe,
+    AttributesEditorComponent
   ],
   templateUrl: './operations-table.component.html',
   styleUrls: ['./operations-table.component.less']
@@ -213,27 +215,10 @@ export class OperationsTableComponent {
     return index;
   }
 
-  addAttribute(operationId: string): void {
+  updateAttributes(operationId: string, attributes: Record<string, any>): void {
     const editingOperation = this.editingOperations[operationId];
     if (editingOperation) {
-      const key = `key${Object.keys(editingOperation.attributes).length + 1}`;
-      editingOperation.attributes[key] = '';
-    }
-  }
-
-  removeAttribute(operationId: string, key: string): void {
-    const editingOperation = this.editingOperations[operationId];
-    if (editingOperation) {
-      delete editingOperation.attributes[key];
-    }
-  }
-
-  updateAttributeKey(operationId: string, oldKey: string, newKey: string): void {
-    const editingOperation = this.editingOperations[operationId];
-    if (editingOperation && oldKey !== newKey && newKey) {
-      const value = editingOperation.attributes[oldKey];
-      delete editingOperation.attributes[oldKey];
-      editingOperation.attributes[newKey] = value;
+      editingOperation.attributes = attributes;
     }
   }
 

@@ -1,0 +1,32 @@
+<div class="attributes-edit">
+  @for (entry of entries; track trackByIndex($index); let i = $index) {
+    <div class="attribute-edit-item">
+      <input
+        class="edit-input attr-key-input"
+        [ngModel]="entry.key"
+        (ngModelChange)="updateEntry(i, $event, entry.value)"
+        placeholder="key" />
+      <input
+        class="edit-input attr-value-input"
+        [ngModel]="entry.value"
+        (ngModelChange)="updateEntry(i, entry.key, $event)"
+        placeholder="value" />
+      <button
+        tuiButton
+        type="button"
+        appearance="icon"
+        size="xs"
+        (click)="removeAttribute(i)">
+        ✕
+      </button>
+    </div>
+  }
+  <button
+    tuiButton
+    type="button"
+    appearance="flat"
+    size="xs"
+    (click)="addAttribute()">
+    + Add Attribute
+  </button>
+</div>

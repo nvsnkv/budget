@@ -125,6 +125,14 @@ export interface RetagOperationsRequest {
   fromScratch: boolean;
 }
 
+export interface UnregisteredOperationRequest {
+  timestamp: string;
+  amount: MoneyResponse;
+  description: string;
+  notes?: string;
+  attributes?: Record<string, any>;
+}
+
 export interface IReason {
   message?: string;
   metadata?: Record<string, any>;

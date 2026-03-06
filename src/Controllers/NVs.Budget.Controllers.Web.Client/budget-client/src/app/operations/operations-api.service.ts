@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, startWith, switchMap } from 'rxjs';
 import { 
   OperationResponse,
+  UnregisteredOperationRequest,
   UpdateOperationsRequest,
   RemoveOperationsRequest,
   RetagOperationsRequest,
@@ -92,6 +93,31 @@ export class OperationsApiService {
       `${this.baseUrl}/budget/${budgetId}/operations/import`,
       formData,
       { withCredentials: true }
+    );
+  }
+
+  /**
+   * Import operations into a budget from manual input
+   */
+  importManualOperations(
+    budgetId: string,
+    operations: UnregisteredOperationRequest[],
+    budgetVersion: string,
+    transferConfidenceLevel?: string
+  ): Observable<ImportResultResponse> {
+    const params = new URLSearchParams();
+    params.append('budgetVersion', budgetVersion);
+    if (transferConfidenceLevel) {
+      params.append('transferConfidenceLevel', transferConfidenceLevel);
+    }
+
+    return this.http.post<ImportResultResponse>(
+      `${this.baseUrl}/budget/${budgetId}/operations/import/manual?${params.toString()}`,
+      operations,
+      {
+        headers: OperationsApiService.jsonHeaders,
+        withCredentials: true
+      }
     );
   }
 

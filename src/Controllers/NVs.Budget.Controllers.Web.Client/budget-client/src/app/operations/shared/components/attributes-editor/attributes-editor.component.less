@@ -1,0 +1,36 @@
+.attributes-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attribute-edit-item {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 0.25rem;
+  background: var(--tui-background-base);
+  color: var(--tui-text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: var(--tui-primary);
+    box-shadow: 0 0 0 2px var(--tui-background-accent-1);
+  }
+}
+
+.attr-key-input {
+  flex: 0 0 80px;
+}
+
+.attr-value-input {
+  flex: 1;
+}

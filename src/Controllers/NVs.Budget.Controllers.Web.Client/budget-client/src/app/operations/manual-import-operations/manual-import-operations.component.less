@@ -1,0 +1,131 @@
+@import '../shared/styles/mixins.less';
+
+.manual-import-container {
+  .page-container();
+}
+
+.manual-import-card {
+  .card-base();
+}
+
+.header {
+  .header-with-actions();
+}
+
+.filters-section {
+  .filters-section-base();
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--tui-text-secondary);
+  font-size: 0.875rem;
+}
+
+.filters-section select {
+  width: 100%;
+  max-width: 18rem;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background: var(--tui-background-base);
+  color: var(--tui-text-primary);
+}
+
+.operations-section {
+  margin-top: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.manual-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 0.5rem;
+}
+
+.manual-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1180px;
+
+  th,
+  td {
+    border-bottom: 1px solid var(--tui-border-normal);
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: var(--tui-background-neutral-1);
+    font-weight: 600;
+  }
+
+  input,
+  select {
+    width: 100%;
+    border: 1px solid var(--tui-border-normal);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    background: var(--tui-background-base);
+    color: var(--tui-text-primary);
+  }
+
+  .row-actions {
+    width: 8rem;
+    white-space: nowrap;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.import-result {
+  .result-section-base();
+}
+
+.result-stats {
+  .result-stats-base();
+}
+
+.section-header-with-toggle {
+  .section-header-with-toggle();
+}
+
+.duplicates-section {
+  margin-top: 1.5rem;
+
+  h4 {
+    color: var(--tui-warning-fill);
+  }
+}
+
+.duplicate-group {
+  margin-bottom: 1.5rem;
+
+  h5 {
+    margin: 0 0 0.75rem 0;
+    color: var(--tui-text-primary);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--tui-warning-bg);
+    border-left: 3px solid var(--tui-warning-fill);
+    border-radius: 0.25rem 0.25rem 0 0;
+  }
+}
+
+.loading-placeholder {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--tui-text-secondary);
+}

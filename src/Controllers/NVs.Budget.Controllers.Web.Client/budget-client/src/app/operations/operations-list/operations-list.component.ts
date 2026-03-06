@@ -110,6 +110,10 @@ export class OperationsListComponent implements OnInit {
     this.router.navigate(['/budget', this.budgetId, 'operations', 'import']);
   }
 
+  navigateToManualImport(): void {
+    this.router.navigate(['/budget', this.budgetId, 'operations', 'manual-import']);
+  }
+
   navigateToBudget(): void {
     this.router.navigate(['/budget', this.budgetId, 'details']);
   }

@@ -164,39 +164,10 @@
           </td>
           <td class="col-attributes">
             @if (isEditing(operation.id)) {
-              <div class="attributes-edit">
-                @for (key of editingOperations[operation.id].attributes | objectKeys; track key) {
-                  <div class="attribute-edit-item">
-                    <input 
-                      class="edit-input attr-key-input" 
-                      [value]="key"
-                      (blur)="updateAttributeKey(operation.id, key, $any($event.target).value)"
-                      placeholder="key"
-                    />
-                    <input 
-                      class="edit-input attr-value-input" 
-                      [(ngModel)]="editingOperations[operation.id].attributes[key]"
-                      placeholder="value"
-                    />
-                    <button 
-                      tuiButton
-                      type="button"
-                      appearance="icon"
-                      size="xs"
-                      (click)="removeAttribute(operation.id, key)">
-                      ✕
-                    </button>
-                  </div>
-                }
-                <button 
-                  tuiButton
-                  type="button"
-                  appearance="flat"
-                  size="xs"
-                  (click)="addAttribute(operation.id)">
-                  + Add Attribute
-                </button>
-              </div>
+              <app-attributes-editor
+                [model]="editingOperations[operation.id].attributes"
+                (modelChange)="updateAttributes(operation.id, $event)">
+              </app-attributes-editor>
             } @else {
               @if (operation.attributes && (operation.attributes | objectKeys).length > 0) {
                 <div class="attributes-inline">
