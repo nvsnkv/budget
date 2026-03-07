@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +33,7 @@ public static class WebControllersExtensions
         services.AddScoped<LogbookMapper>();
         services.AddScoped<TransferMapper>();
         services.AddScoped<RangeBuilder>();
+        services.AddScoped<IDemoBudgetGenerator, DemoBudgetGenerator>();
         
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>

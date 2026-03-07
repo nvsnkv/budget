@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { BudgetDetailComponent } from './budget-detail.component';
+import { BudgetApiService } from '../budget-api.service';
 
 describe('BudgetDetailComponent', () => {
   let component: BudgetDetailComponent;
@@ -7,7 +10,23 @@ describe('BudgetDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BudgetDetailComponent]
+      imports: [BudgetDetailComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ budgetId: 'test-id' }) } },
+        {
+          provide: BudgetApiService,
+          useValue: {
+            getBudgetById: () => of(undefined),
+            getOwners: () => of([]),
+            updateBudget: () => of(void 0),
+            removeBudget: () => of(void 0),
+            changeBudgetOwners: () => of(void 0),
+            downloadBudgetYaml: () => of(new Blob()),
+            uploadBudgetYaml: () => of(void 0)
+          }
+        }
+      ]
     })
     .compileComponents();
 

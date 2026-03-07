@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Options;
 using NVs.Budget.Application.Contracts.UseCases.Budgets;
 using NVs.Budget.Application.Contracts.UseCases.Owners;
+using NVs.Budget.Application.Contracts.UseCases.Operations;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
@@ -20,6 +22,7 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 public class BudgetController(
     IMediator mediator, 
     BudgetMapper mapper, 
+    IDemoBudgetGenerator demoBudgetGenerator,
     IReadingSettingsRepository readingSettingsRepository, 
     FileReadingSettingsMapper settingsMapper) : Controller
 {
@@ -74,8 +77,41 @@ public class BudgetController(
 
         if (result.IsSuccess)
         {
-            var response = mapper.ToResponse(result.Value);
-            return CreatedAtAction(nameof(GetAvailableBudgets), new { id = result.Value.Id }, response);
+            var budget = result.Value;
+
+            if (request.GenerateDemoBudget)
+            {
+                var seed = demoBudgetGenerator.Generate(budget.Id, DateTime.UtcNow);
+                var configuredBudget = new TrackedBudget(
+                    budget.Id,
+                    budget.Name,
+                    budget.Owners,
+                    seed.TaggingCriteria,
+                    budget.TransferCriteria,
+                    seed.LogbookCriteria)
+                {
+                    Version = budget.Version
+                };
+
+                var updateResult = await mediator.Send(new UpdateBudgetCommand(configuredBudget), ct);
+                if (updateResult.IsFailed)
+                {
+                    return BadRequest(updateResult.Errors);
+                }
+
+                var importResult = await mediator.Send(
+                    new ImportOperationsCommand(seed.Operations.ToAsyncEnumerable(), configuredBudget, new ImportOptions(null)),
+                    ct);
+                if (importResult.IsFailed)
+                {
+                    return BadRequest(importResult.Errors);
+                }
+            }
+
+            var refreshed = (await mediator.Send(new ListOwnedBudgetsQuery(), ct))
+                .FirstOrDefault(b => b.Id == budget.Id) ?? budget;
+            var response = mapper.ToResponse(refreshed);
+            return CreatedAtAction(nameof(GetAvailableBudgets), new { id = refreshed.Id }, response);
         }
 
         return BadRequest(result.Errors);
@@ -379,7 +415,7 @@ public class BudgetController(
 // Request models for the controller
 public record BudgetIdentifier(Guid Id, string Version);
 
-public record RegisterBudgetRequest(string Name);
+public record RegisterBudgetRequest(string Name, bool GenerateDemoBudget = false);
 
 public record ChangeBudgetOwnersRequest(BudgetIdentifier Budget, IReadOnlyCollection<Guid> OwnerIds);
 

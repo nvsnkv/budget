@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 
 import { BudgetSelectorComponent } from './budget-selector.component';
+import { BudgetApiService } from '../budget-api.service';
 
 describe('BudgetSelectorComponent', () => {
   let component: BudgetSelectorComponent;
@@ -8,7 +11,16 @@ describe('BudgetSelectorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BudgetSelectorComponent]
+      imports: [BudgetSelectorComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: BudgetApiService,
+          useValue: {
+            getAllBudgets: () => of([])
+          }
+        }
+      ]
     })
     .compileComponents();
 

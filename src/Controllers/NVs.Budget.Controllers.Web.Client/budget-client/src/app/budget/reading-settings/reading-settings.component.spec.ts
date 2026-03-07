@@ -10,7 +10,7 @@ describe('ReadingSettingsComponent', () => {
 
   beforeEach(async () => {
     const apiServiceMock = {
-      getReadingSettings: jasmine.createSpy('getReadingSettings').and.returnValue(of({ settings: {} })),
+      getReadingSettings: jasmine.createSpy('getReadingSettings').and.returnValue(of({})),
       updateReadingSettings: jasmine.createSpy('updateReadingSettings').and.returnValue(of(void 0))
     };
 

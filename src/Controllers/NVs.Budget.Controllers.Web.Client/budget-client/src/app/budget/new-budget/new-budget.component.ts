@@ -4,7 +4,7 @@ import { BudgetApiService } from '../budget-api.service';
 import { RegisterBudgetRequest } from '../models';
 import { CommonModule } from '@angular/common';
 import { TuiButton, TuiError, TuiNotification, TuiTextfield } from '@taiga-ui/core';
-import { TuiFieldErrorPipe, tuiValidationErrorsProvider } from '@taiga-ui/kit';
+import { TuiCheckbox, TuiFieldErrorPipe, tuiValidationErrorsProvider } from '@taiga-ui/kit';
 import { TuiForm } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 
@@ -12,12 +12,13 @@ import { Router } from '@angular/router';
   selector: 'app-new-budget',
   templateUrl: './new-budget.component.html',
   styleUrls: ['./new-budget.component.less'],
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiTextfield, TuiButton, TuiError, TuiFieldErrorPipe, TuiForm],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiTextfield, TuiButton, TuiError, TuiFieldErrorPipe, TuiForm, TuiCheckbox],
   providers: [tuiValidationErrorsProvider({required: 'Please enter budget name'})]
 })
 export class NewBudgetComponent {
   nameGroup = new FormGroup({
     name: new FormControl('', [Validators.required]),
+    generateDemoBudget: new FormControl(false),
   });
 
   errorMessage: string | null = null;
@@ -32,6 +33,7 @@ export class NewBudgetComponent {
 
     const request: RegisterBudgetRequest = {
       name: this.nameGroup.controls.name.value ?? '',
+      generateDemoBudget: this.nameGroup.controls.generateDemoBudget.value ?? false,
     };
 
     this.budgetService.createBudget(request).subscribe({
@@ -47,6 +49,7 @@ export class NewBudgetComponent {
 
   resetForm() {
     this.nameGroup.controls.name.setValue('');
+    this.nameGroup.controls.generateDemoBudget.setValue(false);
     this.errorMessage = null;
   }
 

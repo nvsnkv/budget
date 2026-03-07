@@ -42,6 +42,7 @@ export interface BudgetIdentifier {
 
 export interface RegisterBudgetRequest {
   name: string;
+  generateDemoBudget?: boolean;
 }
 
 export interface ChangeBudgetOwnersRequest {
