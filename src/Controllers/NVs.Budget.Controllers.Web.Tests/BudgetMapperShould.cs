@@ -353,6 +353,31 @@ public class BudgetMapperShould
     }
 
     [Fact]
+    public void ParseLogbookCriteriaWithPrecondition()
+    {
+        // Arrange
+        var request = new LogbookCriteriaResponse(
+            "With Precondition",
+            null,
+            null,
+            null,
+            "o => o.Description",
+            null,
+            null,
+            "o => o.Amount.Amount < 0"
+        );
+
+        // Act
+        var result = _mapper.FromRequest(request);
+
+        // Assert
+        result.Should().BeSuccess();
+        result.Value.Description.Should().Be("With Precondition");
+        result.Value.Precondition.Should().NotBeNull();
+        result.Value.Precondition!.ToString().Should().Be("o => o.Amount.Amount < 0");
+    }
+
+    [Fact]
     public void ParseLogbookCriteriaWithTags()
     {
         // Arrange
@@ -435,6 +460,30 @@ public class BudgetMapperShould
             null,
             "not a valid predicate",
             null
+        );
+
+        // Act
+        var result = _mapper.FromRequest(request);
+
+        // Assert
+        result.Should().BeFailure();
+        result.Errors.Should().ContainSingle();
+        result.Errors.First().Message.Should().Contain("does not match function format");
+    }
+
+    [Fact]
+    public void ReturnErrorForInvalidPreconditionExpression()
+    {
+        // Arrange
+        var request = new LogbookCriteriaResponse(
+            "Invalid Precondition",
+            null,
+            null,
+            null,
+            "o => o.Description",
+            null,
+            null,
+            "not a valid predicate"
         );
 
         // Act
@@ -533,5 +582,42 @@ public class BudgetMapperShould
         // Assert
         parseResult.Should().BeSuccess();
         response.TaggingCriteria.First().Condition.Should().Be(originalExpression);
+    }
+
+    [Fact]
+    public void IncludePreconditionInLogbookRoundTripConversion()
+    {
+        // Arrange
+        var owner = new Owner(Guid.NewGuid(), "Test Owner");
+        var precondition = _parser.ParseUnaryPredicate<Operation>("o => o.Amount.Amount < 0").Value;
+        var substitution = _parser.ParseUnaryConversion<Operation>("o => o.Description").Value;
+        var logbookCriteria = new LogbookCriteria(
+            "With precondition",
+            null,
+            null,
+            null,
+            substitution,
+            null,
+            null,
+            precondition
+        );
+
+        var budget = new TrackedBudget(
+            Guid.NewGuid(),
+            "Test Budget",
+            new[] { owner },
+            Array.Empty<TaggingCriterion>(),
+            Array.Empty<TransferCriterion>(),
+            [logbookCriteria])
+        {
+            Version = "v1"
+        };
+
+        // Act
+        var response = _mapper.ToResponse(budget);
+
+        // Assert
+        response.LogbookCriteria.Should().ContainSingle();
+        response.LogbookCriteria.Single().Precondition.Should().Be("o => o.Amount.Amount < 0");
     }
 }

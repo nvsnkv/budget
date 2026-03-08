@@ -1,12 +1,17 @@
-﻿using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
-public class PredicateBasedCriterion : Criterion
+public class PredicateBasedCriterion : ConditionalCriterion
 {
     private readonly Func<Operation, bool> _predicate;
 
     public PredicateBasedCriterion(string description, Func<Operation, bool> predicate) : base(description)
+    {
+        _predicate = predicate;
+    }
+
+    public PredicateBasedCriterion(string description, Func<Operation, bool> predicate, Func<Operation, bool> precondition) : base(description, precondition)
     {
         _predicate = predicate;
     }
@@ -16,14 +21,16 @@ public class PredicateBasedCriterion : Criterion
         _predicate = predicate;
     }
 
-    public override bool Matched(Operation t)
+    public PredicateBasedCriterion(string description, Func<Operation, bool> predicate, IEnumerable<Criterion> subcriteria, Func<Operation, bool> precondition) : base(description, subcriteria, precondition)
     {
-        return _predicate(t);
+        _predicate = predicate;
     }
+
+    protected override bool MatchedCore(Operation t) => _predicate(t);
 
     protected bool Equals(PredicateBasedCriterion other)
     {
-        return _predicate.Equals(other._predicate) && Description.Equals(other.Description);
+        return _predicate.Equals(other._predicate) && Precondition.Equals(other.Precondition) && Description.Equals(other.Description);
     }
 
     public override bool Equals(object? obj)
@@ -36,6 +43,6 @@ public class PredicateBasedCriterion : Criterion
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(_predicate.GetHashCode(), Description.GetHashCode());
+        return HashCode.Combine(_predicate.GetHashCode(), Precondition.GetHashCode(), Description.GetHashCode());
     }
 }

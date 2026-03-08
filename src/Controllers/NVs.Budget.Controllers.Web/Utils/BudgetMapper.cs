@@ -51,7 +51,8 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             Tags = criteria.Tags?.Select(t => t.Value).ToList(),
             Substitution = criteria.Substitution?.ToString(),
             Criteria = criteria.Criteria?.ToString(),
-            IsUniversal = criteria.IsUniversal
+            IsUniversal = criteria.IsUniversal,
+            Precondition = criteria.Precondition?.ToString()
         };
     }
 
@@ -160,6 +161,18 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             criteria = criteriaResult.Value;
         }
 
+        ReadableExpression<Func<Operation, bool>>? precondition = null;
+        if (request.Precondition != null)
+        {
+            var preconditionResult = parser.ParseUnaryPredicate<Operation>(request.Precondition);
+            if (preconditionResult.IsFailed)
+            {
+                return Result.Fail<LogbookCriteria>(preconditionResult.Errors);
+            }
+
+            precondition = preconditionResult.Value;
+        }
+
         return Result.Ok(new LogbookCriteria(
             request.Description,
             subcriteria,
@@ -167,7 +180,8 @@ public class BudgetMapper(ReadableExpressionsParser parser)
             tags,
             substitution,
             criteria,
-            request.IsUniversal
+            request.IsUniversal,
+            precondition
         ));
     }
 

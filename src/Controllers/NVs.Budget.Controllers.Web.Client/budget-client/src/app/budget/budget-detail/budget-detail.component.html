@@ -366,16 +366,16 @@
                   </tui-textfield>
                 }
 
-                <!-- Pre-filter for Groups (only if not universal) -->
-                @if (logbookCriteria.get('criteriaType')?.value === 'group' && !logbookCriteria.get('isUniversal')?.value) {
+                <!-- Precondition -->
+                @if (true) {
                   <tui-textfield>
-                    <label tuiLabel>Pre-filter Expression (Optional)</label>
-                    <textarea tuiTextarea formControlName="criteria" rows="3" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
+                    <label tuiLabel>Precondition Expression (Optional)</label>
+                    <textarea tuiTextarea formControlName="precondition" rows="3" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
                   </tui-textfield>
                 }
 
                 <!-- Substitution (available for all types) -->
-                @if (logbookCriteria.get('criteriaType')?.value !== 'group' || !logbookCriteria.get('isUniversal')?.value) {
+                @if (logbookCriteria.get('criteriaType')?.value === 'group' && !logbookCriteria.get('isUniversal')?.value) {
                   <tui-textfield>
                     <label tuiLabel>Substitution Expression (Optional)</label>
                     <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
@@ -470,16 +470,16 @@
                             </tui-textfield>
                           }
 
-                          <!-- Pre-filter for Groups -->
-                          @if (subcriterion.get('criteriaType')?.value === 'group' && !subcriterion.get('isUniversal')?.value) {
+                          <!-- Precondition -->
+                          @if (true) {
                             <tui-textfield>
-                              <label tuiLabel>Pre-filter Expression (Optional)</label>
-                              <textarea tuiTextarea formControlName="criteria" rows="2" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
+                              <label tuiLabel>Precondition Expression (Optional)</label>
+                              <textarea tuiTextarea formControlName="precondition" rows="2" placeholder="e.g., o => o.Amount.Amount > 0"></textarea>
                             </tui-textfield>
                           }
 
                           <!-- Substitution for Subcriterion -->
-                          @if (subcriterion.get('criteriaType')?.value !== 'group' || !subcriterion.get('isUniversal')?.value) {
+                          @if (subcriterion.get('criteriaType')?.value === 'group' && !subcriterion.get('isUniversal')?.value) {
                             <tui-textfield>
                               <label tuiLabel>Substitution (Optional)</label>
                               <textarea tuiTextarea formControlName="substitution" rows="2" placeholder="e.g., o => o.Description"></textarea>
@@ -571,14 +571,14 @@
                                     </tui-textfield>
                                   }
 
-                                  @if (nestedSub.get('criteriaType')?.value === 'group' && !nestedSub.get('isUniversal')?.value) {
+                                  @if (true) {
                                     <tui-textfield>
-                                      <label tuiLabel>Pre-filter Expression (Optional)</label>
-                                      <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                      <label tuiLabel>Precondition (Optional)</label>
+                                      <textarea tuiTextarea formControlName="precondition" rows="2"></textarea>
                                     </tui-textfield>
                                   }
 
-                                  @if (nestedSub.get('criteriaType')?.value !== 'group' || !nestedSub.get('isUniversal')?.value) {
+                                  @if (nestedSub.get('criteriaType')?.value === 'group' && !nestedSub.get('isUniversal')?.value) {
                                     <tui-textfield>
                                       <label tuiLabel>Substitution</label>
                                       <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
@@ -668,14 +668,14 @@
                                             </tui-textfield>
                                           }
 
-                                          @if (level4Sub.get('criteriaType')?.value === 'group' && !level4Sub.get('isUniversal')?.value) {
+                                          @if (true) {
                                             <tui-textfield>
-                                              <label tuiLabel>Pre-filter (Optional)</label>
-                                              <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                              <label tuiLabel>Precondition (Optional)</label>
+                                              <textarea tuiTextarea formControlName="precondition" rows="2"></textarea>
                                             </tui-textfield>
                                           }
 
-                                          @if (level4Sub.get('criteriaType')?.value !== 'group' || !level4Sub.get('isUniversal')?.value) {
+                                          @if (level4Sub.get('criteriaType')?.value === 'group' && !level4Sub.get('isUniversal')?.value) {
                                             <tui-textfield>
                                               <label tuiLabel>Substitution</label>
                                               <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
@@ -765,14 +765,14 @@
                                                     </tui-textfield>
                                                   }
 
-                                                  @if (level5Sub.get('criteriaType')?.value === 'group' && !level5Sub.get('isUniversal')?.value) {
+                                                  @if (true) {
                                                     <tui-textfield>
-                                                      <label tuiLabel>Pre-filter (Optional)</label>
-                                                      <textarea tuiTextarea formControlName="criteria" rows="2"></textarea>
+                                                      <label tuiLabel>Precondition (Optional)</label>
+                                                      <textarea tuiTextarea formControlName="precondition" rows="2"></textarea>
                                                     </tui-textfield>
                                                   }
 
-                                                  @if (level5Sub.get('criteriaType')?.value !== 'group' || !level5Sub.get('isUniversal')?.value) {
+                                                  @if (level5Sub.get('criteriaType')?.value === 'group' && !level5Sub.get('isUniversal')?.value) {
                                                     <tui-textfield>
                                                       <label tuiLabel>Substitution</label>
                                                       <textarea tuiTextarea formControlName="substitution" rows="1"></textarea>
@@ -936,8 +936,14 @@
     }
     @if (criteria.criteria) {
       <div class="criterion-row">
-        <span class="criterion-label">{{ (criteria.subcriteria && criteria.subcriteria.length > 0) ? 'Pre-filter:' : 'Criteria:' }}</span>
+        <span class="criterion-label">Criteria:</span>
         <code class="criterion-value">{{ criteria.criteria }}</code>
+      </div>
+    }
+    @if (criteria.precondition) {
+      <div class="criterion-row">
+        <span class="criterion-label">Precondition:</span>
+        <code class="criterion-value">{{ criteria.precondition }}</code>
       </div>
     }
     @if (criteria.substitution) {

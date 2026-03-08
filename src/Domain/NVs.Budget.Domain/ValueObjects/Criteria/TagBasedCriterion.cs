@@ -1,8 +1,8 @@
-﻿using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
-public class TagBasedCriterion : Criterion
+public class TagBasedCriterion : ConditionalCriterion
 {
     private readonly List<Tag> _tags = new();
 
@@ -20,11 +20,25 @@ public class TagBasedCriterion : Criterion
         if (!_tags.Any()) throw new ArgumentException("No tags provided!", nameof(tags));
     }
 
+    public TagBasedCriterion(string description, IEnumerable<Tag> tags, TagBasedCriterionType type, Func<Operation, bool> precondition) : base(description, precondition)
+    {
+        Type = type;
+        _tags.AddRange(tags.Distinct());
+        if (!_tags.Any()) throw new ArgumentException("No tags provided!", nameof(tags));
+    }
+
+    public TagBasedCriterion(string description, IEnumerable<Tag> tags, TagBasedCriterionType type, IEnumerable<Criterion> subcriteria, Func<Operation, bool> precondition) : base(description, subcriteria, precondition)
+    {
+        Type = type;
+        _tags.AddRange(tags.Distinct());
+        if (!_tags.Any()) throw new ArgumentException("No tags provided!", nameof(tags));
+    }
+
     public IReadOnlyCollection<Tag> Tags => _tags;
 
     public TagBasedCriterionType Type { get; }
 
-    public override bool Matched(Operation t)
+    protected override bool MatchedCore(Operation t)
     {
         switch (Type)
         {

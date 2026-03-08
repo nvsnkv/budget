@@ -2,15 +2,20 @@ using NVs.Budget.Domain.Entities.Operations;
 
 namespace NVs.Budget.Domain.ValueObjects.Criteria;
 
-public class SubstitutionBasedCriterion(string description, Func<Operation, string> substitution) : Criterion(description)
+public class SubstitutionBasedCriterion(string description, Func<Operation, string> substitution, Func<Operation, bool> precondition)
+    : ConditionalCriterion(description, precondition)
 {
     private static readonly UniversalCriterion Dummy = new(string.Empty);
 
     private readonly SortedList<string, PredicateBasedCriterion> _subcriteria = new() { { Dummy.Description, Dummy } };
 
+    public SubstitutionBasedCriterion(string description, Func<Operation, string> substitution) : this(description, substitution, _ => true)
+    {
+    }
+
     public override IReadOnlyList<Criterion> Subcriteria => _subcriteria.Values.AsReadOnly();
 
-    public override bool Matched(Operation t) => true;
+    protected override bool MatchedCore(Operation t) => true;
 
     public override Criterion GetMatchedSubcriterion(Operation t)
     {

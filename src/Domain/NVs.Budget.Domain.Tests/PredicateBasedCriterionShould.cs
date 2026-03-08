@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects.Criteria;
@@ -27,6 +27,24 @@ public class PredicateBasedCriterionShould : CriterionShould
 
         var criterion = new PredicateBasedCriterion(fixture.Create<string>(), predicate);
         criterion.Matched(transaction).Should().Be(false);
+    }
+
+    [Fact]
+    public void MatchIfPreconditionMatched()
+    {
+        var transaction = new Fixture().Create<Operation>();
+        var criterion = new PredicateBasedCriterion("predicate", _ => true, _ => true);
+
+        criterion.Matched(transaction).Should().BeTrue();
+    }
+
+    [Fact]
+    public void NotMatchIfPreconditionNotMatched()
+    {
+        var transaction = new Fixture().Create<Operation>();
+        var criterion = new PredicateBasedCriterion("predicate", _ => true, _ => false);
+
+        criterion.Matched(transaction).Should().BeFalse();
     }
 
     [Fact]

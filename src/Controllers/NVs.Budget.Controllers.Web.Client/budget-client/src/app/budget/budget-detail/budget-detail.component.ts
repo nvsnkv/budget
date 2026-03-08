@@ -156,6 +156,7 @@ export class BudgetDetailComponent implements OnInit {
       type: [criteria.type || ''],
       tags: [criteria.tags ? criteria.tags.join(', ') : ''],
       substitution: [criteria.substitution || ''],
+      precondition: [criteria.precondition || ''],
       criteria: [criteria.criteria || ''],
       subcriteria: this.fb.array(
         criteria.subcriteria?.map((sub: any) => this.createLogbookCriteriaGroup(sub)) || []
@@ -348,6 +349,7 @@ export class BudgetDetailComponent implements OnInit {
     const criteriaType = formGroup.get('criteriaType')?.value;
     const description = formGroup.get('description')?.value;
     const substitution = formGroup.get('substitution')?.value;
+    const precondition = formGroup.get('precondition')?.value;
     const subcriteriaArray = formGroup.get('subcriteria') as FormArray;
     const isUniversal = formGroup.get('isUniversal')?.value;
 
@@ -357,15 +359,9 @@ export class BudgetDetailComponent implements OnInit {
     };
 
     if (criteriaType === 'group') {
-      // Group type - may have isUniversal flag and/or pre-filter criteria
+      // Group type
       if (isUniversal) {
         baseCriteria.isUniversal = true;
-      }
-      
-      // Add pre-filter criteria if specified and not universal
-      const criteriaExpr = formGroup.get('criteria')?.value;
-      if (criteriaExpr && !isUniversal) {
-        baseCriteria.criteria = criteriaExpr;
       }
     } else if (criteriaType === 'tag-based') {
       const tags = formGroup.get('tags')?.value;
@@ -373,6 +369,10 @@ export class BudgetDetailComponent implements OnInit {
       baseCriteria.tags = tags ? tags.split(',').map((t: string) => t.trim()).filter((t: string) => t) : undefined;
     } else if (criteriaType === 'criteria-based') {
       baseCriteria.criteria = formGroup.get('criteria')?.value;
+    }
+
+    if (precondition) {
+      baseCriteria.precondition = precondition;
     }
 
     // Recursively build subcriteria

@@ -23,6 +23,7 @@ export interface LogbookCriteriaResponse {
   substitution?: string;
   criteria?: string;
   isUniversal?: boolean;
+  precondition?: string;
 }
 
 export interface BudgetResponse {

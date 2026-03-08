@@ -13,4 +13,5 @@ internal class StoredLogbookCriteria
     public string? Substitution { get; init; }
     public string? Criteria { get; init; }
     public bool? IsUniversal { get; init; }
+    public string? Precondition { get; init; }
 }

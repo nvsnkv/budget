@@ -51,6 +51,7 @@ public class LogbookCriteriaResponse
     public string? Substitution { get; set; }
     public string? Criteria { get; set; }
     public bool? IsUniversal { get; set; }
+    public string? Precondition { get; set; }
     
     // Constructor for backward compatibility with tests
     public LogbookCriteriaResponse() { }
@@ -61,7 +62,8 @@ public class LogbookCriteriaResponse
         IReadOnlyCollection<string>? tags,
         string? substitution,
         string? criteria,
-        bool? isUniversal)
+        bool? isUniversal,
+        string? precondition = null)
     {
         Description = description;
         Subcriteria = subcriteria?.ToList();
@@ -70,6 +72,7 @@ public class LogbookCriteriaResponse
         Substitution = substitution;
         Criteria = criteria;
         IsUniversal = isUniversal;
+        Precondition = precondition;
     }
 }
 

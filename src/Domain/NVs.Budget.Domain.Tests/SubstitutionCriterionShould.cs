@@ -8,6 +8,24 @@ namespace NVs.Budget.Domain.Tests;
 public class SubstitutionBasedCriterionShould
 {
     [Fact]
+    public void MatchIfPreconditionMatched()
+    {
+        var operation = new Fixture().Create<Operation>();
+        var criterion = new SubstitutionBasedCriterion("subst", _ => "TEXT", _ => true);
+
+        criterion.Matched(operation).Should().BeTrue();
+    }
+
+    [Fact]
+    public void NotMatchIfPreconditionNotMatched()
+    {
+        var operation = new Fixture().Create<Operation>();
+        var criterion = new SubstitutionBasedCriterion("subst", _ => "TEXT", _ => false);
+
+        criterion.Matched(operation).Should().BeFalse();
+    }
+
+    [Fact]
     public void GenerateSubcriteriaForEachSubstitution()
     {
         Func<Operation,string> substitution = o => $"Year {o.Timestamp.Year}";

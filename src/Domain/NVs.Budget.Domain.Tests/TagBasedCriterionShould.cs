@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
@@ -78,6 +78,28 @@ public class TagBasedCriterionShould : CriterionShould
         transaction.Tag(badTags.First());
 
         var criterion = new TagBasedCriterion(_fixture.Create<string>(), badTags, TagBasedCriterionType.Excluding);
+        criterion.Matched(transaction).Should().BeFalse();
+    }
+
+    [Fact]
+    public void MatchIfPreconditionMatched()
+    {
+        var tag = _fixture.Create<Tag>();
+        var transaction = _fixture.Create<Operation>();
+        transaction.Tag(tag);
+        var criterion = new TagBasedCriterion(_fixture.Create<string>(), [tag], TagBasedCriterionType.Including, _ => true);
+
+        criterion.Matched(transaction).Should().BeTrue();
+    }
+
+    [Fact]
+    public void NotMatchIfPreconditionNotMatched()
+    {
+        var tag = _fixture.Create<Tag>();
+        var transaction = _fixture.Create<Operation>();
+        transaction.Tag(tag);
+        var criterion = new TagBasedCriterion(_fixture.Create<string>(), [tag], TagBasedCriterionType.Including, _ => false);
+
         criterion.Matched(transaction).Should().BeFalse();
     }
 
