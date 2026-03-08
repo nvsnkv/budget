@@ -398,14 +398,34 @@
                     <div class="subcriterion-card">
                       <div class="subcriterion-header">
                         <span>Subcriterion {{ idx + 1 }}</span>
-                        <button 
-                          tuiButton
-                          type="button"
-                          appearance="flat"
-                          size="xs"
-                          (click)="removeSubcriterion(logbookCriteria, idx)">
-                          Remove
-                        </button>
+                        <div class="subcriterion-actions">
+                          <button
+                            tuiButton
+                            type="button"
+                            appearance="flat"
+                            size="xs"
+                            [disabled]="!canMoveSubcriterion(logbookCriteria, idx, -1)"
+                            (click)="moveSubcriterion(logbookCriteria, idx, -1)">
+                            Move Up
+                          </button>
+                          <button
+                            tuiButton
+                            type="button"
+                            appearance="flat"
+                            size="xs"
+                            [disabled]="!canMoveSubcriterion(logbookCriteria, idx, 1)"
+                            (click)="moveSubcriterion(logbookCriteria, idx, 1)">
+                            Move Down
+                          </button>
+                          <button
+                            tuiButton
+                            type="button"
+                            appearance="flat"
+                            size="xs"
+                            (click)="removeSubcriterion(logbookCriteria, idx)">
+                            Remove
+                          </button>
+                        </div>
                       </div>
                       
                       <!-- Recursively render the same fields -->
@@ -503,14 +523,34 @@
                                 <ng-container [formGroup]="$any(nestedSub)">
                                 <div class="subcriterion-header">
                                   <span>Nested {{ nestedIdx + 1 }}</span>
-                                  <button 
-                                    tuiButton
-                                    type="button"
-                                    appearance="flat"
-                                    size="xs"
-                                    (click)="removeSubcriterion($any(subcriterion), nestedIdx)">
-                                    Remove
-                                  </button>
+                                  <div class="subcriterion-actions">
+                                    <button
+                                      tuiButton
+                                      type="button"
+                                      appearance="flat"
+                                      size="xs"
+                                      [disabled]="!canMoveSubcriterion($any(subcriterion), nestedIdx, -1)"
+                                      (click)="moveSubcriterion($any(subcriterion), nestedIdx, -1)">
+                                      Move Up
+                                    </button>
+                                    <button
+                                      tuiButton
+                                      type="button"
+                                      appearance="flat"
+                                      size="xs"
+                                      [disabled]="!canMoveSubcriterion($any(subcriterion), nestedIdx, 1)"
+                                      (click)="moveSubcriterion($any(subcriterion), nestedIdx, 1)">
+                                      Move Down
+                                    </button>
+                                    <button
+                                      tuiButton
+                                      type="button"
+                                      appearance="flat"
+                                      size="xs"
+                                      (click)="removeSubcriterion($any(subcriterion), nestedIdx)">
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                                 
                                 <!-- Third level nesting -->
@@ -602,14 +642,34 @@
                                         <ng-container [formGroup]="$any(level4Sub)">
                                         <div class="subcriterion-header">
                                           <span>Level 4 - {{ l4Idx + 1 }}</span>
-                                          <button 
-                                            tuiButton
-                                            type="button"
-                                            appearance="flat"
-                                            size="xs"
-                                            (click)="removeSubcriterion($any(nestedSub), l4Idx)">
-                                            Remove
-                                          </button>
+                                          <div class="subcriterion-actions">
+                                            <button
+                                              tuiButton
+                                              type="button"
+                                              appearance="flat"
+                                              size="xs"
+                                              [disabled]="!canMoveSubcriterion($any(nestedSub), l4Idx, -1)"
+                                              (click)="moveSubcriterion($any(nestedSub), l4Idx, -1)">
+                                              Move Up
+                                            </button>
+                                            <button
+                                              tuiButton
+                                              type="button"
+                                              appearance="flat"
+                                              size="xs"
+                                              [disabled]="!canMoveSubcriterion($any(nestedSub), l4Idx, 1)"
+                                              (click)="moveSubcriterion($any(nestedSub), l4Idx, 1)">
+                                              Move Down
+                                            </button>
+                                            <button
+                                              tuiButton
+                                              type="button"
+                                              appearance="flat"
+                                              size="xs"
+                                              (click)="removeSubcriterion($any(nestedSub), l4Idx)">
+                                              Remove
+                                            </button>
+                                          </div>
                                         </div>
                                         
                                         <div class="logbook-fields level4-fields">
@@ -699,14 +759,34 @@
                                                 <ng-container [formGroup]="$any(level5Sub)">
                                                 <div class="subcriterion-header">
                                                   <span>Level 5 - {{ l5Idx + 1 }}</span>
-                                                  <button 
-                                                    tuiButton
-                                                    type="button"
-                                                    appearance="flat"
-                                                    size="xs"
-                                                    (click)="removeSubcriterion($any(level4Sub), l5Idx)">
-                                                    Remove
-                                                  </button>
+                                                  <div class="subcriterion-actions">
+                                                    <button
+                                                      tuiButton
+                                                      type="button"
+                                                      appearance="flat"
+                                                      size="xs"
+                                                      [disabled]="!canMoveSubcriterion($any(level4Sub), l5Idx, -1)"
+                                                      (click)="moveSubcriterion($any(level4Sub), l5Idx, -1)">
+                                                      Move Up
+                                                    </button>
+                                                    <button
+                                                      tuiButton
+                                                      type="button"
+                                                      appearance="flat"
+                                                      size="xs"
+                                                      [disabled]="!canMoveSubcriterion($any(level4Sub), l5Idx, 1)"
+                                                      (click)="moveSubcriterion($any(level4Sub), l5Idx, 1)">
+                                                      Move Down
+                                                    </button>
+                                                    <button
+                                                      tuiButton
+                                                      type="button"
+                                                      appearance="flat"
+                                                      size="xs"
+                                                      (click)="removeSubcriterion($any(level4Sub), l5Idx)">
+                                                      Remove
+                                                    </button>
+                                                  </div>
                                                 </div>
                                                 
                                                 <div class="logbook-fields level5-fields">

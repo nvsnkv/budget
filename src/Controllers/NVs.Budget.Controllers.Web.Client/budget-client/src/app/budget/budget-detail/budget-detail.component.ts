@@ -183,6 +183,31 @@ export class BudgetDetailComponent implements OnInit {
     subcriteria.removeAt(index);
   }
 
+  moveSubcriterion(criteriaGroup: FormGroup, index: number, shift: number): void {
+    const subcriteria = this.getSubcriteria(criteriaGroup);
+    const targetIndex = index + shift;
+
+    if (
+      index < 0 ||
+      index >= subcriteria.length ||
+      targetIndex < 0 ||
+      targetIndex >= subcriteria.length
+    ) {
+      return;
+    }
+
+    const item = subcriteria.at(index);
+    subcriteria.removeAt(index);
+    subcriteria.insert(targetIndex, item);
+    subcriteria.markAsDirty();
+  }
+
+  canMoveSubcriterion(criteriaGroup: FormGroup, index: number, shift: number): boolean {
+    const subcriteria = this.getSubcriteria(criteriaGroup);
+    const targetIndex = index + shift;
+    return targetIndex >= 0 && targetIndex < subcriteria.length;
+  }
+
   get taggingCriteria(): FormArray {
     return this.budgetForm?.get('taggingCriteria') as FormArray;
   }
