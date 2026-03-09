@@ -81,11 +81,12 @@ export class AppComponent {
           return [
             { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
             { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
-            { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
+            { label: 'retag', commands: ['/budget', budgetId, 'operations', 'retag'] },
+            { label: 'bulk changes', commands: ['/budget', budgetId, 'operations', 'bulk-changes'] },
             { label: 'import', commands: ['/budget', budgetId, 'operations', 'import'] },
             { label: 'manual import', commands: ['/budget', budgetId, 'operations', 'manual-import'] },
             { label: 'delete', commands: ['/budget', budgetId, 'operations', 'delete'] },
-            { label: 'retag', commands: ['/budget', budgetId, 'operations', 'retag'] },
+            { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
             { label: 'details', commands: ['/budget', budgetId, 'details'] }
           ];
         }

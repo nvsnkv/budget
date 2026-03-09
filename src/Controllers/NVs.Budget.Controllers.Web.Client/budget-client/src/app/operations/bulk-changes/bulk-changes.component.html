@@ -1,0 +1,63 @@
+<div class="bulk-changes-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div class="bulk-changes-card">
+      <div class="header">
+        <h2 tuiTitle size="l">Bulk Changes</h2>
+        <button tuiButton type="button" appearance="flat" size="m" (click)="goBack()">
+          Back to Operations
+        </button>
+      </div>
+
+      <div class="config-panel">
+        <h3 tuiTitle size="m">1. Modification Rules</h3>
+        
+        <div class="rules-grid">
+          <div class="rule-section">
+            <h4 tuiTitle size="s">Tags</h4>
+            <tui-textfield>
+              <label tuiLabel>Tags to Add (comma-separated)</label>
+              <input tuiTextfield type="text" [(ngModel)]="tagsToAdd" placeholder="e.g. food, expense" />
+            </tui-textfield>
+            
+            <tui-textfield class="mt-2">
+              <label tuiLabel>Tags to Remove (comma-separated)</label>
+              <input tuiTextfield type="text" [(ngModel)]="tagsToRemove" placeholder="e.g. temporary, to-review" />
+            </tui-textfield>
+          </div>
+
+          <div class="rule-section">
+            <h4 tuiTitle size="s">Attributes</h4>
+            <label tuiLabel>Attributes to Set/Update</label>
+            <app-attributes-editor [(model)]="attributesToAdd"></app-attributes-editor>
+            
+            <tui-textfield class="mt-2">
+              <label tuiLabel>Attributes to Remove (comma-separated)</label>
+              <input tuiTextfield type="text" [(ngModel)]="attributesToRemove" placeholder="e.g. originalCategory, source" />
+            </tui-textfield>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h3 tuiTitle size="m">2. Filter Operations & Apply</h3>
+        <app-criteria-filter
+          [initialCriteria]="currentCriteria"
+          [examples]="criteriaExamples"
+          [showExamplesInitially]="false"
+          (criteriaSubmitted)="loadAndApply($event)">
+        </app-criteria-filter>
+      </div>
+
+      <div class="operations-section" [hidden]="operations.length === 0">
+        <div class="section-header">
+          <h3 tuiTitle size="m">3. Review and Save</h3>
+          <p>Loaded {{ operations.length }} operations and applied changes. Please review and click "Save all edits" in the table.</p>
+        </div>
+        <app-operations-table
+          [operations]="operations"
+          (operationsUpdated)="onUpdateOperations($event)">
+        </app-operations-table>
+      </div>
+    </div>
+  </tui-loader>
+</div>

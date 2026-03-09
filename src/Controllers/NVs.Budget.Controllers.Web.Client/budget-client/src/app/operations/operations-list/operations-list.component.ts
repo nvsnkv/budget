@@ -130,6 +130,10 @@ export class OperationsListComponent implements OnInit {
     this.router.navigate(['/budget', this.budgetId, 'operations', 'retag']);
   }
 
+  navigateToBulkChanges(): void {
+    this.router.navigate(['/budget', this.budgetId, 'operations', 'bulk-changes']);
+  }
+
   navigateToLogbook(): void {
     this.router.navigate(['/budget', this.budgetId, 'operations', 'logbook']);
   }

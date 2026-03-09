@@ -1,0 +1,83 @@
+.bulk-changes-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .bulk-changes-card {
+    background: var(--tui-base-01);
+    border-radius: var(--tui-radius-l);
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .config-panel {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--tui-base-02);
+      border-radius: var(--tui-radius-m);
+
+      h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+
+      .rules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+
+        .rule-section {
+          h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            color: var(--tui-text-02);
+          }
+
+          .mt-2 {
+            margin-top: 0.75rem;
+          }
+
+          .block {
+            display: block;
+          }
+        }
+      }
+    }
+
+    .filter-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--tui-base-02);
+      border-radius: var(--tui-radius-m);
+
+      h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .operations-section {
+      margin-top: 2rem;
+      
+      .section-header {
+        margin-bottom: 1rem;
+        
+        h3 {
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+        }
+        
+        p {
+          color: var(--tui-text-02);
+          margin: 0;
+        }
+      }
+    }
+  }
+}
