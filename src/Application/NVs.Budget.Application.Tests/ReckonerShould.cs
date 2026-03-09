@@ -136,9 +136,9 @@ public class ReckonerShould
         actual.Should().NotContain(accessibleTransferWithoutFee.Cast<TrackedOperation>());
         actual.Should().Contain(inaccessibleTransfer.Where(t => t.Budget.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
         actual.Should().NotContain(inaccessibleTransfer.Where(t => !t.Budget.Owners.Contains(_currentOwner)).Cast<TrackedOperation>());
-        actual.Any(a =>CheckIfTheSameTransactions(a, accessibleTransferWithFee.AsTransaction())).Should().BeTrue();
-        actual.Any(a => CheckIfTheSameTransactions(a, inaccessibleTransfer.AsTransaction())).Should().BeFalse();
-        actual.Any(a => CheckIfTheSameTransactions(a, accessibleTransferWithoutFee.AsTransaction())).Should().BeFalse();
+        actual.Any(a =>CheckIfTheSameTransactions(a, accessibleTransferWithFee.AsOperation())).Should().BeTrue();
+        actual.Any(a => CheckIfTheSameTransactions(a, inaccessibleTransfer.AsOperation())).Should().BeFalse();
+        actual.Any(a => CheckIfTheSameTransactions(a, accessibleTransferWithoutFee.AsOperation())).Should().BeFalse();
     }
 
     [Fact]

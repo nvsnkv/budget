@@ -30,7 +30,7 @@ public class TransferShould
         var sink = CreateTransaction(101, 1000, currencyIsoCode);
 
         var transfer = new Transfer(source, sink, new Fixture().Create<string>());
-        var transaction = transfer.AsTransaction();
+        var transaction = transfer.AsOperation();
 
         transaction.Amount.Should().Be(transfer.Fee);
         transaction.Budget.Should().Be(sink.Budget);
@@ -44,7 +44,7 @@ public class TransferShould
         var sink = CreateTransaction(19, 99, currencyIsoCode);
 
         var transfer = new Transfer(source, sink, new Fixture().Create<string>());
-        var transaction = transfer.AsTransaction();
+        var transaction = transfer.AsOperation();
 
         transaction.Amount.Should().Be(transfer.Fee);
         transaction.Budget.Should().Be(source.Budget);

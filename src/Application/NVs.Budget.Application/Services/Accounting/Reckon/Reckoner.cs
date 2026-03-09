@@ -76,7 +76,7 @@ internal class Reckoner(
                 {
                     if (!transfer.Fee.IsZero())
                     {
-                        yield return AsTrackedOperation(transfer.AsTransaction());
+                        yield return AsTrackedOperation(transfer.AsOperation());
                     }
                 }
 

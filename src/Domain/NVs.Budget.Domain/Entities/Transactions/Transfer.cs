@@ -90,7 +90,7 @@ public class Transfer : IEnumerable<Operation>
 
     public DateTime CompletedAt => Sink.Timestamp; 
 
-    public Operation AsTransaction()
+    public Operation AsOperation()
     {
         var timestamp = Source.Timestamp;
         var amount = Fee;
