@@ -104,6 +104,42 @@ logbookCriteria:
     }
 
     [Fact]
+    public void DeserializeUpdateBudgetRequestWithMissingAndNullFields()
+    {
+        // Arrange
+        var yaml = @"
+name: Partial Budget
+version: v1.0
+taggingCriteria: null
+logbookCriteria:
+  - description: Optional fields are omitted
+    isUniversal: null
+";
+
+        // Act
+        var result = _deserializer.Deserialize<UpdateBudgetRequest>(yaml);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Name.Should().Be("Partial Budget");
+        result.Version.Should().Be("v1.0");
+        result.TaggingCriteria.Should().BeNull();
+        result.TransferCriteria.Should().BeNull();
+        result.LogbookCriteria.Should().NotBeNull();
+        result.LogbookCriteria.Should().HaveCount(1);
+
+        var criterion = result.LogbookCriteria!.First();
+        criterion.Description.Should().Be("Optional fields are omitted");
+        criterion.IsUniversal.Should().BeNull();
+        criterion.Type.Should().BeNull();
+        criterion.Tags.Should().BeNull();
+        criterion.Substitution.Should().BeNull();
+        criterion.Criteria.Should().BeNull();
+        criterion.Precondition.Should().BeNull();
+        criterion.Subcriteria.Should().BeNull();
+    }
+
+    [Fact]
     public void DeserializeTaggingCriterionResponse()
     {
         // Arrange

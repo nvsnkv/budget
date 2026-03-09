@@ -78,6 +78,7 @@ public static class WebControllersExtensions
             {
                 var serializer = new SerializerBuilder()
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                    .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull)
                     .Build();
                 
                 var deserializer = new DeserializerBuilder()
