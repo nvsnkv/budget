@@ -61,6 +61,260 @@ public class BudgetController(
         return Ok(mapper.ToResponse(budget));
     }
 
+    [HttpGet("{id:guid}/criteria/tagging")]
+    [ProducesResponseType(typeof(TaggingCriteriaConfigResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> GetTaggingCriteria([FromRoute] Guid id, CancellationToken ct)
+    {
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        var response = mapper.ToResponse(budget);
+        return Ok(new TaggingCriteriaConfigResponse
+        {
+            BudgetId = budget.Id,
+            Version = budget.Version ?? string.Empty,
+            TaggingCriteria = response.TaggingCriteria.ToList()
+        });
+    }
+
+    [HttpPut("{id:guid}/criteria/tagging")]
+    [ProducesResponseType(204)]
+    [Consumes("application/json", "application/yaml", "text/yaml")]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> UpdateTaggingCriteria(
+        [FromRoute] Guid id,
+        [FromBody] UpdateTaggingCriteriaRequest request,
+        CancellationToken ct)
+    {
+        if (request.BudgetId != id)
+        {
+            return BadRequest(new List<Error> { new($"Request budgetId {request.BudgetId} does not match route id {id}") });
+        }
+
+        if (request.TaggingCriteria == null)
+        {
+            return BadRequest(new List<Error> { new("TaggingCriteria payload is required") });
+        }
+
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        var taggingCriteria = new List<TaggingCriterion>();
+        foreach (var criterion in request.TaggingCriteria)
+        {
+            if (criterion == null)
+            {
+                continue;
+            }
+
+            var parseResult = mapper.FromRequest(criterion);
+            if (parseResult.IsFailed)
+            {
+                return BadRequest(parseResult.Errors);
+            }
+
+            taggingCriteria.Add(parseResult.Value);
+        }
+
+        var updatedBudget = new TrackedBudget(
+            budget.Id,
+            budget.Name,
+            budget.Owners,
+            taggingCriteria,
+            budget.TransferCriteria,
+            budget.LogbookCriteria)
+        {
+            Version = request.Version
+        };
+
+        var result = await mediator.Send(new UpdateBudgetCommand(updatedBudget), ct);
+        return result.IsSuccess ? NoContent() : BadRequest(result.Errors);
+    }
+
+    [HttpGet("{id:guid}/criteria/transfers")]
+    [ProducesResponseType(typeof(TransferCriteriaConfigResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> GetTransferCriteria([FromRoute] Guid id, CancellationToken ct)
+    {
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        var response = mapper.ToResponse(budget);
+        return Ok(new TransferCriteriaConfigResponse
+        {
+            BudgetId = budget.Id,
+            Version = budget.Version ?? string.Empty,
+            TransferCriteria = response.TransferCriteria.ToList()
+        });
+    }
+
+    [HttpPut("{id:guid}/criteria/transfers")]
+    [ProducesResponseType(204)]
+    [Consumes("application/json", "application/yaml", "text/yaml")]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> UpdateTransferCriteria(
+        [FromRoute] Guid id,
+        [FromBody] UpdateTransferCriteriaRequest request,
+        CancellationToken ct)
+    {
+        if (request.BudgetId != id)
+        {
+            return BadRequest(new List<Error> { new($"Request budgetId {request.BudgetId} does not match route id {id}") });
+        }
+
+        if (request.TransferCriteria == null)
+        {
+            return BadRequest(new List<Error> { new("TransferCriteria payload is required") });
+        }
+
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        var transferCriteria = new List<TransferCriterion>();
+        foreach (var criterion in request.TransferCriteria)
+        {
+            if (criterion == null)
+            {
+                continue;
+            }
+
+            var parseResult = mapper.FromRequest(criterion);
+            if (parseResult.IsFailed)
+            {
+                return BadRequest(parseResult.Errors);
+            }
+
+            transferCriteria.Add(parseResult.Value);
+        }
+
+        var updatedBudget = new TrackedBudget(
+            budget.Id,
+            budget.Name,
+            budget.Owners,
+            budget.TaggingCriteria,
+            transferCriteria,
+            budget.LogbookCriteria)
+        {
+            Version = request.Version
+        };
+
+        var result = await mediator.Send(new UpdateBudgetCommand(updatedBudget), ct);
+        return result.IsSuccess ? NoContent() : BadRequest(result.Errors);
+    }
+
+    [HttpGet("{id:guid}/criteria/logbook/{name}")]
+    [ProducesResponseType(typeof(LogbookCriteriaConfigResponse), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> GetLogbookCriterion([FromRoute] Guid id, [FromRoute] string name, CancellationToken ct)
+    {
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        var response = mapper.ToResponse(budget);
+        var criterion = response.LogbookCriteria.FirstOrDefault(c =>
+            c.Description.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (criterion == null)
+        {
+            return NotFound(new List<Error> { new($"LogbookCriteria '{name}' not found in budget {id}") });
+        }
+
+        return Ok(new LogbookCriteriaConfigResponse
+        {
+            BudgetId = budget.Id,
+            Version = budget.Version ?? string.Empty,
+            Name = criterion.Description,
+            LogbookCriteria = criterion
+        });
+    }
+
+    [HttpPut("{id:guid}/criteria/logbook/{name}")]
+    [ProducesResponseType(204)]
+    [Consumes("application/json", "application/yaml", "text/yaml")]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 400)]
+    [ProducesResponseType(typeof(IEnumerable<Error>), 404)]
+    public async Task<IActionResult> UpdateLogbookCriterion(
+        [FromRoute] Guid id,
+        [FromRoute] string name,
+        [FromBody] UpdateLogbookCriteriaRequest request,
+        CancellationToken ct)
+    {
+        if (request.BudgetId != id)
+        {
+            return BadRequest(new List<Error> { new($"Request budgetId {request.BudgetId} does not match route id {id}") });
+        }
+
+        if (request.LogbookCriteria == null)
+        {
+            return BadRequest(new List<Error> { new("LogbookCriteria payload is required") });
+        }
+
+        var budgets = await mediator.Send(new ListOwnedBudgetsQuery(), ct);
+        var budget = budgets.FirstOrDefault(b => b.Id == id);
+
+        if (budget == null)
+        {
+            return NotFound(new List<Error> { new($"Budget with ID {id} not found or access denied") });
+        }
+
+        var response = mapper.ToResponse(budget);
+        var logbookCriteria = response.LogbookCriteria.ToList();
+        var index = logbookCriteria.FindIndex(c =>
+            c.Description.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            return NotFound(new List<Error> { new($"LogbookCriteria '{name}' not found in budget {id}") });
+        }
+
+        logbookCriteria[index] = request.LogbookCriteria;
+        var parseResult = mapper.FromRequest(logbookCriteria);
+        if (parseResult.IsFailed)
+        {
+            return BadRequest(parseResult.Errors);
+        }
+
+        var updatedBudget = new TrackedBudget(
+            budget.Id,
+            budget.Name,
+            budget.Owners,
+            budget.TaggingCriteria,
+            budget.TransferCriteria,
+            parseResult.Value)
+        {
+            Version = request.Version
+        };
+
+        var result = await mediator.Send(new UpdateBudgetCommand(updatedBudget), ct);
+        return result.IsSuccess ? NoContent() : BadRequest(result.Errors);
+    }
+
     /// <summary>
     /// Registers a new budget
     /// </summary>

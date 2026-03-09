@@ -46,4 +46,24 @@ public class YamlSerializationShould
         yaml.Should().NotContain("type:");
         yaml.Should().NotContain("precondition:");
     }
+
+    [Fact]
+    public void SerializeSlimTaggingCriteriaPayload()
+    {
+        var model = new UpdateTaggingCriteriaRequest
+        {
+            BudgetId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Version = "v42",
+            TaggingCriteria =
+            [
+                new TaggingCriterionResponse("o => \"Salary\"", "o => o.Amount.Amount > 0")
+            ]
+        };
+
+        var yaml = _serializer.Serialize(model);
+
+        yaml.Should().Contain("budgetId: 11111111-1111-1111-1111-111111111111");
+        yaml.Should().Contain("version: v42");
+        yaml.Should().Contain("taggingCriteria:");
+    }
 }

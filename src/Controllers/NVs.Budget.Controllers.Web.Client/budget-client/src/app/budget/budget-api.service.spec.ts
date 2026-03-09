@@ -102,4 +102,48 @@ describe('BudgetApiService', () => {
     expect(activeRequest).toBeDefined();
     activeRequest!.flush(mockData);
   });
+
+  it('should download tagging criteria yaml', () => {
+    const id = '123';
+    const blob = new Blob(['tagging: []'], { type: 'application/yaml' });
+
+    service.downloadTaggingCriteriaYaml(id).subscribe((response) => {
+      expect(response).toEqual(blob);
+    });
+
+    const req = httpMock.expectOne({ method: 'GET', url: `${baseUrl}/budget/${id}/criteria/tagging` });
+    expect(req.request.headers.get('Accept')).toBe('application/yaml');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(blob);
+  });
+
+  it('should upload transfer criteria yaml', () => {
+    const id = '123';
+    const yaml = 'transferCriteria: []';
+
+    service.uploadTransferCriteriaYaml(id, yaml).subscribe(() => {});
+
+    const req = httpMock.expectOne({ method: 'PUT', url: `${baseUrl}/budget/${id}/criteria/transfers` });
+    expect(req.request.body).toBe(yaml);
+    expect(req.request.headers.get('Content-Type')).toBe('application/yaml');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null);
+  });
+
+  it('should upload logbook criterion yaml with encoded name', () => {
+    const id = '123';
+    const name = 'My Salary';
+    const yaml = 'logbookCriteria:\n  description: My Salary';
+
+    service.uploadLogbookCriterionYaml(id, name, yaml).subscribe(() => {});
+
+    const req = httpMock.expectOne({
+      method: 'PUT',
+      url: `${baseUrl}/budget/${id}/criteria/logbook/My%20Salary`
+    });
+    expect(req.request.body).toBe(yaml);
+    expect(req.request.headers.get('Content-Type')).toBe('application/yaml');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null);
+  });
 });

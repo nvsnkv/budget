@@ -84,3 +84,46 @@ public class UpdateBudgetRequest
     public List<TransferCriterionResponse>? TransferCriteria { get; set; }
     public List<LogbookCriteriaResponse>? LogbookCriteria { get; set; }
 }
+
+public class TaggingCriteriaConfigResponse
+{
+    public Guid BudgetId { get; set; }
+    public string Version { get; set; } = string.Empty;
+    public List<TaggingCriterionResponse> TaggingCriteria { get; set; } = [];
+}
+
+public class UpdateTaggingCriteriaRequest
+{
+    public Guid BudgetId { get; set; }
+    public string Version { get; set; } = string.Empty;
+    public List<TaggingCriterionResponse>? TaggingCriteria { get; set; }
+}
+
+public class TransferCriteriaConfigResponse
+{
+    public Guid BudgetId { get; set; }
+    public string Version { get; set; } = string.Empty;
+    public List<TransferCriterionResponse> TransferCriteria { get; set; } = [];
+}
+
+public class UpdateTransferCriteriaRequest
+{
+    public Guid BudgetId { get; set; }
+    public string Version { get; set; } = string.Empty;
+    public List<TransferCriterionResponse>? TransferCriteria { get; set; }
+}
+
+public class LogbookCriteriaConfigResponse
+{
+    public Guid BudgetId { get; set; }
+    public string Version { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public LogbookCriteriaResponse LogbookCriteria { get; set; } = new();
+}
+
+public class UpdateLogbookCriteriaRequest
+{
+    public Guid BudgetId { get; set; }
+    public string Version { get; set; } = string.Empty;
+    public LogbookCriteriaResponse LogbookCriteria { get; set; } = new();
+}

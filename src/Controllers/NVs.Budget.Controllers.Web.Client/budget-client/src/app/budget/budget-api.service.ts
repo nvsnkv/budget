@@ -9,7 +9,10 @@ import {
   MergeBudgetsRequest,
   IError,
   FileReadingSettingResponse,
-  Owner
+  Owner,
+  UpdateTaggingCriteriaRequest,
+  UpdateTransferCriteriaRequest,
+  UpdateLogbookCriteriaRequest
 } from './models';
 import { AppConfigService } from '../config/app-config.service';
 
@@ -124,6 +127,78 @@ export class BudgetApiService {
   uploadBudgetYaml(id: string, yamlContent: string): Observable<void> {
     const headers = new HttpHeaders().set('Content-Type', 'application/yaml');
     return this.http.put<void>(`${this.baseUrl}/budget/${id}`, yamlContent, {
+      headers,
+      withCredentials: true
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  downloadTaggingCriteriaYaml(id: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/budget/${id}/criteria/tagging`, {
+      responseType: 'blob',
+      headers: new HttpHeaders().set('Accept', 'application/yaml'),
+      withCredentials: true
+    });
+  }
+
+  uploadTaggingCriteriaYaml(id: string, yamlContent: string): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/yaml');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/tagging`, yamlContent, {
+      headers,
+      withCredentials: true
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  updateTaggingCriteria(id: string, request: UpdateTaggingCriteriaRequest): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/tagging`, request, {
+      headers,
+      withCredentials: true
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  downloadTransferCriteriaYaml(id: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/budget/${id}/criteria/transfers`, {
+      responseType: 'blob',
+      headers: new HttpHeaders().set('Accept', 'application/yaml'),
+      withCredentials: true
+    });
+  }
+
+  uploadTransferCriteriaYaml(id: string, yamlContent: string): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/yaml');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/transfers`, yamlContent, {
+      headers,
+      withCredentials: true
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  updateTransferCriteria(id: string, request: UpdateTransferCriteriaRequest): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/transfers`, request, {
+      headers,
+      withCredentials: true
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  downloadLogbookCriterionYaml(id: string, name: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/budget/${id}/criteria/logbook/${encodeURIComponent(name)}`, {
+      responseType: 'blob',
+      headers: new HttpHeaders().set('Accept', 'application/yaml'),
+      withCredentials: true
+    });
+  }
+
+  uploadLogbookCriterionYaml(id: string, name: string, yamlContent: string): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/yaml');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/logbook/${encodeURIComponent(name)}`, yamlContent, {
+      headers,
+      withCredentials: true
+    }).pipe(tap(() => this.refresh$.next(true)));
+  }
+
+  updateLogbookCriterion(id: string, name: string, request: UpdateLogbookCriteriaRequest): Observable<void> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/logbook/${encodeURIComponent(name)}`, request, {
       headers,
       withCredentials: true
     }).pipe(tap(() => this.refresh$.next(true)));

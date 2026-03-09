@@ -59,6 +59,43 @@ export interface UpdateBudgetRequest {
   logbookCriteria?: LogbookCriteriaResponse[];
 }
 
+export interface TaggingCriteriaConfigResponse {
+  budgetId: string;
+  version: string;
+  taggingCriteria: TaggingCriterionResponse[];
+}
+
+export interface UpdateTaggingCriteriaRequest {
+  budgetId: string;
+  version: string;
+  taggingCriteria?: TaggingCriterionResponse[];
+}
+
+export interface TransferCriteriaConfigResponse {
+  budgetId: string;
+  version: string;
+  transferCriteria: TransferCriterionResponse[];
+}
+
+export interface UpdateTransferCriteriaRequest {
+  budgetId: string;
+  version: string;
+  transferCriteria?: TransferCriterionResponse[];
+}
+
+export interface LogbookCriteriaConfigResponse {
+  budgetId: string;
+  version: string;
+  name: string;
+  logbookCriteria: LogbookCriteriaResponse;
+}
+
+export interface UpdateLogbookCriteriaRequest {
+  budgetId: string;
+  version: string;
+  logbookCriteria: LogbookCriteriaResponse;
+}
+
 export interface MergeBudgetsRequest {
   budgetIds: string[];
   purgeEmptyBudgets: boolean;

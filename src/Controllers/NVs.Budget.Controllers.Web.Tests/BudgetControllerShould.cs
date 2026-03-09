@@ -83,6 +83,96 @@ public class BudgetControllerShould
         demoGenerator.Verify(g => g.Generate(createdBudget.Id, It.IsAny<DateTime>()), Times.Once);
     }
 
+    [Fact]
+    public async Task GetTaggingCriteria_ShouldReturnSlimResponse()
+    {
+        var mediator = new Mock<IMediator>();
+        var demoGenerator = new Mock<IDemoBudgetGenerator>();
+        var budget = CreateBudget("Budget A", "v2");
+
+        mediator.Setup(m => m.Send(It.IsAny<ListOwnedBudgetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([budget]);
+
+        var controller = CreateController(mediator.Object, demoGenerator.Object);
+
+        var result = await controller.GetTaggingCriteria(budget.Id, CancellationToken.None);
+
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var payload = ok.Value.Should().BeOfType<TaggingCriteriaConfigResponse>().Subject;
+        payload.BudgetId.Should().Be(budget.Id);
+        payload.Version.Should().Be("v2");
+        payload.TaggingCriteria.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task UpdateTransferCriteria_ShouldForwardVersionAndUpdateBudget()
+    {
+        var mediator = new Mock<IMediator>();
+        var demoGenerator = new Mock<IDemoBudgetGenerator>();
+        var budget = CreateBudget("Budget A", "old-version");
+
+        mediator.Setup(m => m.Send(It.IsAny<ListOwnedBudgetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([budget]);
+        mediator.Setup(m => m.Send(It.IsAny<UpdateBudgetCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok());
+
+        var controller = CreateController(mediator.Object, demoGenerator.Object);
+        var request = new UpdateTransferCriteriaRequest
+        {
+            BudgetId = budget.Id,
+            Version = "new-version",
+            TransferCriteria =
+            [
+                new TransferCriterionResponse(
+                    DetectionAccuracy.Exact.ToString(),
+                    "test transfer",
+                    "(source, sink) => source.Amount.Amount == sink.Amount.Amount * -1")
+            ]
+        };
+
+        var result = await controller.UpdateTransferCriteria(budget.Id, request, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        mediator.Verify(m => m.Send(
+            It.Is<UpdateBudgetCommand>(c =>
+                c.Budget.Id == budget.Id &&
+                c.Budget.Version == "new-version" &&
+                c.Budget.TransferCriteria.Count == 1),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateLogbookCriterion_ShouldReturnNotFoundWhenNameIsMissing()
+    {
+        var mediator = new Mock<IMediator>();
+        var demoGenerator = new Mock<IDemoBudgetGenerator>();
+        var budget = CreateBudget("Budget A", "v1");
+
+        mediator.Setup(m => m.Send(It.IsAny<ListOwnedBudgetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([budget]);
+
+        var controller = CreateController(mediator.Object, demoGenerator.Object);
+        var request = new UpdateLogbookCriteriaRequest
+        {
+            BudgetId = budget.Id,
+            Version = "v3",
+            LogbookCriteria = new LogbookCriteriaResponse
+            {
+                Description = "Updated",
+                IsUniversal = true
+            }
+        };
+
+        var result = await controller.UpdateLogbookCriterion(
+            budget.Id,
+            "missing-name",
+            request,
+            CancellationToken.None);
+
+        result.Should().BeOfType<NotFoundObjectResult>();
+        mediator.Verify(m => m.Send(It.IsAny<UpdateBudgetCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static BudgetController CreateController(IMediator mediator, IDemoBudgetGenerator demoGenerator)
     {
         var mapper = new BudgetMapper(ReadableExpressionsParser.Default);

@@ -178,6 +178,45 @@ criterion: (source, sink) => source.Amount.Amount == sink.Amount.Amount * -1
     }
 
     [Fact]
+    public void DeserializeUpdateTransferCriteriaRequest()
+    {
+        var yaml = @"
+budgetId: 11111111-1111-1111-1111-111111111111
+version: v3
+transferCriteria:
+  - accuracy: Exact
+    comment: transfer
+    criterion: (source, sink) => source.Amount.Amount == sink.Amount.Amount * -1
+";
+
+        var result = _deserializer.Deserialize<UpdateTransferCriteriaRequest>(yaml);
+
+        result.Should().NotBeNull();
+        result.BudgetId.Should().Be(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+        result.Version.Should().Be("v3");
+        result.TransferCriteria.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void DeserializeUpdateLogbookCriteriaRequest()
+    {
+        var yaml = @"
+budgetId: 11111111-1111-1111-1111-111111111111
+version: v5
+logbookCriteria:
+  description: Salary
+  isUniversal: true
+";
+
+        var result = _deserializer.Deserialize<UpdateLogbookCriteriaRequest>(yaml);
+
+        result.Should().NotBeNull();
+        result.BudgetId.Should().Be(Guid.Parse("11111111-1111-1111-1111-111111111111"));
+        result.Version.Should().Be("v5");
+        result.LogbookCriteria.Description.Should().Be("Salary");
+    }
+
+    [Fact]
     public void FailToDeserializeInvalidYaml()
     {
         // Arrange

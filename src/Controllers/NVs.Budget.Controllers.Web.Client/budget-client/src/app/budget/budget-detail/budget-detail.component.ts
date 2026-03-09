@@ -52,6 +52,8 @@ export class BudgetDetailComponent implements OnInit {
   selectedOwnerIds = new Set<string>();
   selectedLogbookCriteriaIndex = 0;
   selectedReadOnlyLogbookCriteriaDescription = '';
+  selectedYamlScope: 'full' | 'tagging' | 'transfer' | 'logbook' = 'full';
+  selectedYamlLogbookName = '';
 
   // Section visibility toggles
   showTaggingCriteria = true;
@@ -78,6 +80,7 @@ export class BudgetDetailComponent implements OnInit {
           this.budget = budget || null;
           this.initForm();
           this.initOwnersForm();
+          this.selectedYamlLogbookName = budget?.logbookCriteria?.[0]?.description ?? '';
         }),
         catchError(error => {
           console.error('Error fetching budget:', error);
@@ -475,13 +478,25 @@ export class BudgetDetailComponent implements OnInit {
 
   downloadYaml(): void {
     if (!this.budget) return;
+    if (this.selectedYamlScope === 'logbook' && !this.getSelectedYamlLogbookName()) {
+      this.showError('Please select a logbook criteria to export.');
+      return;
+    }
 
-    this.apiService.downloadBudgetYaml(this.budget.id).subscribe({
+    const download$ = this.selectedYamlScope === 'tagging'
+      ? this.apiService.downloadTaggingCriteriaYaml(this.budget.id)
+      : this.selectedYamlScope === 'transfer'
+        ? this.apiService.downloadTransferCriteriaYaml(this.budget.id)
+        : this.selectedYamlScope === 'logbook'
+          ? this.apiService.downloadLogbookCriterionYaml(this.budget.id, this.getSelectedYamlLogbookName())
+          : this.apiService.downloadBudgetYaml(this.budget.id);
+
+    download$.subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `budget-${this.budget!.name}.yaml`;
+        a.download = this.getYamlFilename();
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -495,6 +510,10 @@ export class BudgetDetailComponent implements OnInit {
 
   uploadYaml(): void {
     if (!this.budget) return;
+    if (this.selectedYamlScope === 'logbook' && !this.getSelectedYamlLogbookName()) {
+      this.showError('Please select a logbook criteria to import.');
+      return;
+    }
 
     const input = document.createElement('input');
     input.type = 'file';
@@ -512,10 +531,18 @@ export class BudgetDetailComponent implements OnInit {
         }
 
         this.isLoading = true;
-        this.apiService.uploadBudgetYaml(this.budget!.id, yamlContent).subscribe({
+        const upload$ = this.selectedYamlScope === 'tagging'
+          ? this.apiService.uploadTaggingCriteriaYaml(this.budget!.id, yamlContent)
+          : this.selectedYamlScope === 'transfer'
+            ? this.apiService.uploadTransferCriteriaYaml(this.budget!.id, yamlContent)
+            : this.selectedYamlScope === 'logbook'
+              ? this.apiService.uploadLogbookCriterionYaml(this.budget!.id, this.getSelectedYamlLogbookName(), yamlContent)
+              : this.apiService.uploadBudgetYaml(this.budget!.id, yamlContent);
+
+        upload$.subscribe({
           next: () => {
             this.isLoading = false;
-            this.showSuccess('Budget updated successfully from YAML');
+            this.showSuccess('YAML imported successfully');
             window.location.reload();
           },
           error: (error) => {
@@ -530,6 +557,36 @@ export class BudgetDetailComponent implements OnInit {
       reader.readAsText(file);
     };
     input.click();
+  }
+
+  private getSelectedYamlLogbookName(): string {
+    const selected = this.selectedYamlLogbookName.trim();
+    if (selected.length > 0) {
+      return selected;
+    }
+
+    return this.budget?.logbookCriteria?.[0]?.description ?? '';
+  }
+
+  private getYamlFilename(): string {
+    if (!this.budget) {
+      return 'budget.yaml';
+    }
+
+    if (this.selectedYamlScope === 'tagging') {
+      return `budget-${this.budget.name}-tagging-criteria.yaml`;
+    }
+
+    if (this.selectedYamlScope === 'transfer') {
+      return `budget-${this.budget.name}-transfer-criteria.yaml`;
+    }
+
+    if (this.selectedYamlScope === 'logbook') {
+      const name = this.getSelectedYamlLogbookName().replace(/\s+/g, '-').toLowerCase();
+      return `budget-${this.budget.name}-logbook-${name || 'criteria'}.yaml`;
+    }
+
+    return `budget-${this.budget.name}.yaml`;
   }
 
   private handleError(error: any, defaultMessage: string): void {

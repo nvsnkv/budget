@@ -43,16 +43,23 @@ public class BudgetMapper(ReadableExpressionsParser parser)
 
     private LogbookCriteriaResponse ToResponse(LogbookCriteria criteria)
     {
+        static string? NullIfWhiteSpace(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value;
+
         return new LogbookCriteriaResponse
         {
             Description = criteria.Description,
-            Subcriteria = criteria.Subcriteria?.Select(ToResponse).ToList(),
-            Type = criteria.Type?.ToString(),
-            Tags = criteria.Tags?.Select(t => t.Value).ToList(),
-            Substitution = criteria.Substitution?.ToString(),
-            Criteria = criteria.Criteria?.ToString(),
+            Subcriteria = criteria.Subcriteria?.Any() == true
+                ? criteria.Subcriteria.Select(ToResponse).ToList()
+                : null,
+            Type = NullIfWhiteSpace(criteria.Type?.ToString()),
+            Tags = criteria.Tags?.Any() == true
+                ? criteria.Tags.Select(t => t.Value).ToList()
+                : null,
+            Substitution = NullIfWhiteSpace(criteria.Substitution?.ToString()),
+            Criteria = NullIfWhiteSpace(criteria.Criteria?.ToString()),
             IsUniversal = criteria.IsUniversal,
-            Precondition = criteria.Precondition?.ToString()
+            Precondition = NullIfWhiteSpace(criteria.Precondition?.ToString())
         };
     }
 

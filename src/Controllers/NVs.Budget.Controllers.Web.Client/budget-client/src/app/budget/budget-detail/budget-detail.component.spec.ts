@@ -23,7 +23,13 @@ describe('BudgetDetailComponent', () => {
             removeBudget: () => of(void 0),
             changeBudgetOwners: () => of(void 0),
             downloadBudgetYaml: () => of(new Blob()),
-            uploadBudgetYaml: () => of(void 0)
+            uploadBudgetYaml: () => of(void 0),
+            downloadTaggingCriteriaYaml: () => of(new Blob()),
+            uploadTaggingCriteriaYaml: () => of(void 0),
+            downloadTransferCriteriaYaml: () => of(new Blob()),
+            uploadTransferCriteriaYaml: () => of(void 0),
+            downloadLogbookCriterionYaml: () => of(new Blob()),
+            uploadLogbookCriterionYaml: () => of(void 0)
           }
         }
       ]
