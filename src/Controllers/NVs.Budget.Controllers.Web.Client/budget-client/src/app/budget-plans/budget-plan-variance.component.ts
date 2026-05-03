@@ -1,38 +1,55 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TuiButton, TuiLoader, TuiNotification, TuiTitle } from '@taiga-ui/core';
 import { VarianceReportResponse, VarianceResponse } from '../budget/models';
 import { BudgetPlanApiService } from './budget-plan-api.service';
 
 @Component({
   selector: 'app-budget-plan-variance',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TuiButton, TuiLoader, TuiNotification, TuiTitle],
   template: `
-    <section class="variance">
-      <a [routerLink]="['/budget', budgetId, 'plans']">Back to plans</a>
-      <h1>Plan variance</h1>
-      <p *ngIf="isLoading">Loading variance...</p>
-      <p *ngIf="error" class="error">{{ error }}</p>
+    <section class="variance-container">
+      <tui-loader [overlay]="true" [showLoader]="isLoading">
+        <div class="variance-card">
+          <header class="header">
+            <div>
+              <a tuiButton appearance="flat" size="s" [routerLink]="['/budget', budgetId, 'plans']">Back to plans</a>
+              <h2 tuiTitle size="l">Plan variance</h2>
+            </div>
+          </header>
 
-      <ng-container *ngIf="report">
-        <h2>{{ report.plan.name }}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Cell</th>
-              <th>Range</th>
-              <th>Actual</th>
-              <th>Variance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let variance of report.variances">
-              <ng-container *ngTemplateOutlet="row; context: { variance: variance, level: 0 }"></ng-container>
-            </ng-container>
-          </tbody>
-        </table>
-      </ng-container>
+          @if (error) {
+            <tui-notification appearance="error" size="m">{{ error }}</tui-notification>
+          }
+
+          <ng-container *ngIf="report">
+            <div class="report-header">
+              <h3 tuiTitle size="m">{{ report.plan.name }}</h3>
+              <p>{{ report.plan.from | date }} - {{ report.plan.till | date }} · {{ report.plan.currencyCode }}</p>
+            </div>
+
+            <div class="variance-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cell</th>
+                    <th>Range</th>
+                    <th>Actual</th>
+                    <th>Variance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let variance of report.variances">
+                    <ng-container *ngTemplateOutlet="row; context: { variance: variance, level: 0 }"></ng-container>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </div>
+      </tui-loader>
 
       <ng-template #row let-variance="variance" let-level="level">
         <tr [class.planned-only]="variance.isPlannedOnly">
@@ -53,13 +70,49 @@ import { BudgetPlanApiService } from './budget-plan-api.service';
     </section>
   `,
   styles: [`
-    .variance { padding: 1rem; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border-bottom: 1px solid #ddd; padding: .5rem; text-align: left; }
-    .actual-less { color: #b00020; }
-    .actual-greater { color: #0a7f28; }
-    .planned-only { font-style: italic; }
-    .error { color: #b00020; }
+    .variance-container { padding: 1rem; }
+    .variance-card {
+      background: var(--tui-background-base);
+      border: 1px solid var(--tui-border-normal);
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .report-header {
+      margin: 1rem 0;
+    }
+    .report-header p {
+      color: var(--tui-text-secondary);
+      margin: .25rem 0 0;
+    }
+    .variance-table {
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      min-width: 720px;
+      width: 100%;
+    }
+    th,
+    td {
+      border-bottom: 1px solid var(--tui-border-normal);
+      padding: .75rem .5rem;
+      text-align: left;
+    }
+    th {
+      color: var(--tui-text-secondary);
+      font-weight: 600;
+    }
+    .actual-less { color: var(--tui-text-negative); }
+    .actual-greater { color: var(--tui-text-positive); }
+    .planned-only {
+      color: var(--tui-text-secondary);
+      font-style: italic;
+    }
   `]
 })
 export class BudgetPlanVarianceComponent implements OnInit {

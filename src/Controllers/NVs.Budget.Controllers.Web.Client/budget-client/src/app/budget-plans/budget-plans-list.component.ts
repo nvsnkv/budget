@@ -1,42 +1,104 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TuiButton, TuiLoader, TuiNotification, TuiTitle } from '@taiga-ui/core';
 import { BudgetPlanResponse } from '../budget/models';
 import { BudgetPlanApiService } from './budget-plan-api.service';
 
 @Component({
   selector: 'app-budget-plans-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TuiButton, TuiLoader, TuiNotification, TuiTitle],
   template: `
-    <section class="plans">
-      <header>
-        <h1>Budget plans</h1>
-        <a [routerLink]="['/budget', budgetId, 'plans', 'new']">Create plan</a>
-      </header>
+    <section class="plans-container">
+      <tui-loader [overlay]="true" [showLoader]="isLoading">
+        <div class="plans-card">
+          <header class="header">
+            <h2 tuiTitle size="l">Budget plans</h2>
+            <a
+              tuiButton
+              appearance="primary"
+              size="m"
+              [routerLink]="['/budget', budgetId, 'plans', 'new']">
+              Create plan
+            </a>
+          </header>
 
-      <p *ngIf="isLoading">Loading plans...</p>
-      <p *ngIf="error" class="error">{{ error }}</p>
-      <p *ngIf="!isLoading && plans.length === 0">No plans yet.</p>
+          @if (error) {
+            <tui-notification appearance="error" size="m">{{ error }}</tui-notification>
+          }
 
-      <article *ngFor="let plan of plans" class="plan-card">
-        <h2>{{ plan.name }}</h2>
-        <p>{{ plan.from | date }} - {{ plan.till | date }} · {{ plan.currencyCode }}</p>
-        <nav>
-          <a [routerLink]="['/budget', budgetId, 'plans', plan.id]">Edit</a>
-          <a [routerLink]="['/budget', budgetId, 'plans', plan.id, 'variance']">Variance</a>
-          <button type="button" (click)="copy(plan)">Copy</button>
-          <button type="button" (click)="remove(plan)">Delete</button>
-        </nav>
-      </article>
+          @if (!isLoading && plans.length === 0) {
+            <div class="empty-state">
+              <h3 tuiTitle size="m">No plans yet</h3>
+              <p>Create a budget plan to compare expected and actual logbook values.</p>
+              <a
+                tuiButton
+                appearance="primary"
+                size="m"
+                [routerLink]="['/budget', budgetId, 'plans', 'new']">
+                Create first plan
+              </a>
+            </div>
+          }
+
+          <div class="plans-grid">
+            <article *ngFor="let plan of plans" class="plan-card">
+              <div>
+                <h3 tuiTitle size="m">{{ plan.name }}</h3>
+                <p class="plan-meta">{{ plan.from | date }} - {{ plan.till | date }} · {{ plan.currencyCode }}</p>
+              </div>
+              <nav class="plan-actions">
+                <a tuiButton appearance="secondary" size="s" [routerLink]="['/budget', budgetId, 'plans', plan.id]">Edit</a>
+                <a tuiButton appearance="secondary" size="s" [routerLink]="['/budget', budgetId, 'plans', plan.id, 'variance']">Variance</a>
+                <button tuiButton type="button" appearance="flat" size="s" (click)="copy(plan)">Copy</button>
+                <button tuiButton type="button" appearance="destructive" size="s" (click)="remove(plan)">Delete</button>
+              </nav>
+            </article>
+          </div>
+        </div>
+      </tui-loader>
     </section>
   `,
   styles: [`
-    .plans { padding: 1rem; }
-    header { display: flex; justify-content: space-between; align-items: center; }
-    .plan-card { border: 1px solid #ddd; border-radius: 8px; margin: 1rem 0; padding: 1rem; }
-    nav { display: flex; gap: .75rem; align-items: center; }
-    .error { color: #b00020; }
+    .plans-container { padding: 1rem; }
+    .plans-card {
+      background: var(--tui-background-base);
+      border: 1px solid var(--tui-border-normal);
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+    .header,
+    .plan-card,
+    .plan-actions {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .header,
+    .plan-card {
+      justify-content: space-between;
+    }
+    .plans-grid {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .plan-card {
+      border: 1px solid var(--tui-border-normal);
+      border-radius: .75rem;
+      padding: 1rem;
+    }
+    .plan-meta {
+      color: var(--tui-text-secondary);
+      margin: .25rem 0 0;
+    }
+    .empty-state {
+      display: grid;
+      gap: .75rem;
+      justify-items: start;
+      padding: 2rem 0;
+    }
   `]
 })
 export class BudgetPlansListComponent implements OnInit {

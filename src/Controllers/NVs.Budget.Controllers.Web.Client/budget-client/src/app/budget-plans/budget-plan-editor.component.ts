@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TuiButton, TuiLabel, TuiLoader, TuiNotification, TuiTextfield, TuiTitle } from '@taiga-ui/core';
 import {
   BudgetPlanResponse,
   LogbookCriteriaResponse,
@@ -14,58 +15,176 @@ import { BudgetPlanApiService } from './budget-plan-api.service';
 @Component({
   selector: 'app-budget-plan-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    TuiButton,
+    TuiLabel,
+    TuiLoader,
+    TuiNotification,
+    TuiTextfield,
+    TuiTitle
+  ],
   template: `
-    <section class="editor">
-      <a [routerLink]="['/budget', budgetId, 'plans']">Back to plans</a>
-      <h1>{{ planId ? 'Edit budget plan' : 'Create budget plan' }}</h1>
-      <p *ngIf="error" class="error">{{ error }}</p>
+    <section class="editor-container">
+      <tui-loader [overlay]="true" [showLoader]="isSaving">
+        <div class="editor-card">
+          <header class="header">
+            <div>
+              <a tuiButton appearance="flat" size="s" [routerLink]="['/budget', budgetId, 'plans']">Back to plans</a>
+              <h2 tuiTitle size="l">{{ planId ? 'Edit budget plan' : 'Create budget plan' }}</h2>
+            </div>
+          </header>
 
-      <form (ngSubmit)="save()">
-        <label>Name <input name="name" [(ngModel)]="name" required /></label>
-        <label>From <input name="from" type="datetime-local" [(ngModel)]="from" required /></label>
-        <label>Till <input name="till" type="datetime-local" [(ngModel)]="till" required /></label>
-        <label>Cron expression <input name="cron" [(ngModel)]="cronExpression" placeholder="0 0 1 * *" /></label>
-        <label>Currency <input name="currency" [(ngModel)]="currencyCode" required /></label>
-        <label>Logbook criteria
-          <select name="criteria" [(ngModel)]="selectedCriteriaDescription" required>
-            <option *ngFor="let criteria of availableCriteria" [value]="criteria.description">{{ criteria.description || 'Universal' }}</option>
-          </select>
-        </label>
+          @if (error) {
+            <tui-notification appearance="error" size="m">{{ error }}</tui-notification>
+          }
 
-        <h2>Expected cells</h2>
-        <table>
-          <thead>
-            <tr><th>Subcriterion</th><th>From</th><th>Till</th><th>Amount</th><th>Note</th><th></th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let expectation of expectations; let i = index">
-              <td><input name="sub{{i}}" [(ngModel)]="expectation.subcriterionName" placeholder="Root cell" /></td>
-              <td><input name="from{{i}}" type="datetime-local" [(ngModel)]="expectation.from" required /></td>
-              <td><input name="till{{i}}" type="datetime-local" [(ngModel)]="expectation.till" required /></td>
-              <td><input name="amount{{i}}" type="number" [(ngModel)]="expectation.amount" required /></td>
-              <td><input name="note{{i}}" [(ngModel)]="expectation.note" /></td>
-              <td><button type="button" (click)="removeExpectation(i)">Remove</button></td>
-            </tr>
-          </tbody>
-        </table>
-        <button type="button" (click)="addExpectation()">Add cell</button>
+          <form class="plan-form" (ngSubmit)="save()">
+            <div class="form-grid">
+              <tui-textfield>
+                <label tuiLabel>Name</label>
+                <input tuiTextfield name="name" [(ngModel)]="name" required />
+              </tui-textfield>
 
-        <footer>
-          <button type="submit" [disabled]="isSaving">Save</button>
-        </footer>
-      </form>
+              <tui-textfield>
+                <label tuiLabel>From</label>
+                <input tuiTextfield name="from" type="datetime-local" [(ngModel)]="from" required />
+              </tui-textfield>
+
+              <tui-textfield>
+                <label tuiLabel>Till</label>
+                <input tuiTextfield name="till" type="datetime-local" [(ngModel)]="till" required />
+              </tui-textfield>
+
+              <tui-textfield>
+                <label tuiLabel>Cron expression</label>
+                <input tuiTextfield name="cron" [(ngModel)]="cronExpression" placeholder="0 0 1 * *" />
+              </tui-textfield>
+
+              <tui-textfield>
+                <label tuiLabel>Currency</label>
+                <input tuiTextfield name="currency" [(ngModel)]="currencyCode" required />
+              </tui-textfield>
+
+              <label tuiLabel class="select-field">
+                Logbook criteria
+                <select
+                  name="criteria"
+                  [(ngModel)]="selectedCriteriaDescription"
+                  required>
+                  <option *ngFor="let criteria of availableCriteria" [value]="criteriaOptionValue(criteria)">
+                    {{ criteriaOptionValue(criteria) }}
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <section class="expectations-section">
+              <div class="section-header">
+                <h3 tuiTitle size="m">Expected cells</h3>
+                <button tuiButton type="button" appearance="secondary" size="s" (click)="addExpectation()">Add cell</button>
+              </div>
+
+              <div class="expectations-table">
+                <table>
+                  <thead>
+                    <tr><th>Subcriterion</th><th>From</th><th>Till</th><th>Amount</th><th>Note</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let expectation of expectations; let i = index">
+                      <td><input class="table-input" name="sub{{i}}" [(ngModel)]="expectation.subcriterionName" placeholder="Root cell" /></td>
+                      <td><input class="table-input" name="from{{i}}" type="datetime-local" [(ngModel)]="expectation.from" required /></td>
+                      <td><input class="table-input" name="till{{i}}" type="datetime-local" [(ngModel)]="expectation.till" required /></td>
+                      <td><input class="table-input" name="amount{{i}}" type="number" [(ngModel)]="expectation.amount" required /></td>
+                      <td><input class="table-input" name="note{{i}}" [(ngModel)]="expectation.note" /></td>
+                      <td>
+                        <button tuiButton type="button" appearance="destructive" size="s" (click)="removeExpectation(i)">Remove</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <footer class="form-actions">
+              <button tuiButton type="submit" appearance="primary" size="m" [disabled]="isSaving">Save</button>
+            </footer>
+          </form>
+        </div>
+      </tui-loader>
     </section>
   `,
   styles: [`
-    .editor { padding: 1rem; }
-    form { display: grid; gap: 1rem; max-width: 1100px; }
-    label { display: grid; gap: .25rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #ddd; padding: .4rem; }
-    input, select { padding: .4rem; }
-    footer { display: flex; gap: .75rem; }
-    .error { color: #b00020; }
+    .editor-container { padding: 1rem; }
+    .editor-card {
+      background: var(--tui-background-base);
+      border: 1px solid var(--tui-border-normal);
+      border-radius: 1rem;
+      padding: 1rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .plan-form,
+    .expectations-section {
+      display: grid;
+      gap: 1rem;
+    }
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    }
+    .section-header,
+    .form-actions {
+      align-items: center;
+      display: flex;
+      gap: .75rem;
+      justify-content: space-between;
+    }
+    .expectations-table {
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      min-width: 900px;
+      width: 100%;
+    }
+    th,
+    td {
+      border-bottom: 1px solid var(--tui-border-normal);
+      padding: .5rem;
+      text-align: left;
+    }
+    th {
+      color: var(--tui-text-secondary);
+      font-weight: 600;
+    }
+    .table-input {
+      background: var(--tui-background-base);
+      border: 1px solid var(--tui-border-normal);
+      border-radius: .5rem;
+      box-sizing: border-box;
+      padding: .5rem;
+      width: 100%;
+    }
+    .select-field {
+      display: grid;
+      gap: .35rem;
+    }
+    .select-field select {
+      background: var(--tui-background-base);
+      border: 1px solid var(--tui-border-normal);
+      border-radius: .75rem;
+      box-sizing: border-box;
+      min-height: 3rem;
+      padding: .5rem .75rem;
+      width: 100%;
+    }
   `]
 })
 export class BudgetPlanEditorComponent implements OnInit {
@@ -116,6 +235,10 @@ export class BudgetPlanEditorComponent implements OnInit {
     }
   }
 
+  get availableCriteriaDescriptions(): string[] {
+    return this.availableCriteria.map(criteria => this.criteriaOptionValue(criteria));
+  }
+
   addExpectation(): void {
     this.expectations.push({
       from: this.from,
@@ -129,7 +252,7 @@ export class BudgetPlanEditorComponent implements OnInit {
   }
 
   save(): void {
-    const criteria = this.availableCriteria.find(c => c.description === this.selectedCriteriaDescription) ?? this.availableCriteria[0];
+    const criteria = this.availableCriteria.find(c => this.criteriaOptionValue(c) === this.selectedCriteriaDescription) ?? this.availableCriteria[0];
     if (!criteria) {
       this.error = 'Select logbook criteria before saving';
       return;
@@ -167,7 +290,7 @@ export class BudgetPlanEditorComponent implements OnInit {
     this.till = this.toInputDate(plan.till);
     this.cronExpression = plan.cronExpression ?? '';
     this.currencyCode = plan.currencyCode;
-    this.selectedCriteriaDescription = plan.logbookCriteria.description;
+    this.selectedCriteriaDescription = this.criteriaOptionValue(plan.logbookCriteria);
     this.expectations = plan.expectations.map(e => ({
       id: e.id,
       subcriterionName: e.subcriterionName,
@@ -194,6 +317,10 @@ export class BudgetPlanEditorComponent implements OnInit {
 
   private toInputDate(value: string): string {
     return value ? value.substring(0, 16) : '';
+  }
+
+  criteriaOptionValue(criteria: LogbookCriteriaResponse): string {
+    return criteria.description || 'Universal';
   }
 
   private toIsoDate(value: string): string {

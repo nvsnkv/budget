@@ -28,6 +28,7 @@ export class AppComponent {
   private readonly operationsContextPattern = new RegExp("^/budget/[^/]+/(operations|transfers)(?:/|$)");
   private readonly detailsContextPattern = new RegExp("^/budget/[^/]+/details(?:/|$)");
   private readonly readingSettingsContextPattern = new RegExp("^/budget/[^/]+/reading-settings(?:/|$)");
+  private readonly plansContextPattern = new RegExp("^/budget/[^/]+/plans(?:/|$)");
 
   get currentUser$() { return this.user.current$; }
   get isAuthenticated$() { return this.user.current$.pipe(map(u => u.isAuthenticated)); }
@@ -70,6 +71,7 @@ export class AppComponent {
         const baseLinks = [
           { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
           { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
+          { label: 'plans', commands: ['/budget', budgetId, 'plans'] },
           { label: 'details', commands: ['/budget', budgetId, 'details'] }
         ];
 
@@ -81,12 +83,22 @@ export class AppComponent {
           return [
             { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
             { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
+            { label: 'plans', commands: ['/budget', budgetId, 'plans'] },
             { label: 'retag', commands: ['/budget', budgetId, 'operations', 'retag'] },
             { label: 'bulk changes', commands: ['/budget', budgetId, 'operations', 'bulk-changes'] },
             { label: 'import', commands: ['/budget', budgetId, 'operations', 'import'] },
             { label: 'manual import', commands: ['/budget', budgetId, 'operations', 'manual-import'] },
             { label: 'delete', commands: ['/budget', budgetId, 'operations', 'delete'] },
             { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
+            { label: 'details', commands: ['/budget', budgetId, 'details'] }
+          ];
+        }
+
+        if (this.plansContextPattern.test(url)) {
+          return [
+            { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
+            { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
+            { label: 'plans', commands: ['/budget', budgetId, 'plans'] },
             { label: 'details', commands: ['/budget', budgetId, 'details'] }
           ];
         }
