@@ -12,13 +12,19 @@ public class VarianceReport
     {
         Plan = plan;
         _variances = ranges
-            .Select(range => BuildVariance(plan, plan.Criterion, (CriteriaBasedLogbook)logbook[range.From, range.Till], range))
+            .Select(range => BuildVariance(plan, plan.Criterion, GetHalfOpenRange(logbook, range), range))
             .ToList();
     }
 
     public BudgetPlan Plan { get; }
 
     public IReadOnlyCollection<Variance> Variances => _variances.AsReadOnly();
+
+    private static CriteriaBasedLogbook GetHalfOpenRange(CriteriaBasedLogbook logbook, PlanRange range)
+    {
+        var inclusiveTill = range.Till > range.From ? range.Till.AddTicks(-1) : range.Till;
+        return (CriteriaBasedLogbook)logbook[range.From, inclusiveTill];
+    }
 
     private static Variance BuildVariance(
         BudgetPlan plan,

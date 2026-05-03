@@ -16,7 +16,7 @@ public class RangeBuilder
         // If no cron expression, return single range
         if (string.IsNullOrWhiteSpace(cronExpr))
         {
-            var name = $"{from:dd/MM} - {till:dd/MM}";
+            var name = $"{from:dd'/'MM} - {till:dd'/'MM}";
             return Result.Ok<IEnumerable<NamedRange>>(new[] { new NamedRange(name, from, till) });
         }
 
@@ -46,7 +46,7 @@ public class RangeBuilder
     {
         var least = occurrences.First();
         var last = occurrences.Last();
-        var format = (last-least) > TimeSpan.FromDays(365) ? "yy/dd/MM" : "dd/MM";
+        var format = (last-least) > TimeSpan.FromDays(365) ? "dd'/'MM'/'yy" : "dd'/'MM";
         
         var i = 1;
         while (i < occurrences.Count)

@@ -99,7 +99,9 @@ export class BudgetPlanEditorComponent implements OnInit {
     this.budgetApi.getBudgetById(this.budgetId).subscribe({
       next: budget => {
         this.availableCriteria = budget?.logbookCriteria ?? [];
-        this.selectedCriteriaDescription = this.availableCriteria[0]?.description ?? '';
+        if (!this.planId) {
+          this.selectedCriteriaDescription = this.availableCriteria[0]?.description ?? '';
+        }
       },
       error: error => this.error = this.errorMessage(error, 'Failed to load budget criteria')
     });

@@ -15,7 +15,7 @@ internal class BudgetPlanRangeBuilder
 
         if (string.IsNullOrWhiteSpace(cronExpression))
         {
-            return Result.Ok<IReadOnlyCollection<PlanRange>>([new PlanRange($"{from:dd/MM} - {till:dd/MM}", from, till)]);
+            return Result.Ok<IReadOnlyCollection<PlanRange>>([new PlanRange($"{from:dd'/'MM} - {till:dd'/'MM}", from, till)]);
         }
 
         CrontabSchedule schedule;
@@ -44,7 +44,7 @@ internal class BudgetPlanRangeBuilder
     {
         var least = occurrences.First();
         var last = occurrences.Last();
-        var format = (last - least) > TimeSpan.FromDays(365) ? "yy/dd/MM" : "dd/MM";
+        var format = (last - least) > TimeSpan.FromDays(365) ? "dd'/'MM'/'yy" : "dd'/'MM";
 
         var i = 1;
         while (i < occurrences.Count)

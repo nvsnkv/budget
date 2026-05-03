@@ -93,6 +93,29 @@ public class BudgetPlanShould
         plannedOnly.IsPlannedOnly.Should().BeTrue();
     }
 
+    [Fact]
+    public void NotDoubleCountActualOperationsOnAdjacentRangeBoundaries()
+    {
+        var criterion = new UniversalCriterion("All");
+        var january = new DateTime(2026, 1, 1);
+        var february = new DateTime(2026, 2, 1);
+        var march = new DateTime(2026, 3, 1);
+        var plan = new BudgetPlan(Guid.NewGuid(), "Monthly", january, march, "0 0 1 * *", criterion, Currency);
+        var logbook = new CriteriaBasedLogbook(criterion);
+
+        logbook.Register(Operation(february, new Money(-80, Currency))).IsSuccess.Should().BeTrue();
+
+        var report = new VarianceReport(plan, logbook,
+        [
+            new PlanRange("January", january, february),
+            new PlanRange("February", february, march)
+        ]);
+
+        report.Variances.Select(v => v.Actual).Should().Equal(
+            new Money(0, Currency),
+            new Money(-80, Currency));
+    }
+
     private static Operation Operation(DateTime timestamp, Money amount, params Tag[] tags)
     {
         var owner = new Owner(Guid.NewGuid(), "Owner");

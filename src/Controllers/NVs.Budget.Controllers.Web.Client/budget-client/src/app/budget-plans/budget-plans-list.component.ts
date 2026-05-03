@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BudgetPlanResponse } from '../budget/models';
 import { BudgetPlanApiService } from './budget-plan-api.service';
 
@@ -45,10 +45,10 @@ export class BudgetPlansListComponent implements OnInit {
   isLoading = false;
   error = '';
 
-  constructor(private api: BudgetPlanApiService) {}
+  constructor(private route: ActivatedRoute, private api: BudgetPlanApiService) {}
 
   ngOnInit(): void {
-    this.budgetId = location.pathname.split('/')[2];
+    this.budgetId = this.route.snapshot.params['budgetId'];
     this.load();
   }
 
