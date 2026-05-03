@@ -102,9 +102,13 @@ public class BudgetPlansController(IMediator mediator, BudgetMapper budgetMapper
     [HttpGet("{planId:guid}/variance")]
     [ProducesResponseType(typeof(VarianceReportResponse), 200)]
     [ProducesResponseType(typeof(IEnumerable<IError>), 400)]
-    public async Task<IActionResult> Variance([FromRoute] Guid budgetId, [FromRoute] Guid planId, CancellationToken ct)
+    public async Task<IActionResult> Variance(
+        [FromRoute] Guid budgetId,
+        [FromRoute] Guid planId,
+        [FromQuery] string? timeZoneId = null,
+        CancellationToken ct = default)
     {
-        var result = await mediator.Send(new BuildBudgetPlanVarianceReportQuery(budgetId, planId), ct);
+        var result = await mediator.Send(new BuildBudgetPlanVarianceReportQuery(budgetId, planId, timeZoneId), ct);
         return ToActionResult(result, ToResponse);
     }
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
 import {
@@ -54,8 +54,15 @@ export class BudgetPlanApiService {
     });
   }
 
-  getVariance(budgetId: string, planId: string): Observable<VarianceReportResponse> {
-    return this.http.get<VarianceReportResponse>(`${this.plansUrl(budgetId)}/${planId}/variance`, { withCredentials: true });
+  getVariance(budgetId: string, planId: string, timeZoneId?: string): Observable<VarianceReportResponse> {
+    let params = new HttpParams();
+    if (timeZoneId) {
+      params = params.set('timeZoneId', timeZoneId);
+    }
+    return this.http.get<VarianceReportResponse>(`${this.plansUrl(budgetId)}/${planId}/variance`, {
+      params,
+      withCredentials: true
+    });
   }
 
   private plansUrl(budgetId: string): string {

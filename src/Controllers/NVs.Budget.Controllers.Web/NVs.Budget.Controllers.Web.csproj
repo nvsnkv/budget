@@ -16,7 +16,6 @@
       <PackageReference Include="MediatR" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-      <PackageReference Include="ncrontab" />
       <PackageReference Include="Swashbuckle.AspNetCore" />
       <PackageReference Include="System.Linq.Async" />
       <PackageReference Include="YamlDotNet" />
@@ -27,6 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Utilities\NVs.Budget.Utilities.Scheduling\NVs.Budget.Utilities.Scheduling.csproj" />
       <ProjectReference Include="..\..\Application\NVs.Budget.Application.Contracts\NVs.Budget.Application.Contracts.csproj" />
       <ProjectReference Include="..\..\Application\NVs.Budget.Infrastructure.Persistence.Contracts\NVs.Budget.Infrastructure.Persistence.Contracts.csproj" />
       <ProjectReference Include="..\..\Infrastructure\Files\NVs.Budget.Infrastructure.Files.CSV.Contracts\NVs.Budget.Infrastructure.Files.CSV.Contracts.csproj" />

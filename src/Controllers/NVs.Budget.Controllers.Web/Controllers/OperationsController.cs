@@ -20,6 +20,7 @@ using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Expressions;
+using NVs.Budget.Utilities.Scheduling;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
 
@@ -581,6 +582,7 @@ public class OperationsController(
     /// <param name="criteria">Optional additional filter criteria expression</param>
     /// <param name="cronExpression">Optional cron expression to divide logbook into ranges</param>
     /// <param name="outputCurrency">Optional output currency for conversion</param>
+    /// <param name="timeZoneId">IANA timezone (e.g. Europe/Moscow) for cron boundaries and range labels; omit for UTC.</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>Logbook with aggregated statistics divided by ranges</returns>
     [HttpGet("logbook")]
@@ -595,6 +597,7 @@ public class OperationsController(
         [FromQuery] string? logbookCriteria = null,
         [FromQuery] string? cronExpression = null,
         [FromQuery] string? outputCurrency = null,
+        [FromQuery] string? timeZoneId = null,
         CancellationToken ct = default)
     {
         // Validate budget access
@@ -676,8 +679,14 @@ public class OperationsController(
         // Generate ranges
         var fromDate = from ?? result.Value.From;
         var tillDate = till ?? result.Value.Till;
-        
-        var rangesResult = rangeBuilder.GetRanges(fromDate, tillDate, cronExpression);
+
+        var tzResult = TimeZoneScheduling.ResolveTimeZone(timeZoneId);
+        if (tzResult.IsFailed)
+        {
+            return BadRequest(tzResult.Errors);
+        }
+
+        var rangesResult = rangeBuilder.GetRanges(fromDate, tillDate, cronExpression, tzResult.Value);
         if (rangesResult.IsFailed)
         {
             return BadRequest(rangesResult.Errors);
@@ -687,7 +696,9 @@ public class OperationsController(
         var rangedEntries = rangesResult.Value
             .Select(range =>
             {
-                var rangedLogbook = (CriteriaBasedLogbook)result.Value[range.From, range.Till];
+                var rangedLogbook = (CriteriaBasedLogbook)result.Value[
+                    range.From,
+                    LogbookInclusiveSlice.ToInclusiveTill(range.From, range.Till)];
                 var entry = logbookMapper.ToResponse(rangedLogbook);
                 var rangeResponse = new NamedRangeResponse(range.Name, range.From, range.Till);
                 return new RangedLogbookEntryResponse(rangeResponse, entry);

@@ -1,65 +1,24 @@
-using System.ComponentModel.DataAnnotations;
 using FluentResults;
-using NCrontab;
+using NVs.Budget.Utilities.Scheduling;
 
 namespace NVs.Budget.Controllers.Web.Utils;
 
 public class RangeBuilder
 {
-    public Result<IEnumerable<NamedRange>> GetRanges(DateTime from, DateTime till, string? cronExpr)
+    public Result<IEnumerable<NamedRange>> GetRanges(
+        DateTime from,
+        DateTime till,
+        string? cronExpr,
+        TimeZoneInfo timeZone)
     {
-        if (till < from)
+        var segments = CronRangePartitioner.GetSegments(from, till, cronExpr, timeZone);
+        if (segments.IsFailed)
         {
-            return Result.Fail("Till date must be after From date");
+            return Result.Fail<IEnumerable<NamedRange>>(segments.Errors);
         }
 
-        // If no cron expression, return single range
-        if (string.IsNullOrWhiteSpace(cronExpr))
-        {
-            var name = $"{from:dd'/'MM} - {till:dd'/'MM}";
-            return Result.Ok<IEnumerable<NamedRange>>(new[] { new NamedRange(name, from, till) });
-        }
-
-        CrontabSchedule schedule;
-        try
-        {
-            schedule = CrontabSchedule.Parse(cronExpr);
-        }
-        catch (Exception e)
-        {
-            return Result.Fail($"Invalid cron expression: {e.Message}");
-        }
-
-        var occurrences = schedule.GetNextOccurrences(from.AddDays(-1), till.AddDays(1))
-            .OrderBy(d => d)
-            .ToList();
-            
-        if (occurrences.Count < 2)
-        {
-            return Result.Fail("Cron expression must generate at least 2 occurrences within the date range");
-        }
-
-        return Result.Ok(GenerateRangesFrom(occurrences));
-    }
-
-    private IEnumerable<NamedRange> GenerateRangesFrom(List<DateTime> occurrences)
-    {
-        var least = occurrences.First();
-        var last = occurrences.Last();
-        var format = (last-least) > TimeSpan.FromDays(365) ? "dd'/'MM'/'yy" : "dd'/'MM";
-        
-        var i = 1;
-        while (i < occurrences.Count)
-        {
-            yield return new NamedRange(
-                occurrences[i - 1].ToString(format),
-                occurrences[i - 1],
-                occurrences[i]
-            );
-            i++;
-        }
+        return Result.Ok(segments.Value.Select(s => new NamedRange(s.Name, s.FromUtc, s.TillUtc)));
     }
 }
 
 public record NamedRange(string Name, DateTime From, DateTime Till);
-

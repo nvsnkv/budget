@@ -53,5 +53,5 @@ internal class BuildBudgetPlanVarianceReportQueryHandler(IBudgetPlanManager mana
     : IRequestHandler<BuildBudgetPlanVarianceReportQuery, Result<VarianceReport>>
 {
     public Task<Result<VarianceReport>> Handle(BuildBudgetPlanVarianceReportQuery request, CancellationToken cancellationToken) =>
-        manager.BuildVarianceReport(request.BudgetId, request.PlanId, cancellationToken);
+        manager.BuildVarianceReport(request.BudgetId, request.PlanId, request.TimeZoneId, cancellationToken);
 }

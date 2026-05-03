@@ -33,6 +33,7 @@ interface CriteriaRow {
   children: CriteriaRow[];
 }
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
+import { browserIanaTimeZoneId } from '../../shared/browser-timezone';
 
 @Component({
   selector: 'app-logbook-view',
@@ -227,7 +228,8 @@ export class LogbookViewComponent implements OnInit {
       this.currentCriteria || undefined,
       this.selectedLogbookCriteria || undefined,
       this.cronExpression || undefined,
-      this.outputCurrency || undefined
+      this.outputCurrency || undefined,
+      browserIanaTimeZoneId()
     ).subscribe({
       next: (result) => {
         this.isLoading = false;

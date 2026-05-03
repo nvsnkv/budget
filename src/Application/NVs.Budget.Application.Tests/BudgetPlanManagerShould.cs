@@ -90,7 +90,7 @@ public class BudgetPlanManagerShould
         _reckoner.Setup(r => r.GetLogbook(It.IsAny<LogbookQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(logbook);
 
-        var result = await _manager.BuildVarianceReport(budget.Id, plan.Id, CancellationToken.None);
+        var result = await _manager.BuildVarianceReport(budget.Id, plan.Id, null, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Variances.Single().Expected.Should().Be(new Money(-100, Currency));
@@ -128,7 +128,7 @@ public class BudgetPlanManagerShould
         _reckoner.Setup(r => r.GetLogbook(It.IsAny<LogbookQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(logbook);
 
-        var result = await _manager.BuildVarianceReport(budget.Id, plan.Id, CancellationToken.None);
+        var result = await _manager.BuildVarianceReport(budget.Id, plan.Id, null, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         var column = result.Value.Variances.Should().ContainSingle().Subject;
@@ -143,6 +143,42 @@ public class BudgetPlanManagerShould
         var rentVariance = housingVariance.Children.Should().Contain(v => v.Description == "Rent").Subject;
         rentVariance.Expected.Should().Be(new Money(-400, Currency));
         rentVariance.Actual.Should().Be(new Money(-390, Currency));
+    }
+
+    [Fact]
+    public async Task BuildVarianceReportUsesDistinctExpectationWindowsAsColumns()
+    {
+        var budget = Budget();
+        _budgets.Append([budget]);
+        var tag = new Tag("food");
+        var criterion = new UniversalCriterion("All", [new TagBasedCriterion("Food", [tag], TagBasedCriterionType.Including)]);
+
+        var planFrom = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var windowBreak = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        var planTill = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var plan = (await _manager.Register(budget.Id, NewPlan("Bi-monthly", planFrom, planTill, criterion,
+                [
+                    new PlanExpectation(Guid.NewGuid(), new Money(-100, Currency), planFrom, windowBreak, "Food"),
+                    new PlanExpectation(Guid.NewGuid(), new Money(-200, Currency), windowBreak, planTill, "Food")
+                ]),
+            CancellationToken.None)).Value;
+
+        var logbook = new CriteriaBasedLogbook(criterion);
+        logbook.Register(Operation(budget, planFrom.AddDays(10), new Money(-30, Currency), tag));
+        logbook.Register(Operation(budget, windowBreak.AddDays(10), new Money(-40, Currency), tag));
+        _reckoner.Setup(r => r.GetLogbook(It.IsAny<LogbookQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(logbook);
+
+        var result = await _manager.BuildVarianceReport(budget.Id, plan.Id, null, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        var columns = result.Value.Variances.OrderBy(v => v.Range.From).ToList();
+        columns.Should().HaveCount(2);
+        columns[0].Expected.Should().Be(new Money(-100, Currency));
+        columns[0].Actual.Should().Be(new Money(-30, Currency));
+        columns[1].Expected.Should().Be(new Money(-200, Currency));
+        columns[1].Actual.Should().Be(new Money(-40, Currency));
     }
 
     private TrackedBudget Budget()

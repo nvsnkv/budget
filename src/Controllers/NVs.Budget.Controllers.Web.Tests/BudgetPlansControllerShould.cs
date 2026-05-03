@@ -121,7 +121,7 @@ public class BudgetPlansControllerShould
         mediator.Setup(m => m.Send(It.IsAny<BuildBudgetPlanVarianceReportQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(report));
 
-        var result = await controller.Variance(budgetId, plan.Id, CancellationToken.None);
+        var result = await controller.Variance(budgetId, plan.Id, null, CancellationToken.None);
 
         var ok = result.Should().BeOfType<OkObjectResult>().Subject;
         var response = ok.Value.Should().BeOfType<VarianceReportResponse>().Subject;

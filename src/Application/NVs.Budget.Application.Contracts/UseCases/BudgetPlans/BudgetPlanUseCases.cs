@@ -17,4 +17,4 @@ public record RemoveBudgetPlanCommand(Guid BudgetId, Guid PlanId) : IRequest<Res
 
 public record CopyBudgetPlanCommand(Guid BudgetId, Guid PlanId, string? Name = null) : IRequest<Result<TrackedBudgetPlan>>;
 
-public record BuildBudgetPlanVarianceReportQuery(Guid BudgetId, Guid PlanId) : IRequest<Result<VarianceReport>>;
+public record BuildBudgetPlanVarianceReportQuery(Guid BudgetId, Guid PlanId, string? TimeZoneId = null) : IRequest<Result<VarianceReport>>;

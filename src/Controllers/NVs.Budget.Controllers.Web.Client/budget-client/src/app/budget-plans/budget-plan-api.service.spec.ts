@@ -91,6 +91,20 @@ describe('BudgetPlanApiService', () => {
 
     const req = httpMock.expectOne({ method: 'GET', url: `${baseUrl}/plan-1/variance` });
     expect(req.request.withCredentials).toBe(true);
+    expect(req.request.params.get('timeZoneId')).toBeNull();
+    req.flush(response);
+  });
+
+  it('should send timeZoneId on variance requests when provided', () => {
+    const response: VarianceReportResponse = {
+      plan: plan(),
+      variances: []
+    };
+
+    service.getVariance('budget-1', 'plan-1', 'Europe/Moscow').subscribe(value => expect(value).toEqual(response));
+
+    const req = httpMock.expectOne(r => r.url.startsWith(`${baseUrl}/plan-1/variance`));
+    expect(req.request.params.get('timeZoneId')).toBe('Europe/Moscow');
     req.flush(response);
   });
 

@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TuiButton, TuiLoader, TuiNotification, TuiTitle } from '@taiga-ui/core';
 import { VarianceReportResponse, VarianceResponse } from '../budget/models';
 import { BudgetPlanApiService } from './budget-plan-api.service';
+import { browserIanaTimeZoneId } from '../shared/browser-timezone';
 import { buildVarianceMatrixModel, getVarianceCell } from './variance-matrix.utils';
 import { CriteriaRangeMatrixComponent } from '../shared/criteria-range-matrix/criteria-range-matrix.component';
 import {
@@ -42,7 +43,7 @@ export class BudgetPlanVarianceComponent implements OnInit {
     this.budgetId = this.route.snapshot.params['budgetId'];
     this.planId = this.route.snapshot.params['planId'];
     this.isLoading = true;
-    this.api.getVariance(this.budgetId, this.planId).subscribe({
+    this.api.getVariance(this.budgetId, this.planId, browserIanaTimeZoneId()).subscribe({
       next: report => {
         this.report = report;
         const model = buildVarianceMatrixModel(report);

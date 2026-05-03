@@ -10,6 +10,7 @@ using NVs.Budget.Domain.Aggregates.Plans;
 using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Plans;
 using NVs.Budget.Infrastructure.Persistence.Contracts.Accounting;
+using NVs.Budget.Utilities.Scheduling;
 
 namespace NVs.Budget.Application.Services.Accounting.Plans;
 
@@ -20,7 +21,6 @@ internal class BudgetPlanManager(
     IUser currentUser) : IBudgetPlanManager
 {
     private readonly Owner _currentOwner = currentUser.AsOwner();
-    private readonly BudgetPlanRangeBuilder _rangeBuilder = new();
 
     public async Task<IReadOnlyCollection<TrackedBudgetPlan>> GetPlans(Guid budgetId, CancellationToken ct)
     {
@@ -108,7 +108,7 @@ internal class BudgetPlanManager(
         return await Register(budgetId, copy, ct);
     }
 
-    public async Task<Result<VarianceReport>> BuildVarianceReport(Guid budgetId, Guid planId, CancellationToken ct)
+    public async Task<Result<VarianceReport>> BuildVarianceReport(Guid budgetId, Guid planId, string? timeZoneId, CancellationToken ct)
     {
         var planResult = await GetPlan(budgetId, planId, ct);
         if (planResult.IsFailed)
@@ -123,13 +123,40 @@ internal class BudgetPlanManager(
             o.Budget.Id == budgetId && o.Timestamp >= from && o.Timestamp < till;
 
         var logbook = await reckoner.GetLogbook(new LogbookQuery(plan.Criterion, plan.Currency, filter, true), ct);
-        var rangesResult = _rangeBuilder.GetRanges(from, till, plan.CronExpression);
-        if (rangesResult.IsFailed)
+        var tzResult = TimeZoneScheduling.ResolveTimeZone(timeZoneId);
+        if (tzResult.IsFailed)
         {
-            return Result.Fail<VarianceReport>(rangesResult.Errors);
+            return Result.Fail<VarianceReport>(tzResult.Errors);
         }
 
-        return Result.Ok(new VarianceReport(plan, logbook, rangesResult.Value));
+        var ranges = GetVarianceRangesFromPlan(plan, tzResult.Value);
+        return Result.Ok(new VarianceReport(plan, logbook, ranges));
+    }
+
+    /// <summary>One column per distinct expectation window; empty expectations → single plan-span column.</summary>
+    private static IReadOnlyList<PlanRange> GetVarianceRangesFromPlan(BudgetPlan plan, TimeZoneInfo tz)
+    {
+        var spanHint = plan.Till - plan.From;
+        if (plan.Expectations.Count == 0)
+        {
+            return
+            [
+                new PlanRange(
+                    CronRangePartitioner.FormatWallCombinedRange(plan.From, plan.Till, tz),
+                    plan.From,
+                    plan.Till)
+            ];
+        }
+
+        return plan.Expectations
+            .Select(e => (e.From, e.Till))
+            .Distinct()
+            .OrderBy(w => w.From)
+            .Select(w => new PlanRange(
+                CronRangePartitioner.FormatWallRangePeriodStart(w.From, spanHint, tz),
+                w.From,
+                w.Till))
+            .ToList();
     }
 
     private async Task<TrackedBudget?> GetOwnedBudget(Guid budgetId, CancellationToken ct)

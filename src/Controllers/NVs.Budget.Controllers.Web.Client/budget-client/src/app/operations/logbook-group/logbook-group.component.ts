@@ -11,6 +11,7 @@ import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { LogbookResponse, OperationResponse } from '../../budget/models';
+import { browserIanaTimeZoneId } from '../../shared/browser-timezone';
 
 @Component({
   selector: 'app-logbook-group',
@@ -79,7 +80,8 @@ export class LogbookGroupComponent implements OnInit {
       this.criteria,
       this.logbookCriteria,
       this.cronExpression,
-      this.outputCurrency
+      this.outputCurrency,
+      browserIanaTimeZoneId()
     ).subscribe({
       next: (result: LogbookResponse) => {
         this.isLoading = false;
