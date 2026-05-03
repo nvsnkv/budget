@@ -233,6 +233,75 @@ export interface LogbookResponse {
   successes: ISuccess[];
 }
 
+// Budget plan models
+export interface PlanExpectationResponse {
+  id: string;
+  expectedAmount: MoneyResponse;
+  from: string;
+  till: string;
+  subcriterionName?: string;
+  note?: string;
+}
+
+export interface BudgetPlanResponse {
+  id: string;
+  budgetId: string;
+  name: string;
+  version: string;
+  from: string;
+  till: string;
+  cronExpression?: string;
+  logbookCriteria: LogbookCriteriaResponse;
+  currencyCode: string;
+  expectedAmount: MoneyResponse;
+  note?: string;
+  expectations: PlanExpectationResponse[];
+}
+
+export interface UpsertPlanExpectationRequest {
+  id?: string;
+  expectedAmount: MoneyResponse;
+  from: string;
+  till: string;
+  subcriterionName?: string;
+  note?: string;
+}
+
+export interface UpsertBudgetPlanRequest {
+  name: string;
+  version?: string;
+  from: string;
+  till: string;
+  cronExpression?: string;
+  logbookCriteria: LogbookCriteriaResponse;
+  currencyCode: string;
+  expectedAmount?: MoneyResponse;
+  note?: string;
+  expectations?: UpsertPlanExpectationRequest[];
+}
+
+export interface CopyBudgetPlanRequest {
+  name?: string;
+}
+
+export interface VarianceResponse {
+  description: string;
+  range: NamedRangeResponse;
+  expected: MoneyResponse;
+  actual: MoneyResponse;
+  difference: MoneyResponse;
+  hasPlan: boolean;
+  hasActual: boolean;
+  isPlannedOnly: boolean;
+  actualComparison: number;
+  children: VarianceResponse[];
+}
+
+export interface VarianceReportResponse {
+  plan: BudgetPlanResponse;
+  variances: VarianceResponse[];
+}
+
 // Transfer models
 export interface TransferResponse {
   sourceId: string;

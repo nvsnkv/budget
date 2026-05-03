@@ -13,6 +13,9 @@ import { TransfersListComponent } from './operations/transfers-list/transfers-li
 import { IndexComponent } from './index/index.component';
 import { ManualImportOperationsComponent } from './operations/manual-import-operations/manual-import-operations.component';
 import { BulkChangesComponent } from './operations/bulk-changes/bulk-changes.component';
+import { BudgetPlansListComponent } from './budget-plans/budget-plans-list.component';
+import { BudgetPlanEditorComponent } from './budget-plans/budget-plan-editor.component';
+import { BudgetPlanVarianceComponent } from './budget-plans/budget-plan-variance.component';
 
 export const routes: Routes = [
     { path: 'budget/new', component: NewBudgetComponent },
@@ -24,6 +27,10 @@ export const routes: Routes = [
     { path: 'budget/:budgetId/operations/logbook/group', component: LogbookGroupComponent },
     { path: 'budget/:budgetId/operations/logbook', component: LogbookViewComponent },
     { path: 'budget/:budgetId/operations/duplicates', component: DuplicatesListComponent },
+    { path: 'budget/:budgetId/plans/new', component: BudgetPlanEditorComponent },
+    { path: 'budget/:budgetId/plans/:planId/variance', component: BudgetPlanVarianceComponent },
+    { path: 'budget/:budgetId/plans/:planId', component: BudgetPlanEditorComponent },
+    { path: 'budget/:budgetId/plans', component: BudgetPlansListComponent },
     { path: 'budget/:budgetId/transfers', component: TransfersListComponent },
     { path: 'budget/:budgetId/operations', component: OperationsListComponent },
     { path: 'budget/:budgetId/details', component: BudgetDetailComponent },

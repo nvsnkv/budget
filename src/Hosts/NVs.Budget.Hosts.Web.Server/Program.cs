@@ -42,6 +42,7 @@ builder.Services
     .AddTransient<AppServicesFactory>()
     .AddTransient<IAccountant>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountant())
     .AddTransient<IBudgetManager>(p => p.GetRequiredService<AppServicesFactory>().CreateAccountManager())
+    .AddTransient<IBudgetPlanManager>(p => p.GetRequiredService<AppServicesFactory>().CreateBudgetPlanManager())
     .AddTransient<IReckoner>(p => p.GetRequiredService<AppServicesFactory>().CreateReckoner())
     .AddApplicationUseCases()
     .AddSingleton(new Factory().CreateProvider())

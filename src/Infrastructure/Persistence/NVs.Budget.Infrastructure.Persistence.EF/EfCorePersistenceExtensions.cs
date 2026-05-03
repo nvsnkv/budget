@@ -19,6 +19,7 @@ public static class EfCorePersistenceExtensions
             .AddSingleton<VersionGenerator>();
 
         services.AddTransient<IBudgetsRepository, BudgetsRepository>()
+            .AddTransient<IBudgetPlansRepository, BudgetPlansRepository>()
             .AddTransient<IExchangeRatesRepository, ExchangeRatesRepository>()
             .AddTransient<IStreamingOperationRepository, OperationsRepository>()
             .AddTransient<IOwnersRepository, OwnersRepository>()
