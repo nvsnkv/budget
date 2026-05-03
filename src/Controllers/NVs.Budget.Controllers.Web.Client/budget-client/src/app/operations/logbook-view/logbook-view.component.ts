@@ -61,17 +61,19 @@ export class LogbookViewComponent implements OnInit {
   invertRelative = false;
   highlightRelative = true;
   
+  readonly items: string[] = ['RUB', 'USD', 'EUR'];
+
   currentCriteria = '';
   fromDate: string = '';
   tillDate: string = '';
   cronExpression = '';
-  outputCurrency = '';
+  outputCurrency = this.items[0];
   selectedLogbookCriteria = '';
   availableLogbookCriteria: string[] = [];
   useDatePresets = true;
-  useCronPresets = false;
-  selectedDatePreset: 'lastYear' | 'currentYear' | 'lastMonth' | 'currentMonth' | null = null;
-  selectedCronPreset: 'monthly' | 'yearly' | null = null;
+  useCronPresets = true;
+  selectedDatePreset: 'lastYear' | 'currentYear' | 'lastMonth' | 'currentMonth' | null = 'currentYear';
+  selectedCronPreset: 'monthly' | 'yearly' | null = 'monthly';
   showFilters = true;
   
   ranges: NamedRangeResponse[] = [];
@@ -96,8 +98,6 @@ export class LogbookViewComponent implements OnInit {
     { label: 'Bi-weekly:', code: '0 0 1,15 * *' },
     { label: 'Quarterly:', code: '0 0 1 1,4,7,10 *' }
   ];
-
-  readonly items: string[] = ["RUB", "USD", "EUR"];
   private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
@@ -111,7 +111,8 @@ export class LogbookViewComponent implements OnInit {
     private notificationService: NotificationService,
     private logbookStateService: LogbookStateService
   ) {
-    this.resetToDefaultDateRange();
+    this.setDateRange('currentYear');
+    this.setCronPreset('monthly');
   }
 
   ngOnInit(): void {
@@ -155,7 +156,7 @@ export class LogbookViewComponent implements OnInit {
   onCriteriaCleared(): void {
     this.currentCriteria = '';
     this.cronExpression = '';
-    this.outputCurrency = '';
+    this.outputCurrency = this.items[0];
     this.selectedDatePreset = null;
     this.selectedCronPreset = null;
     this.resetToDefaultDateRange();
@@ -187,12 +188,7 @@ export class LogbookViewComponent implements OnInit {
   }
 
   private resetToDefaultDateRange(): void {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
-    this.fromDate = this.toDateInputValue(firstDay);
-    this.tillDate = this.toDateInputValue(lastDay);
+    this.setDateRange('currentYear');
   }
 
   loadLogbook(): void {
@@ -544,7 +540,7 @@ export class LogbookViewComponent implements OnInit {
     const adjustedValue = this.invertRelative ? -value : value;
     const sign = adjustedValue > 0 ? '▲ ' : adjustedValue < 0 ? '▼ ' : '';
     return {
-      value: adjustedValue,
+      value,
       display: `${sign}${this.relativeNumberFormat.format(Math.abs(adjustedValue))}%`
     };
   }
