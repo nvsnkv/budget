@@ -237,95 +237,100 @@
           </div>
 
           @if (criteriaRows.length > 0 && ranges.length > 0) {
-            <div class="logbook-table-container">
-              <table class="logbook-table">
-                <thead>
-                  <tr>
-                    <th class="criteria-column">Category</th>
-                    @for (range of ranges; track range.name) {
-                      <th class="range-column" [title]="(range.from | dateFormat) + ' - ' + (range.till | dateFormat)">
-                        <div class="range-header">
-                          <span>{{ range.name }}</span>
-                          @if (getRangeSortIndicator(range.name)) {
-                            <span class="range-sort-indicator">
-                              {{ getRangeSortIndicator(range.name) }}
-                            </span>
-                          }
-                        </div>
-                      </th>
-                    }
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of criteriaRows; track row.path) {
-                    @if (isRowVisible(row)) {
-                      <tr class="criteria-row" [class.has-children]="row.hasChildren" [attr.data-level]="row.level">
-                        <td class="criteria-cell" [style.padding-left.rem]="row.level * 2">
-                          <div class="criteria-info">
-                            @if (row.hasChildren) {
-                              <span class="expand-icon" (click)="toggleRow(row.path)">
-                                {{ isRowExpanded(row.path) ? '▼' : '▶' }}
-                              </span>
-                            } @else {
-                              <span class="expand-icon placeholder"></span>
-                            }
-                            <span class="criteria-name">{{ row.description }}</span>
-                            @if (getRowSortIndicator(row)) {
-                              <span class="group-sort-indicator">
-                                {{ getRowSortIndicator(row) }}
-                              </span>
-                            }
-                          </div>
-                        </td>
-                        @for (range of ranges; track range.name) {
-                          <td class="data-cell"
-                              [class.clickable]="hasOperationsInRange(row, range.name)"
-                              [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + getEntryForRange(row, range.name)?.operationsCount + ' operations' : ''"
-                              (click)="hasOperationsInRange(row, range.name) && viewGroupOperations(row, range.name, $event)">
-                            <div class="data-cell-content">
-                              @if (row.hasChildren) {
-                                <button
-                                  class="group-sort-toggle"
-                                  type="button"
-                                  (click)="toggleGroupSort(row, range.name, $event)">
-                                  {{ getGroupSortIndicator(row, range.name) }}
-                                </button>
-                              }
-                              @if (getEntryForRange(row, range.name); as entry) {
-                                @if (!showRelative) {
-                                  @if (entry.sum.value !== 0) {
-                                    <div class="sum-value"
-                                         [class.positive]="entry.sum.value > 0"
-                                         [class.negative]="entry.sum.value < 0">
-                                      {{ entry.sum.value | currencyFormat }}
-                                    </div>
-                                  } @else {
-                                    <div class="empty-cell">-</div>
-                                  }
-                                } @else {
-                                  @if (getRelativeChangeInfo(row, range.name); as relativeChange) {
-                                    @if (relativeChange.value !== null) {
-                                      <div class="sum-value relative-value"
-                                           [class.base-value]="relativeChange.display === 'base'"
-                                           [class.positive]="highlightRelative && relativeChange.value > 0"
-                                           [class.negative]="highlightRelative && relativeChange.value < 0">
-                                        {{ relativeChange.display }}
-                                      </div>
-                                    } @else {
-                                      <div class="empty-cell">-</div>
-                                    }
-                                  }
-                                }
-                              } @else {
-                                <div class="empty-cell">-</div>
-                              }
-                            </div>
-                          </td>
-                        }
-                    }
+            <ng-template #logbookRangeHeader let-range>
+              <div class="range-header">
+                <span>{{ range.name }}</span>
+                @if (getRangeSortIndicator(range.name)) {
+                  <span class="range-sort-indicator">
+                    {{ getRangeSortIndicator(range.name) }}
+                  </span>
+                }
+              </div>
+            </ng-template>
+
+            <ng-template #logbookCategoryCell let-matrixRow>
+              @if (matrixRow.payload; as row) {
+                <div class="criteria-info" [style.padding-left.rem]="matrixRow.level * 2">
+                  @if (row.hasChildren) {
+                    <span class="expand-icon" (click)="toggleRow(row.path)">
+                      {{ isRowExpanded(row.path) ? '▼' : '▶' }}
+                    </span>
+                  } @else {
+                    <span class="expand-icon placeholder"></span>
                   }
-                </tbody>
-              </table>
+                  <span class="criteria-name">{{ matrixRow.label }}</span>
+                  @if (getRowSortIndicator(row)) {
+                    <span class="group-sort-indicator">
+                      {{ getRowSortIndicator(row) }}
+                    </span>
+                  }
+                </div>
+              }
+            </ng-template>
+
+            <ng-template #logbookDataCell let-matrixRow let-rangeName="rangeName">
+              @if (matrixRow.payload; as row) {
+                <div
+                  class="data-cell logbook-matrix-data-cell"
+                  [class.clickable]="hasOperationsInRange(row, rangeName)"
+                  [title]="
+                    hasOperationsInRange(row, rangeName)
+                      ? 'Click to view ' + getEntryForRange(row, rangeName)?.operationsCount + ' operations'
+                      : ''
+                  "
+                  (click)="hasOperationsInRange(row, rangeName) && viewGroupOperations(row, rangeName, $event)">
+                  <div class="data-cell-content">
+                    @if (row.hasChildren) {
+                      <button
+                        class="group-sort-toggle"
+                        type="button"
+                        (click)="toggleGroupSort(row, rangeName, $event)">
+                        {{ getGroupSortIndicator(row, rangeName) }}
+                      </button>
+                    }
+                    @if (getEntryForRange(row, rangeName); as entry) {
+                      @if (!showRelative) {
+                        @if (entry.sum.value !== 0) {
+                          <div
+                            class="sum-value"
+                            [class.positive]="entry.sum.value > 0"
+                            [class.negative]="entry.sum.value < 0">
+                            {{ entry.sum.value | currencyFormat }}
+                          </div>
+                        } @else {
+                          <div class="empty-cell">-</div>
+                        }
+                      } @else {
+                        @if (getRelativeChangeInfo(row, rangeName); as relativeChange) {
+                          @if (relativeChange.value !== null) {
+                            <div
+                              class="sum-value relative-value"
+                              [class.base-value]="relativeChange.display === 'base'"
+                              [class.positive]="highlightRelative && relativeChange.value > 0"
+                              [class.negative]="highlightRelative && relativeChange.value < 0">
+                              {{ relativeChange.display }}
+                            </div>
+                          } @else {
+                            <div class="empty-cell">-</div>
+                          }
+                        }
+                      }
+                    } @else {
+                      <div class="empty-cell">-</div>
+                    }
+                  </div>
+                </div>
+              }
+            </ng-template>
+
+            <div class="logbook-table-container">
+              <app-criteria-range-matrix
+                categoryTitle="Category"
+                [rangeColumns]="logbookMatrixColumns"
+                [rows]="logbookMatrixRows"
+                [cellTemplate]="logbookDataCell"
+                [categoryTemplate]="logbookCategoryCell"
+                [rangeHeaderTemplate]="logbookRangeHeader" />
             </div>
           } @else {
             <div class="empty-state">

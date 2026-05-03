@@ -13,14 +13,17 @@ public class PlanExpectation : EntityBase<Guid>
         string? subcriterionName = null,
         string? note = null) : base(id)
     {
-        if (till < from)
+        var utcFrom = ToUtc(from);
+        var utcTill = ToUtc(till);
+
+        if (utcTill < utcFrom)
         {
             throw new ArgumentException("Till date must be greater than or equal to From date.", nameof(till));
         }
 
         ExpectedAmount = expectedAmount;
-        From = from;
-        Till = till;
+        From = utcFrom;
+        Till = utcTill;
         SubcriterionName = string.IsNullOrWhiteSpace(subcriterionName) ? null : subcriterionName.Trim();
         Note = string.IsNullOrWhiteSpace(note) ? null : note;
     }
@@ -34,4 +37,14 @@ public class PlanExpectation : EntityBase<Guid>
     public string? SubcriterionName { get; }
 
     public string? Note { get; }
+
+    private static DateTime ToUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
+    }
 }

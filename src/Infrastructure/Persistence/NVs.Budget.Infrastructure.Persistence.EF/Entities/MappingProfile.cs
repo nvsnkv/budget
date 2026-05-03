@@ -66,14 +66,14 @@ internal class MappingProfile : Profile
         CreateMap<PlanExpectation, StoredPlanExpectation>()
             .ForMember(d => d.ExpectedAmount, opt => opt.MapFrom(s => s.ExpectedAmount.Amount))
             .ForMember(d => d.CurrencyCode, opt => opt.MapFrom(s => s.ExpectedAmount.CurrencyCode))
-            .ForMember(d => d.From, opt => opt.MapFrom(s => s.From.ToUniversalTime()))
-            .ForMember(d => d.Till, opt => opt.MapFrom(s => s.Till.ToUniversalTime()));
+            .ForMember(d => d.From, opt => opt.MapFrom(s => ToUtc(s.From)))
+            .ForMember(d => d.Till, opt => opt.MapFrom(s => ToUtc(s.Till)));
         CreateMap<StoredPlanExpectation, PlanExpectation>()
             .ConstructUsing(s => new PlanExpectation(
                 s.Id,
                 new Money(s.ExpectedAmount, Currency.Get(s.CurrencyCode)),
-                s.From.ToLocalTime(),
-                s.Till.ToLocalTime(),
+                ToUtc(s.From),
+                ToUtc(s.Till),
                 s.SubcriterionName,
                 s.Note));
 
@@ -82,8 +82,8 @@ internal class MappingProfile : Profile
         CreateMap<TrackedBudgetPlan, StoredBudgetPlan>()
             .ForMember(d => d.CurrencyCode, opt => opt.MapFrom(s => s.Currency.IsoCode))
             .ForMember(d => d.ExpectedAmount, opt => opt.MapFrom(s => s.ExpectedAmount.Amount))
-            .ForMember(d => d.From, opt => opt.MapFrom(s => s.From.ToUniversalTime()))
-            .ForMember(d => d.Till, opt => opt.MapFrom(s => s.Till.ToUniversalTime()))
+            .ForMember(d => d.From, opt => opt.MapFrom(s => ToUtc(s.From)))
+            .ForMember(d => d.Till, opt => opt.MapFrom(s => ToUtc(s.Till)))
             .ForMember(d => d.LogbookCriteria, opt => opt.MapFrom(s => s.LogbookCriteria ?? new LogbookCriteria(s.Criterion.Description, null, null, null, null, null, s.Criterion is UniversalCriterion, null)))
             .ForMember(d => d.Budget, opt => opt.Ignore());
         CreateMap<StoredBudgetPlan, TrackedBudgetPlan>()
@@ -94,8 +94,8 @@ internal class MappingProfile : Profile
                     s.Id,
                     s.BudgetId,
                     s.Name,
-                    s.From.ToLocalTime(),
-                    s.Till.ToLocalTime(),
+                    ToUtc(s.From),
+                    ToUtc(s.Till),
                     s.CronExpression,
                     logbookCriteria.GetCriterion(),
                     Currency.Get(s.CurrencyCode),
@@ -126,5 +126,15 @@ internal class MappingProfile : Profile
             .ForMember(t => t.CompletedAt, opt => opt.MapFrom(s => s.CompletedAt.ToLocalTime()));
         
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
+    }
+
+    private static DateTime ToUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
     }
 }

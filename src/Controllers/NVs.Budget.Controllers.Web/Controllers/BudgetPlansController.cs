@@ -130,8 +130,8 @@ public class BudgetPlansController(IMediator mediator, BudgetMapper budgetMapper
 
         return new UnregisteredBudgetPlan(
             request.Name,
-            request.From,
-            request.Till,
+            InboundUtcDateTime.Normalize(request.From),
+            InboundUtcDateTime.Normalize(request.Till),
             request.CronExpression,
             criteriaResult.Value.GetCriterion(),
             currencyResult.Value,
@@ -177,8 +177,8 @@ public class BudgetPlansController(IMediator mediator, BudgetMapper budgetMapper
                 .Select(e => new PlanExpectation(
                     e.Id ?? Guid.NewGuid(),
                     new Money(e.ExpectedAmount.Value, currency),
-                    e.From,
-                    e.Till,
+                    InboundUtcDateTime.Normalize(e.From),
+                    InboundUtcDateTime.Normalize(e.Till),
                     e.SubcriterionName,
                     e.Note))
                 .ToList());

@@ -94,6 +94,50 @@ public class BudgetPlanShould
     }
 
     [Fact]
+    public void VarianceReportResolvesNestedCriterionExpectations()
+    {
+        var rentTag = new Tag("rent");
+        var utilitiesTag = new Tag("utilities");
+        var rent = new TagBasedCriterion("Rent", [rentTag], TagBasedCriterionType.Including);
+        var utilities = new TagBasedCriterion("Utilities", [utilitiesTag], TagBasedCriterionType.Including);
+        var housing = new UniversalCriterion("Housing", [rent, utilities]);
+        var criterion = new UniversalCriterion("All", [housing]);
+
+        var from = new DateTime(2026, 1, 1);
+        var till = new DateTime(2026, 2, 1);
+        var plan = new BudgetPlan(Guid.NewGuid(), "Quarterly housing", from, till, null, criterion, Currency,
+        [
+            new PlanExpectation(Guid.NewGuid(), new Money(-600, Currency), from, till, "Rent"),
+            new PlanExpectation(Guid.NewGuid(), new Money(-80, Currency), from, till, "Utilities")
+        ]);
+
+        var logbook = new CriteriaBasedLogbook(criterion);
+        logbook.Register(Operation(from.AddDays(2), new Money(-500, Currency), rentTag)).IsSuccess.Should().BeTrue();
+        logbook.Register(Operation(from.AddDays(4), new Money(-80, Currency), utilitiesTag)).IsSuccess.Should().BeTrue();
+
+        var report = new VarianceReport(plan, logbook, [new PlanRange("January", from, till)]);
+
+        var rootVariance = report.Variances.Should().ContainSingle().Subject;
+        rootVariance.Description.Should().Be(criterion.Description);
+        rootVariance.Expected.Should().Be(new Money(-680, Currency));
+        rootVariance.Actual.Should().Be(new Money(-580, Currency));
+
+        var housingVariance = rootVariance.Children.Should().ContainSingle().Subject;
+        housingVariance.Description.Should().Be("Housing");
+        housingVariance.Expected.Should().Be(new Money(-680, Currency));
+        housingVariance.Actual.Should().Be(new Money(-580, Currency));
+
+        var rentVariance = housingVariance.Children.Should().Contain(v => v.Description == "Rent").Subject;
+        rentVariance.Expected.Should().Be(new Money(-600, Currency));
+        rentVariance.Actual.Should().Be(new Money(-500, Currency));
+
+        var utilitiesVariance = housingVariance.Children.Should().Contain(v => v.Description == "Utilities").Subject;
+        utilitiesVariance.Expected.Should().Be(new Money(-80, Currency));
+        utilitiesVariance.Actual.Should().Be(new Money(-80, Currency));
+        utilitiesVariance.ActualComparison.Should().Be(0);
+    }
+
+    [Fact]
     public void NotDoubleCountActualOperationsOnAdjacentRangeBoundaries()
     {
         var criterion = new UniversalCriterion("All");

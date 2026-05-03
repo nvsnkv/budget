@@ -54,6 +54,33 @@ describe('BudgetPlanApiService', () => {
     req.flush(plan());
   });
 
+  it('should send upsert timestamps as UTC ISO strings with Z suffix', () => {
+    const request: UpsertBudgetPlanRequest = {
+      name: 'Plan',
+      from: '2031-11-07T06:41',
+      till: '2031-12-07T07:06',
+      logbookCriteria: { description: 'All', isUniversal: true },
+      currencyCode: 'RUB',
+      expectations: [
+        {
+          expectedAmount: { value: -10, currencyCode: 'RUB' },
+          from: '2031-11-07T06:41',
+          till: '2031-12-07T07:06'
+        }
+      ]
+    };
+
+    service.createPlan('budget-1', request).subscribe();
+
+    const req = httpMock.expectOne({ method: 'POST', url: baseUrl });
+    const body = req.request.body as UpsertBudgetPlanRequest;
+    expect(body.from).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+    expect(body.till).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+    expect(body.expectations![0].from).toMatch(/Z$/);
+    expect(body.expectations![0].till).toMatch(/Z$/);
+    req.flush(plan());
+  });
+
   it('should load variance report', () => {
     const response: VarianceReportResponse = {
       plan: plan(),

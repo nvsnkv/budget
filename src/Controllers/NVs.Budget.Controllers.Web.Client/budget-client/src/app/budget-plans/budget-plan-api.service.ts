@@ -6,6 +6,7 @@ import {
   BudgetPlanResponse,
   CopyBudgetPlanRequest,
   UpsertBudgetPlanRequest,
+  UpsertPlanExpectationRequest,
   VarianceReportResponse
 } from '../budget/models';
 
@@ -27,14 +28,16 @@ export class BudgetPlanApiService {
   }
 
   createPlan(budgetId: string, request: UpsertBudgetPlanRequest): Observable<BudgetPlanResponse> {
-    return this.http.post<BudgetPlanResponse>(this.plansUrl(budgetId), request, {
+    const body = this.planUpsertJsonBody(request);
+    return this.http.post<BudgetPlanResponse>(this.plansUrl(budgetId), body, {
       headers: this.jsonHeaders,
       withCredentials: true
     });
   }
 
   updatePlan(budgetId: string, planId: string, request: UpsertBudgetPlanRequest): Observable<BudgetPlanResponse> {
-    return this.http.put<BudgetPlanResponse>(`${this.plansUrl(budgetId)}/${planId}`, request, {
+    const body = this.planUpsertJsonBody(request);
+    return this.http.put<BudgetPlanResponse>(`${this.plansUrl(budgetId)}/${planId}`, body, {
       headers: this.jsonHeaders,
       withCredentials: true
     });
@@ -57,5 +60,29 @@ export class BudgetPlanApiService {
 
   private plansUrl(budgetId: string): string {
     return `${this.baseUrl}/budget/${budgetId}/plans`;
+  }
+
+  /**
+   * Same as operations logbook transport: instants as ISO-8601 UTC (`Date#toISOString()`).
+   * The plan editor binds `datetime-local` strings; conversion stays in this service.
+   */
+  private planUpsertJsonBody(request: UpsertBudgetPlanRequest): UpsertBudgetPlanRequest {
+    const { expectations, from, till, ...rest } = request;
+    return {
+      ...rest,
+      from: new Date(from).toISOString(),
+      till: new Date(till).toISOString(),
+      ...(expectations !== undefined
+        ? { expectations: expectations.map(e => this.expectationJsonTimestamps(e)) }
+        : {})
+    };
+  }
+
+  private expectationJsonTimestamps(e: UpsertPlanExpectationRequest): UpsertPlanExpectationRequest {
+    return {
+      ...e,
+      from: new Date(e.from).toISOString(),
+      till: new Date(e.till).toISOString()
+    };
   }
 }

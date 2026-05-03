@@ -261,7 +261,9 @@ export interface BudgetPlanResponse {
 export interface UpsertPlanExpectationRequest {
   id?: string;
   expectedAmount: MoneyResponse;
+  /** Editor: `datetime-local`; outbound JSON uses UTC ISO (`…Z`) via `BudgetPlanApiService`. */
   from: string;
+  /** See `from`. */
   till: string;
   subcriterionName?: string;
   note?: string;
@@ -270,7 +272,9 @@ export interface UpsertPlanExpectationRequest {
 export interface UpsertBudgetPlanRequest {
   name: string;
   version?: string;
+  /** Editor: `datetime-local`; outbound JSON uses UTC ISO via `BudgetPlanApiService`. */
   from: string;
+  /** See `from`. */
   till: string;
   cronExpression?: string;
   logbookCriteria: LogbookCriteriaResponse;

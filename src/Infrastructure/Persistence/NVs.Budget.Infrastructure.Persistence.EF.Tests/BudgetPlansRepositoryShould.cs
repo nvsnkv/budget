@@ -51,8 +51,12 @@ public class BudgetPlansRepositoryShould(DbContextManager manager)
         var loaded = (await _repo.Get(p => p.Id == result.Value.Id, CancellationToken.None)).Single();
         loaded.Name.Should().Be("January");
         loaded.BudgetId.Should().Be(budget.Id);
+        loaded.From.Kind.Should().Be(DateTimeKind.Utc);
+        loaded.Till.Kind.Should().Be(DateTimeKind.Utc);
         loaded.LogbookCriteria.Should().NotBeNull();
         loaded.Expectations.Single().ExpectedAmount.Should().Be(new Money(-100, Currency));
+        loaded.Expectations.Single().From.Kind.Should().Be(DateTimeKind.Utc);
+        loaded.Expectations.Single().Till.Kind.Should().Be(DateTimeKind.Utc);
         loaded.Expectations.Single().SubcriterionName.Should().Be("Food");
     }
 

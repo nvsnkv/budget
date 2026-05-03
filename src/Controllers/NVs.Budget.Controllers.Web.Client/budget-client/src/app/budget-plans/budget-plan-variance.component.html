@@ -1,0 +1,62 @@
+<section class="variance-container">
+  <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <div class="variance-card">
+      <header class="header">
+        <div>
+          <a tuiButton appearance="flat" size="s" [routerLink]="['/budget', budgetId, 'plans']">Back to plans</a>
+          <h2 tuiTitle size="l">Plan variance</h2>
+        </div>
+      </header>
+
+      @if (error) {
+        <tui-notification appearance="error" size="m">{{ error }}</tui-notification>
+      }
+
+      <ng-template #varianceCell let-row let-rangeName="rangeName">
+        @if (lookupVariance(row.path, rangeName); as variance) {
+          <div class="variance-cell-wrapper">
+            <div
+              class="variance-actual mono"
+              [class.planned-only]="variance.isPlannedOnly"
+              [class.actual-less]="variance.hasPlan && variance.actualComparison < 0"
+              [class.actual-greater]="variance.hasPlan && variance.actualComparison > 0"
+              [title]="tooltipPlanVariance(variance)">
+              {{ formatMoney(variance.actual) }}
+            </div>
+            @if (!variance.hasPlan || variance.expected.value !== 0) {
+              <div class="variance-diff mono" [title]="'Variance: ' + formatMoney(variance.difference)">
+                {{ formatMoney(variance.difference) }}
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="mono muted">–</div>
+        }
+      </ng-template>
+
+      @if (report) {
+        <div class="report-header">
+          <h3 tuiTitle size="m">{{ report.plan.name }}</h3>
+          <p>{{ report.plan.from | date }} - {{ report.plan.till | date }} · {{ report.plan.currencyCode }}</p>
+        </div>
+
+        @if (rangeColumns.length === 0 || matrixRows.length === 0) {
+          <div class="empty-state">
+            <p>No variance breakdown available for this plan.</p>
+          </div>
+        } @else {
+          <div class="matrix-section">
+            <p class="matrix-hint">
+              Periods align with your plan cron. Compare actual totals across adjacent columns — hover cells for planned amounts.
+            </p>
+            <app-criteria-range-matrix
+              categoryTitle="Category"
+              [rangeColumns]="rangeColumns"
+              [rows]="matrixRows"
+              [cellTemplate]="varianceCell" />
+          </div>
+        }
+      }
+    </div>
+  </tui-loader>
+</section>

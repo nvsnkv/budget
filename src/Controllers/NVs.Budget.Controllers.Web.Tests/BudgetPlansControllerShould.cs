@@ -43,6 +43,72 @@ public class BudgetPlansControllerShould
     }
 
     [Fact]
+    public async Task NormalizeCreatedPlanDatesToUtc()
+    {
+        var budgetId = Guid.NewGuid();
+        RegisterBudgetPlanCommand? command = null;
+        var mediator = new Mock<IMediator>();
+        var controller = CreateController(mediator.Object);
+
+        mediator.Setup(m => m.Send(It.IsAny<RegisterBudgetPlanCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<object, CancellationToken>((request, _) => command = (RegisterBudgetPlanCommand)request)
+            .ReturnsAsync(Result.Ok(TrackedPlan(budgetId)));
+
+        await controller.Create(budgetId, Request(), CancellationToken.None);
+
+        command.Should().NotBeNull();
+        command!.Plan.From.Kind.Should().Be(DateTimeKind.Utc);
+        command.Plan.Till.Kind.Should().Be(DateTimeKind.Utc);
+        command.Plan.Expectations.Single().From.Kind.Should().Be(DateTimeKind.Utc);
+        command.Plan.Expectations.Single().Till.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
+    public async Task Normalize_unspecified_dates_as_local_wall_clock_before_utc_storage()
+    {
+        var budgetId = Guid.NewGuid();
+        RegisterBudgetPlanCommand? command = null;
+        var mediator = new Mock<IMediator>();
+        var controller = CreateController(mediator.Object);
+
+        mediator.Setup(m => m.Send(It.IsAny<RegisterBudgetPlanCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<object, CancellationToken>((request, _) => command = (RegisterBudgetPlanCommand)request)
+            .ReturnsAsync(Result.Ok(TrackedPlan(budgetId)));
+
+        var from = new DateTime(2026, 9, 8, 6, 0, 0, DateTimeKind.Unspecified);
+        var till = new DateTime(2026, 10, 8, 6, 0, 0, DateTimeKind.Unspecified);
+        var request = new UpsertBudgetPlanRequest(
+            "Plan",
+            null,
+            from,
+            till,
+            null,
+            new LogbookCriteriaResponse { Description = "All", IsUniversal = true },
+            Currency.IsoCode.ToString(),
+            null,
+            null,
+            [
+                new UpsertPlanExpectationRequest(
+                    null,
+                    new MoneyResponse(-100, Currency.IsoCode.ToString()),
+                    from,
+                    till,
+                    null,
+                    null)
+            ]);
+
+        await controller.Create(budgetId, request, CancellationToken.None);
+
+        command.Should().NotBeNull();
+        var expectedFrom = DateTime.SpecifyKind(from, DateTimeKind.Local).ToUniversalTime();
+        var expectedTill = DateTime.SpecifyKind(till, DateTimeKind.Local).ToUniversalTime();
+        command!.Plan.From.Should().Be(expectedFrom);
+        command.Plan.Till.Should().Be(expectedTill);
+        command.Plan.Expectations.Single().From.Should().Be(expectedFrom);
+        command.Plan.Expectations.Single().Till.Should().Be(expectedTill);
+    }
+
+    [Fact]
     public async Task ReturnVarianceReport()
     {
         var budgetId = Guid.NewGuid();
@@ -89,8 +155,8 @@ public class BudgetPlansControllerShould
 
     private static UpsertBudgetPlanRequest Request()
     {
-        var from = new DateTime(2026, 1, 1);
-        var till = new DateTime(2026, 2, 1);
+        var from = DateTime.SpecifyKind(new DateTime(2026, 1, 1), DateTimeKind.Local);
+        var till = DateTime.SpecifyKind(new DateTime(2026, 2, 1), DateTimeKind.Local);
         return new UpsertBudgetPlanRequest(
             "Plan",
             null,

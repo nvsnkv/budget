@@ -64,8 +64,8 @@ internal class BudgetPlansRepository(IMapper mapper, BudgetContext context, Vers
     protected override async Task<Result<StoredBudgetPlan>> Update(StoredBudgetPlan target, TrackedBudgetPlan updated, CancellationToken ct)
     {
         target.Name = updated.Name;
-        target.From = updated.From.ToUniversalTime();
-        target.Till = updated.Till.ToUniversalTime();
+        target.From = updated.From;
+        target.Till = updated.Till;
         target.CronExpression = updated.CronExpression;
         target.CurrencyCode = updated.Currency.IsoCode;
         target.ExpectedAmount = updated.ExpectedAmount.Amount;
@@ -82,4 +82,5 @@ internal class BudgetPlansRepository(IMapper mapper, BudgetContext context, Vers
         target.Deleted = true;
         return context.SaveChangesAsync(ct);
     }
+
 }

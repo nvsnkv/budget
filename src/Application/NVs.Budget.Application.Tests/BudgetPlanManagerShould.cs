@@ -100,6 +100,51 @@ public class BudgetPlanManagerShould
             It.IsAny<CancellationToken>()));
     }
 
+    [Fact]
+    public async Task BuildVarianceReportResolvesNestedSubcriterionExpectations()
+    {
+        var budget = Budget();
+        _budgets.Append([budget]);
+        var rentTag = new Tag("rent");
+        var utilitiesTag = new Tag("utilities");
+        var rent = new TagBasedCriterion("Rent", [rentTag], TagBasedCriterionType.Including);
+        var utilities = new TagBasedCriterion("Utilities", [utilitiesTag], TagBasedCriterionType.Including);
+        var housing = new UniversalCriterion("Housing", [rent, utilities]);
+        var criterion = new UniversalCriterion("All", [housing]);
+        var from = new DateTime(2026, 1, 1);
+        var till = new DateTime(2026, 2, 1);
+        var plan = (await _manager.Register(budget.Id,
+            NewPlan("Housing plan", from, till, criterion,
+            [
+                new PlanExpectation(Guid.NewGuid(), new Money(-400, Currency), from, till, "Rent"),
+                new PlanExpectation(Guid.NewGuid(), new Money(-50, Currency), from, till, "Utilities")
+            ]),
+            CancellationToken.None)).Value;
+
+        var logbook = new CriteriaBasedLogbook(criterion);
+        logbook.Register(Operation(budget, from.AddDays(1), new Money(-390, Currency), rentTag)).IsSuccess.Should().BeTrue();
+        logbook.Register(Operation(budget, from.AddDays(8), new Money(-50, Currency), utilitiesTag)).IsSuccess.Should().BeTrue();
+
+        _reckoner.Setup(r => r.GetLogbook(It.IsAny<LogbookQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(logbook);
+
+        var result = await _manager.BuildVarianceReport(budget.Id, plan.Id, CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        var column = result.Value.Variances.Should().ContainSingle().Subject;
+        column.Expected.Should().Be(new Money(-450, Currency));
+        column.Actual.Should().Be(new Money(-440, Currency));
+
+        var housingVariance = column.Children.Should().ContainSingle().Subject;
+        housingVariance.Description.Should().Be("Housing");
+        housingVariance.Expected.Should().Be(new Money(-450, Currency));
+        housingVariance.Actual.Should().Be(new Money(-440, Currency));
+
+        var rentVariance = housingVariance.Children.Should().Contain(v => v.Description == "Rent").Subject;
+        rentVariance.Expected.Should().Be(new Money(-400, Currency));
+        rentVariance.Actual.Should().Be(new Money(-390, Currency));
+    }
+
     private TrackedBudget Budget()
     {
         return new TrackedBudget(Guid.NewGuid(), "Budget", [_owner], [], [], [LogbookCriteria.Universal])

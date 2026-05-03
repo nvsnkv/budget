@@ -117,11 +117,13 @@ internal class BudgetPlanManager(
         }
 
         var plan = planResult.Value;
+        var from = plan.From;
+        var till = plan.Till;
         Expression<Func<TrackedOperation, bool>> filter = o =>
-            o.Budget.Id == budgetId && o.Timestamp >= plan.From && o.Timestamp < plan.Till;
+            o.Budget.Id == budgetId && o.Timestamp >= from && o.Timestamp < till;
 
         var logbook = await reckoner.GetLogbook(new LogbookQuery(plan.Criterion, plan.Currency, filter, true), ct);
-        var rangesResult = _rangeBuilder.GetRanges(plan.From, plan.Till, plan.CronExpression);
+        var rangesResult = _rangeBuilder.GetRanges(from, till, plan.CronExpression);
         if (rangesResult.IsFailed)
         {
             return Result.Fail<VarianceReport>(rangesResult.Errors);
@@ -147,4 +149,5 @@ internal class BudgetPlanManager(
             expectation.SubcriterionName,
             expectation.Note);
     }
+
 }
