@@ -5,7 +5,13 @@ import { TuiButton, TuiLoader, TuiNotification, TuiTitle } from '@taiga-ui/core'
 import { VarianceReportResponse, VarianceResponse } from '../budget/models';
 import { BudgetPlanApiService } from './budget-plan-api.service';
 import { browserIanaTimeZoneId } from '../shared/browser-timezone';
-import { buildVarianceMatrixModel, getVarianceCell } from './variance-matrix.utils';
+import {
+  buildVarianceMatrixModel,
+  collectExpandablePaths,
+  flattenVarianceRows,
+  getVarianceCell,
+  VarianceRowNode
+} from './variance-matrix.utils';
 import { CriteriaRangeMatrixComponent } from '../shared/criteria-range-matrix/criteria-range-matrix.component';
 import {
   CriteriaMatrixCategoryRow,
@@ -34,6 +40,9 @@ export class BudgetPlanVarianceComponent implements OnInit {
   rangeColumns: CriteriaMatrixRangeColumn[] = [];
   matrixRows: CriteriaMatrixCategoryRow[] = [];
   varianceByCell = new Map<string, VarianceResponse>();
+  private varianceRowTree: VarianceRowNode | null = null;
+  /** Paths of rows that have children and are expanded (same behaviour as logbook). */
+  expandedRows = new Set<string>();
   isLoading = false;
   error = '';
 
@@ -48,8 +57,10 @@ export class BudgetPlanVarianceComponent implements OnInit {
         this.report = report;
         const model = buildVarianceMatrixModel(report);
         this.rangeColumns = model.rangeColumns;
-        this.matrixRows = model.rows;
         this.varianceByCell = model.varianceByPathAndRange;
+        this.varianceRowTree = model.varianceRowTree;
+        this.expandedRows = new Set(model.expandablePaths);
+        this.rebuildMatrixRows();
         this.isLoading = false;
       },
       error: error => {
@@ -57,6 +68,52 @@ export class BudgetPlanVarianceComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  get isAllExpanded(): boolean {
+    if (!this.varianceRowTree) {
+      return false;
+    }
+
+    const expandable = collectExpandablePaths(this.varianceRowTree);
+    return expandable.length > 0 && expandable.every(path => this.expandedRows.has(path));
+  }
+
+  toggleRow(path: string): void {
+    if (this.expandedRows.has(path)) {
+      this.expandedRows.delete(path);
+    } else {
+      this.expandedRows.add(path);
+    }
+
+    this.rebuildMatrixRows();
+  }
+
+  isRowExpanded(path: string): boolean {
+    return this.expandedRows.has(path);
+  }
+
+  toggleExpandAll(): void {
+    if (!this.varianceRowTree) {
+      return;
+    }
+
+    if (this.isAllExpanded) {
+      this.expandedRows.clear();
+    } else {
+      this.expandedRows = new Set(collectExpandablePaths(this.varianceRowTree));
+    }
+
+    this.rebuildMatrixRows();
+  }
+
+  private rebuildMatrixRows(): void {
+    if (!this.varianceRowTree) {
+      this.matrixRows = [];
+      return;
+    }
+
+    this.matrixRows = flattenVarianceRows(this.varianceRowTree, this.expandedRows);
   }
 
   lookupVariance(path: string, rangeName: string): VarianceResponse | undefined {

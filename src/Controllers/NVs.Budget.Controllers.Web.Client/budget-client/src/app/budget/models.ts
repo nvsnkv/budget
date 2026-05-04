@@ -239,6 +239,9 @@ export interface PlanExpectationResponse {
   expectedAmount: MoneyResponse;
   from: string;
   till: string;
+  /** Full criterion path under plan root (`Root/Parent/Leaf`), aligned with logbook paths. */
+  subcriterionPath?: string;
+  /** Legacy alias; identical to `subcriterionPath` when returned by the API. */
   subcriterionName?: string;
   note?: string;
 }
@@ -265,6 +268,8 @@ export interface UpsertPlanExpectationRequest {
   from: string;
   /** See `from`. */
   till: string;
+  subcriterionPath?: string;
+  /** Ignored when `subcriterionPath` is set; accepted for backward compatibility. */
   subcriterionName?: string;
   note?: string;
 }

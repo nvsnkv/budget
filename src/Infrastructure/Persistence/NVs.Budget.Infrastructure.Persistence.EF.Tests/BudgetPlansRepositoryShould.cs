@@ -57,7 +57,7 @@ public class BudgetPlansRepositoryShould(DbContextManager manager)
         loaded.Expectations.Single().ExpectedAmount.Should().Be(new Money(-100, Currency));
         loaded.Expectations.Single().From.Kind.Should().Be(DateTimeKind.Utc);
         loaded.Expectations.Single().Till.Kind.Should().Be(DateTimeKind.Utc);
-        loaded.Expectations.Single().SubcriterionName.Should().Be("Food");
+        loaded.Expectations.Single().SubcriterionPath.Should().Be("Food");
     }
 
     [Fact]

@@ -64,21 +64,86 @@ public class BudgetPlan : PlanExpectation
 
     public Money GetExpectedAmount(Criterion criterion, DateTime from, DateTime till)
     {
-        var matchingNames = GetCriterionNames(criterion).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var expectations = _expectations
-            .Where(e => e.From == from && e.Till == till)
-            .Where(e => e.SubcriterionName is not null && matchingNames.Contains(e.SubcriterionName))
+        if (!TryGetCriterionPath(Criterion, criterion, out var criterionPath))
+        {
+            throw new InvalidOperationException("Criterion is not part of this plan's criterion tree.");
+        }
+
+        var windowExpectations = _expectations.Where(e => e.From == from && e.Till == till).ToList();
+
+        var amounts = windowExpectations
+            .Where(e => !string.IsNullOrEmpty(e.SubcriterionPath))
+            .Where(e => ExpectationMatchesCriterionPath(criterionPath, e.SubcriterionPath!, criterion))
             .Select(e => e.ExpectedAmount)
             .ToList();
 
         if (ReferenceEquals(criterion, Criterion))
         {
-            expectations.AddRange(_expectations
-                .Where(e => e.From == from && e.Till == till && e.SubcriterionName is null)
+            amounts.AddRange(windowExpectations
+                .Where(e => string.IsNullOrEmpty(e.SubcriterionPath))
                 .Select(e => e.ExpectedAmount));
         }
 
-        return Sum(expectations);
+        return Sum(amounts);
+    }
+
+    /// <summary>
+    /// Builds "Description/Child/Leaf" paths matching logbook criteria traversal (root description included).
+    /// </summary>
+    private static bool TryGetCriterionPath(Criterion root, Criterion target, out string path)
+    {
+        if (ReferenceEquals(root, target))
+        {
+            path = root.Description;
+            return true;
+        }
+
+        foreach (var sub in root.Subcriteria)
+        {
+            if (!TryGetCriterionPath(sub, target, out var tail)) continue;
+
+            path = string.IsNullOrEmpty(tail)
+                ? $"{root.Description}/{sub.Description}"
+                : $"{root.Description}/{tail}";
+            return true;
+        }
+
+        path = string.Empty;
+        return false;
+    }
+
+    /// <summary>
+    /// Hierarchical paths use prefix roll-up (node path + all descendant paths).
+    /// Legacy values without '/' keep the previous "any matching description in this subtree" behaviour.
+    /// </summary>
+    private static bool ExpectationMatchesCriterionPath(
+        string criterionPath,
+        string expectationPath,
+        Criterion criterion)
+    {
+        var pathComparison = StringComparison.OrdinalIgnoreCase;
+        if (!expectationPath.Contains('/'))
+        {
+            var legacyNames = GetCriterionDescriptionsInSubtree(criterion).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return legacyNames.Contains(expectationPath);
+        }
+
+        if (string.Equals(criterionPath, expectationPath, pathComparison))
+        {
+            return true;
+        }
+
+        var prefix = criterionPath + "/";
+        return expectationPath.StartsWith(prefix, pathComparison);
+    }
+
+    private static IEnumerable<string> GetCriterionDescriptionsInSubtree(Criterion criterion)
+    {
+        yield return criterion.Description;
+        foreach (var childName in criterion.Subcriteria.SelectMany(GetCriterionDescriptionsInSubtree))
+        {
+            yield return childName;
+        }
     }
 
     private Money Sum(IReadOnlyCollection<Money> amounts)
@@ -88,13 +153,4 @@ public class BudgetPlan : PlanExpectation
             : amounts.Aggregate((left, right) => left + right);
     }
 
-    private static IEnumerable<string> GetCriterionNames(Criterion criterion)
-    {
-        yield return criterion.Description;
-
-        foreach (var childName in criterion.Subcriteria.SelectMany(GetCriterionNames))
-        {
-            yield return childName;
-        }
-    }
 }

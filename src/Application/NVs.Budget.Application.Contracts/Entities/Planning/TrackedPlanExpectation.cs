@@ -8,6 +8,6 @@ public class TrackedPlanExpectation(
     Money expectedAmount,
     DateTime from,
     DateTime till,
-    string? subcriterionName = null,
+    string? subcriterionPath = null,
     string? note = null)
-    : PlanExpectation(id, expectedAmount, from, till, subcriterionName, note);
+    : PlanExpectation(id, expectedAmount, from, till, subcriterionPath, note);

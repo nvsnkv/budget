@@ -71,8 +71,8 @@ export class BudgetPlanEditorComponent implements OnInit {
       const path = this.expectationRowPath(e);
       if (!seen.has(path)) {
         seen.set(path, {
-          level: e.hierarchyLevel ?? 0,
-          label: e.subcriterionName ?? 'Root'
+          level: this.findLevelForPath(this.selectedCriteria, path) ?? e.hierarchyLevel ?? 0,
+          label: this.leafLabelFromPath(path)
         });
       }
     }
@@ -173,11 +173,11 @@ export class BudgetPlanEditorComponent implements OnInit {
     const existing = new Map(this.expectations.map(expectation => [this.expectationKey(expectation), expectation]));
     this.expectations = ranges.flatMap(range =>
       cells.map(cell => {
-        const subcriterionName = cell?.name;
-        const previous = existing.get(this.expectationKey({ from: range.from, till: range.till, subcriterionName }));
+        const subcriterionPath = cell?.path;
+        const previous = existing.get(this.expectationKey({ from: range.from, till: range.till, subcriterionPath }));
         return {
           id: previous?.id,
-          subcriterionName,
+          subcriterionPath,
           hierarchyLevel: cell?.level ?? previous?.hierarchyLevel,
           from: range.from,
           till: range.till,
@@ -231,8 +231,8 @@ export class BudgetPlanEditorComponent implements OnInit {
     this.selectedCriteriaDescription = this.criteriaOptionValue(plan.logbookCriteria);
     this.expectations = plan.expectations.map(e => ({
       id: e.id,
-      subcriterionName: e.subcriterionName,
-      hierarchyLevel: this.findSubcriteriaLevel(plan.logbookCriteria, e.subcriterionName),
+      subcriterionPath: e.subcriterionPath ?? e.subcriterionName,
+      hierarchyLevel: this.findLevelForPath(plan.logbookCriteria, e.subcriterionPath ?? e.subcriterionName ?? ''),
       from: this.toInputDate(e.from),
       till: this.toInputDate(e.till),
       amount: e.expectedAmount.value,
@@ -243,7 +243,7 @@ export class BudgetPlanEditorComponent implements OnInit {
   private toExpectationRequest(expectation: EditableExpectation): UpsertPlanExpectationRequest {
     return {
       id: expectation.id,
-      subcriterionName: expectation.subcriterionName || undefined,
+      subcriterionPath: expectation.subcriterionPath || undefined,
       from: expectation.from,
       till: expectation.till,
       expectedAmount: {
@@ -326,43 +326,63 @@ export class BudgetPlanEditorComponent implements OnInit {
   }
 
   private getHierarchicalSubcriteria(criteria: LogbookCriteriaResponse): HierarchicalCriteriaCell[] {
+    const rootSeg = this.criteriaOptionValue(criteria);
     const result: HierarchicalCriteriaCell[] = [];
     const seen = new Set<string>();
-    const walk = (current: LogbookCriteriaResponse, level: number) => {
-      for (const child of current.subcriteria ?? []) {
-        const description = this.criteriaOptionValue(child);
-        if (description && !seen.has(description)) {
-          seen.add(description);
-          result.push({ name: description, level });
+    const walk = (node: LogbookCriteriaResponse, prefix: string | undefined, level: number) => {
+      for (const child of node.subcriteria ?? []) {
+        const label = this.criteriaOptionValue(child);
+        const path = prefix ? `${prefix}/${label}` : `${rootSeg}/${label}`;
+        if (!seen.has(path)) {
+          seen.add(path);
+          result.push({ path, level });
         }
-        walk(child, level + 1);
+        walk(child, path, level + 1);
       }
     };
 
-    walk(criteria, 0);
+    walk(criteria, undefined, 0);
     return result;
   }
 
-  private findSubcriteriaLevel(criteria: LogbookCriteriaResponse, subcriterionName?: string): number | undefined {
-    if (!subcriterionName) {
+  private findLevelForPath(criteria: LogbookCriteriaResponse | undefined, targetPath: string): number | undefined {
+    if (!criteria || !targetPath.trim()) {
       return undefined;
     }
 
-    const stack = (criteria.subcriteria ?? []).map(child => ({ criteria: child, level: 0 }));
-    while (stack.length) {
-      const current = stack.shift();
-      if (!current) {
-        break;
+    const rootSeg = this.criteriaOptionValue(criteria);
+    const walk = (
+      node: LogbookCriteriaResponse,
+      prefix: string | undefined,
+      level: number
+    ): number | undefined => {
+      for (const child of node.subcriteria ?? []) {
+        const label = this.criteriaOptionValue(child);
+        const path = prefix ? `${prefix}/${label}` : `${rootSeg}/${label}`;
+        if (path === targetPath) {
+          return level;
+        }
+
+        const nested = walk(child, path, level + 1);
+        if (nested !== undefined) {
+          return nested;
+        }
       }
 
-      if (this.criteriaOptionValue(current.criteria) === subcriterionName) {
-        return current.level;
-      }
+      return undefined;
+    };
 
-      stack.unshift(...(current.criteria.subcriteria ?? []).map(child => ({ criteria: child, level: current.level + 1 })));
+    return walk(criteria, undefined, 0);
+  }
+
+  private leafLabelFromPath(path: string): string {
+    const trimmed = path.trim();
+    if (!trimmed) {
+      return 'Root';
     }
 
-    return undefined;
+    const segments = trimmed.split('/');
+    return segments[segments.length - 1] ?? 'Root';
   }
 
   private parseCronExpression(expression: string): CronSchedule | null {
@@ -422,12 +442,12 @@ export class BudgetPlanEditorComponent implements OnInit {
       && (schedule.weekdays.has(weekday) || (weekday === 0 && schedule.weekdays.has(7)));
   }
 
-  private expectationKey(expectation: Pick<EditableExpectation, 'from' | 'till' | 'subcriterionName'>): string {
-    return `${expectation.from}|${expectation.till}|${expectation.subcriterionName ?? ''}`;
+  private expectationKey(expectation: Pick<EditableExpectation, 'from' | 'till' | 'subcriterionPath'>): string {
+    return `${expectation.from}|${expectation.till}|${expectation.subcriterionPath ?? ''}`;
   }
 
   private expectationRowPath(expectation: EditableExpectation): string {
-    return expectation.subcriterionName ?? '';
+    return expectation.subcriterionPath ?? '';
   }
 
   private periodSpanKey(expectation: Pick<EditableExpectation, 'from' | 'till'>): string {
@@ -455,7 +475,7 @@ export class BudgetPlanEditorComponent implements OnInit {
 
 interface EditableExpectation {
   id?: string;
-  subcriterionName?: string;
+  subcriterionPath?: string;
   hierarchyLevel?: number;
   from: string;
   till: string;
@@ -464,7 +484,7 @@ interface EditableExpectation {
 }
 
 interface HierarchicalCriteriaCell {
-  name: string;
+  path: string;
   level: number;
 }
 

@@ -183,7 +183,7 @@ public class BudgetPlansController(IMediator mediator, BudgetMapper budgetMapper
                     new Money(e.ExpectedAmount.Value, currency),
                     InboundUtcDateTime.Normalize(e.From),
                     InboundUtcDateTime.Normalize(e.Till),
-                    e.SubcriterionName,
+                    ResolveSubcriterionPath(e),
                     e.Note))
                 .ToList());
         }
@@ -191,6 +191,14 @@ public class BudgetPlansController(IMediator mediator, BudgetMapper budgetMapper
         {
             return Result.Fail<IReadOnlyCollection<PlanExpectation>>(e.Message);
         }
+    }
+
+    private static string? ResolveSubcriterionPath(UpsertPlanExpectationRequest request)
+    {
+        var raw = string.IsNullOrWhiteSpace(request.SubcriterionPath)
+            ? request.SubcriterionName
+            : request.SubcriterionPath;
+        return string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
     }
 
     private static Result<Currency> ParseCurrency(string currencyCode)
@@ -230,7 +238,8 @@ public class BudgetPlansController(IMediator mediator, BudgetMapper budgetMapper
             ToMoneyResponse(expectation.ExpectedAmount),
             expectation.From,
             expectation.Till,
-            expectation.SubcriterionName,
+            expectation.SubcriterionPath,
+            expectation.SubcriterionPath,
             expectation.Note);
     }
 

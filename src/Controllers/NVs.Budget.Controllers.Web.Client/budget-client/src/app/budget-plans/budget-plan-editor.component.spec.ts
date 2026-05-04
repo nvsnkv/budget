@@ -74,7 +74,7 @@ describe('BudgetPlanEditorComponent', () => {
     component.expectations = [{
       from: '2026-01-01T00:00',
       till: '2026-02-01T00:00',
-      subcriterionName: 'Food',
+      subcriterionPath: 'All/Food',
       amount: -100,
       note: 'keep me'
     }];
@@ -83,12 +83,12 @@ describe('BudgetPlanEditorComponent', () => {
 
     expect(component.error).toBe('');
     expect(component.expectations).toEqual([
-      jasmine.objectContaining({ from: '2026-01-01T00:00', till: '2026-02-01T00:00', subcriterionName: 'Food', hierarchyLevel: 0, amount: -100, note: 'keep me' }),
-      jasmine.objectContaining({ from: '2026-01-01T00:00', till: '2026-02-01T00:00', subcriterionName: 'Home', hierarchyLevel: 0, amount: 0 }),
-      jasmine.objectContaining({ from: '2026-01-01T00:00', till: '2026-02-01T00:00', subcriterionName: 'Rent', hierarchyLevel: 1, amount: 0 }),
-      jasmine.objectContaining({ from: '2026-02-01T00:00', till: '2026-03-01T00:00', subcriterionName: 'Food', hierarchyLevel: 0, amount: 0 }),
-      jasmine.objectContaining({ from: '2026-02-01T00:00', till: '2026-03-01T00:00', subcriterionName: 'Home', hierarchyLevel: 0, amount: 0 }),
-      jasmine.objectContaining({ from: '2026-02-01T00:00', till: '2026-03-01T00:00', subcriterionName: 'Rent', hierarchyLevel: 1, amount: 0 })
+      jasmine.objectContaining({ from: '2026-01-01T00:00', till: '2026-02-01T00:00', subcriterionPath: 'All/Food', hierarchyLevel: 0, amount: -100, note: 'keep me' }),
+      jasmine.objectContaining({ from: '2026-01-01T00:00', till: '2026-02-01T00:00', subcriterionPath: 'All/Home', hierarchyLevel: 0, amount: 0 }),
+      jasmine.objectContaining({ from: '2026-01-01T00:00', till: '2026-02-01T00:00', subcriterionPath: 'All/Home/Rent', hierarchyLevel: 1, amount: 0 }),
+      jasmine.objectContaining({ from: '2026-02-01T00:00', till: '2026-03-01T00:00', subcriterionPath: 'All/Food', hierarchyLevel: 0, amount: 0 }),
+      jasmine.objectContaining({ from: '2026-02-01T00:00', till: '2026-03-01T00:00', subcriterionPath: 'All/Home', hierarchyLevel: 0, amount: 0 }),
+      jasmine.objectContaining({ from: '2026-02-01T00:00', till: '2026-03-01T00:00', subcriterionPath: 'All/Home/Rent', hierarchyLevel: 1, amount: 0 })
     ]);
   });
 

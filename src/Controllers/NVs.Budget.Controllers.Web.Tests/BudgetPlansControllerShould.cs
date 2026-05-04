@@ -94,6 +94,7 @@ public class BudgetPlansControllerShould
                     from,
                     till,
                     null,
+                    null,
                     null)
             ]);
 
@@ -167,7 +168,7 @@ public class BudgetPlansControllerShould
             Currency.IsoCode.ToString(),
             null,
             null,
-            [new UpsertPlanExpectationRequest(null, new MoneyResponse(-100, Currency.IsoCode.ToString()), from, till, null, null)]);
+            [new UpsertPlanExpectationRequest(null, new MoneyResponse(-100, Currency.IsoCode.ToString()), from, till, null, null, null)]);
     }
 
     private static TrackedBudgetPlan TrackedPlan(Guid budgetId)

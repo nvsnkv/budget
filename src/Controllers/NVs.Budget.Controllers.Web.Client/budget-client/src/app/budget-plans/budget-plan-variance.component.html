@@ -34,6 +34,19 @@
         }
       </ng-template>
 
+      <ng-template #varianceCategoryCell let-row>
+        <div class="criteria-info" [style.padding-left.rem]="row.level * 2">
+          @if (row.hasChildren) {
+            <span class="expand-icon" (click)="toggleRow(row.path)">
+              {{ isRowExpanded(row.path) ? '▼' : '▶' }}
+            </span>
+          } @else {
+            <span class="expand-icon placeholder"></span>
+          }
+          <span class="criteria-name">{{ row.label }}</span>
+        </div>
+      </ng-template>
+
       @if (report) {
         <div class="report-header">
           <h3 tuiTitle size="m">{{ report.plan.name }}</h3>
@@ -46,14 +59,26 @@
           </div>
         } @else {
           <div class="matrix-section">
-            <p class="matrix-hint">
-              Periods align with your plan cron. Compare actual totals across adjacent columns — hover cells for planned amounts.
-            </p>
+            <div class="matrix-toolbar">
+              <p class="matrix-hint">
+                Categories follow your plan’s logbook criteria order. Click arrows to fold or unfold groups (same as the
+                operations logbook).
+              </p>
+              <button
+                tuiButton
+                type="button"
+                appearance="secondary"
+                size="s"
+                (click)="toggleExpandAll()">
+                {{ isAllExpanded ? 'Collapse all' : 'Expand all' }}
+              </button>
+            </div>
             <app-criteria-range-matrix
               categoryTitle="Category"
               [rangeColumns]="rangeColumns"
               [rows]="matrixRows"
-              [cellTemplate]="varianceCell" />
+              [cellTemplate]="varianceCell"
+              [categoryTemplate]="varianceCategoryCell" />
           </div>
         }
       }

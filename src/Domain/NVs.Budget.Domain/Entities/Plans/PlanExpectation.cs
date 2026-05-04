@@ -10,7 +10,7 @@ public class PlanExpectation : EntityBase<Guid>
         Money expectedAmount,
         DateTime from,
         DateTime till,
-        string? subcriterionName = null,
+        string? subcriterionPath = null,
         string? note = null) : base(id)
     {
         var utcFrom = ToUtc(from);
@@ -24,7 +24,7 @@ public class PlanExpectation : EntityBase<Guid>
         ExpectedAmount = expectedAmount;
         From = utcFrom;
         Till = utcTill;
-        SubcriterionName = string.IsNullOrWhiteSpace(subcriterionName) ? null : subcriterionName.Trim();
+        SubcriterionPath = string.IsNullOrWhiteSpace(subcriterionPath) ? null : subcriterionPath.Trim();
         Note = string.IsNullOrWhiteSpace(note) ? null : note;
     }
 
@@ -34,7 +34,12 @@ public class PlanExpectation : EntityBase<Guid>
 
     public DateTime Till { get; }
 
-    public string? SubcriterionName { get; }
+    /// <summary>
+    /// Path of the targeted sub-criterion under this plan's root criterion,
+    /// built from descriptions joined with '/' (same convention as the logbook UI).
+    /// Single-segment values without '/' are treated as legacy leaf descriptions.
+    /// </summary>
+    public string? SubcriterionPath { get; }
 
     public string? Note { get; }
 

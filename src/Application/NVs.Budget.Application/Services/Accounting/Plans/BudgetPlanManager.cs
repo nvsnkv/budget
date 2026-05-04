@@ -173,7 +173,7 @@ internal class BudgetPlanManager(
             expectation.ExpectedAmount,
             expectation.From,
             expectation.Till,
-            expectation.SubcriterionName,
+            expectation.SubcriterionPath,
             expectation.Note);
     }
 

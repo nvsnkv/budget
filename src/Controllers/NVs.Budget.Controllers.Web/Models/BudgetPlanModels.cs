@@ -5,6 +5,7 @@ public record PlanExpectationResponse(
     MoneyResponse ExpectedAmount,
     DateTime From,
     DateTime Till,
+    string? SubcriterionPath,
     string? SubcriterionName,
     string? Note);
 
@@ -27,6 +28,7 @@ public record UpsertPlanExpectationRequest(
     MoneyResponse ExpectedAmount,
     DateTime From,
     DateTime Till,
+    string? SubcriterionPath,
     string? SubcriterionName,
     string? Note);
 

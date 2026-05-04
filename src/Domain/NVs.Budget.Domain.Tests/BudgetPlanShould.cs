@@ -138,6 +138,35 @@ public class BudgetPlanShould
     }
 
     [Fact]
+    public void Resolves_duplicate_leaf_descriptions_via_full_paths()
+    {
+        var foodATag = new Tag("food-a");
+        var foodBTag = new Tag("food-b");
+        var foodA = new TagBasedCriterion("Food", [foodATag], TagBasedCriterionType.Including);
+        var miscA = new UniversalCriterion("Misc", [foodA]);
+        var branchA = new UniversalCriterion("BranchA", [miscA]);
+
+        var foodB = new TagBasedCriterion("Food", [foodBTag], TagBasedCriterionType.Including);
+        var miscB = new UniversalCriterion("Misc", [foodB]);
+        var branchB = new UniversalCriterion("BranchB", [miscB]);
+
+        var criterion = new UniversalCriterion("All", [branchA, branchB]);
+        var from = new DateTime(2026, 1, 1);
+        var till = new DateTime(2026, 2, 1);
+
+        var plan = new BudgetPlan(Guid.NewGuid(), "Dup leaves", from, till, null, criterion, Currency,
+        [
+            new PlanExpectation(Guid.NewGuid(), new Money(-100, Currency), from, till, "All/BranchA/Misc/Food"),
+            new PlanExpectation(Guid.NewGuid(), new Money(-50, Currency), from, till, "All/BranchB/Misc/Food")
+        ]);
+
+        plan.GetExpectedAmount(foodA, from, till).Should().Be(new Money(-100, Currency));
+        plan.GetExpectedAmount(foodB, from, till).Should().Be(new Money(-50, Currency));
+        plan.GetExpectedAmount(branchA, from, till).Should().Be(new Money(-100, Currency));
+        plan.GetExpectedAmount(branchB, from, till).Should().Be(new Money(-50, Currency));
+    }
+
+    [Fact]
     public void NotDoubleCountActualOperationsOnAdjacentRangeBoundaries()
     {
         var criterion = new UniversalCriterion("All");

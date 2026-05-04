@@ -67,14 +67,16 @@ internal class MappingProfile : Profile
             .ForMember(d => d.ExpectedAmount, opt => opt.MapFrom(s => s.ExpectedAmount.Amount))
             .ForMember(d => d.CurrencyCode, opt => opt.MapFrom(s => s.ExpectedAmount.CurrencyCode))
             .ForMember(d => d.From, opt => opt.MapFrom(s => ToUtc(s.From)))
-            .ForMember(d => d.Till, opt => opt.MapFrom(s => ToUtc(s.Till)));
+            .ForMember(d => d.Till, opt => opt.MapFrom(s => ToUtc(s.Till)))
+            .ForMember(d => d.SubcriterionPath, opt => opt.MapFrom(s => s.SubcriterionPath))
+            .ForMember(d => d.SubcriterionName, opt => opt.MapFrom(s => s.SubcriterionPath));
         CreateMap<StoredPlanExpectation, PlanExpectation>()
             .ConstructUsing(s => new PlanExpectation(
                 s.Id,
                 new Money(s.ExpectedAmount, Currency.Get(s.CurrencyCode)),
                 ToUtc(s.From),
                 ToUtc(s.Till),
-                s.SubcriterionName,
+                s.ResolvedCriterionPath,
                 s.Note));
 
         CreateMap<TrackedOwner, StoredOwner>().ReverseMap();

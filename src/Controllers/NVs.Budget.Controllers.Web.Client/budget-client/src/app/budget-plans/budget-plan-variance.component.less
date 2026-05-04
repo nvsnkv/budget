@@ -2,10 +2,46 @@
   margin-top: 1rem;
 }
 
+.matrix-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
 .matrix-hint {
+  flex: 1 1 16rem;
   color: var(--tui-text-secondary);
   font-size: 0.875rem;
-  margin-bottom: 0.75rem;
+  margin: 0;
+}
+
+.criteria-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expand-icon {
+  width: 1rem;
+  text-align: center;
+  color: var(--tui-text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+
+  &.placeholder {
+    visibility: hidden;
+  }
+
+  &:hover {
+    color: var(--tui-text-primary);
+  }
+}
+
+.criteria-name {
+  font-size: 1rem;
 }
 
 .empty-state {
