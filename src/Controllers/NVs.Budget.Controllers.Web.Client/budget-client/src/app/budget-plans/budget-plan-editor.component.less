@@ -1,0 +1,124 @@
+.editor-container {
+  padding: 1rem;
+}
+
+.editor-card {
+  background: var(--tui-background-base);
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.plan-form,
+.expectations-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.section-header,
+.section-actions,
+.form-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.section-description {
+  color: var(--tui-text-secondary);
+  margin: 0.25rem 0 0;
+}
+
+.section-actions {
+  justify-content: flex-end;
+}
+
+.select-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.select-field select {
+  background: var(--tui-background-base);
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 0.75rem;
+  box-sizing: border-box;
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.table-input {
+  background: var(--tui-background-base);
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.matrix-hint {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.plan-matrix-shell {
+  margin-top: 0.25rem;
+}
+
+.plan-matrix-shell ::ng-deep .data-cell {
+  text-align: right;
+}
+
+.plan-matrix-shell ::ng-deep .criteria-name {
+  font-weight: 600;
+}
+
+.plan-category-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.plan-cell-edit {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: end;
+}
+
+.matrix-note-input {
+  font-size: 0.8125rem;
+}
+
+.matrix-amount-input {
+  max-width: 8rem;
+  text-align: right;
+}
+
+.empty-expectations {
+  padding: 0.75rem 0;
+  font-size: 0.9375rem;
+}
+
+.muted {
+  color: var(--tui-text-secondary);
+}
+
+.muted-dash {
+  color: var(--tui-text-tertiary);
+  font-size: 1.125rem;
+}

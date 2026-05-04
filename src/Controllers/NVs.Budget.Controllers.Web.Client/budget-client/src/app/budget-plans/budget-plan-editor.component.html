@@ -1,0 +1,126 @@
+<section class="editor-container">
+  <tui-loader [overlay]="true" [showLoader]="isSaving">
+    <div class="editor-card">
+      <header class="header">
+        <div>
+          <a tuiButton appearance="flat" size="s" [routerLink]="['/budget', budgetId, 'plans']">Back to plans</a>
+          <h2 tuiTitle size="l">{{ planId ? 'Edit budget plan' : 'Create budget plan' }}</h2>
+        </div>
+      </header>
+
+      @if (error) {
+        <tui-notification appearance="error" size="m">{{ error }}</tui-notification>
+      }
+
+      <form class="plan-form" (ngSubmit)="save()">
+        <div class="form-grid">
+          <tui-textfield>
+            <label tuiLabel>Name</label>
+            <input tuiTextfield name="name" [(ngModel)]="name" required />
+          </tui-textfield>
+
+          <tui-textfield>
+            <label tuiLabel>From</label>
+            <input tuiTextfield name="from" type="datetime-local" [(ngModel)]="from" required />
+          </tui-textfield>
+
+          <tui-textfield>
+            <label tuiLabel>Till</label>
+            <input tuiTextfield name="till" type="datetime-local" [(ngModel)]="till" required />
+          </tui-textfield>
+
+          <tui-textfield>
+            <label tuiLabel>Cron expression</label>
+            <input tuiTextfield name="cron" [(ngModel)]="cronExpression" placeholder="0 0 1 * *" />
+          </tui-textfield>
+
+          <tui-textfield>
+            <label tuiLabel>Currency</label>
+            <input tuiTextfield name="currency" [(ngModel)]="currencyCode" required />
+          </tui-textfield>
+
+          <label tuiLabel class="select-field">
+            Logbook criteria
+            <select name="criteria" [(ngModel)]="selectedCriteriaDescription" required>
+              @for (criteria of availableCriteria; track criteriaOptionValue(criteria)) {
+                <option [value]="criteriaOptionValue(criteria)">
+                  {{ criteriaOptionValue(criteria) }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <section class="expectations-section">
+          <div class="section-header">
+            <div>
+              <h3 tuiTitle size="m">Expected cells</h3>
+              <p class="section-description">
+                Subcriteria as rows and cron periods as columns — same grid as variance and logbooks. Generate after setting
+                dates and cron.
+              </p>
+            </div>
+            <div class="section-actions">
+              <button tuiButton type="button" appearance="secondary" size="s" (click)="generateExpectationsMatrix()">
+                Generate matrix
+              </button>
+              <button tuiButton type="button" appearance="flat" size="s" (click)="addExpectation()">Add cell</button>
+            </div>
+          </div>
+
+          <ng-template #planCategoryCell let-matrixRow>
+            <div class="criteria-info plan-category-cell" [style.padding-left.rem]="matrixRow.level * 1.25">
+              <span class="criteria-name">{{ matrixRow.label }}</span>
+              <button tuiButton type="button" appearance="destructive" size="xs" (click)="removeExpectationsForRow(matrixRow.path)">
+                Remove row
+              </button>
+            </div>
+          </ng-template>
+
+          <ng-template #planExpectationCell let-matrixRow let-range="range">
+            @if (getPlanExpectation(matrixRow.path, range); as ex) {
+              <div class="plan-cell-edit">
+                <input
+                  class="table-input matrix-amount-input"
+                  type="number"
+                  step="any"
+                  [name]="expectationAmountControlName(matrixRow.path, range.name)"
+                  [(ngModel)]="ex.amount"
+                  required />
+                <input
+                  class="table-input matrix-note-input"
+                  [name]="expectationNoteControlName(matrixRow.path, range.name)"
+                  [(ngModel)]="ex.note"
+                  placeholder="Note" />
+              </div>
+            } @else {
+              <span class="muted-dash">–</span>
+            }
+          </ng-template>
+
+          @if (planMatrixColumns.length > 0 && planMatrixRows.length > 0) {
+            <p class="matrix-hint muted">
+              Hover column headers for exact from/till timestamps. Cells outside the cartesian slice show “–”.
+            </p>
+            <div class="plan-matrix-shell">
+              <app-criteria-range-matrix
+                categoryTitle="Category"
+                [rangeColumns]="planMatrixColumns"
+                [rows]="planMatrixRows"
+                [categoryTemplate]="planCategoryCell"
+                [cellTemplate]="planExpectationCell" />
+            </div>
+          } @else {
+            <div class="empty-expectations muted">
+              <p>Add expectations — use Generate matrix (with cron) or Add cell.</p>
+            </div>
+          }
+        </section>
+
+        <footer class="form-actions">
+          <button tuiButton type="submit" appearance="primary" size="m" [disabled]="isSaving">Save</button>
+        </footer>
+      </form>
+    </div>
+  </tui-loader>
+</section>

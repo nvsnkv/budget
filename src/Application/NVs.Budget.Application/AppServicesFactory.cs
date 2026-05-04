@@ -4,6 +4,7 @@ using NVs.Budget.Application.Contracts.Services;
 using NVs.Budget.Application.Services.Accounting;
 using NVs.Budget.Application.Services.Accounting.Duplicates;
 using NVs.Budget.Application.Services.Accounting.Exchange;
+using NVs.Budget.Application.Services.Accounting.Plans;
 using NVs.Budget.Application.Services.Accounting.Reckon;
 using NVs.Budget.Infrastructure.ExchangeRates.Contracts;
 using NVs.Budget.Infrastructure.Identity.Contracts;
@@ -13,6 +14,7 @@ namespace NVs.Budget.Application;
 
 public sealed class AppServicesFactory(
     IBudgetsRepository budgetsRepository,
+    IBudgetPlansRepository budgetPlansRepository,
     IStreamingOperationRepository streamingOperationRepository,
     ITransfersRepository transfersRepository,
     IExchangeRatesRepository ratesRepository,
@@ -22,6 +24,7 @@ public sealed class AppServicesFactory(
     public DuplicatesDetectorOptions DuplicatesDetectorOptions => DuplicatesDetectorOptions.Default;
 
     public IBudgetManager CreateAccountManager() => new BudgetManager(budgetsRepository, userCache.CachedUser);
+    public IBudgetPlanManager CreateBudgetPlanManager() => new BudgetPlanManager(budgetPlansRepository, budgetsRepository, CreateReckoner(), userCache.CachedUser);
     public IReckoner CreateReckoner() => new Reckoner(streamingOperationRepository, transfersRepository, CreateMoneyConverter(), CreateDuplicatesDetector(), CreateAccountManager());
     public IAccountant CreateAccountant() => new Accountant(streamingOperationRepository, transfersRepository, CreateAccountManager(), CreateDuplicatesDetector());
 

@@ -14,6 +14,11 @@
                 {{budget.name}}
             </a>
         </tui-opt-group>
+        <tui-opt-group *ngIf="(selectedBudget$ | async) as selectedBudget">
+            <a tuiOption [routerLink]="['/budget', selectedBudget.id, 'plans']" role="menuitem">
+                Budget plans
+            </a>
+        </tui-opt-group>
         <tui-opt-group>
             <a tuiOption [routerLink]="['/budget/new']" role="menuitem" data-testid="budget-option-new">
                 Add new budget

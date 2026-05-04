@@ -16,6 +16,8 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
 
     public DbSet<StoredBudget> Budgets { get; init; } = null!;
 
+    public DbSet<StoredBudgetPlan> BudgetPlans { get; init; } = null!;
+
     public DbSet<StoredOperation> Operations { get; init; } = null!;
 
     public DbSet<StoredRate> Rates { get; init; } = null!;
@@ -50,6 +52,7 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
 
         var bBuilder = modelBuilder.Entity<StoredBudget>();
         bBuilder.HasMany(b => b.Operations).WithOne(t => t.Budget);
+        bBuilder.HasMany<StoredBudgetPlan>().WithOne(p => p.Budget).HasForeignKey(p => p.BudgetId);
         bBuilder.HasMany<StoredCsvFileReadingOption>(b => b.CsvReadingOptions).WithOne(o => o.Budget);
         bBuilder.OwnsMany<StoredTaggingCriterion>(b => b.TaggingCriteria).WithOwner(c => c.Budget);
         bBuilder.OwnsMany<StoredTransferCriterion>(b => b.TransferCriteria).WithOwner(c => c.Budget);
@@ -64,6 +67,31 @@ internal class BudgetContext(DbContextOptions<BudgetContext> options) : DbContex
                 value => JsonSerializer.Serialize(value, JsonOptions),
                 value => JsonSerializer.Deserialize<List<StoredLogbookCriteria>>(value, JsonOptions) ?? new List<StoredLogbookCriteria>())
             .Metadata.SetValueComparer(logbookCriteriaComparer);
+
+        var planCriteriaComparer = new ValueComparer<StoredLogbookCriteria>(
+            (left, right) => JsonSerializer.Serialize(left ?? StoredLogbookCriteria.Universal, JsonOptions) == JsonSerializer.Serialize(right ?? StoredLogbookCriteria.Universal, JsonOptions),
+            value => JsonSerializer.Serialize(value ?? StoredLogbookCriteria.Universal, JsonOptions).GetHashCode(),
+            value => JsonSerializer.Deserialize<StoredLogbookCriteria>(JsonSerializer.Serialize(value ?? StoredLogbookCriteria.Universal, JsonOptions), JsonOptions) ?? StoredLogbookCriteria.Universal
+        );
+        var planExpectationsComparer = new ValueComparer<IList<StoredPlanExpectation>>(
+            (left, right) => JsonSerializer.Serialize(left ?? new List<StoredPlanExpectation>(), JsonOptions) == JsonSerializer.Serialize(right ?? new List<StoredPlanExpectation>(), JsonOptions),
+            value => JsonSerializer.Serialize(value ?? new List<StoredPlanExpectation>(), JsonOptions).GetHashCode(),
+            value => JsonSerializer.Deserialize<List<StoredPlanExpectation>>(JsonSerializer.Serialize(value ?? new List<StoredPlanExpectation>(), JsonOptions), JsonOptions) ?? new List<StoredPlanExpectation>()
+        );
+
+        var pBuilder = modelBuilder.Entity<StoredBudgetPlan>();
+        pBuilder.Property(p => p.LogbookCriteria)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                value => JsonSerializer.Serialize(value, JsonOptions),
+                value => JsonSerializer.Deserialize<StoredLogbookCriteria>(value, JsonOptions) ?? StoredLogbookCriteria.Universal)
+            .Metadata.SetValueComparer(planCriteriaComparer);
+        pBuilder.Property(p => p.Expectations)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                value => JsonSerializer.Serialize(value, JsonOptions),
+                value => JsonSerializer.Deserialize<List<StoredPlanExpectation>>(value, JsonOptions) ?? new List<StoredPlanExpectation>())
+            .Metadata.SetValueComparer(planExpectationsComparer);
 
         var tBuilder = modelBuilder.Entity<StoredTransfer>();
         tBuilder.OwnsOne(t => t.Fee);

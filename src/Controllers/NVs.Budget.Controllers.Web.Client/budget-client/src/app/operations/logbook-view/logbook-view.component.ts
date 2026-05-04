@@ -18,6 +18,11 @@ import { CriteriaExample } from '../shared/models/example.interface';
 import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse } from '../../budget/models';
 import { LogbookStateService } from './logbook-state.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
+import { CriteriaRangeMatrixComponent } from '../../shared/criteria-range-matrix/criteria-range-matrix.component';
+import {
+  CriteriaMatrixCategoryRow,
+  CriteriaMatrixRangeColumn
+} from '../../shared/criteria-range-matrix/criteria-range-matrix.models';
 
 interface CriteriaRow {
   description: string;
@@ -27,8 +32,8 @@ interface CriteriaRow {
   hasChildren: boolean;
   children: CriteriaRow[];
 }
-import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
+import { browserIanaTimeZoneId } from '../../shared/browser-timezone';
 
 @Component({
   selector: 'app-logbook-view',
@@ -47,8 +52,8 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     TuiDataListWrapper,
     TuiSelect,
     CriteriaFilterComponent,
-    DateFormatPipe,
-    CurrencyFormatPipe
+    CurrencyFormatPipe,
+    CriteriaRangeMatrixComponent
   ],
   templateUrl: './logbook-view.component.html',
   styleUrls: ['./logbook-view.component.less']
@@ -101,7 +106,21 @@ export class LogbookViewComponent implements OnInit {
   private readonly relativeNumberFormat = new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
-  }); 
+  });
+
+  get logbookMatrixColumns(): CriteriaMatrixRangeColumn[] {
+    return this.ranges.map(r => ({ name: r.name, from: r.from, till: r.till }));
+  }
+
+  get logbookMatrixRows(): CriteriaMatrixCategoryRow<CriteriaRow>[] {
+    return this.criteriaRows.map(row => ({
+      path: row.path,
+      label: row.description,
+      level: row.level,
+      hasChildren: row.hasChildren,
+      payload: row
+    }));
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -209,7 +228,8 @@ export class LogbookViewComponent implements OnInit {
       this.currentCriteria || undefined,
       this.selectedLogbookCriteria || undefined,
       this.cronExpression || undefined,
-      this.outputCurrency || undefined
+      this.outputCurrency || undefined,
+      browserIanaTimeZoneId()
     ).subscribe({
       next: (result) => {
         this.isLoading = false;
@@ -318,20 +338,6 @@ export class LogbookViewComponent implements OnInit {
 
   isRowExpanded(path: string): boolean {
     return this.expandedRows.has(path);
-  }
-
-  isRowVisible(row: CriteriaRow): boolean {
-    if (row.level === 0) return true;
-    
-    // Check if all parent rows are expanded
-    const pathParts = row.path.split('/');
-    for (let i = 1; i < pathParts.length; i++) {
-      const parentPath = pathParts.slice(0, i).join('/');
-      if (!this.expandedRows.has(parentPath)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   get isAllExpanded(): boolean {

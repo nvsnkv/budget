@@ -1,0 +1,43 @@
+<div class="matrix-table-container">
+  <table class="matrix-table">
+    <thead>
+      <tr>
+        <th class="criteria-column">{{ categoryTitle }}</th>
+        @for (range of rangeColumns; track range.name) {
+          <th
+            class="range-column"
+            [title]="range.from && range.till ? (range.from + ' — ' + range.till) : range.headerLabel ?? range.name">
+            @if (rangeHeaderTemplate) {
+              <ng-container *ngTemplateOutlet="rangeHeaderTemplate; context: { $implicit: range }" />
+            } @else {
+              <div class="range-header">
+                <span>{{ range.headerLabel ?? range.name }}</span>
+              </div>
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; track row.path) {
+        <tr class="criteria-row" [class.has-children]="row.hasChildren" [attr.data-level]="row.level">
+          <td class="criteria-cell">
+            @if (categoryTemplate) {
+              <ng-container *ngTemplateOutlet="categoryTemplate; context: { $implicit: row }" />
+            } @else {
+              <div class="criteria-info" [style.padding-left.rem]="row.level * 1.25">
+                <span class="criteria-name">{{ row.label }}</span>
+              </div>
+            }
+          </td>
+          @for (range of rangeColumns; track range.name) {
+            <td class="data-cell">
+              <ng-container
+                *ngTemplateOutlet="cellTemplate; context: { $implicit: row, rangeName: range.name, range: range }" />
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

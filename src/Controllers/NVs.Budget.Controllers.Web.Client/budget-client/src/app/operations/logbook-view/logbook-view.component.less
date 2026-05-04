@@ -311,6 +311,20 @@
   }
 }
 
+.logbook-matrix-data-cell {
+  width: 100%;
+  box-sizing: border-box;
+
+  &.clickable {
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      background: var(--tui-background-neutral-2);
+    }
+  }
+}
+
 .logbook-errors {
   margin-top: 2rem;
   padding: 1.5rem;

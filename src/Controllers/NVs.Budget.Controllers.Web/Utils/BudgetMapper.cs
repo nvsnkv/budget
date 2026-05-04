@@ -41,7 +41,7 @@ public class BudgetMapper(ReadableExpressionsParser parser)
         };
     }
 
-    private LogbookCriteriaResponse ToResponse(LogbookCriteria criteria)
+    public LogbookCriteriaResponse ToResponse(LogbookCriteria criteria)
     {
         static string? NullIfWhiteSpace(string? value) =>
             string.IsNullOrWhiteSpace(value) ? null : value;

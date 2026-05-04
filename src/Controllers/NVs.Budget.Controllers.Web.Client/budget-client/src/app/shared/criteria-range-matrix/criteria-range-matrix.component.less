@@ -1,0 +1,109 @@
+@import '../../operations/shared/styles/mixins.less';
+
+.matrix-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: 0.5rem;
+  background: var(--tui-background-base);
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead {
+    background: var(--tui-background-accent-1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 700;
+      color: var(--tui-text-primary);
+      border-bottom: 2px solid var(--tui-primary);
+      border-right: 1px solid var(--tui-border-normal);
+      white-space: nowrap;
+
+      &:last-child {
+        border-right: none;
+      }
+
+      &.criteria-column {
+        min-width: 250px;
+        position: sticky;
+        left: 0;
+        background: var(--tui-background-accent-1);
+        z-index: 11;
+      }
+
+      &.range-column {
+        min-width: 90px;
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    tr.criteria-row {
+      border-bottom: 1px solid var(--tui-border-normal);
+      transition: background-color 0.15s;
+
+      &:hover {
+        background: var(--tui-background-neutral-1);
+      }
+
+      &[data-level='0'] {
+        background: var(--tui-background-neutral-1);
+        font-weight: 600;
+      }
+
+      &[data-level='1'] {
+        background: var(--tui-background-base);
+      }
+
+      td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        border-right: 1px solid var(--tui-border-normal);
+
+        &:last-child {
+          border-right: none;
+        }
+      }
+    }
+  }
+}
+
+.criteria-cell {
+  position: sticky;
+  left: 0;
+  background: inherit;
+  z-index: 5;
+  min-width: 250px;
+}
+
+.criteria-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.criteria-name {
+  font-size: 1rem;
+}
+
+.range-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.data-cell {
+  min-width: 120px;
+  text-align: right;
+  vertical-align: middle;
+}

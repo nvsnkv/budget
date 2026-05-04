@@ -55,6 +55,64 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.ToTable("Budgets", "budget");
                 });
 
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudgetPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BudgetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CronExpression")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Expectations")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<decimal>("ExpectedAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("From")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LogbookCriteria")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Till")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BudgetId");
+
+                    b.ToTable("BudgetPlans", "budget");
+                });
+
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>
                 {
                     b.Property<Guid>("Id")
@@ -327,6 +385,17 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Migrations
                     b.Navigation("TaggingCriteria");
 
                     b.Navigation("TransferCriteria");
+                });
+
+            modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudgetPlan", b =>
+                {
+                    b.HasOne("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredBudget", "Budget")
+                        .WithMany()
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Budget");
                 });
 
             modelBuilder.Entity("NVs.Budget.Infrastructure.Persistence.EF.Entities.StoredCsvFileReadingOption", b =>

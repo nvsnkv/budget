@@ -2,9 +2,12 @@ using AutoMapper;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Entities.Planning;
 using NVs.Budget.Domain.Entities.Budgets;
 using NVs.Budget.Domain.Entities.Operations;
+using NVs.Budget.Domain.Entities.Plans;
 using NVs.Budget.Domain.ValueObjects;
+using NVs.Budget.Domain.ValueObjects.Criteria;
 using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -18,6 +21,7 @@ internal class MappingProfile : Profile
         { typeof(Owner), typeof(StoredOwner) },
         { typeof(TrackedOwner), typeof(StoredOwner) },
         { typeof(TrackedBudget), typeof(StoredBudget) },
+        { typeof(TrackedBudgetPlan), typeof(StoredBudgetPlan) },
         { typeof(TrackedOperation), typeof(StoredOperation) },
         { typeof(ExchangeRate), typeof(StoredRate) },
         { typeof(TrackedTransfer), typeof(StoredTransfer) }
@@ -59,9 +63,52 @@ internal class MappingProfile : Profile
         CreateMap<TaggingCriterion, StoredTaggingCriterion>().ReverseMap();
         CreateMap<TransferCriterion, StoredTransferCriterion>().ReverseMap();
         CreateMap<LogbookCriteria, StoredLogbookCriteria>().ReverseMap();
+        CreateMap<PlanExpectation, StoredPlanExpectation>()
+            .ForMember(d => d.ExpectedAmount, opt => opt.MapFrom(s => s.ExpectedAmount.Amount))
+            .ForMember(d => d.CurrencyCode, opt => opt.MapFrom(s => s.ExpectedAmount.CurrencyCode))
+            .ForMember(d => d.From, opt => opt.MapFrom(s => ToUtc(s.From)))
+            .ForMember(d => d.Till, opt => opt.MapFrom(s => ToUtc(s.Till)))
+            .ForMember(d => d.SubcriterionPath, opt => opt.MapFrom(s => s.SubcriterionPath))
+            .ForMember(d => d.SubcriterionName, opt => opt.MapFrom(s => s.SubcriterionPath));
+        CreateMap<StoredPlanExpectation, PlanExpectation>()
+            .ConstructUsing(s => new PlanExpectation(
+                s.Id,
+                new Money(s.ExpectedAmount, Currency.Get(s.CurrencyCode)),
+                ToUtc(s.From),
+                ToUtc(s.Till),
+                s.ResolvedCriterionPath,
+                s.Note));
 
         CreateMap<TrackedOwner, StoredOwner>().ReverseMap();
         CreateMap<TrackedBudget, StoredBudget>().ReverseMap();
+        CreateMap<TrackedBudgetPlan, StoredBudgetPlan>()
+            .ForMember(d => d.CurrencyCode, opt => opt.MapFrom(s => s.Currency.IsoCode))
+            .ForMember(d => d.ExpectedAmount, opt => opt.MapFrom(s => s.ExpectedAmount.Amount))
+            .ForMember(d => d.From, opt => opt.MapFrom(s => ToUtc(s.From)))
+            .ForMember(d => d.Till, opt => opt.MapFrom(s => ToUtc(s.Till)))
+            .ForMember(d => d.LogbookCriteria, opt => opt.MapFrom(s => s.LogbookCriteria ?? new LogbookCriteria(s.Criterion.Description, null, null, null, null, null, s.Criterion is UniversalCriterion, null)))
+            .ForMember(d => d.Budget, opt => opt.Ignore());
+        CreateMap<StoredBudgetPlan, TrackedBudgetPlan>()
+            .ConvertUsing((s, _, context) =>
+            {
+                var logbookCriteria = context.Mapper.Map<LogbookCriteria>(s.LogbookCriteria);
+                return new TrackedBudgetPlan(
+                    s.Id,
+                    s.BudgetId,
+                    s.Name,
+                    ToUtc(s.From),
+                    ToUtc(s.Till),
+                    s.CronExpression,
+                    logbookCriteria.GetCriterion(),
+                    Currency.Get(s.CurrencyCode),
+                    context.Mapper.Map<List<PlanExpectation>>(s.Expectations),
+                    new Money(s.ExpectedAmount, Currency.Get(s.CurrencyCode)),
+                    s.Note,
+                    logbookCriteria)
+                {
+                    Version = s.Version
+                };
+            });
         CreateMap<TrackedOperation, StoredOperation>()
             .ForCtorParam(
                 nameof(StoredOperation.Timestamp).ToLower(),
@@ -81,5 +128,15 @@ internal class MappingProfile : Profile
             .ForMember(t => t.CompletedAt, opt => opt.MapFrom(s => s.CompletedAt.ToLocalTime()));
         
         CreateMap<ExchangeRate, StoredRate>().ReverseMap();
+    }
+
+    private static DateTime ToUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
     }
 }
