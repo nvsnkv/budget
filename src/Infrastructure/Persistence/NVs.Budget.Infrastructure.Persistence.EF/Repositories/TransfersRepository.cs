@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -13,13 +12,13 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITransfersRepository
+internal class TransfersRepository(PersistenceMapper mapper, BudgetContext context) : ITransfersRepository
 {
     private readonly ExpressionSplitter _splitter = new();
 
     public IAsyncEnumerable<TrackedTransfer> Get(Expression<Func<TrackedTransfer, bool>> filter, CancellationToken ct)
     {
-        var expression = filter.ConvertTypes<TrackedTransfer, StoredTransfer>(MappingProfile.TypeMappings);
+        var expression = filter.ConvertTypes<TrackedTransfer, StoredTransfer>(PersistenceMapper.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
@@ -32,7 +31,7 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
             .AsSplitQuery()
             .AsAsyncEnumerable()
             .Where(enumerable)
-            .Select(mapper.Map<TrackedTransfer>);
+            .Select(mapper.ToTrackedTransfer);
     }
 
     public async Task<IEnumerable<Result>> Register(IReadOnlyCollection<TrackedTransfer> transfers, CancellationToken ct)
@@ -69,7 +68,7 @@ internal class TransfersRepository(IMapper mapper, BudgetContext context) : ITra
 
             context.Transfers.Add(new StoredTransfer(transfer.Comment)
             {
-                Fee = mapper.Map<StoredMoney>(transfer.Fee),
+                Fee = mapper.ToStored(transfer.Fee),
                 Source = source,
                 Sink = sink
             });

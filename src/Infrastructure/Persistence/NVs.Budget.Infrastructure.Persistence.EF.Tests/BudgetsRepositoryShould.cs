@@ -17,7 +17,7 @@ namespace NVs.Budget.Infrastructure.Persistence.EF.Tests;
 [Collection(nameof(DatabaseCollectionFixture))]
 public class BudgetsRepositoryShould(DbContextManager manager): IClassFixture<DbContextManager>
 {
-    private readonly BudgetsRepository _repo = new(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
+    private readonly BudgetsRepository _repo = new(manager.PersistenceMapper, manager.GetDbBudgetContext(), new VersionGenerator());
 
     [Fact]
     public async Task RegisterAnBudget()

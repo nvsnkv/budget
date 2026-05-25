@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Application.Contracts.Entities;
@@ -9,19 +8,22 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal abstract class RepositoryBase<TItem, TKey, TRecord>(IMapper mapper, VersionGenerator generator)
+internal abstract class RepositoryBase<TItem, TKey, TRecord>(PersistenceMapper mapper, VersionGenerator generator)
     where TRecord : DbRecord, ITrackableEntity<TKey>
     where TItem : ITrackableEntity<TKey>
     where TKey : struct
 {
-    protected readonly IMapper Mapper = mapper;
+    protected readonly PersistenceMapper Mapper = mapper;
+
+    protected abstract TItem ToItem(TRecord record);
+
     public virtual async Task<IReadOnlyCollection<TItem>> Get(Expression<Func<TItem, bool>> filter, CancellationToken ct)
     {
-        var expression = filter.ConvertTypes<TItem, TRecord>(MappingProfile.TypeMappings);
+        var expression = filter.ConvertTypes<TItem, TRecord>(PersistenceMapper.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var items = await GetData(expression).AsNoTracking().ToListAsync(ct);
-        return Mapper.Map<List<TItem>>(items).AsReadOnly();
+        return items.Select(ToItem).ToList().AsReadOnly();
     }
 
     public async Task<Result<TItem>> Update(TItem item, CancellationToken ct)
@@ -33,7 +35,7 @@ internal abstract class RepositoryBase<TItem, TKey, TRecord>(IMapper mapper, Ver
         BumpVersion(target);
         var updated = await Update(target, item, ct);
         return updated.IsSuccess
-            ? Result.Ok(Mapper.Map<TItem>(updated.Value))
+            ? Result.Ok(ToItem(updated.Value))
             : Result.Fail(updated.Errors);
     }
 

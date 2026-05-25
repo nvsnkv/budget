@@ -24,7 +24,7 @@ public class TypeReplacerShould
     public void ReplaceBudgetSuccessfully()
     {
         Expression<Func<TrackedBudget, bool>> selectById = a => a.Id != Guid.Empty;
-        var converted = selectById.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
+        var converted = selectById.ConvertTypes<TrackedBudget, StoredBudget>(PersistenceMapper.TypeMappings);
         converted.Should().NotBeNull();
 
         var budget = _fixture.Build<StoredBudget>()
@@ -46,7 +46,7 @@ public class TypeReplacerShould
         var reference = _fixture.Create<TrackedBudget>();
         Expression<Func<TrackedBudget, bool>> expression = a => a.Name == reference.Name;
 
-        var converted = expression.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
+        var converted = expression.ConvertTypes<TrackedBudget, StoredBudget>(PersistenceMapper.TypeMappings);
         converted.Should().NotBeNull();
 
         var predicate = converted.Compile();
@@ -59,7 +59,7 @@ public class TypeReplacerShould
     {
         var owner = _fixture.Create<Owner>();
         Expression<Func<TrackedBudget, bool>> forOwner = a => a.Owners.Any(o => o.Id == owner.Id);
-        var action = () => forOwner.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
+        var action = () => forOwner.ConvertTypes<TrackedBudget, StoredBudget>(PersistenceMapper.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -68,7 +68,7 @@ public class TypeReplacerShould
     {
         var owners = _fixture.Create<Generator<Owner>>().Take(3).Select(t=> t.Id).ToList();
         Expression<Func<TrackedBudget, bool>> forOwners = a => a.Owners.Any(o => owners.Contains(o.Id));
-        var action = () => forOwners.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
+        var action = () => forOwners.ConvertTypes<TrackedBudget, StoredBudget>(PersistenceMapper.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -78,7 +78,7 @@ public class TypeReplacerShould
         var id = _fixture.Create<Guid>();
 
         Expression<Func<TrackedOperation, bool>> availableBudgets = o => o.Budget.Id == id;
-        var action = () => availableBudgets.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
+        var action = () => availableBudgets.ConvertTypes<TrackedOperation, StoredOperation>(PersistenceMapper.TypeMappings);
         action.Should().NotThrow();
     }
 
@@ -89,7 +89,7 @@ public class TypeReplacerShould
         var newBudget = _fixture.Create<UnregisteredBudget>();
         Expression<Func<TrackedBudget, bool>> expression = a => a.Owners.Any(o => o.Id == owner.Id) && a.Name == newBudget.Name;
 
-        var action = () => expression.ConvertTypes<TrackedBudget, StoredBudget>(MappingProfile.TypeMappings);
+        var action = () => expression.ConvertTypes<TrackedBudget, StoredBudget>(PersistenceMapper.TypeMappings);
         action.Should().NotThrow();
     }
 }

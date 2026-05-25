@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Application.Contracts.Entities;
@@ -13,8 +12,10 @@ using NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class OwnersRepository(IMapper mapper, BudgetContext context, VersionGenerator generator) : RepositoryBase<TrackedOwner, Guid, StoredOwner>(mapper, generator), IOwnersRepository
+internal class OwnersRepository(PersistenceMapper mapper, BudgetContext context, VersionGenerator generator) : RepositoryBase<TrackedOwner, Guid, StoredOwner>(mapper, generator), IOwnersRepository
 {
+    protected override TrackedOwner ToItem(StoredOwner record) => Mapper.ToTrackedOwner(record);
+
     protected override IQueryable<StoredOwner> GetData(Expression<Func<StoredOwner, bool>> expression) => context.Owners.Where(expression);
 
     protected override Task<StoredOwner?> GetTarget(TrackedOwner item, CancellationToken ct) => context.Owners.FirstOrDefaultAsync(o => o.Id == item.Id, ct);
@@ -48,12 +49,12 @@ internal class OwnersRepository(IMapper mapper, BudgetContext context, VersionGe
         await context.Owners.AddAsync(storedOwner, ct);
         await context.SaveChangesAsync(ct);
 
-        return Mapper.Map<TrackedOwner>(storedOwner);
+        return Mapper.ToTrackedOwner(storedOwner);
     }
 
     public async Task<TrackedOwner?> Get(IUser user, CancellationToken ct)
     {
         var owner = await context.Owners.FirstOrDefaultAsync(o => o.UserId == user.Id, ct);
-        return Mapper.Map<TrackedOwner?>(owner);
+        return owner is null ? null : Mapper.ToTrackedOwner(owner);
     }
 }

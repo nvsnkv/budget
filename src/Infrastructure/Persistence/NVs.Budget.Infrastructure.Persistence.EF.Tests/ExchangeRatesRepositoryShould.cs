@@ -20,7 +20,7 @@ public class ExchangeRatesRepositoryShould: IClassFixture<DbContextManager>, IAs
     public ExchangeRatesRepositoryShould(DbContextManager manager)
     {
         _manager = manager;
-        _repo = new(manager.GetDbBudgetContext(), _manager.Mapper);
+        _repo = new(manager.GetDbBudgetContext(), _manager.PersistenceMapper);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class ExchangeRatesRepositoryShould: IClassFixture<DbContextManager>, IAs
 
         _owner = _manager.TestData.Fixture.Create<Owner>();
         await using var context = _manager.GetDbBudgetContext();
-        await context.Owners.AddAsync(_manager.Mapper.Map<StoredOwner>(_owner));
+        await context.Owners.AddAsync(_manager.PersistenceMapper.ToStored(_owner));
         await context.SaveChangesAsync();
     }
 

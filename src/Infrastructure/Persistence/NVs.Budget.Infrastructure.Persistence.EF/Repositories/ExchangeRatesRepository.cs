@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using NMoneys;
 using NVs.Budget.Domain.Entities.Budgets;
@@ -10,7 +9,7 @@ using NVs.Budget.Infrastructure.Persistence.EF.Entities;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class ExchangeRatesRepository(BudgetContext context, IMapper mapper) : IExchangeRatesRepository
+internal class ExchangeRatesRepository(BudgetContext context, PersistenceMapper mapper) : IExchangeRatesRepository
 {
     public async Task<ExchangeRate?> GetRate(Owner owner, DateTime asOf, Currency from, Currency to, CancellationToken ct)
     {
@@ -20,7 +19,7 @@ internal class ExchangeRatesRepository(BudgetContext context, IMapper mapper) : 
                                                            && r.AsOf >= r.AsOf.Date && r.AsOf <= asOf;
 
         var rate = await context.Rates.Where(criteria).OrderByDescending(r => r.AsOf).FirstOrDefaultAsync(ct);
-        return mapper.Map<ExchangeRate?>(rate);
+        return mapper.ToExchangeRate(rate);
     }
 
     public async Task Add(ExchangeRate rate, Owner owner, CancellationToken ct)

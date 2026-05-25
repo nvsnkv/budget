@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.EquivalencyExpression;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Infrastructure.Persistence.EF.Common;
 using NVs.Budget.Infrastructure.Persistence.EF.Context;
 using NVs.Budget.Infrastructure.Persistence.EF.Entities;
@@ -18,11 +16,7 @@ public class DbContextManager : IAsyncLifetime
     private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
 
     public readonly TestDataFixture TestData = new();
-    public readonly IMapper Mapper = new Mapper(new MapperConfiguration(c =>
-    {
-        c.AddProfile(new MappingProfile(ReadableExpressionsParser.Default));
-        c.AddCollectionMappers();
-    }));
+    internal readonly PersistenceMapper PersistenceMapper = new(ReadableExpressionsParser.Default);
 
     public async Task InitializeAsync()
     {
@@ -30,8 +24,8 @@ public class DbContextManager : IAsyncLifetime
         var context = GetDbBudgetContext();
         await new PostgreSqlDbMigrator<BudgetContext>(context).MigrateAsync(CancellationToken.None);
 
-        var owners = Mapper.Map<IEnumerable<StoredOwner>>(TestData.Owners).ToList().ToDictionary(o => o.Id);
-        var budgets = Mapper.Map<IEnumerable<StoredBudget>>(TestData.Budgets).ToList();
+        var owners = TestData.Owners.Select(PersistenceMapper.ToStored).ToList().ToDictionary(o => o.Id);
+        var budgets = TestData.Budgets.Select(PersistenceMapper.ToStored).ToList();
 
         foreach (var budget in budgets)
         {

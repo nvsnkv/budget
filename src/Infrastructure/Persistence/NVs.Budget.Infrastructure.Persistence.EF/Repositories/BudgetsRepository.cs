@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -11,10 +10,12 @@ using NVs.Budget.Infrastructure.Persistence.EF.Repositories.Results;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionGenerator versionGenerator):
+internal class BudgetsRepository(PersistenceMapper mapper, BudgetContext context, VersionGenerator versionGenerator):
     RepositoryBase<TrackedBudget, Guid, StoredBudget>(mapper, versionGenerator), IBudgetsRepository
 {
     private readonly DbSet<StoredOwner> _owners = context.Owners;
+
+    protected override TrackedBudget ToItem(StoredBudget record) => Mapper.ToTrackedBudget(record);
 
     public async Task<Result<TrackedBudget>> Register(UnregisteredBudget newBudget, Owner owner, CancellationToken ct)
     {
@@ -34,7 +35,7 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
         var entry = await context.Budgets.AddAsync(budget, ct);
         await context.SaveChangesAsync(ct);
 
-        return Mapper.Map<TrackedBudget>(entry.Entity);
+        return Mapper.ToTrackedBudget(entry.Entity);
     }
 
     protected override IQueryable<StoredBudget> GetData(Expression<Func<StoredBudget, bool>> expression)
@@ -79,21 +80,21 @@ internal class BudgetsRepository(IMapper mapper, BudgetContext context, VersionG
         }
 
         target.TaggingCriteria.Clear();
-        foreach (var criterion in updated.TaggingCriteria.Select(Mapper.Map<StoredTaggingCriterion>))
+        foreach (var criterion in updated.TaggingCriteria.Select(Mapper.ToStored))
         {
             criterion.Budget = target;
             target.TaggingCriteria.Add(criterion);
         }
 
         target.TransferCriteria.Clear();
-        foreach (var criterion in updated.TransferCriteria.Select(Mapper.Map<StoredTransferCriterion>))
+        foreach (var criterion in updated.TransferCriteria.Select(Mapper.ToStored))
         {
             criterion.Budget = target;
             target.TransferCriteria.Add(criterion);
         }
 
         target.LogbookCriteria.Clear();
-        foreach (var criterion in updated.LogbookCriteria.Select(Mapper.Map<StoredLogbookCriteria>))
+        foreach (var criterion in updated.LogbookCriteria.Select(Mapper.ToStored))
         {
             target.LogbookCriteria.Add(criterion);
         }

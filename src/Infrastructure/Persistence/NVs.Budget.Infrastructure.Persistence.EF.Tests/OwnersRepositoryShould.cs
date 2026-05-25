@@ -17,7 +17,7 @@ public class OwnersRepositoryShould : IClassFixture<DbContextManager>
     public OwnersRepositoryShould(DbContextManager manager)
     {
         _fixture = manager.TestData.Fixture;
-        _repo = new OwnersRepository(manager.Mapper, manager.GetDbBudgetContext(), new VersionGenerator());
+        _repo = new OwnersRepository(manager.PersistenceMapper, manager.GetDbBudgetContext(), new VersionGenerator());
     }
 
     [Fact]

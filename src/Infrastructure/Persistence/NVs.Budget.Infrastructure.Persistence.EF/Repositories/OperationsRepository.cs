@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using AutoMapper;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using NMoneys;
@@ -16,14 +15,14 @@ using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Infrastructure.Persistence.EF.Repositories;
 
-internal class OperationsRepository(IMapper mapper, BudgetContext context, VersionGenerator generator, BudgetsFinder finder) : IStreamingOperationRepository
+internal class OperationsRepository(PersistenceMapper mapper, BudgetContext context, VersionGenerator generator, BudgetsFinder finder) : IStreamingOperationRepository
 {
     private static readonly int BatchSize = 2000;
     private readonly ExpressionSplitter _splitter = new();
 
     public IAsyncEnumerable<TrackedOperation> Get(Expression<Func<TrackedOperation, bool>> filter, CancellationToken ct)
     {
-        var expression = filter.ConvertTypes<TrackedOperation, StoredOperation>(MappingProfile.TypeMappings);
+        var expression = filter.ConvertTypes<TrackedOperation, StoredOperation>(PersistenceMapper.TypeMappings);
         expression = expression.CombineWith(a => !a.Deleted);
 
         var (queryable, enumerable) = _splitter.Split(expression);
@@ -39,7 +38,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
         return query.ToAsyncEnumerable().Where(enumerable).Select(o =>
         {
-            var operation = mapper.Map<TrackedOperation>(o);
+            var operation = mapper.ToTrackedOperation(o);
             if (o.SourceTransfer != null)
             {
                 operation.TagSource();
@@ -66,14 +65,14 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
             var storedOperation = new StoredOperation(Guid.Empty, u.Timestamp.ToUniversalTime(), u.Description, string.Empty)
             {
                 Budget = storedBudget,
-                Amount = mapper.Map<StoredMoney>(u.Amount),
+                Amount = mapper.ToStored(u.Amount),
                 Attributes = new Dictionary<string, object>(u.Attributes ?? Enumerable.Empty<KeyValuePair<string, object>>())
             };
 
             BumpVersion(storedOperation);
             await context.Operations.AddAsync(storedOperation, ct);
 
-            return Result.Ok(mapper.Map<TrackedOperation>(storedOperation));
+            return Result.Ok(mapper.ToTrackedOperation(storedOperation));
         }, ct);
 
     public async IAsyncEnumerable<Result<TrackedOperation>> Update(IAsyncEnumerable<TrackedOperation> operations, [EnumeratorCancellation] CancellationToken ct)
@@ -141,9 +140,9 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 hasChanges = true;
             }
 
-            if (mapper.Map<Money>(target.Amount) != u.Amount)
+            if (mapper.ToMoney(target.Amount) != u.Amount)
             {
-                target.Amount = mapper.Map<StoredMoney>(u.Amount);
+                target.Amount = mapper.ToStored(u.Amount);
                 hasChanges = true;
             }
 
@@ -174,7 +173,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
                 target.Version = generator.Next();
             }
 
-            results.Add(mapper.Map<TrackedOperation>(target));
+            results.Add(mapper.ToTrackedOperation(target));
         }
 
         await context.SaveChangesAsync(ct);
@@ -265,7 +264,7 @@ internal class OperationsRepository(IMapper mapper, BudgetContext context, Versi
 
     private bool UpdateTags(IList<StoredTag> targetTags, IReadOnlyCollection<Tag> updatedTags)
     {
-        var updated = updatedTags.Select(t => mapper.Map<StoredTag>(t)).ToList();
+        var updated = updatedTags.Select(mapper.ToStored).ToList();
         var toRemove = targetTags.Except(updated).ToList();
         var toAdd = updated.Except(targetTags).ToList();
 
