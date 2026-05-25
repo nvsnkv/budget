@@ -11,6 +11,7 @@ import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { LogbookResponse, OperationResponse } from '../../budget/models';
+import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../shared/date-api.utils';
 
 @Component({
   selector: 'app-logbook-group',
@@ -69,8 +70,8 @@ export class LogbookGroupComponent implements OnInit {
   loadOperations(): void {
     this.isLoading = true;
     
-    const from = this.fromDate ? this.parseDateInput(this.fromDate) : undefined;
-    const till = this.tillDate ? this.parseDateInput(this.tillDate) : undefined;
+    const from = this.fromDate ? calendarDateToUtcStart(this.fromDate) : undefined;
+    const till = this.tillDate ? calendarDateToUtcExclusiveEnd(this.tillDate) : undefined;
 
     this.operationsApi.getLogbook(
       this.budgetId,
@@ -135,14 +136,6 @@ export class LogbookGroupComponent implements OnInit {
         outputCurrency: this.outputCurrency
       }
     });
-  }
-
-  private parseDateInput(value: string): Date {
-    const [year, month, day] = value.split('-').map(Number);
-    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
-      return new Date(value);
-    }
-    return new Date(year, month - 1, day);
   }
 
   onDeleteOperations(operations: OperationResponse[]): void {

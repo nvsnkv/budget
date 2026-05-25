@@ -1,5 +1,6 @@
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
+using NVs.Budget.Utilities.Utc;
 using NVs.Budget.Domain.Aggregates;
 
 namespace NVs.Budget.Controllers.Web.Utils;
@@ -25,8 +26,8 @@ public class LogbookMapper(OperationMapper operationMapper)
         return new LogbookEntryResponse(
             logbook.Criterion.Description,
             new MoneyResponse(sum.Amount, currency.IsoCode.ToString()),
-            logbook.From,
-            logbook.Till,
+            logbook.From.AsUtcFromApi(),
+            logbook.Till.AsUtcFromApi(),
             logbook.Operations.Count(),
             operations,
             children

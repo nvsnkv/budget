@@ -11,6 +11,7 @@ using NVs.Budget.Application.Contracts.UseCases.Transfers;
 using NVs.Budget.Controllers.Web.Exceptions;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
+using NVs.Budget.Utilities.Utc;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
 
@@ -53,8 +54,8 @@ public class TransfersController(
         }
 
         // Set default dates if not provided
-        var fromDate = from ?? DateTime.UtcNow.AddMonths(-1);
-        var tillDate = till ?? DateTime.UtcNow;
+        var fromDate = from.HasValue ? from.Value.AsUtcFromApi() : DateTime.UtcNow.AddMonths(-1);
+        var tillDate = till.HasValue ? till.Value.AsUtcFromApi() : DateTime.UtcNow;
 
         // Parse accuracy if provided
         DetectionAccuracy? detectionAccuracy = null;

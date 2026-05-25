@@ -9,6 +9,7 @@ using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Infrastructure.Files.CSV.Errors;
+using NVs.Budget.Utilities.Utc;
 
 namespace NVs.Budget.Infrastructure.Files.CSV;
 
@@ -17,8 +18,9 @@ internal partial class CsvFileReader : ICsvFileReader
     private static readonly Regex CellsIndexPattern = GenerateCellIndexPattern();
 
     public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUntrackedOperations(
-        StreamReader reader, 
-        FileReadingSetting config, 
+        StreamReader reader,
+        FileReadingSetting config,
+        string clientTimeZoneId,
         [EnumeratorCancellation] CancellationToken ct)
     {
         var csvConfig = new CsvConfiguration(config.Culture)
@@ -56,7 +58,7 @@ internal partial class CsvFileReader : ICsvFileReader
             }
 
             // Parse row
-            var operationResult = ParseRow(parser, config, rowNumber);
+            var operationResult = ParseRow(parser, config, clientTimeZoneId, rowNumber);
             yield return operationResult;
         }
     }
@@ -97,11 +99,15 @@ internal partial class CsvFileReader : ICsvFileReader
         return true;
     }
 
-    private Result<UnregisteredOperation> ParseRow(IParser parser, FileReadingSetting config, int rowNumber)
+    private Result<UnregisteredOperation> ParseRow(IParser parser, FileReadingSetting config, string clientTimeZoneId, int rowNumber)
     {
         // Parse timestamp
-        var timestampResult = ParseField(parser, config.Fields, nameof(UnregisteredOperation.Timestamp), 
-            s => DateTime.SpecifyKind(DateTime.Parse(s, config.Culture), config.DateTimeKind));
+        var timestampResult = ParseField(parser, config.Fields, nameof(UnregisteredOperation.Timestamp),
+            s =>
+            {
+                var parsed = DateTime.SpecifyKind(DateTime.Parse(s, config.Culture), config.DateTimeKind);
+                return parsed.AsUtcFromImport(config.DateTimeKind, clientTimeZoneId);
+            });
         if (timestampResult.IsFailed)
         {
             return BuildParseError(rowNumber, timestampResult.Errors);

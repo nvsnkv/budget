@@ -17,6 +17,7 @@ import {
   RemoveTransfersRequest
 } from '../budget/models';
 import { AppConfigService } from '../config/app-config.service';
+import { getBrowserTimeZone } from '../shared/date-api.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -82,6 +83,7 @@ export class OperationsApiService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('budgetVersion', budgetVersion);
+    formData.append('timeZone', getBrowserTimeZone());
     if (transferConfidenceLevel) {
       formData.append('transferConfidenceLevel', transferConfidenceLevel);
     }
@@ -107,6 +109,7 @@ export class OperationsApiService {
   ): Observable<ImportResultResponse> {
     const params = new URLSearchParams();
     params.append('budgetVersion', budgetVersion);
+    params.append('timeZone', getBrowserTimeZone());
     if (transferConfidenceLevel) {
       params.append('transferConfidenceLevel', transferConfidenceLevel);
     }

@@ -185,7 +185,7 @@ export class ManualImportOperationsComponent implements OnInit {
       }
 
       operations.push({
-        timestamp: new Date(row.timestampLocal).toISOString(),
+        timestamp: row.timestampLocal,
         amount: {
           value: row.amountValue,
           currencyCode: row.currencyCode
@@ -212,7 +212,7 @@ export class ManualImportOperationsComponent implements OnInit {
     now.setSeconds(0, 0);
 
     return {
-      timestampLocal: this.toDateTimeLocalValue(now),
+      timestampLocal: this.formatDateTimeLocal(now),
       amountValue: null,
       currencyCode: 'RUB',
       description: '',
@@ -220,9 +220,12 @@ export class ManualImportOperationsComponent implements OnInit {
     };
   }
 
-  private toDateTimeLocalValue(date: Date): string {
-    const tzOffsetMinutes = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - tzOffsetMinutes * 60_000);
-    return localDate.toISOString().slice(0, 16);
+  private formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 }

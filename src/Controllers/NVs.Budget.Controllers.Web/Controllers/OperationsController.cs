@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using Asp.Versioning;
+using Microsoft.Extensions.Options;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,7 @@ using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Domain.Aggregates;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
+using NVs.Budget.Utilities.Utc;
 using NVs.Budget.Utilities.Expressions;
 
 namespace NVs.Budget.Controllers.Web.Controllers;
@@ -34,7 +36,8 @@ public class OperationsController(
     ReadableExpressionsParser parser,
     ICsvFileReader csvReader,
     IReadingSettingsRepository settingsRepository,
-    RangeBuilder rangeBuilder) : Controller
+    RangeBuilder rangeBuilder,
+    IOptions<JsonOptions> jsonOptions) : Controller
 {
     /// <summary>
     /// Gets all operations for a specific budget
@@ -165,6 +168,7 @@ public class OperationsController(
         [FromRoute] Guid budgetId,
         IFormFile file,
         [FromForm] string budgetVersion,
+        [FromForm] string timeZone,
         [FromForm] string? transferConfidenceLevel = null,
         [FromForm] string? filePattern = null,
         CancellationToken ct = default)
@@ -214,6 +218,12 @@ public class OperationsController(
             return BadRequest(new List<Error> { new($"No reading settings found for file pattern '{pattern}'. Please configure reading settings for this budget first.") });
         }
 
+        var timeZoneValidation = ValidateImportTimeZone(timeZone, readingSetting.DateTimeKind);
+        if (timeZoneValidation.IsFailed)
+        {
+            return BadRequest(timeZoneValidation.Errors);
+        }
+
         // Parse transfer confidence level
         DetectionAccuracy? transferAccuracy = null;
         if (!string.IsNullOrWhiteSpace(transferConfidenceLevel))
@@ -236,7 +246,7 @@ public class OperationsController(
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream, readingSetting.Encoding);
 
-            await foreach (var result in csvReader.ReadUntrackedOperations(reader, readingSetting, ct))
+            await foreach (var result in csvReader.ReadUntrackedOperations(reader, readingSetting, timeZone, ct))
             {
                 if (result.IsSuccess)
                 {
@@ -298,6 +308,7 @@ public class OperationsController(
     public async Task<IActionResult> ImportOperationsManually(
         [FromRoute] Guid budgetId,
         [FromQuery] string budgetVersion,
+        [FromQuery] string timeZone,
         [FromQuery] string? transferConfidenceLevel = null,
         CancellationToken ct = default)
     {
@@ -308,6 +319,12 @@ public class OperationsController(
         if (budget == null)
         {
             throw new NotFoundException($"Budget with ID {budgetId} not found or access denied");
+        }
+
+        var timeZoneValidation = ValidateImportTimeZone(timeZone, DateTimeKind.Local);
+        if (timeZoneValidation.IsFailed)
+        {
+            return BadRequest(timeZoneValidation.Errors);
         }
 
         // Parse transfer confidence level
@@ -327,9 +344,10 @@ public class OperationsController(
 
         // Read and parse operations from request body asynchronously
         var parseErrors = new List<IError>();
+        var serializerOptions = jsonOptions.Value.JsonSerializerOptions;
         var requestOperations = JsonSerializer.DeserializeAsyncEnumerable<UnregisteredOperationRequest>(
             Request.Body,
-            new JsonSerializerOptions(JsonSerializerDefaults.Web),
+            serializerOptions,
             ct);
 
         async IAsyncEnumerable<UnregisteredOperation> ReadOperationsAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -342,7 +360,7 @@ public class OperationsController(
                     continue;
                 }
 
-                var parseResult = mapper.FromRequest(requestOperation);
+                var parseResult = mapper.FromRequest(requestOperation, timeZone);
                 if (parseResult.IsSuccess)
                 {
                     yield return parseResult.Value;
@@ -383,6 +401,29 @@ public class OperationsController(
         }
 
         return BadRequest(result.Errors);
+    }
+
+    private Result ValidateImportTimeZone(string? timeZone, DateTimeKind dateTimeKind)
+    {
+        if (dateTimeKind == DateTimeKind.Local && string.IsNullOrWhiteSpace(timeZone))
+        {
+            return Result.Fail("timeZone is required when DateTimeKind is Local.");
+        }
+
+        if (string.IsNullOrWhiteSpace(timeZone))
+        {
+            return Result.Ok();
+        }
+
+        try
+        {
+            timeZone.ResolveTimeZone();
+            return Result.Ok();
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Fail(ex.Message);
+        }
     }
 
     /// <summary>
@@ -623,13 +664,13 @@ public class OperationsController(
 
         if (from.HasValue)
         {
-            var fromUtc = from.Value.ToUniversalTime();
+            var fromUtc = from.Value.AsUtcFromApi();
             filter = filter.CombineWith(o => o.Timestamp >= fromUtc);
         }
 
         if (till.HasValue)
         {
-            var tillUtc = till.Value.ToUniversalTime();
+            var tillUtc = till.Value.AsUtcFromApi();
             filter = filter.CombineWith(o => o.Timestamp < tillUtc);
         }
 
@@ -674,8 +715,8 @@ public class OperationsController(
         }
 
         // Generate ranges
-        var fromDate = from ?? result.Value.From;
-        var tillDate = till ?? result.Value.Till;
+        var fromDate = from.HasValue ? from.Value.AsUtcFromApi() : result.Value.From;
+        var tillDate = till.HasValue ? till.Value.AsUtcFromApi() : result.Value.Till;
         
         var rangesResult = rangeBuilder.GetRanges(fromDate, tillDate, cronExpression);
         if (rangesResult.IsFailed)
@@ -689,7 +730,10 @@ public class OperationsController(
             {
                 var rangedLogbook = (CriteriaBasedLogbook)result.Value[range.From, range.Till];
                 var entry = logbookMapper.ToResponse(rangedLogbook);
-                var rangeResponse = new NamedRangeResponse(range.Name, range.From, range.Till);
+                var rangeResponse = new NamedRangeResponse(
+                    range.Name,
+                    range.From.AsUtcFromApi(),
+                    range.Till.AsUtcFromApi());
                 return new RangedLogbookEntryResponse(rangeResponse, entry);
             })
             .ToList();

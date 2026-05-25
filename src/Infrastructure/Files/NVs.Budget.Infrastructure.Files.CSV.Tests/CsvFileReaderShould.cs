@@ -10,6 +10,8 @@ namespace NVs.Budget.Infrastructure.Files.CSV.Tests;
 
 public class CsvFileReaderShould
 {
+    private const string DefaultTimeZone = "UTC";
+
     private readonly CsvFileReader _reader;
 
     public CsvFileReaderShould()
@@ -53,7 +55,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -94,7 +96,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -137,7 +139,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -187,7 +189,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -228,7 +230,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -263,7 +265,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().ContainSingle();
@@ -296,7 +298,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().ContainSingle();
@@ -329,7 +331,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().ContainSingle();
@@ -362,7 +364,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().ContainSingle();
@@ -397,7 +399,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -405,14 +407,14 @@ public class CsvFileReaderShould
     }
 
     [Fact]
-    public async Task ReadOperationsWithLocalDateTimeKind()
+    public async Task ReadOperationsWithLocalDateTimeKind_ConvertsUsingClientTimeZone()
     {
-        // Arrange - testing with Local DateTimeKind
+        const string clientTimeZone = "Europe/Berlin";
         var csv = """
-            2024-01-15,1234.56,EUR,Coffee shop
+            2024-01-15 14:30:00,1234.56,EUR,Coffee shop
             """;
         var stream = CreateStreamReader(csv);
-        
+
         var config = new FileReadingSetting(
             Culture: CultureInfo.InvariantCulture,
             Encoding: Encoding.UTF8,
@@ -428,13 +430,16 @@ public class CsvFileReaderShould
             Validation: Array.Empty<ValidationRule>()
         );
 
-        // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, clientTimeZone, CancellationToken.None));
 
-        // Assert
         results.Should().ContainSingle();
         results[0].Should().BeSuccess();
-        results[0].Value.Timestamp.Kind.Should().Be(DateTimeKind.Local);
+        results[0].Value.Timestamp.Kind.Should().Be(DateTimeKind.Utc);
+        var local = TimeZoneInfo.ConvertTimeFromUtc(
+            results[0].Value.Timestamp,
+            TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+        local.Hour.Should().Be(14);
+        local.Minute.Should().Be(30);
         results[0].Value.Amount.Should().Be(new Money(1234.56m, Currency.Eur));
     }
 
@@ -476,7 +481,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2); // Only expense rows should be processed
@@ -512,7 +517,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(3);
@@ -548,7 +553,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().ContainSingle();
@@ -582,7 +587,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -620,7 +625,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -658,7 +663,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -696,7 +701,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -729,7 +734,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -765,7 +770,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -800,7 +805,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);
@@ -838,7 +843,7 @@ public class CsvFileReaderShould
         );
 
         // Act
-        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, CancellationToken.None));
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
 
         // Assert
         results.Should().HaveCount(2);

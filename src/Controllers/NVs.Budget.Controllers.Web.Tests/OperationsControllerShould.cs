@@ -1,9 +1,11 @@
 using System.Text;
+using System.Text.Json;
 using FluentAssertions;
 using FluentResults;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Moq;
 using NVs.Budget.Application.Contracts.Criteria;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -62,7 +64,7 @@ public class OperationsControllerShould
             """);
 
         // Act
-        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "Exact", CancellationToken.None);
+        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "UTC", "Exact", CancellationToken.None);
 
         // Assert
         var ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
@@ -78,6 +80,7 @@ public class OperationsControllerShould
         importedOperations.Select(o => o.Amount.CurrencyCode.ToString()).Should().ContainInOrder("RUB", "USD");
         importedOperations.First().Attributes.Should().NotBeNull();
         importedOperations.First().Attributes!.Keys.Should().Contain("source");
+        importedOperations.First().Timestamp.Kind.Should().Be(DateTimeKind.Utc);
     }
 
     [Fact]
@@ -93,9 +96,26 @@ public class OperationsControllerShould
         SetJsonBody(controller, "[]");
 
         // Act
-        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "NotExistingLevel", CancellationToken.None);
+        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "UTC", "NotExistingLevel", CancellationToken.None);
 
         // Assert
+        actionResult.Should().BeOfType<BadRequestObjectResult>();
+        mediator.Verify(m => m.Send(It.IsAny<ImportOperationsCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ImportOperationsManuallyReturnBadRequestWhenTimeZoneIsInvalid()
+    {
+        var budget = CreateBudget();
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<ListOwnedBudgetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([budget]);
+
+        var controller = CreateController(mediator.Object);
+        SetJsonBody(controller, "[]");
+
+        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "Not/A/Zone", null, CancellationToken.None);
+
         actionResult.Should().BeOfType<BadRequestObjectResult>();
         mediator.Verify(m => m.Send(It.IsAny<ImportOperationsCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -137,7 +157,7 @@ public class OperationsControllerShould
             """);
 
         // Act
-        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", null, CancellationToken.None);
+        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "UTC", null, CancellationToken.None);
 
         // Assert
         var ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
@@ -154,6 +174,9 @@ public class OperationsControllerShould
     {
         var operationMapper = new OperationMapper(new MoneyMapper());
         var parser = ReadableExpressionsParser.Default;
+        var jsonOptions = new JsonOptions();
+        jsonOptions.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
+        jsonOptions.JsonSerializerOptions.Converters.Add(new NullableUtcDateTimeJsonConverter());
 
         var controller = new OperationsController(
             mediator,
@@ -162,7 +185,8 @@ public class OperationsControllerShould
             parser,
             Mock.Of<ICsvFileReader>(),
             Mock.Of<IReadingSettingsRepository>(),
-            new RangeBuilder());
+            new RangeBuilder(),
+            Options.Create(jsonOptions));
 
         controller.ControllerContext = new ControllerContext
         {

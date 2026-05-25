@@ -20,7 +20,7 @@ public record MoneyResponse(
 );
 
 public record UnregisteredOperationRequest(
-    DateTime Timestamp,
+    string Timestamp,
     MoneyResponse Amount,
     string Description,
     string? Notes,

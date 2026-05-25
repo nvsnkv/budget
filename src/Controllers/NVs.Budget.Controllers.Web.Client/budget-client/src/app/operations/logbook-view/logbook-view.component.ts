@@ -18,6 +18,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
 import { LogbookEntryResponse, LogbookResponse, RangedLogbookEntryResponse, NamedRangeResponse } from '../../budget/models';
 import { LogbookStateService } from './logbook-state.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
+import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../shared/date-api.utils';
 
 interface CriteriaRow {
   description: string;
@@ -199,8 +200,8 @@ export class LogbookViewComponent implements OnInit {
     this.criteriaTree = [];
     this.groupSorts.clear();
 
-    const from = this.fromDate ? this.parseDateInput(this.fromDate) : undefined;
-    const till = this.tillDate ? this.parseDateInput(this.tillDate) : undefined;
+    const from = this.fromDate ? calendarDateToUtcStart(this.fromDate) : undefined;
+    const till = this.tillDate ? calendarDateToUtcExclusiveEnd(this.tillDate) : undefined;
 
     this.operationsApi.getLogbook(
       this.budgetId,
@@ -586,14 +587,6 @@ export class LogbookViewComponent implements OnInit {
   setCronPreset(type: 'monthly' | 'yearly'): void {
     this.cronExpression = type === 'monthly' ? '0 0 1 * *' : '0 0 1 1 *';
     this.selectedCronPreset = type;
-  }
-
-  private parseDateInput(value: string): Date {
-    const [year, month, day] = value.split('-').map(Number);
-    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
-      return new Date(value);
-    }
-    return new Date(year, month - 1, day);
   }
 
   private toDateInputValue(date: Date): string {

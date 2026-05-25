@@ -15,6 +15,7 @@ import {
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { TransfersTableComponent } from '../transfers-table/transfers-table.component';
 import { NotificationService } from '../shared/notification.service';
+import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../shared/date-api.utils';
 
 @Component({
   selector: 'app-transfers-list',
@@ -83,15 +84,9 @@ export class TransfersListComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  private parseDateInput(dateString: string): Date | null {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? null : date;
-  }
-
   loadTransfers(): void {
-    const from = this.parseDateInput(this.fromDate);
-    const till = this.parseDateInput(this.tillDate);
+    const from = this.fromDate ? calendarDateToUtcStart(this.fromDate) : null;
+    const till = this.tillDate ? calendarDateToUtcExclusiveEnd(this.tillDate) : null;
     
     this.transfers$ = this.operationsApi.searchTransfers(
       this.budgetId,

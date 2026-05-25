@@ -1,7 +1,10 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -93,7 +96,12 @@ public static class WebControllersExtensions
                 // Add model state validation filter to return 400 on invalid input
                 opts.Filters.Add<ValidateModelStateFilter>();
             })
-            .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part));
+            .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part))
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
+                options.JsonSerializerOptions.Converters.Add(new NullableUtcDateTimeJsonConverter());
+            });
 
         services.AddApiVersioning();
 

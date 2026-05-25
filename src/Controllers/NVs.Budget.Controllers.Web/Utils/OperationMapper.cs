@@ -2,6 +2,7 @@ using FluentResults;
 using NMoneys;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
 using NVs.Budget.Controllers.Web.Models;
+using NVs.Budget.Utilities.Utc;
 using NVs.Budget.Domain.Entities.Operations;
 using NVs.Budget.Domain.ValueObjects;
 
@@ -14,7 +15,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
         return new OperationResponse(
             operation.Id,
             operation.Version ?? string.Empty,
-            operation.Timestamp,
+            operation.Timestamp.AsUtcFromApi(),
             new MoneyResponse(operation.Amount.Amount, operation.Amount.CurrencyCode.ToString()),
             operation.Description,
             operation.Notes,
@@ -36,7 +37,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
         return new OperationResponse(
             operation.Id,
             string.Empty, // Operation doesn't have Version
-            operation.Timestamp,
+            operation.Timestamp.AsUtcFromApi(),
             new MoneyResponse(operation.Amount.Amount, operation.Amount.CurrencyCode.ToString()),
             operation.Description,
             operation.Notes,
@@ -46,7 +47,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
         );
     }
 
-    public Result<UnregisteredOperation> FromRequest(UnregisteredOperationRequest request)
+    public Result<UnregisteredOperation> FromRequest(UnregisteredOperationRequest request, string clientIanaTimeZoneId)
     {
         var moneyResult = moneyMapper.ParseMoney(request.Amount);
         if (moneyResult.IsFailed)
@@ -54,16 +55,49 @@ public class OperationMapper(MoneyMapper moneyMapper)
             return Result.Fail<UnregisteredOperation>(moneyResult.Errors);
         }
 
+        var timestampResult = ParseManualImportTimestamp(request.Timestamp, clientIanaTimeZoneId);
+        if (timestampResult.IsFailed)
+        {
+            return Result.Fail<UnregisteredOperation>(timestampResult.Errors);
+        }
+
         var attributes = request.Attributes != null 
             ? new Dictionary<string, object>(request.Attributes) 
             : null;
 
         return Result.Ok(new UnregisteredOperation(
-            request.Timestamp,
+            timestampResult.Value,
             moneyResult.Value,
             request.Description,
             attributes
         ));
+    }
+
+    private Result<DateTime> ParseManualImportTimestamp(string timestamp, string clientIanaTimeZoneId)
+    {
+        if (string.IsNullOrWhiteSpace(timestamp))
+        {
+            return Result.Fail<DateTime>("Timestamp is required.");
+        }
+
+        if (DateTimeOffset.TryParse(timestamp, out var withOffset))
+        {
+            return Result.Ok(withOffset.UtcDateTime.AsUtcFromApi());
+        }
+
+        if (!DateTime.TryParse(timestamp, out var localWallClock))
+        {
+            return Result.Fail<DateTime>($"Invalid timestamp format: {timestamp}");
+        }
+
+        try
+        {
+            return Result.Ok(localWallClock.AsUtcFromImport(DateTimeKind.Local, clientIanaTimeZoneId));
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Fail<DateTime>(ex.Message);
+        }
     }
 
     public Result<TrackedOperation> FromRequest(UpdateOperationRequest request, TrackedBudget budget)
@@ -81,7 +115,7 @@ public class OperationMapper(MoneyMapper moneyMapper)
 
         var operation = new TrackedOperation(
             request.Id,
-            request.Timestamp,
+            request.Timestamp.AsUtcFromApi(),
             moneyResult.Value,
             request.Description,
             request.Notes ?? string.Empty,

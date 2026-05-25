@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using FluentResults.Extensions.FluentAssertions;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
@@ -39,7 +39,9 @@ public class OperationsRepositoryShould : IClassFixture<DbContextManager>, IDisp
         result.Should().BeSuccess();
         var trackedTransaction = result.Value;
 
-        trackedTransaction.Should().BeEquivalentTo(transaction);
+        trackedTransaction.Should().BeEquivalentTo(transaction, options => options.Excluding(t => t.Timestamp));
+        trackedTransaction.Timestamp.Should().Be(transaction.Timestamp.ToUniversalTime());
+        trackedTransaction.Timestamp.Kind.Should().Be(DateTimeKind.Utc);
         trackedTransaction.Id.Should().NotBe(Guid.Empty);
         trackedTransaction.Budget.Should().BeEquivalentTo((Domain.Entities.Budgets.Budget)budget, c => c.ComparingByMembers<Domain.Entities.Budgets.Budget>());
         trackedTransaction.Version.Should().NotBeNullOrEmpty();
