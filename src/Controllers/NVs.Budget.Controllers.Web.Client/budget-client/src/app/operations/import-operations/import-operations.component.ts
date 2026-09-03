@@ -12,6 +12,7 @@ import {
   TuiTextfield,
   TuiLabel
 } from '@taiga-ui/core';
+import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
@@ -28,6 +29,9 @@ import { ImportResult } from '../shared/models/result.interface';
     TuiTextfield,
     TuiLabel,
     TuiTitle,
+    TuiChevron,
+    TuiDataListWrapper,
+    TuiSelect,
     OperationsTableComponent,
     OperationResultComponent
   ],
@@ -42,6 +46,7 @@ export class ImportOperationsComponent implements OnInit {
   importForm!: FormGroup;
   selectedFile: File | null = null;
   importResult: ImportResult | null = null;
+  readonly confidenceItems: string[] = ['Exact', 'Likely'];
 
   // Section toggles
   showDuplicates = false;
@@ -59,7 +64,7 @@ export class ImportOperationsComponent implements OnInit {
     this.budgetId = this.route.snapshot.params['budgetId'];
     
     this.importForm = this.fb.group({
-      transferConfidenceLevel: [''],
+      transferConfidenceLevel: ['Exact'],
       filePattern: ['']
     });
 
