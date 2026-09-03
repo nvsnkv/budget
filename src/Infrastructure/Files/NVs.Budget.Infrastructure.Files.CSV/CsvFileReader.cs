@@ -16,6 +16,7 @@ namespace NVs.Budget.Infrastructure.Files.CSV;
 internal partial class CsvFileReader : ICsvFileReader
 {
     private static readonly Regex CellsIndexPattern = GenerateCellIndexPattern();
+    private static readonly Regex CellsLetterPattern = GenerateCellLetterPattern();
 
     public async IAsyncEnumerable<Result<UnregisteredOperation>> ReadUntrackedOperations(
         StreamReader reader,
@@ -200,6 +201,9 @@ internal partial class CsvFileReader : ICsvFileReader
 
     private Result<string> EvaluatePattern(IParser parser, string pattern)
     {
+        // Excel-style {A}/{B}/… become {0}/{1}/… so index and letter forms (including mixed) share one path
+        pattern = NormalizeLetterPlaceholders(pattern);
+
         var usedCells = CellsIndexPattern.Matches(pattern)
             .Select(m => (match: m, index: int.Parse(m.Groups[1].Value)))
             .ToList();
@@ -255,6 +259,29 @@ internal partial class CsvFileReader : ICsvFileReader
         }
     }
 
+    private static string NormalizeLetterPlaceholders(string pattern)
+    {
+        return CellsLetterPattern.Replace(pattern, match =>
+        {
+            var index = ColumnLettersToZeroBasedIndex(match.Groups[1].Value);
+            return $"{{{index}}}";
+        });
+    }
+
+    /// <summary>
+    /// Converts Excel-style column letters (A, B, …, Z, AA, …) to a zero-based index.
+    /// </summary>
+    private static int ColumnLettersToZeroBasedIndex(string letters)
+    {
+        var result = 0;
+        foreach (var c in letters.ToUpperInvariant())
+        {
+            result = result * 26 + (c - 'A' + 1);
+        }
+
+        return result - 1;
+    }
+
     private Result<UnregisteredOperation> BuildParseError(int rowNumber, List<IError> errors)
     {
         return Result.Fail<UnregisteredOperation>(new RowNotParsedError(rowNumber, errors));
@@ -262,5 +289,8 @@ internal partial class CsvFileReader : ICsvFileReader
 
     [GeneratedRegex(@"\{(\d+)\}", RegexOptions.Compiled)]
     private static partial Regex GenerateCellIndexPattern();
+
+    [GeneratedRegex(@"\{([A-Za-z]+)\}", RegexOptions.Compiled)]
+    private static partial Regex GenerateCellLetterPattern();
 }
 
