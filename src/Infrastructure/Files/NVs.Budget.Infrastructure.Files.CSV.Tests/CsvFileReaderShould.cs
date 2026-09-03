@@ -855,6 +855,164 @@ public class CsvFileReaderShould
         results[1].Value.Description.Should().Be("مطعم");
     }
 
+    [Fact]
+    public async Task ReadOperationsWithLetterBasedSubstitutions()
+    {
+        // Arrange
+        var csv = """
+            2024-01-15,100.50,USD,Coffee shop
+            2024-01-16,200.00,USD,Grocery store
+            """;
+        var stream = CreateStreamReader(csv);
+
+        var config = new FileReadingSetting(
+            Culture: CultureInfo.InvariantCulture,
+            Encoding: Encoding.UTF8,
+            DateTimeKind: DateTimeKind.Utc,
+            Fields: new Dictionary<string, string>
+            {
+                [nameof(UnregisteredOperation.Timestamp)] = "{A}",
+                [nameof(UnregisteredOperation.Amount)] = "{B}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{C}",
+                [nameof(UnregisteredOperation.Description)] = "{D}"
+            },
+            Attributes: new Dictionary<string, string>(),
+            Validation: Array.Empty<ValidationRule>()
+        );
+
+        // Act
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
+
+        // Assert
+        results.Should().HaveCount(2);
+        results.Should().AllSatisfy(r => r.Should().BeSuccess());
+
+        results[0].Value.Timestamp.Should().Be(new DateTime(2024, 1, 15, 0, 0, 0, DateTimeKind.Utc));
+        results[0].Value.Amount.Should().Be(new Money(100.50m, Currency.Usd));
+        results[0].Value.Description.Should().Be("Coffee shop");
+
+        results[1].Value.Timestamp.Should().Be(new DateTime(2024, 1, 16, 0, 0, 0, DateTimeKind.Utc));
+        results[1].Value.Amount.Should().Be(new Money(200.00m, Currency.Usd));
+        results[1].Value.Description.Should().Be("Grocery store");
+    }
+
+    [Fact]
+    public async Task ReadOperationsWithMixedIndexAndLetterSubstitutions()
+    {
+        // Arrange
+        var csv = """
+            2024-01-15,100,50,USD,Coffee,shop
+            2024-01-16,200,00,EUR,Grocery,store
+            """;
+        var stream = CreateStreamReader(csv);
+
+        var config = new FileReadingSetting(
+            Culture: CultureInfo.InvariantCulture,
+            Encoding: Encoding.UTF8,
+            DateTimeKind: DateTimeKind.Utc,
+            Fields: new Dictionary<string, string>
+            {
+                [nameof(UnregisteredOperation.Timestamp)] = "{A}",
+                [nameof(UnregisteredOperation.Amount)] = "{1}.{C}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{D}",
+                [nameof(UnregisteredOperation.Description)] = "{4} {F}"
+            },
+            Attributes: new Dictionary<string, string>(),
+            Validation: Array.Empty<ValidationRule>()
+        );
+
+        // Act
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
+
+        // Assert
+        results.Should().HaveCount(2);
+        results.Should().AllSatisfy(r => r.Should().BeSuccess());
+
+        results[0].Value.Amount.Should().Be(new Money(100.50m, Currency.Usd));
+        results[0].Value.Description.Should().Be("Coffee shop");
+
+        results[1].Value.Amount.Should().Be(new Money(200.00m, Currency.Eur));
+        results[1].Value.Description.Should().Be("Grocery store");
+    }
+
+    [Fact]
+    public async Task ReadOperationsWithLowercaseLetterSubstitutions()
+    {
+        // Arrange
+        var csv = """
+            2024-01-15,100.50,USD,Coffee shop
+            """;
+        var stream = CreateStreamReader(csv);
+
+        var config = new FileReadingSetting(
+            Culture: CultureInfo.InvariantCulture,
+            Encoding: Encoding.UTF8,
+            DateTimeKind: DateTimeKind.Utc,
+            Fields: new Dictionary<string, string>
+            {
+                [nameof(UnregisteredOperation.Timestamp)] = "{a}",
+                [nameof(UnregisteredOperation.Amount)] = "{b}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{c}",
+                [nameof(UnregisteredOperation.Description)] = "{d}"
+            },
+            Attributes: new Dictionary<string, string>(),
+            Validation: Array.Empty<ValidationRule>()
+        );
+
+        // Act
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
+
+        // Assert
+        results.Should().HaveCount(1);
+        results[0].Should().BeSuccess();
+        results[0].Value.Amount.Should().Be(new Money(100.50m, Currency.Usd));
+        results[0].Value.Description.Should().Be("Coffee shop");
+    }
+
+    [Fact]
+    public async Task SkipHeaderRowUsingLetterBasedValidation()
+    {
+        // Arrange
+        var csv = """
+            Date,Amount,Currency,Description
+            2024-01-15,100.50,USD,Coffee shop
+            2024-01-16,200.00,USD,Grocery store
+            """;
+        var stream = CreateStreamReader(csv);
+
+        var config = new FileReadingSetting(
+            Culture: CultureInfo.InvariantCulture,
+            Encoding: Encoding.UTF8,
+            DateTimeKind: DateTimeKind.Utc,
+            Fields: new Dictionary<string, string>
+            {
+                [nameof(UnregisteredOperation.Timestamp)] = "{A}",
+                [nameof(UnregisteredOperation.Amount)] = "{B}",
+                [nameof(UnregisteredOperation.Amount.CurrencyCode)] = "{C}",
+                [nameof(UnregisteredOperation.Description)] = "{D}"
+            },
+            Attributes: new Dictionary<string, string>(),
+            Validation: new[]
+            {
+                new ValidationRule(
+                    Pattern: "{A}",
+                    Condition: ValidationRule.ValidationCondition.NotEquals,
+                    Value: "Date",
+                    ErrorMessage: ""
+                )
+            }
+        );
+
+        // Act
+        var results = await ToListAsync(_reader.ReadUntrackedOperations(stream, config, DefaultTimeZone, CancellationToken.None));
+
+        // Assert
+        results.Should().HaveCount(2);
+        results.Should().AllSatisfy(r => r.Should().BeSuccess());
+        results[0].Value.Description.Should().Be("Coffee shop");
+        results[1].Value.Description.Should().Be("Grocery store");
+    }
+
     private static StreamReader CreateStreamReader(string content, Encoding? encoding = null)
     {
         encoding ??= Encoding.UTF8;
