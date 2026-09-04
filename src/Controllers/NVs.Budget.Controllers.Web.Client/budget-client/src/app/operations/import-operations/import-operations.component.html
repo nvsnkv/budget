@@ -50,17 +50,20 @@
           </div>
 
           <div class="form-section">
-            <tui-textfield>
-              <label tuiLabel>Transfer Confidence Level (Optional)</label>
-              <input 
-                tuiTextfield 
-                formControlName="transferConfidenceLevel" 
-                type="text" 
-                placeholder="e.g., High, Exact"
+            <tui-textfield tuiChevron>
+              <label tuiLabel>Transfer Confidence Level</label>
+              <input
+                tuiSelect
+                formControlName="transferConfidenceLevel"
+              />
+              <tui-data-list-wrapper
+                *tuiTextfieldDropdown
+                new
+                [items]="confidenceItems"
               />
             </tui-textfield>
             <p class="help-text">
-              Specify the confidence level for transfer detection: Exact, Likely, or leave empty for default.
+              Confidence threshold for automatic transfer detection. Exact matches only by default; choose Likely to include probable matches.
             </p>
           </div>
 
