@@ -14,13 +14,13 @@
   "private": true,
   "dependencies": {
     "@angular/cdk": "^19.0.0",
-    "@angular/common": "^19.2.0",
-    "@angular/compiler": "^19.2.0",
-    "@angular/core": "^19.2.0",
-    "@angular/forms": "^19.2.0",
-    "@angular/platform-browser": "^19.2.0",
-    "@angular/platform-browser-dynamic": "^19.2.0",
-    "@angular/router": "^19.2.0",
+    "@angular/common": "^20.3.33",
+    "@angular/compiler": "^20.3.33",
+    "@angular/core": "^20.3.33",
+    "@angular/forms": "^20.3.33",
+    "@angular/platform-browser": "^20.3.33",
+    "@angular/platform-browser-dynamic": "^20.3.33",
+    "@angular/router": "^20.3.33",
     "@taiga-ui/cdk": "^5.26.0",
     "@taiga-ui/core": "^5.26.0",
     "@taiga-ui/event-plugins": "^5.0.0",
@@ -32,9 +32,9 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.0",
-    "@angular/cli": "^19.2.0",
-    "@angular/compiler-cli": "^19.2.0",
+    "@angular-devkit/build-angular": "^20.3.37",
+    "@angular/cli": "^20.3.37",
+    "@angular/compiler-cli": "^20.3.33",
     "@playwright/test": "^1.55.0",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.6.0",
@@ -43,6 +43,6 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.7.2"
+    "typescript": "~5.9.3"
   }
 }
