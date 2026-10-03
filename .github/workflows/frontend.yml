@@ -1,0 +1,39 @@
+name: Frontend
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - "src/Controllers/NVs.Budget.Controllers.Web.Client/**"
+      - ".github/workflows/frontend.yml"
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - "src/Controllers/NVs.Budget.Controllers.Web.Client/**"
+      - ".github/workflows/frontend.yml"
+
+defaults:
+  run:
+    working-directory: ./src/Controllers/NVs.Budget.Controllers.Web.Client/budget-client
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: ./src/Controllers/NVs.Budget.Controllers.Web.Client/budget-client/.nvmrc
+        cache: npm
+        cache-dependency-path: ./src/Controllers/NVs.Budget.Controllers.Web.Client/budget-client/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Unit tests
+      run: npm test

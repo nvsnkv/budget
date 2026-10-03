@@ -12,6 +12,9 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "private": true,
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
+  },
   "dependencies": {
     "@angular/cdk": "^22.2.1",
     "@angular/common": "^22.2.1",
