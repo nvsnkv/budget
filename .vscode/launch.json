@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Hosts/NVs.Budget.Hosts.Web.Server/bin/Debug/net8.0/NVs.Budget.Hosts.Web.Server.dll",
+            "program": "${workspaceFolder}/src/Hosts/NVs.Budget.Hosts.Web.Server/bin/Debug/net10.0/NVs.Budget.Hosts.Web.Server.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Hosts/NVs.Budget.Hosts.Web.Server",
             "stopAtEntry": false,

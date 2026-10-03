@@ -121,7 +121,7 @@ public class TransfersController(
         var listQuery = new ListOperationsQuery(operationQuery);
         
         var operations = await mediator.CreateStream(listQuery, ct)
-            .ToDictionaryAsync(o => o.Id, ct);
+            .ToDictionaryAsync(o => o.Id, cancellationToken: ct);
 
         // Validate all operations exist
         var missingIds = operationIds.Except(operations.Keys).ToList();

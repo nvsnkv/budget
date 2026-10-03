@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -13,11 +13,8 @@
       </PackageReference>
       <PackageReference Include="Asp.Versioning.Mvc" />
       <PackageReference Include="MediatR" />
-      <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
       <PackageReference Include="ncrontab" />
       <PackageReference Include="Swashbuckle.AspNetCore" />
-      <PackageReference Include="System.Linq.Async" />
       <PackageReference Include="YamlDotNet" />
     </ItemGroup>
     

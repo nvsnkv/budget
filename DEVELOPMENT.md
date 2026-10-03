@@ -7,7 +7,7 @@ This guide covers setting up and running the Budget application for local develo
 ### Required Software
 - Docker Desktop
 - PowerShell 7+ (for Windows) or Bash (for Linux/Mac)
-- .NET SDK 8.0+
+- .NET SDK 10.0+
 - Node.js 20+
 - npm
 
