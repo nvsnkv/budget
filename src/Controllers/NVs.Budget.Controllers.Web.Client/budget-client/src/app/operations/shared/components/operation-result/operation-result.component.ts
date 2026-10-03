@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TuiButton } from '@taiga-ui/core';
 import { IError, ISuccess } from '../../../../budget/models';
 import { MetadataDisplayComponent } from '../metadata-display/metadata-display.component';
@@ -8,13 +8,13 @@ import { MetadataDisplayComponent } from '../metadata-display/metadata-display.c
   standalone: true,
   imports: [TuiButton, MetadataDisplayComponent],
   templateUrl: './operation-result.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./operation-result.component.less']
 })
 export class OperationResultComponent {
-  @Input() successes: ISuccess[] = [];
-  @Input() errors: IError[] = [];
-  
+  readonly successes = input<ISuccess[]>([]);
+  readonly errors = input<IError[]>([]);
+
   showSuccesses = true;
   showErrors = true;
 
@@ -26,4 +26,3 @@ export class OperationResultComponent {
     this.showErrors = !this.showErrors;
   }
 }
-

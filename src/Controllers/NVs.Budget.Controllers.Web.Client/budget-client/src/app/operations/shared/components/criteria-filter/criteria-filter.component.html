@@ -12,10 +12,10 @@
     </tui-textfield>
   </div>
 
-  @if (examples.length > 0) {
+  @if (examples().length > 0) {
     <app-examples-section
-      [examples]="examples"
-      [expanded]="showExamplesInitially">
+      [examples]="examples()"
+      [expanded]="showExamplesInitially()">
     </app-examples-section>
   }
 

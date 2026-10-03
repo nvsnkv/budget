@@ -1,11 +1,11 @@
-import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
+import { Directive, HostListener, output } from '@angular/core';
 
 @Directive({
   selector: '[appCtrlEnter]',
   standalone: true
 })
 export class CtrlEnterDirective {
-  @Output() appCtrlEnter = new EventEmitter<void>();
+  readonly appCtrlEnter = output<void>();
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
@@ -15,4 +15,3 @@ export class CtrlEnterDirective {
     }
   }
 }
-

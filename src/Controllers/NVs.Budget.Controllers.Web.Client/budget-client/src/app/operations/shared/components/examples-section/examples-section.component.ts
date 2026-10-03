@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { TuiButton } from '@taiga-ui/core';
 import { CriteriaExample } from '../../models/example.interface';
 
@@ -7,16 +7,15 @@ import { CriteriaExample } from '../../models/example.interface';
   standalone: true,
   imports: [TuiButton],
   templateUrl: './examples-section.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./examples-section.component.less']
 })
 export class ExamplesSectionComponent {
-  @Input() examples: CriteriaExample[] = [];
-  @Input() title = 'Common Examples';
-  @Input() expanded = false;
+  readonly examples = input<CriteriaExample[]>([]);
+  readonly title = input('Common Examples');
+  readonly expanded = model(false);
 
   toggle(): void {
-    this.expanded = !this.expanded;
+    this.expanded.set(!this.expanded());
   }
 }
-

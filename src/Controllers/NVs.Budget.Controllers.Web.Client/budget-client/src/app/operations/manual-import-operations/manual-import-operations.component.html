@@ -89,7 +89,7 @@
                     <td>
                       <app-attributes-editor
                         [model]="row.attributes"
-                        (modelChange)="row.attributes = $event">
+                        (modelChange)="row.attributes = $event ?? {}">
                       </app-attributes-editor>
                     </td>
                     <td class="row-actions">

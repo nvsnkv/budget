@@ -31,7 +31,7 @@
         </th>
         <th class="col-tags">Tags</th>
         <th class="col-attributes">Attributes</th>
-        @if (showActions) {
+        @if (showActions()) {
           <th class="col-actions">Actions</th>
         }
       </tr>
@@ -166,7 +166,7 @@
             @if (isEditing(operation.id)) {
               <app-attributes-editor
                 [model]="editingOperations[operation.id].attributes"
-                (modelChange)="updateAttributes(operation.id, $event)">
+                (modelChange)="updateAttributes(operation.id, $event ?? {})">
               </app-attributes-editor>
             } @else {
               @if (operation.attributes && (operation.attributes | objectKeys).length > 0) {
@@ -182,7 +182,7 @@
               }
             }
           </td>
-          @if (showActions) {
+          @if (showActions()) {
             <td class="col-actions">
               @if (isEditing(operation.id)) {
                 <div class="actions-buttons edit-mode">
@@ -234,7 +234,7 @@
         
         @if (expandedOperationId === operation.id) {
           <tr class="operation-details-row">
-            <td [attr.colspan]="showActions ? 6 : 5">
+            <td [attr.colspan]="showActions() ? 6 : 5">
               <tui-expand [expanded]="true">
                 <div class="operation-details">
                   <div class="detail-row">
@@ -256,7 +256,7 @@
         }
       }
     </tbody>
-    @if (showActions) {
+    @if (showActions()) {
       <tfoot>
         <tr class="operations-footer-row">
           <td [attr.colspan]="6">
