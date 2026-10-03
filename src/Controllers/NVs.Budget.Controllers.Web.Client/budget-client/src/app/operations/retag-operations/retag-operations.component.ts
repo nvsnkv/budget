@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
@@ -21,7 +20,6 @@ import { OperationResult } from '../shared/models/result.interface';
   selector: 'app-retag-operations',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TuiButton,
     TuiLoader,

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiLoader, TuiTitle } from '@taiga-ui/core';
@@ -24,7 +23,6 @@ interface ManualOperationRow {
   selector: 'app-manual-import-operations',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TuiButton,
     TuiLoader,

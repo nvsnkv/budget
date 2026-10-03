@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiTextfield, TuiDropdown } from '@taiga-ui/core';
@@ -17,9 +16,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
 @Component({
   selector: 'app-bulk-changes',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
+  imports: [    FormsModule,
     ReactiveFormsModule,
     TuiButton,
     TuiLoader,

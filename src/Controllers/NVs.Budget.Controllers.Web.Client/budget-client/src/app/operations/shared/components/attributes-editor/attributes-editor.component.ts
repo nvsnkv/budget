@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
@@ -11,7 +10,7 @@ interface AttributeEntry {
 @Component({
   selector: 'app-attributes-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, TuiButton],
+  imports: [FormsModule, TuiButton],
   templateUrl: './attributes-editor.component.html',
   styleUrls: ['./attributes-editor.component.less']
 })

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { OperationResponse } from '../../budget/models';
@@ -18,7 +17,6 @@ import { CriteriaExample } from '../shared/models/example.interface';
   selector: 'app-duplicates-list',
   standalone: true,
   imports: [
-    CommonModule,
     TuiButton,
     TuiLoader,
     TuiTitle,

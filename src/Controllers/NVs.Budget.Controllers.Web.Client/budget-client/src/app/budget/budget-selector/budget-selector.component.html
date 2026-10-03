@@ -10,9 +10,11 @@
 <ng-template #content>
     <tui-data-list role="menu" [emptyContent]="">
         <tui-opt-group>
-            <a tuiOption *ngFor="let budget of budgetsSnapshot" [routerLink]="['/budget', budget.id, 'operations']" role="menuitem" [attr.data-testid]="'budget-option-' + budget.id">
-                {{budget.name}}
-            </a>
+            @for (budget of budgetsSnapshot; track budget.id) {
+                <a tuiOption [routerLink]="['/budget', budget.id, 'operations']" role="menuitem" [attr.data-testid]="'budget-option-' + budget.id">
+                    {{budget.name}}
+                </a>
+            }
         </tui-opt-group>
         <tui-opt-group>
             <a tuiOption [routerLink]="['/budget/new']" role="menuitem" data-testid="budget-option-new">

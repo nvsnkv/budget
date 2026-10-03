@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ObjectKeysPipe } from '../../pipes/object-keys.pipe';
 
 @Component({
   selector: 'app-metadata-display',
   standalone: true,
-  imports: [CommonModule, ObjectKeysPipe],
+  imports: [ObjectKeysPipe],
   templateUrl: './metadata-display.component.html',
   styleUrls: ['./metadata-display.component.less']
 })

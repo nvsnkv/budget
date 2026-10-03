@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
@@ -21,9 +20,7 @@ import { ImportResult } from '../shared/models/result.interface';
 @Component({
   selector: 'app-import-operations',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
+  imports: [    ReactiveFormsModule,
     TuiButton,
     TuiLoader,
     TuiTextfield,

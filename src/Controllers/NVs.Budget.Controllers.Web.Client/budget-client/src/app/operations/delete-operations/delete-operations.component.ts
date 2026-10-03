@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { 
@@ -16,9 +15,7 @@ import { OperationResult } from '../shared/models/result.interface';
 @Component({
   selector: 'app-delete-operations',
   standalone: true,
-  imports: [
-    CommonModule,
-    TuiButton,
+  imports: [    TuiButton,
     TuiLoader,
     TuiTitle,
     CriteriaFilterComponent,

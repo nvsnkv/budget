@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { 
@@ -17,7 +16,6 @@ import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../sha
   selector: 'app-logbook-group',
   standalone: true,
   imports: [
-    CommonModule,
     TuiButton,
     TuiLoader,
     TuiTitle,

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,7 +21,6 @@ import {
   selector: 'app-reading-settings',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     TuiButton,
     TuiLoader,

@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TuiButton, TuiTextfield, TuiLabel } from '@taiga-ui/core';
 import { TuiTextarea } from '@taiga-ui/kit';
@@ -10,9 +9,7 @@ import { CtrlEnterDirective } from '../../directives/ctrl-enter.directive';
 @Component({
   selector: 'app-criteria-filter',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
+  imports: [    ReactiveFormsModule,
     TuiButton,
     TuiTextfield,
     TuiLabel,

@@ -1,9 +1,8 @@
 import { TuiRoot, TuiButton, TuiIcon } from "@taiga-ui/core";
 import { TuiBlockStatus, TuiNavigation } from "@taiga-ui/layout"
-import { Component, enableProdMode } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthComponent } from './auth/auth/auth.component';
-import { environment } from '../environments/environment';
 import { UserService } from "./auth/user.service";
 import { CommonModule } from "@angular/common";
 import { combineLatest, filter, map, Observable, startWith } from "rxjs";
@@ -11,9 +10,6 @@ import { BudgetSelectorComponent } from "./budget/budget-selector/budget-selecto
 import { ThemeService } from "./theme.service";
 import { AppVersionService } from "./app-version.service";
 
-if (environment.production) {
-  enableProdMode();
-} 
 
 @Component({
   selector: 'app-root',
