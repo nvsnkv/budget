@@ -2,13 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { 
-  TuiButton, 
-  TuiLoader,
-  TuiTitle,
-  TuiLabel
-} from '@taiga-ui/core';
-import { TuiCheckbox } from '@taiga-ui/kit';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiCheckbox } from '@taiga-ui/core';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';

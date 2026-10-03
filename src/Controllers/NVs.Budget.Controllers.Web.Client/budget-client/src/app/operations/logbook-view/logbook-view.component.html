@@ -1,5 +1,5 @@
 <div class="logbook-container">
-  <tui-loader [overlay]="true" [showLoader]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading">
     <div class="logbook-card">
       <div class="header">
       <h2 tuiTitle size="l">Operations Logbook</h2>
@@ -38,7 +38,7 @@
                 <tui-textfield>
                   <label tuiLabel>From Date</label>
                   <input
-                    tuiTextfield
+                    tuiInput
                     type="date"
                     [(ngModel)]="fromDate"
                   />
@@ -49,7 +49,7 @@
                 <tui-textfield>
                   <label tuiLabel>Till Date</label>
                   <input
-                    tuiTextfield
+                    tuiInput
                     type="date"
                     [(ngModel)]="tillDate"
                   />
@@ -58,7 +58,7 @@
             </div>
           } @else {
             <div class="preset-buttons">
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'lastYear' ? 'primary' : 'secondary'"
@@ -66,7 +66,7 @@
                 (click)="setDateRange('lastYear')">
                 Last Year
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'currentYear' ? 'primary' : 'secondary'"
@@ -74,7 +74,7 @@
                 (click)="setDateRange('currentYear')">
                 This Year
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'lastMonth' ? 'primary' : 'secondary'"
@@ -82,7 +82,7 @@
                 (click)="setDateRange('lastMonth')">
                 Last Month
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'currentMonth' ? 'primary' : 'secondary'"
@@ -112,7 +112,7 @@
               <tui-textfield>
                 <label tuiLabel>Cron Expression (optional - to split into periods)</label>
                 <input
-                  tuiTextfield
+                  tuiInput
                   type="text"
                   [(ngModel)]="cronExpression"
                   placeholder="e.g., 0 0 1 * * for monthly"
@@ -121,7 +121,7 @@
             </div>
           } @else {
             <div class="preset-buttons">
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedCronPreset === 'monthly' ? 'primary' : 'secondary'"
@@ -129,7 +129,7 @@
                 (click)="setCronPreset('monthly')">
                 Monthly
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedCronPreset === 'yearly' ? 'primary' : 'secondary'"
@@ -158,7 +158,7 @@
                     [ngModelOptions]="{standalone: true}"
                   />
                   <tui-data-list-wrapper
-                    *tuiTextfieldDropdown
+                    *tuiDropdown
                     new
                     [items]="availableLogbookCriteria"
                   />
@@ -174,7 +174,7 @@
                   [(ngModel)]="outputCurrency"
                 />
                 <tui-data-list-wrapper
-                  *tuiTextfieldDropdown
+                  *tuiDropdown
                   new
                   [items]="items"
                 />

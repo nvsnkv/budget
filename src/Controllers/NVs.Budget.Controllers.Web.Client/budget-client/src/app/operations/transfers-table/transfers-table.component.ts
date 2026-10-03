@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TuiButton, TuiExpand } from '@taiga-ui/core';
+import { TuiButton } from '@taiga-ui/core';
 import { TuiChip } from '@taiga-ui/kit';
 import { TransferResponse } from '../../budget/models';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
@@ -13,7 +13,6 @@ import { OperationsTableComponent } from '../operations-table/operations-table.c
   imports: [
     CommonModule,
     TuiButton,
-    TuiExpand,
     TuiChip,
     CurrencyFormatPipe,
     DateFormatPipe,

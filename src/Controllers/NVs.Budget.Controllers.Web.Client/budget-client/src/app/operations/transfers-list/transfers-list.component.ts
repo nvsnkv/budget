@@ -5,13 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { TransferResponse, TransfersListResponse, RegisterTransferRequest } from '../../budget/models';
-import { 
-  TuiButton, 
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
-} from '@taiga-ui/core';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiInput } from '@taiga-ui/core';
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { TransfersTableComponent } from '../transfers-table/transfers-table.component';
 import { NotificationService } from '../shared/notification.service';
@@ -25,7 +19,7 @@ import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../sha
     FormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiTitle,
     TuiChevron,

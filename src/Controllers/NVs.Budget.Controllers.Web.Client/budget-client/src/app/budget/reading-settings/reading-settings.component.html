@@ -1,5 +1,5 @@
 <div class="reading-settings-container">
-  <tui-loader [overlay]="true" [showLoader]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading">
     <div class="settings-card">
       <!-- Header -->
       <div class="header">
@@ -42,7 +42,7 @@
             <div class="form-group">
               <tui-textfield>
                 <label tuiLabel>Regex Pattern</label>
-                <input tuiTextfield formControlName="pattern" type="text" placeholder="e.g., ^.*\.csv$" />
+                <input tuiInput formControlName="pattern" type="text" placeholder="e.g., ^.*\.csv$" />
               </tui-textfield>
             </div>
 
@@ -50,14 +50,14 @@
               <div class="form-group">
                 <tui-textfield>
                   <label tuiLabel>Culture</label>
-                  <input tuiTextfield formControlName="culture" type="text" placeholder="e.g., en-US" />
+                  <input tuiInput formControlName="culture" type="text" placeholder="e.g., en-US" />
                 </tui-textfield>
               </div>
 
               <div class="form-group">
                 <tui-textfield>
                   <label tuiLabel>Encoding</label>
-                  <input tuiTextfield formControlName="encoding" type="text" placeholder="e.g., utf-8" />
+                  <input tuiInput formControlName="encoding" type="text" placeholder="e.g., utf-8" />
                 </tui-textfield>
               </div>
 
@@ -82,11 +82,11 @@
                   <div [formGroupName]="i" class="key-value-item">
                     <tui-textfield class="key-input">
                       <label tuiLabel>Key</label>
-                      <input tuiTextfield formControlName="key" type="text" />
+                      <input tuiInput formControlName="key" type="text" />
                     </tui-textfield>
                     <tui-textfield class="value-input">
                       <label tuiLabel>Value</label>
-                      <input tuiTextfield formControlName="value" type="text" />
+                      <input tuiInput formControlName="value" type="text" />
                     </tui-textfield>
                     <button tuiButton type="button" appearance="destructive" size="s" (click)="removeField(i)">Remove</button>
                   </div>
@@ -105,11 +105,11 @@
                   <div [formGroupName]="i" class="key-value-item">
                     <tui-textfield class="key-input">
                       <label tuiLabel>Key</label>
-                      <input tuiTextfield formControlName="key" type="text" />
+                      <input tuiInput formControlName="key" type="text" />
                     </tui-textfield>
                     <tui-textfield class="value-input">
                       <label tuiLabel>Value</label>
-                      <input tuiTextfield formControlName="value" type="text" />
+                      <input tuiInput formControlName="value" type="text" />
                     </tui-textfield>
                     <button tuiButton type="button" appearance="destructive" size="s" (click)="removeAttribute(i)">Remove</button>
                   </div>
@@ -129,7 +129,7 @@
                     <div class="validation-row">
                       <tui-textfield class="pattern-input">
                         <label tuiLabel>Field Pattern</label>
-                        <input tuiTextfield formControlName="pattern" type="text" />
+                        <input tuiInput formControlName="pattern" type="text" />
                       </tui-textfield>
                       <div class="select-field condition-input">
                         <label class="select-label">Condition</label>
@@ -141,13 +141,13 @@
                       </div>
                       <tui-textfield class="value-input">
                         <label tuiLabel>Value</label>
-                        <input tuiTextfield formControlName="value" type="text" />
+                        <input tuiInput formControlName="value" type="text" />
                       </tui-textfield>
                     </div>
                     <div class="validation-row">
                       <tui-textfield class="error-message-input">
                         <label tuiLabel>Error Message</label>
-                        <input tuiTextfield formControlName="errorMessage" type="text" />
+                        <input tuiInput formControlName="errorMessage" type="text" />
                       </tui-textfield>
                       <button tuiButton type="button" appearance="destructive" size="s" (click)="removeValidationRule(i)">Remove</button>
                     </div>
@@ -189,11 +189,10 @@
           @for (pattern of getPatterns(); track pattern) {
             <div class="pattern-item">
               <tui-accordion>
-                <tui-accordion-item [open]="editingPattern === pattern">
-                  <div class="pattern-header">
-                    <code class="pattern-code">{{ pattern }}</code>
-                  </div>
-                  
+                <button tuiAccordion type="button" class="pattern-header">
+                  <code class="pattern-code">{{ pattern }}</code>
+                </button>
+                <tui-expand>
                   <!-- Read-only View -->
                   @if (editingPattern !== pattern) {
                     <div class="pattern-content">
@@ -262,7 +261,7 @@
                         <div class="form-group">
                           <tui-textfield>
                             <label tuiLabel>Regex Pattern</label>
-                            <input tuiTextfield formControlName="pattern" type="text" placeholder="e.g., ^.*\.csv$" />
+                            <input tuiInput formControlName="pattern" type="text" placeholder="e.g., ^.*\.csv$" />
                           </tui-textfield>
                         </div>
 
@@ -270,14 +269,14 @@
                           <div class="form-group">
                             <tui-textfield>
                               <label tuiLabel>Culture</label>
-                              <input tuiTextfield formControlName="culture" type="text" placeholder="e.g., en-US" />
+                              <input tuiInput formControlName="culture" type="text" placeholder="e.g., en-US" />
                             </tui-textfield>
                           </div>
 
                           <div class="form-group">
                             <tui-textfield>
                               <label tuiLabel>Encoding</label>
-                              <input tuiTextfield formControlName="encoding" type="text" placeholder="e.g., utf-8" />
+                              <input tuiInput formControlName="encoding" type="text" placeholder="e.g., utf-8" />
                             </tui-textfield>
                           </div>
 
@@ -302,11 +301,11 @@
                               <div [formGroupName]="i" class="key-value-item">
                                 <tui-textfield class="key-input">
                                   <label tuiLabel>Key</label>
-                                  <input tuiTextfield formControlName="key" type="text" />
+                                  <input tuiInput formControlName="key" type="text" />
                                 </tui-textfield>
                                 <tui-textfield class="value-input">
                                   <label tuiLabel>Value</label>
-                                  <input tuiTextfield formControlName="value" type="text" />
+                                  <input tuiInput formControlName="value" type="text" />
                                 </tui-textfield>
                                 <button tuiButton type="button" appearance="destructive" size="s" (click)="removeField(i)">Remove</button>
                               </div>
@@ -325,11 +324,11 @@
                               <div [formGroupName]="i" class="key-value-item">
                                 <tui-textfield class="key-input">
                                   <label tuiLabel>Key</label>
-                                  <input tuiTextfield formControlName="key" type="text" />
+                                  <input tuiInput formControlName="key" type="text" />
                                 </tui-textfield>
                                 <tui-textfield class="value-input">
                                   <label tuiLabel>Value</label>
-                                  <input tuiTextfield formControlName="value" type="text" />
+                                  <input tuiInput formControlName="value" type="text" />
                                 </tui-textfield>
                                 <button tuiButton type="button" appearance="destructive" size="s" (click)="removeAttribute(i)">Remove</button>
                               </div>
@@ -349,7 +348,7 @@
                                 <div class="validation-row">
                                   <tui-textfield class="pattern-input">
                                     <label tuiLabel>Field Pattern</label>
-                                    <input tuiTextfield formControlName="pattern" type="text" />
+                                    <input tuiInput formControlName="pattern" type="text" />
                                   </tui-textfield>
                                   <div class="select-field condition-input">
                                     <label class="select-label">Condition</label>
@@ -361,13 +360,13 @@
                                   </div>
                                   <tui-textfield class="value-input">
                                     <label tuiLabel>Value</label>
-                                    <input tuiTextfield formControlName="value" type="text" />
+                                    <input tuiInput formControlName="value" type="text" />
                                   </tui-textfield>
                                 </div>
                                 <div class="validation-row">
                                   <tui-textfield class="error-message-input">
                                     <label tuiLabel>Error Message</label>
-                                    <input tuiTextfield formControlName="errorMessage" type="text" />
+                                    <input tuiInput formControlName="errorMessage" type="text" />
                                   </tui-textfield>
                                   <button tuiButton type="button" appearance="destructive" size="s" (click)="removeValidationRule(i)">Remove</button>
                                 </div>
@@ -398,7 +397,7 @@
                       </form>
                     </div>
                   }
-                </tui-accordion-item>
+                </tui-expand>
               </tui-accordion>
             </div>
           }

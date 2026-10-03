@@ -27,25 +27,25 @@
                     <span class="summary-label">Owners:</span>
                     <div class="owners-chips">
                       @for (owner of budget.owners; track owner.id) {
-                        <tui-chip size="s">
+                        <span tuiChip size="s">
                           {{ owner.name }}
-                        </tui-chip>
+                        </span>
                       }
                     </div>
                   </div>
                   
                   <div class="summary-row">
                     <span class="summary-label">Tagging Rules:</span>
-                    <tui-chip size="s">
+                    <span tuiChip size="s">
                       {{ budget.taggingCriteria.length }}
-                    </tui-chip>
+                    </span>
                   </div>
                   
                   <div class="summary-row">
                     <span class="summary-label">Transfer Rules:</span>
-                    <tui-chip size="s">
+                    <span tuiChip size="s">
                       {{ budget.transferCriteria.length }}
-                    </tui-chip>
+                    </span>
                   </div>
                 </div>
 
@@ -77,7 +77,7 @@
           </div>
         }
       } @else {
-        <tui-loader [showLoader]="true">
+        <tui-loader [loading]="true">
           <div class="loading-placeholder">Loading budgets...</div>
         </tui-loader>
       }

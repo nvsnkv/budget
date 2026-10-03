@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiTextfield, TuiDropdown } from '@taiga-ui/core';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiDropdown, TuiInput } from '@taiga-ui/core';
 
 import { OperationsApiService } from '../operations-api.service';
 import { NotificationService } from '../shared/notification.service';
@@ -22,7 +22,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
     TuiLoader,
     TuiTitle,
     TuiLabel,
-    TuiTextfield,
+    TuiInput,
     TuiDropdown,
     CriteriaFilterComponent,
     OperationsTableComponent,

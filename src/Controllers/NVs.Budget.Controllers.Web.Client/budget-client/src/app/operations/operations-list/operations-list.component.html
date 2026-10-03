@@ -54,7 +54,7 @@
                 [(ngModel)]="outputCurrency"
               />
               <tui-data-list-wrapper
-                *tuiTextfieldDropdown
+                *tuiDropdown
                 new
                 [items]="items"
               />
@@ -118,7 +118,7 @@
           </div>
         }
       } @else {
-        <tui-loader [showLoader]="true">
+        <tui-loader [loading]="true">
           <div class="loading-placeholder">Loading operations...</div>
         </tui-loader>
       }
@@ -126,7 +126,7 @@
       @if (isLoading) {
         <div class="processing-overlay" aria-live="polite" aria-busy="true">
           <div class="processing-overlay-content">
-            <tui-loader [showLoader]="true" [inheritColor]="true"></tui-loader>
+            <tui-loader [loading]="true" [inheritColor]="true"></tui-loader>
             <span>Processing changes...</span>
           </div>
         </div>

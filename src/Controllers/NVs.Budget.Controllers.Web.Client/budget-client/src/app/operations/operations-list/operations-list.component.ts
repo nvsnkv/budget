@@ -5,14 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, catchError, of } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { OperationResponse } from '../../budget/models';
-import {
-  TuiButton,
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
-} from '@taiga-ui/core';
-import {TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect} from '@taiga-ui/kit';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiInput, TuiCheckbox } from '@taiga-ui/core';
+import {TuiChevron, TuiDataListWrapper, TuiSelect} from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
@@ -27,7 +21,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
     FormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
+    TuiInput,
     TuiChevron,
     TuiDataListWrapper,
     TuiLabel,

@@ -5,14 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map, switchMap, catchError, of, tap } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
 import { BudgetResponse, UpdateBudgetRequest, Owner, ChangeBudgetOwnersRequest } from '../models';
-import { 
-  TuiButton, 
-  TuiDialogService, 
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
-} from '@taiga-ui/core';
+import { TuiButton, TuiDialogService, TuiLoader, TuiTitle, TuiLabel, TuiInput, TuiExpand } from '@taiga-ui/core';
 import {
   TuiAccordion,
   TuiChip,
@@ -28,11 +21,12 @@ import {
     ReactiveFormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiAccordion,
     TuiChip,
     TuiTextarea,
+    TuiExpand,
     TuiTitle
   ],
   templateUrl: './budget-detail.component.html',
@@ -606,7 +600,7 @@ export class BudgetDetailComponent implements OnInit {
     this.dialogService.open(message, {
       label: 'Error',
       size: 'm',
-      closeable: true,
+      closable: true,
       dismissible: true
     }).subscribe();
   }
@@ -615,7 +609,7 @@ export class BudgetDetailComponent implements OnInit {
     this.dialogService.open(message, {
       label: 'Success',
       size: 's',
-      closeable: true,
+      closable: true,
       dismissible: true
     }).subscribe();
   }

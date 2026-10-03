@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OperationResponse } from '../../budget/models';
-import { TuiButton, TuiExpand, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiExpand, TuiInput } from '@taiga-ui/core';
 import { TuiChip } from '@taiga-ui/kit';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
@@ -28,7 +28,7 @@ interface EditableOperation {
     TuiButton,
     TuiExpand,
     TuiChip,
-    TuiTextfield,
+    TuiInput,
     CurrencyFormatPipe,
     DateFormatPipe,
     ObjectKeysPipe,

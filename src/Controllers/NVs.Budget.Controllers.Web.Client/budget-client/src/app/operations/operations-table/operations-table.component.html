@@ -157,7 +157,7 @@
             } @else {
               <div class="tags-inline">
                 @for (tag of operation.tags; track tag) {
-                  <tui-chip size="xs">{{ tag }}</tui-chip>
+                  <span tuiChip size="xs">{{ tag }}</span>
                 }
               </div>
             }
@@ -172,9 +172,9 @@
               @if (operation.attributes && (operation.attributes | objectKeys).length > 0) {
                 <div class="attributes-inline">
                   @for (key of operation.attributes | objectKeys; track key) {
-                    <tui-chip size="xs" class="attr-chip">
+                    <span tuiChip size="xs" class="attr-chip">
                       {{ key }}: {{ operation.attributes![key] }}
-                    </tui-chip>
+                    </span>
                   }
                 </div>
               } @else {

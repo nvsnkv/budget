@@ -3,14 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
-import { 
-  TuiButton, 
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
-} from '@taiga-ui/core';
-import { TuiAccordion, TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiInput, TuiCheckbox } from '@taiga-ui/core';
+import { TuiAccordion, TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
 import { ExamplesSectionComponent } from '../shared/components/examples-section/examples-section.component';
@@ -40,7 +34,7 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     TuiButton,
     TuiLoader,
     TuiTitle,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiAccordion,
     TuiCheckbox,

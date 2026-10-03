@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TuiButton, TuiTextfield, TuiLabel } from '@taiga-ui/core';
+import { TuiButton, TuiLabel, TuiInput } from '@taiga-ui/core';
 import { TuiTextarea } from '@taiga-ui/kit';
 import { CriteriaExample } from '../../models/example.interface';
 import { ExamplesSectionComponent } from '../examples-section/examples-section.component';
@@ -11,7 +11,7 @@ import { CtrlEnterDirective } from '../../directives/ctrl-enter.directive';
   standalone: true,
   imports: [    ReactiveFormsModule,
     TuiButton,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiTextarea,
     ExamplesSectionComponent,

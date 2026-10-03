@@ -3,8 +3,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { BudgetApiService } from '../budget-api.service';
 import { RegisterBudgetRequest } from '../models';
 import { CommonModule } from '@angular/common';
-import { TuiButton, TuiError, TuiNotification, TuiTextfield } from '@taiga-ui/core';
-import { TuiCheckbox, TuiFieldErrorPipe, tuiValidationErrorsProvider } from '@taiga-ui/kit';
+import { TuiButton, TuiError, TuiNotification, TuiInput, TuiCheckbox, tuiValidationErrorsProvider } from '@taiga-ui/core';
 import { TuiForm } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 
@@ -12,7 +11,7 @@ import { Router } from '@angular/router';
   selector: 'app-new-budget',
   templateUrl: './new-budget.component.html',
   styleUrls: ['./new-budget.component.less'],
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiTextfield, TuiButton, TuiError, TuiFieldErrorPipe, TuiForm, TuiCheckbox],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, TuiNotification, TuiInput, TuiButton, TuiError, TuiForm, TuiCheckbox],
   providers: [tuiValidationErrorsProvider({required: 'Please enter budget name'})]
 })
 export class NewBudgetComponent {

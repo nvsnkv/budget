@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { provideTaiga } from '@taiga-ui/core';
 import { AppComponent } from './app.component';
 import { AppVersionService } from './app-version.service';
 
@@ -11,6 +12,7 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
+        provideTaiga(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),

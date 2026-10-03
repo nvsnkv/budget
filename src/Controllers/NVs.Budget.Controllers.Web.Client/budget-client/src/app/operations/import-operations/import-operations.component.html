@@ -1,5 +1,5 @@
 <div class="import-container">
-  <tui-loader [overlay]="true" [showLoader]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading">
     <div class="import-card">
       <h2 tuiTitle size="l">Import Operations</h2>
       
@@ -38,7 +38,7 @@
             <tui-textfield>
               <label tuiLabel>File Pattern (Optional)</label>
               <input 
-                tuiTextfield 
+                tuiInput 
                 formControlName="filePattern" 
                 type="text" 
                 placeholder="e.g., .*\.csv or specific pattern"
@@ -57,7 +57,7 @@
                 formControlName="transferConfidenceLevel"
               />
               <tui-data-list-wrapper
-                *tuiTextfieldDropdown
+                *tuiDropdown
                 new
                 [items]="confidenceItems"
               />

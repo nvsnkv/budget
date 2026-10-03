@@ -4,15 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { BudgetApiService } from '../budget-api.service';
 import { FileReadingSettingResponse, ValidationRuleResponse } from '../models';
-import {
-  TuiButton,
-  TuiDialogService,
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel,
-  TuiDataList
-} from '@taiga-ui/core';
+import { TuiButton, TuiDialogService, TuiLoader, TuiTitle, TuiLabel, TuiDataList, TuiInput, TuiExpand } from '@taiga-ui/core';
 import {
   TuiAccordion
 } from '@taiga-ui/kit';
@@ -24,11 +16,12 @@ import {
     ReactiveFormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiAccordion,
     TuiTitle,
-    TuiDataList
+    TuiDataList,
+    TuiExpand
   ],
   templateUrl: './reading-settings.component.html',
   styleUrls: ['./reading-settings.component.less']

@@ -4,13 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
 import { BudgetResponse } from '../../budget/models';
-import { 
-  TuiButton, 
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
-} from '@taiga-ui/core';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiInput } from '@taiga-ui/core';
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
@@ -23,7 +17,7 @@ import { ImportResult } from '../shared/models/result.interface';
   imports: [    ReactiveFormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiTitle,
     TuiChevron,
