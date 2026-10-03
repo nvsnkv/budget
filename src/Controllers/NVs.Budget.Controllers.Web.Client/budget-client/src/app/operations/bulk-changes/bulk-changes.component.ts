@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiDropdown, TuiInput } from '@taiga-ui/core';
@@ -29,13 +29,13 @@ import { CriteriaExample } from '../shared/models/example.interface';
     AttributesEditorComponent
   ],
   templateUrl: './bulk-changes.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./bulk-changes.component.less']
 })
-export class BulkChangesComponent implements OnInit {
-  budgetId!: string;
-  isLoading = false;
-  operations: OperationResponse[] = [];
+export class BulkChangesComponent {
+  readonly budgetId: string;
+  isLoading = signal(false);
+  operations = signal<OperationResponse[]>([]);
 
   currentCriteria = 'o => true';
   criteriaExamples: CriteriaExample[] = [
@@ -54,25 +54,23 @@ export class BulkChangesComponent implements OnInit {
   @ViewChild(OperationsTableComponent) operationsTable!: OperationsTableComponent;
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
     private notificationService: NotificationService,
-    private operationsHelper: OperationsHelperService
-  ) {}
-
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
+    private operationsHelper: OperationsHelperService,
+    route: ActivatedRoute
+  ) {
+    this.budgetId = route.snapshot.params['budgetId'];
   }
 
   loadAndApply(criteria: string): void {
     this.currentCriteria = criteria;
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     this.operationsApi.getOperations(this.budgetId, criteria, undefined, false).subscribe({
       next: (ops) => {
-        this.isLoading = false;
-        this.operations = ops;
+        this.isLoading.set(false);
+        this.operations.set(ops);
         
         // Wait for next tick so that OperationsTableComponent updates its operations input
         setTimeout(() => {
@@ -80,7 +78,7 @@ export class BulkChangesComponent implements OnInit {
         });
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to load operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -94,7 +92,7 @@ export class BulkChangesComponent implements OnInit {
     const tagsToRemoveList = this.tagsToRemove.split(',').map(t => t.trim()).filter(t => t);
     const attrsToRemoveList = this.attributesToRemove.split(',').map(a => a.trim()).filter(a => a);
 
-    for (const operation of this.operations) {
+    for (const operation of this.operations()) {
       // Put operation into edit mode
       this.operationsTable.startEdit(operation);
       const draft = this.operationsTable.editingOperations[operation.id];
@@ -128,11 +126,11 @@ export class BulkChangesComponent implements OnInit {
   }
 
   onUpdateOperations(updatedOperations: OperationResponse[]): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     this.operationsHelper.updateOperations(this.budgetId, updatedOperations).subscribe({
       next: (result) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
 
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
@@ -140,11 +138,11 @@ export class BulkChangesComponent implements OnInit {
         } else {
           const count = result.updatedOperations?.length ?? updatedOperations.length;
           this.notificationService.showSuccess(`Updated ${count} operation${count === 1 ? '' : 's'} successfully`).subscribe();
-          this.operations = []; // Clear list after successful save
+          this.operations.set([]); // Clear list after successful save
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to update operations');
         this.notificationService.showError(errorMessage).subscribe();
       }

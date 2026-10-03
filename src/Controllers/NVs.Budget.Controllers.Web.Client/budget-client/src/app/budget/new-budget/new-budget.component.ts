@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BudgetApiService } from '../budget-api.service';
 import { RegisterBudgetRequest } from '../models';
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './new-budget.component.html',
   styleUrls: ['./new-budget.component.less'],
   imports: [FormsModule, ReactiveFormsModule, TuiNotification, TuiInput, TuiButton, TuiError, TuiForm, TuiCheckbox],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [tuiValidationErrorsProvider({required: 'Please enter budget name'})]
 })
 export class NewBudgetComponent {
@@ -21,13 +21,13 @@ export class NewBudgetComponent {
     generateDemoBudget: new FormControl(false),
   });
 
-  errorMessage: string | null = null;
+  errorMessage = signal<string | null>(null);
 
   constructor(private budgetService: BudgetApiService, private router: Router) {}
 
   onSubmit() {
     if (!this.nameGroup.controls.name.valid) {
-      this.errorMessage = 'Please enter budget name.';
+      this.errorMessage.set('Please enter budget name.');
       return;
     }
 
@@ -50,14 +50,14 @@ export class NewBudgetComponent {
   resetForm() {
     this.nameGroup.controls.name.setValue('');
     this.nameGroup.controls.generateDemoBudget.setValue(false);
-    this.errorMessage = null;
+    this.errorMessage.set(null);
   }
 
   handleError(error: any) {
     if (error.status === 400 && Array.isArray(error.error)) {
-      this.errorMessage = error.error.map((err: any) => err.message).join(', ');
+      this.errorMessage.set(error.error.map((err: any) => err.message).join(', '));
     } else {
-      this.errorMessage = 'Error creating budget. Please try again.';
+      this.errorMessage.set('Error creating budget. Please try again.');
     }
   }
 }

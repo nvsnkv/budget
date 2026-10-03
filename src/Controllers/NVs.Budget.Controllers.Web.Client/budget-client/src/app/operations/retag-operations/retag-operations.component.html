@@ -1,5 +1,5 @@
 <div class="retag-container">
-  <tui-loader [overlay]="true" [loading]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading()">
     <div class="retag-card">
       <h2 tuiTitle size="l">Retag Operations</h2>
 
@@ -22,7 +22,7 @@
       </app-criteria-filter>
 
       <div class="action-buttons">
-        @if (retagResult) {
+        @if (retagResult(); as result) {
           <button 
             tuiButton
             type="button"
@@ -34,27 +34,27 @@
         }
       </div>
 
-      @if (retagResult) {
+      @if (retagResult(); as result) {
         <div class="retag-result">
           <h3 tuiTitle size="m">Retagging Results</h3>
           <div class="result-stats">
-            @if (retagResult.successes.length > 0) {
+            @if (result.successes.length > 0) {
               <div class="stat-item success">
                 <span class="stat-label">Successes:</span>
-                <span class="stat-value">{{ retagResult.successes.length }}</span>
+                <span class="stat-value">{{ result.successes.length }}</span>
               </div>
             }
-            @if (retagResult.errors.length > 0) {
+            @if (result.errors.length > 0) {
               <div class="stat-item error">
                 <span class="stat-label">Errors:</span>
-                <span class="stat-value">{{ retagResult.errors.length }}</span>
+                <span class="stat-value">{{ result.errors.length }}</span>
               </div>
             }
           </div>
           
           <app-operation-result
-            [successes]="retagResult.successes"
-            [errors]="retagResult.errors">
+            [successes]="result.successes"
+            [errors]="result.errors">
           </app-operation-result>
         </div>
       }

@@ -69,6 +69,6 @@ describe('NewBudgetComponent', () => {
         component.nameGroup.controls.name.setValue('Demo');
         component.onSubmit();
 
-        expect(component.errorMessage).toContain('Validation failed');
+        expect(component.errorMessage()).toContain('Validation failed');
     });
 });

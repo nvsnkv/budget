@@ -1,5 +1,5 @@
 <div class="logbook-container">
-  <tui-loader [overlay]="true" [loading]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading()">
     <div class="logbook-card">
       <div class="header">
       <h2 tuiTitle size="l">Operations Logbook</h2>
@@ -147,7 +147,7 @@
           [showExamplesInitially]="false"
           (criteriaSubmitted)="onCriteriaSubmitted($event)"
           (criteriaCleared)="onCriteriaCleared()">            
-            @if (availableLogbookCriteria.length > 0) {
+            @if (availableLogbookCriteria().length > 0) {
               <div class="currency-section">
                 <tui-textfield tuiChevron class="currency-selector">
                   <input
@@ -160,7 +160,7 @@
                   <tui-data-list-wrapper
                     *tuiDropdown
                     new
-                    [items]="availableLogbookCriteria"
+                    [items]="availableLogbookCriteria()"
                   />
                 </tui-textfield>
               </div>
@@ -185,7 +185,7 @@
         }
       </div>
 
-      @if (logbook) {
+      @if (logbook(); as logbook) {
         <div class="logbook-section">
           <div class="header">
             <h3 tuiTitle size="m">Logbook Statistics</h3>
@@ -236,13 +236,13 @@
             </div>
           </div>
 
-          @if (criteriaRows.length > 0 && ranges.length > 0) {
+          @if (criteriaRows().length > 0 && ranges().length > 0) {
             <div class="logbook-table-container">
               <table class="logbook-table">
                 <thead>
                   <tr>
                     <th class="criteria-column">Category</th>
-                    @for (range of ranges; track range.name) {
+                    @for (range of ranges(); track range.name) {
                       <th class="range-column" [title]="(range.from | dateFormat) + ' - ' + (range.till | dateFormat)">
                         <div class="range-header">
                           <span>{{ range.name }}</span>
@@ -257,7 +257,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (row of criteriaRows; track row.path) {
+                  @for (row of criteriaRows(); track row.path) {
                     @if (isRowVisible(row)) {
                       <tr class="criteria-row" [class.has-children]="row.hasChildren" [attr.data-level]="row.level">
                         <td class="criteria-cell" [style.padding-left.rem]="row.level * 2">
@@ -277,7 +277,7 @@
                             }
                           </div>
                         </td>
-                        @for (range of ranges; track range.name) {
+                        @for (range of ranges(); track range.name) {
                           <td class="data-cell"
                               [class.clickable]="hasOperationsInRange(row, range.name)"
                               [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + $safeNavigationMigration(getEntryForRange(row, range.name)?.operationsCount) + ' operations' : ''"

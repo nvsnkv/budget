@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiLoader, TuiTitle } from '@taiga-ui/core';
@@ -32,45 +32,43 @@ interface ManualOperationRow {
     AttributesEditorComponent
   ],
   templateUrl: './manual-import-operations.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./manual-import-operations.component.less']
 })
-export class ManualImportOperationsComponent implements OnInit {
-  budgetId!: string;
-  budget: BudgetResponse | null = null;
-  isLoading = false;
+export class ManualImportOperationsComponent {
+  readonly budgetId: string;
+  budget = signal<BudgetResponse | null>(null);
+  isLoading = signal(false);
 
   transferConfidenceLevel = '';
   manualRows: ManualOperationRow[] = [];
-  importResult: ImportResult | null = null;
+  importResult = signal<ImportResult | null>(null);
   showDuplicates = false;
 
   readonly currencyItems: string[] = ['RUB', 'USD', 'EUR'];
   readonly confidenceItems: string[] = ['Exact', 'Likely'];
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
     private budgetApi: BudgetApiService,
-    private notificationService: NotificationService
-  ) {}
-
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
+    private notificationService: NotificationService,
+    route: ActivatedRoute
+  ) {
+    this.budgetId = route.snapshot.params['budgetId'];
     this.manualRows = [this.createEmptyRow()];
     this.loadBudget();
   }
 
   loadBudget(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.budgetApi.getBudgetById(this.budgetId).subscribe({
       next: budget => {
-        this.budget = budget || null;
-        this.isLoading = false;
+        this.budget.set(budget || null);
+        this.isLoading.set(false);
       },
       error: error => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to load budget');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -91,7 +89,7 @@ export class ManualImportOperationsComponent implements OnInit {
   }
 
   importManualOperations(): void {
-    if (!this.budget) {
+    if (!this.budget()) {
       this.notificationService.showError('Budget is not loaded yet').subscribe();
       return;
     }
@@ -103,17 +101,17 @@ export class ManualImportOperationsComponent implements OnInit {
     }
     const request = buildResult.operations;
 
-    this.isLoading = true;
-    this.importResult = null;
+    this.isLoading.set(true);
+    this.importResult.set(null);
 
     this.operationsApi.importManualOperations(
       this.budgetId,
       request,
-      this.budget.version,
+      this.budget()!.version,
       this.transferConfidenceLevel || undefined
     ).subscribe({
       next: result => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.applyImportResult(result);
 
         if (result.errors.length === 0) {
@@ -127,7 +125,7 @@ export class ManualImportOperationsComponent implements OnInit {
         }
       },
       error: error => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to import operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -139,7 +137,7 @@ export class ManualImportOperationsComponent implements OnInit {
   }
 
   getDuplicatesList(): any[] {
-    return this.importResult?.duplicatesList || [];
+    return this.importResult()?.duplicatesList || [];
   }
 
   viewOperations(): void {
@@ -147,13 +145,13 @@ export class ManualImportOperationsComponent implements OnInit {
   }
 
   private applyImportResult(result: ImportResultResponse): void {
-    this.importResult = {
+    this.importResult.set({
       registered: result.registeredOperations.length,
       duplicates: result.duplicates.length,
       errors: result.errors,
       successes: result.successes,
       duplicatesList: result.duplicates
-    };
+    });
   }
 
   private buildRequest(): { isValid: boolean; message: string; operations: UnregisteredOperationRequest[] } {

@@ -82,7 +82,7 @@
             type="button"
             appearance="primary"
             size="m"
-            [disabled]="isLoading"
+            [disabled]="isMutating()"
             (click)="registerTransfer()">
             Register Transfer
           </button>
@@ -91,7 +91,7 @@
             type="button"
             appearance="secondary"
             size="m"
-            [disabled]="isLoading"
+            [disabled]="isMutating()"
             (click)="toggleRegisterForm()">
             Cancel
           </button>
@@ -109,7 +109,7 @@
             <input
               tuiInput
               [(ngModel)]="fromDate"
-              (ngModelChange)="onDateChange()"
+              
               type="date"
             />
           </tui-textfield>
@@ -121,7 +121,7 @@
             <input
               tuiInput
               [(ngModel)]="tillDate"
-              (ngModelChange)="onDateChange()"
+              
               type="date"
             />
           </tui-textfield>
@@ -133,7 +133,7 @@
             <input
               tuiSelect
               [(ngModel)]="accuracyFilter"
-              (ngModelChange)="onAccuracyChange()"
+              
               tuiTextfieldSize="s"
             />
             <tui-data-list-wrapper
@@ -159,7 +159,7 @@
 
     <!-- Transfers List -->
     <div class="transfers-section">
-      @if (transfers$ | async; as transfersList) {
+      @if (transfers(); as transfersList) {
         <!-- Recorded Transfers -->
         @if (transfersList.recorded && transfersList.recorded.length > 0) {
           <div class="transfers-group">
@@ -199,9 +199,9 @@
                 type="button"
                 appearance="primary"
                 size="m"
-                [disabled]="isLoading || selectedUnregisteredTransfers.length === 0"
+                [disabled]="isMutating() || selectedUnregisteredTransfers().length === 0"
                 (click)="registerSelectedTransfers()">
-                Register Selected ({{ selectedUnregisteredTransfers.length }})
+                Register Selected ({{ selectedUnregisteredTransfers().length }})
               </button>
             </div>
             <app-transfers-table

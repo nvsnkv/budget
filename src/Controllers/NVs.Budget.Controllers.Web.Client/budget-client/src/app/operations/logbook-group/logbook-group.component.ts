@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { 
@@ -22,10 +22,10 @@ import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../sha
     OperationsTableComponent
   ],
   templateUrl: './logbook-group.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./logbook-group.component.less']
 })
-export class LogbookGroupComponent implements OnInit {
+export class LogbookGroupComponent {
   budgetId!: string;
   rangeName!: string;
   criteriaPath!: string;
@@ -36,28 +36,26 @@ export class LogbookGroupComponent implements OnInit {
   cronExpression?: string;
   outputCurrency?: string;
   
-  isLoading = false;
-  operations: OperationResponse[] = [];
+  isLoading = signal(false);
+  operations = signal<OperationResponse[]>([]);
   groupTitle = '';
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
     private notificationService: NotificationService,
-    private operationsHelper: OperationsHelperService
-  ) {}
-
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
-    this.rangeName = this.route.snapshot.queryParams['rangeName'] || '';
-    this.criteriaPath = this.route.snapshot.queryParams['criteriaPath'] || '';
-    this.fromDate = this.route.snapshot.queryParams['from'] || '';
-    this.tillDate = this.route.snapshot.queryParams['till'] || '';
-    this.criteria = this.route.snapshot.queryParams['criteria'];
-    this.logbookCriteria = this.route.snapshot.queryParams['logbookCriteria'];
-    this.cronExpression = this.route.snapshot.queryParams['cronExpression'];
-    this.outputCurrency = this.route.snapshot.queryParams['outputCurrency'];
+    private operationsHelper: OperationsHelperService,
+    route: ActivatedRoute
+  ) {
+    this.budgetId = route.snapshot.params['budgetId'];
+    this.rangeName = route.snapshot.queryParams['rangeName'] || '';
+    this.criteriaPath = route.snapshot.queryParams['criteriaPath'] || '';
+    this.fromDate = route.snapshot.queryParams['from'] || '';
+    this.tillDate = route.snapshot.queryParams['till'] || '';
+    this.criteria = route.snapshot.queryParams['criteria'];
+    this.logbookCriteria = route.snapshot.queryParams['logbookCriteria'];
+    this.cronExpression = route.snapshot.queryParams['cronExpression'];
+    this.outputCurrency = route.snapshot.queryParams['outputCurrency'];
     
     const pathParts = this.criteriaPath.split('/');
     const criteriaName = pathParts[pathParts.length - 1] || 'Group';
@@ -67,7 +65,7 @@ export class LogbookGroupComponent implements OnInit {
   }
 
   loadOperations(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     
     const from = this.fromDate ? calendarDateToUtcStart(this.fromDate) : undefined;
     const till = this.tillDate ? calendarDateToUtcExclusiveEnd(this.tillDate) : undefined;
@@ -82,23 +80,23 @@ export class LogbookGroupComponent implements OnInit {
       this.outputCurrency
     ).subscribe({
       next: (result: LogbookResponse) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         
         // Find the specific range and criteria path
         const rangedEntry = result.ranges.find(r => r.range.name === this.rangeName);
         if (rangedEntry) {
           const entry = this.findEntryByPath(rangedEntry.entry, this.criteriaPath);
           if (entry) {
-            this.operations = entry.operations || [];
+            this.operations.set(entry.operations || []);
           }
         }
         
-        if (this.operations.length === 0) {
+        if (this.operations().length === 0) {
           this.notificationService.showWarning('No operations found for this group').subscribe();
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to load operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -147,11 +145,11 @@ export class LogbookGroupComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     
     this.operationsHelper.deleteOperations(this.budgetId, operations.map(operation => operation.id)).subscribe({
       next: (result) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
@@ -162,7 +160,7 @@ export class LogbookGroupComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to delete operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -170,11 +168,11 @@ export class LogbookGroupComponent implements OnInit {
   }
 
   onUpdateOperations(operations: OperationResponse[]): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     
     this.operationsHelper.updateOperations(this.budgetId, operations).subscribe({
       next: (result) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
@@ -186,7 +184,7 @@ export class LogbookGroupComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to update operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -194,7 +192,7 @@ export class LogbookGroupComponent implements OnInit {
   }
 
   onUpdateOperationNote(operation: OperationResponse): void {
-    const current = this.operations.find(o => o.id === operation.id);
+    const current = this.operations().find(o => o.id === operation.id);
     const previousNotes = current?.notes ?? '';
 
     this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
@@ -209,9 +207,9 @@ export class LogbookGroupComponent implements OnInit {
         }
 
         const updatedOperation = result.updatedOperations?.[0] ?? operation;
-        this.operations = this.operations.map(item =>
+        this.operations.set(this.operations().map(item =>
           item.id === updatedOperation.id ? updatedOperation : item
-        );
+        ));
       },
       error: (error) => {
         const errorMessage = this.notificationService.handleError(error, 'Failed to update notes');

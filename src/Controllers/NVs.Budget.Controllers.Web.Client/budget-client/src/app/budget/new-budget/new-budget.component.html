@@ -6,13 +6,13 @@
     [formGroup]="nameGroup"
     (ngSubmit)="onSubmit()"
 >
-    @if (errorMessage) {
+    @if (errorMessage(); as error) {
         <div tuiNotification
             appearance="negative"
             class="tui-space_bottom-4"
-            (closed)="errorMessage = ''"
+            (closed)="errorMessage.set('')"
         >
-            {{ errorMessage }}
+            {{ error }}
         </div>
     }
     <h2 tuiTitle size="l" class="tui-space_bottom-4">

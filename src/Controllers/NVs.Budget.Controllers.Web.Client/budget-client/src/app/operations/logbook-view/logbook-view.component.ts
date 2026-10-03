@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -46,13 +46,13 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     CurrencyFormatPipe
   ],
   templateUrl: './logbook-view.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./logbook-view.component.less']
 })
-export class LogbookViewComponent implements OnInit {
+export class LogbookViewComponent {
   budgetId!: string;
-  isLoading = false;
-  logbook: LogbookResponse | null = null;
+  isLoading = signal(false);
+  logbook = signal<LogbookResponse | null>(null);
   showRelative = false;
   invertRelative = false;
   highlightRelative = true;
@@ -65,15 +65,15 @@ export class LogbookViewComponent implements OnInit {
   cronExpression = '';
   outputCurrency = this.items[0];
   selectedLogbookCriteria = '';
-  availableLogbookCriteria: string[] = [];
+  availableLogbookCriteria = signal<string[]>([]);
   useDatePresets = true;
   useCronPresets = true;
   selectedDatePreset: 'lastYear' | 'currentYear' | 'lastMonth' | 'currentMonth' | null = 'currentYear';
   selectedCronPreset: 'monthly' | 'yearly' | null = 'monthly';
   showFilters = true;
   
-  ranges: NamedRangeResponse[] = [];
-  criteriaRows: CriteriaRow[] = [];
+  ranges = signal<NamedRangeResponse[]>([]);
+  criteriaRows = signal<CriteriaRow[]>([]);
   private criteriaTree: CriteriaRow[] = [];
   expandedRows = new Set<string>();
   private groupSorts = new Map<string, { rangeName: string; direction: 'asc' | 'desc' }>();
@@ -188,10 +188,10 @@ export class LogbookViewComponent implements OnInit {
   }
 
   loadLogbook(): void {
-    this.isLoading = true;
-    this.logbook = null;
-    this.ranges = [];
-    this.criteriaRows = [];
+    this.isLoading.set(true);
+    this.logbook.set(null);
+    this.ranges.set([]);
+    this.criteriaRows.set([]);
     this.criteriaTree = [];
     this.groupSorts.clear();
 
@@ -208,19 +208,19 @@ export class LogbookViewComponent implements OnInit {
       this.outputCurrency || undefined
     ).subscribe({
       next: (result) => {
-        this.isLoading = false;
-        this.logbook = result;
+        this.isLoading.set(false);
+        this.logbook.set(result);
         
         if (result.ranges && result.ranges.length > 0) {
-          this.ranges = result.ranges.map(r => r.range);
+          this.ranges.set(result.ranges.map(r => r.range));
           this.criteriaTree = this.buildCriteriaTree(result.ranges);
-          this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+          this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
           
           // Restore expansion state if it exists, otherwise start fresh
           const savedState = this.logbookStateService.getState(this.budgetId);
           if (savedState) {
             this.expandedRows = savedState.expandedRows;
-            this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+            this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
             
             // Restore scroll position after view is rendered
             setTimeout(() => {
@@ -228,7 +228,7 @@ export class LogbookViewComponent implements OnInit {
             }, 100);
           } else {
             this.expandAllRows();
-            this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+            this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
           }
         }
         
@@ -238,7 +238,7 @@ export class LogbookViewComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to load logbook');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -309,7 +309,7 @@ export class LogbookViewComponent implements OnInit {
     } else {
       this.expandedRows.add(path);
     }
-    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+    this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
   }
 
   isRowExpanded(path: string): boolean {
@@ -341,7 +341,7 @@ export class LogbookViewComponent implements OnInit {
     } else {
       this.expandAllRows();
     }
-    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+    this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
   }
 
   toggleGroupSort(row: CriteriaRow, rangeName: string, event: Event): void {
@@ -354,13 +354,13 @@ export class LogbookViewComponent implements OnInit {
     } else {
       this.groupSorts.delete(row.path);
     }
-    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+    this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
   }
 
   resetSorting(): void {
     if (this.groupSorts.size === 0) return;
     this.groupSorts.clear();
-    this.criteriaRows = this.flattenCriteriaRows(this.criteriaTree);
+    this.criteriaRows.set(this.flattenCriteriaRows(this.criteriaTree));
   }
 
   get hasActiveSorts(): boolean {
@@ -431,8 +431,8 @@ export class LogbookViewComponent implements OnInit {
   }
 
   private getBaseInfo(row: CriteriaRow): { index: number; value: number } | null {
-    for (let i = 0; i < this.ranges.length; i += 1) {
-      const candidateRangeName = this.ranges[i].name;
+    for (let i = 0; i < this.ranges().length; i += 1) {
+      const candidateRangeName = this.ranges()[i].name;
       const candidateValue = this.getRangeSum(row, candidateRangeName);
       if (candidateValue !== 0) {
         return { index: i, value: candidateValue };
@@ -442,10 +442,10 @@ export class LogbookViewComponent implements OnInit {
   }
 
   private getRelativeChangeValue(row: CriteriaRow, rangeName: string): number | null {
-    if (this.ranges.length === 0) {
+    if (this.ranges().length === 0) {
       return null;
     }
-    const rangeIndex = this.ranges.findIndex(range => range.name === rangeName);
+    const rangeIndex = this.ranges().findIndex(range => range.name === rangeName);
     const currentValue = this.getRangeSum(row, rangeName);
     const baseInfo = this.getBaseInfo(row);
     if (!baseInfo) {
@@ -462,7 +462,7 @@ export class LogbookViewComponent implements OnInit {
     }
     let previous = 0;
     for (let i = rangeIndex - 1; i >= baseInfo.index; i -= 1) {
-      const candidateRangeName = this.ranges[i].name;
+      const candidateRangeName = this.ranges()[i].name;
       const candidateValue = this.getRangeSum(row, candidateRangeName);
       if (candidateValue !== 0) {
         previous = candidateValue;
@@ -524,7 +524,7 @@ export class LogbookViewComponent implements OnInit {
   }
 
   getRelativeChangeInfo(row: CriteriaRow, rangeName: string): { value: number | null; display: string } {
-    const rangeIndex = this.ranges.findIndex(range => range.name === rangeName);
+    const rangeIndex = this.ranges().findIndex(range => range.name === rangeName);
     const baseInfo = this.getBaseInfo(row);
     if (baseInfo && rangeIndex === baseInfo.index) {
       return { value: 0, display: 'base' };
@@ -623,16 +623,16 @@ export class LogbookViewComponent implements OnInit {
         const names = (budget?.logbookCriteria ?? [])
           .map(c => c.description)
           .filter(name => !!name);
-        this.availableLogbookCriteria = Array.from(new Set(names));
+        this.availableLogbookCriteria.set(Array.from(new Set(names)));
 
-        if (!this.selectedLogbookCriteria && this.availableLogbookCriteria.length > 0) {
-          this.selectedLogbookCriteria = this.availableLogbookCriteria[0];
+        if (!this.selectedLogbookCriteria && this.availableLogbookCriteria().length > 0) {
+          this.selectedLogbookCriteria = this.availableLogbookCriteria()[0];
         }
 
         this.loadLogbook();
       },
       error: () => {
-        this.availableLogbookCriteria = [];
+        this.availableLogbookCriteria.set([]);
         this.loadLogbook();
       }
     });

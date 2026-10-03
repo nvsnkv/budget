@@ -2,7 +2,7 @@
   <table class="transfers-table">
     <thead>
       <tr>
-        @if (enableSelection) {
+        @if (enableSelection()) {
           <th class="col-select">
             <input
               type="checkbox"
@@ -16,15 +16,15 @@
         <th class="col-fee">Fee</th>
         <th class="col-comment">Comment</th>
         <th class="col-accuracy">Accuracy</th>
-        @if (showActions) {
+        @if (showActions()) {
           <th class="col-actions">Actions</th>
         }
       </tr>
     </thead>
     <tbody>
-      @for (transfer of transfers; track transfer.sourceId) {
+      @for (transfer of transfers(); track transfer.sourceId) {
         <tr class="transfer-row">
-          @if (enableSelection) {
+          @if (enableSelection()) {
             <td class="col-select">
               <input
                 type="checkbox"
@@ -58,7 +58,7 @@
           <td class="col-accuracy">
             <span tuiChip size="s">{{ transfer.accuracy }}</span>
           </td>
-          @if (showActions) {
+          @if (showActions()) {
             <td class="col-actions">
               <div class="action-buttons">
                 <button 
@@ -73,7 +73,7 @@
                     ▶
                   }
                 </button>
-                @if (showQuickRegister) {
+                @if (showQuickRegister()) {
                   <button 
                     tuiButton
                     type="button"
@@ -97,7 +97,7 @@
         </tr>
         @if (expandedTransferId === transfer.sourceId) {
           <tr class="transfer-details-row">
-            <td [attr.colspan]="(showActions ? 6 : 5) + (enableSelection ? 1 : 0)">
+            <td [attr.colspan]="(showActions() ? 6 : 5) + (enableSelection() ? 1 : 0)">
               <div class="transfer-details">
                 <div class="operations-section">
                   <h4>Operations in Transfer</h4>
@@ -112,7 +112,7 @@
         }
       } @empty {
         <tr>
-          <td [attr.colspan]="(showActions ? 6 : 5) + (enableSelection ? 1 : 0)" class="empty-state">
+          <td [attr.colspan]="(showActions() ? 6 : 5) + (enableSelection() ? 1 : 0)" class="empty-state">
             No transfers found.
           </td>
         </tr>

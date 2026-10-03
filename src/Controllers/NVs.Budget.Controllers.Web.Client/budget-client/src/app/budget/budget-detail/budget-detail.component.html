@@ -1,11 +1,11 @@
 <div class="budget-detail-container">
   @if (budget$ | async; as budget) {
-    <tui-loader [overlay]="true" [loading]="isLoading">
+    <tui-loader [overlay]="true" [loading]="isLoading()">
       <div class="budget-card">
         <!-- Header with title and actions -->
         <h2 tuiTitle size="l">{{ budget.name }}</h2>
         <div class="header-actions">
-          @if (!isEditMode) {
+          @if (!isEditMode()) {
             <button 
               tuiButton
               type="button"
@@ -95,16 +95,16 @@
                 </span>
               }
             </div>
-            @if (!isEditMode && isOwnersEditMode) {
+            @if (!isEditMode() && isOwnersEditMode()) {
               <div class="owners-edit">
                 <p class="owners-hint">Select owners that can access this budget.</p>
-                @if (availableOwners.length > 0) {
+                @if (availableOwners().length > 0) {
                   <div class="owners-checkboxes">
-                    @for (owner of availableOwners; track owner.id) {
+                    @for (owner of availableOwners(); track owner.id) {
                       <label class="owner-checkbox">
                         <input 
                           type="checkbox"
-                          [checked]="selectedOwnerIds.has(owner.id)"
+                          [checked]="selectedOwnerIds().has(owner.id)"
                           (change)="toggleOwnerSelection(owner.id, $event)" />
                         <span>{{ owner.name }}</span>
                       </label>
@@ -119,7 +119,7 @@
                     type="button"
                     appearance="primary"
                     size="m"
-                    [disabled]="isLoading || selectedOwnerIds.size === 0"
+                    [disabled]="isLoading() || selectedOwnerIds().size === 0"
                     (click)="saveOwners()">
                     Save Owners
                   </button>
@@ -138,7 +138,7 @@
         </div>
 
         <!-- Edit Form -->
-        @if (isEditMode && budgetForm) {
+        @if (isEditMode() && budgetForm) {
           <form [formGroup]="budgetForm" class="budget-form">
             <!-- Budget Name -->
             <div class="form-section">
@@ -912,7 +912,7 @@
                 type="button"
                 appearance="primary"
                 size="m"
-                [disabled]="!budgetForm.valid || isLoading"
+                [disabled]="!budgetForm.valid || isLoading()"
                 (click)="saveBudget()">
                 Save Changes
               </button>

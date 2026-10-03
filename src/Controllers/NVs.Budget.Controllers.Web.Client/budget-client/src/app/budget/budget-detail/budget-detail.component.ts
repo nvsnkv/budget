@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map, switchMap, catchError, of, tap } from 'rxjs';
@@ -30,7 +30,7 @@ import {
     TuiTitle
   ],
   templateUrl: './budget-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./budget-detail.component.less']
 })
 export class BudgetDetailComponent implements OnInit {
@@ -40,11 +40,11 @@ export class BudgetDetailComponent implements OnInit {
   
   budgetForm!: FormGroup;
   ownersForm!: FormGroup;
-  isEditMode = false;
-  isOwnersEditMode = false;
-  isLoading = false;
-  availableOwners: Owner[] = [];
-  selectedOwnerIds = new Set<string>();
+  isEditMode = signal(false);
+  isOwnersEditMode = signal(false);
+  isLoading = signal(false);
+  availableOwners = signal<Owner[]>([]);
+  selectedOwnerIds = signal<Set<string>>(new Set<string>());
   selectedLogbookCriteriaIndex = 0;
   selectedReadOnlyLogbookCriteriaDescription = '';
   selectedYamlScope: 'full' | 'tagging' | 'transfer' | 'logbook' = 'full';
@@ -125,7 +125,7 @@ export class BudgetDetailComponent implements OnInit {
     if (!this.budget) return;
 
     const initialOwnerIds = this.budget.owners.map(owner => owner.id);
-    this.selectedOwnerIds = new Set(initialOwnerIds);
+    this.selectedOwnerIds.set(new Set(initialOwnerIds));
     this.ownersForm = this.fb.group({
       ownerIds: [initialOwnerIds, Validators.required]
     });
@@ -265,33 +265,33 @@ export class BudgetDetailComponent implements OnInit {
   }
 
   toggleEditMode(): void {
-    this.isEditMode = !this.isEditMode;
-    if (!this.isEditMode) {
+    this.isEditMode.update(v => !v);
+    if (!this.isEditMode()) {
       this.initForm();
     }
-    if (this.isEditMode) {
-      this.isOwnersEditMode = false;
+    if (this.isEditMode()) {
+      this.isOwnersEditMode.set(false);
     }
   }
 
   toggleOwnersEdit(): void {
-    this.isOwnersEditMode = !this.isOwnersEditMode;
-    if (this.isOwnersEditMode) {
+    this.isOwnersEditMode.update(v => !v);
+    if (this.isOwnersEditMode()) {
       this.initOwnersForm();
     }
   }
 
   cancelOwnersEdit(): void {
-    this.isOwnersEditMode = false;
+    this.isOwnersEditMode.set(false);
     this.initOwnersForm();
   }
 
   toggleOwnerSelection(ownerId: string, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.selectedOwnerIds.add(ownerId);
+      this.selectedOwnerIds.update(ids => { ids.add(ownerId); return new Set(ids); });
     } else {
-      this.selectedOwnerIds.delete(ownerId);
+      this.selectedOwnerIds.update(ids => { ids.delete(ownerId); return new Set(ids); });
     }
     this.syncOwnerIdsControl();
   }
@@ -299,7 +299,7 @@ export class BudgetDetailComponent implements OnInit {
   saveOwners(): void {
     if (!this.budget) return;
 
-    const ownerIds = Array.from(this.selectedOwnerIds);
+    const ownerIds = Array.from(this.selectedOwnerIds());
     if (ownerIds.length === 0) {
       this.showError('Please select at least one owner.');
       return;
@@ -313,15 +313,15 @@ export class BudgetDetailComponent implements OnInit {
       ownerIds
     };
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.apiService.changeBudgetOwners(request).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.isOwnersEditMode = false;
+        this.isLoading.set(false);
+        this.isOwnersEditMode.set(false);
         this.showSuccess('Budget owners updated successfully');
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.handleError(error, 'Failed to update budget owners');
       }
     });
@@ -364,7 +364,7 @@ export class BudgetDetailComponent implements OnInit {
 
   private syncOwnerIdsControl(): void {
     if (!this.ownersForm) return;
-    this.ownersForm.get('ownerIds')?.setValue(Array.from(this.selectedOwnerIds));
+    this.ownersForm.get('ownerIds')?.setValue(Array.from(this.selectedOwnerIds()));
     this.ownersForm.get('ownerIds')?.markAsDirty();
   }
 
@@ -411,7 +411,7 @@ export class BudgetDetailComponent implements OnInit {
   saveBudget(): void {
     if (!this.budgetForm.valid || !this.budget) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     const formValue = this.budgetForm.value;
     const logbookCriteria = this.logbookCriteriaCollection.controls.map(ctrl =>
       this.buildLogbookCriteriaFromForm(ctrl as FormGroup)
@@ -427,13 +427,13 @@ export class BudgetDetailComponent implements OnInit {
 
     this.apiService.updateBudget(this.budget.id, request).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.isEditMode = false;
+        this.isLoading.set(false);
+        this.isEditMode.set(false);
         this.showSuccess('Budget updated successfully');
         window.location.reload();
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.handleError(error, 'Failed to update budget');
       }
     });
@@ -444,15 +444,15 @@ export class BudgetDetailComponent implements OnInit {
 
     const confirmed = confirm('Are you sure you want to delete this budget? This action cannot be undone.');
     if (confirmed && this.budget) {
-        this.isLoading = true;
+        this.isLoading.set(true);
         this.apiService.removeBudget(this.budget.id, this.budget.version).subscribe({
           next: () => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.showSuccess('Budget deleted successfully');
             this.router.navigate(['/']);
           },
           error: (error) => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.handleError(error, 'Failed to delete budget');
           }
         });
@@ -525,7 +525,7 @@ export class BudgetDetailComponent implements OnInit {
           return;
         }
 
-        this.isLoading = true;
+        this.isLoading.set(true);
         const upload$ = this.selectedYamlScope === 'tagging'
           ? this.apiService.uploadTaggingCriteriaYaml(this.budget!.id, yamlContent)
           : this.selectedYamlScope === 'transfer'
@@ -536,12 +536,12 @@ export class BudgetDetailComponent implements OnInit {
 
         upload$.subscribe({
           next: () => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.showSuccess('YAML imported successfully');
             window.location.reload();
           },
           error: (error) => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.handleError(error, 'Failed to upload YAML');
           }
         });
@@ -618,7 +618,7 @@ export class BudgetDetailComponent implements OnInit {
   private loadOwners(): void {
     this.apiService.getOwners().subscribe({
       next: (owners) => {
-        this.availableOwners = owners;
+        this.availableOwners.set(owners);
         this.initOwnersForm();
       },
       error: (error) => {

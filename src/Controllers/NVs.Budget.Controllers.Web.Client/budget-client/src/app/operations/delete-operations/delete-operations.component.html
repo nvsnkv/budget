@@ -1,5 +1,5 @@
 <div class="delete-container">
-  <tui-loader [overlay]="true" [loading]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading()">
     <div class="delete-card">
       <h2 tuiTitle size="l">Delete Operations</h2>
       
@@ -17,7 +17,7 @@
       </app-criteria-filter>
 
       <div class="action-buttons">
-        @if (deleteResult) {
+        @if (deleteResult(); as result) {
           <button 
             tuiButton
             type="button"
@@ -29,27 +29,27 @@
         }
       </div>
 
-      @if (deleteResult) {
+      @if (deleteResult(); as result) {
         <div class="delete-result">
           <h3 tuiTitle size="m">Deletion Results</h3>
           <div class="result-stats">
-            @if (deleteResult.successes.length > 0) {
+            @if (result.successes.length > 0) {
               <div class="stat-item success">
                 <span class="stat-label">Successes:</span>
-                <span class="stat-value">{{ deleteResult.successes.length }}</span>
+                <span class="stat-value">{{ result.successes.length }}</span>
               </div>
             }
-            @if (deleteResult.errors.length > 0) {
+            @if (result.errors.length > 0) {
               <div class="stat-item error">
                 <span class="stat-label">Errors:</span>
-                <span class="stat-value">{{ deleteResult.errors.length }}</span>
+                <span class="stat-value">{{ result.errors.length }}</span>
               </div>
             }
           </div>
           
           <app-operation-result
-            [successes]="deleteResult.successes"
-            [errors]="deleteResult.errors">
+            [successes]="result.successes"
+            [errors]="result.errors">
           </app-operation-result>
         </div>
       }

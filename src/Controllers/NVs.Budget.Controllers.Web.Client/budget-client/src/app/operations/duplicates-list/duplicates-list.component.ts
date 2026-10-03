@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { OperationResponse } from '../../budget/models';
-import { 
-  TuiButton, 
+import {
+  TuiButton,
   TuiLoader,
   TuiTitle
 } from '@taiga-ui/core';
@@ -24,14 +24,21 @@ import { CriteriaExample } from '../shared/models/example.interface';
     CriteriaFilterComponent
   ],
   templateUrl: './duplicates-list.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./duplicates-list.component.less']
 })
-export class DuplicatesListComponent implements OnInit {
-  budgetId!: string;
-  duplicateGroups: OperationResponse[][] = [];
-  isLoading = false;
-  
+export class DuplicatesListComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly operationsApi = inject(OperationsApiService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly operationsHelper = inject(OperationsHelperService);
+
+  readonly budgetId: string = this.route.snapshot.params['budgetId'];
+
+  duplicateGroups = signal<OperationResponse[][]>([]);
+  isLoading = signal(false);
+
   criteriaExamples: CriteriaExample[] = [
     { label: 'All operations:', code: 'o => true' },
     { label: 'Specific year:', code: 'o => o.Timestamp.Year == 2024' },
@@ -40,31 +47,22 @@ export class DuplicatesListComponent implements OnInit {
     { label: 'Recent operations:', code: 'o => o.Timestamp > DateTime.Now.AddDays(-30)' }
   ];
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private operationsApi: OperationsApiService,
-    private notificationService: NotificationService,
-    private operationsHelper: OperationsHelperService
-  ) {}
-
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
+  constructor() {
     this.loadDuplicates('o => true');
   }
 
   loadDuplicates(criteria: string): void {
-    this.isLoading = true;
-    
+    this.isLoading.set(true);
+
     this.operationsApi.getDuplicates(this.budgetId, criteria || undefined).subscribe({
       next: (groups) => {
-        this.duplicateGroups = groups;
-        this.isLoading = false;
+        this.duplicateGroups.set(groups);
+        this.isLoading.set(false);
       },
       error: (error) => {
         const errorMessage = this.notificationService.handleError(error, 'Failed to load duplicates');
         this.notificationService.showError(errorMessage).subscribe();
-        this.isLoading = false;
+        this.isLoading.set(false);
       }
     });
   }
@@ -90,7 +88,7 @@ export class DuplicatesListComponent implements OnInit {
   }
 
   getTotalDuplicates(): number {
-    return this.duplicateGroups.reduce((total, group) => total + group.length, 0);
+    return this.duplicateGroups().reduce((total, group) => total + group.length, 0);
   }
 
   onDeleteOperations(operations: OperationResponse[]): void {
@@ -98,17 +96,17 @@ export class DuplicatesListComponent implements OnInit {
     if (count === 0) return;
 
     const confirmMessage = `Are you sure you want to delete ${count} operation${count === 1 ? '' : 's'}?\n\nThis action cannot be undone.`;
-    
+
     if (!confirm(confirmMessage)) {
       return;
     }
 
-    this.isLoading = true;
-    
+    this.isLoading.set(true);
+
     this.operationsHelper.deleteOperations(this.budgetId, operations.map(operation => operation.id)).subscribe({
       next: (result) => {
-        this.isLoading = false;
-        
+        this.isLoading.set(false);
+
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
           this.notificationService.showError(`Failed to delete operations: ${errorMessage}`).subscribe();
@@ -118,7 +116,7 @@ export class DuplicatesListComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to delete operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -126,12 +124,12 @@ export class DuplicatesListComponent implements OnInit {
   }
 
   onUpdateOperations(operations: OperationResponse[]): void {
-    this.isLoading = true;
-    
+    this.isLoading.set(true);
+
     this.operationsHelper.updateOperations(this.budgetId, operations).subscribe({
       next: (result) => {
-        this.isLoading = false;
-        
+        this.isLoading.set(false);
+
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
           this.notificationService.showError(`Failed to update operations: ${errorMessage}`).subscribe();
@@ -142,7 +140,7 @@ export class DuplicatesListComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to update operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -178,13 +176,14 @@ export class DuplicatesListComponent implements OnInit {
   }
 
   private replaceOperation(updated: OperationResponse): void {
-    this.duplicateGroups = this.duplicateGroups.map(group =>
-      group.map(item => item.id === updated.id ? updated : item)
+    this.duplicateGroups.update(groups =>
+      groups.map(group =>
+        group.map(item => item.id === updated.id ? updated : item)
+      )
     );
   }
 
   private findOperation(operationId: string): OperationResponse | undefined {
-    return this.duplicateGroups.flat().find(operation => operation.id === operationId);
+    return this.duplicateGroups().flat().find(operation => operation.id === operationId);
   }
 }
-

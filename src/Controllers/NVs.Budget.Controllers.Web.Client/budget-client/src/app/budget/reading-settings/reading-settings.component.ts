@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
@@ -24,19 +24,19 @@ import {
     TuiExpand
   ],
   templateUrl: './reading-settings.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./reading-settings.component.less']
 })
-export class ReadingSettingsComponent implements OnInit {
+export class ReadingSettingsComponent {
   budgetId$!: Observable<string>;
   budgetId: string = '';
-  settings: Record<string, FileReadingSettingResponse> = {};
+  settings = signal<Record<string, FileReadingSettingResponse>>({});
   
   settingsForm!: FormGroup;
-  isEditMode = false;
-  isLoading = false;
-  editingPattern: string | null = null;
-  isAddingNew = false;
+  isEditMode = signal(false);
+  isLoading = signal(false);
+  editingPattern = signal<string | null>(null);
+  isAddingNew = signal(false);
 
   readonly dateTimeKindOptions = ['Local', 'Utc', 'Unspecified'];
   readonly validationConditionOptions = ['Equals', 'NotEquals'];
@@ -62,33 +62,33 @@ export class ReadingSettingsComponent implements OnInit {
   }
 
   loadSettings(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.apiService.getReadingSettings(this.budgetId).subscribe({
       next: (response) => {
-        this.settings = response || {};
-        this.isLoading = false;
+        this.settings.set(response || {});
+        this.isLoading.set(false);
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.handleError(error, 'Failed to load reading settings');
       }
     });
   }
 
   getPatterns(): string[] {
-    return Object.keys(this.settings);
+    return Object.keys(this.settings());
   }
 
   startEdit(pattern: string): void {
-    this.editingPattern = pattern;
-    const setting = this.settings[pattern];
+    this.editingPattern.set(pattern);
+    const setting = this.settings()[pattern];
     this.settingsForm = this.createSettingForm(pattern, setting);
-    this.isEditMode = true;
+    this.isEditMode.set(true);
   }
 
   startAddNew(): void {
-    this.isAddingNew = true;
-    this.editingPattern = null;
+    this.isAddingNew.set(true);
+    this.editingPattern.set(null);
     this.settingsForm = this.createSettingForm('', {
       culture: 'en-US',
       encoding: 'utf-8',
@@ -97,7 +97,7 @@ export class ReadingSettingsComponent implements OnInit {
       attributes: {},
       validation: []
     });
-    this.isEditMode = true;
+    this.isEditMode.set(true);
   }
 
   createSettingForm(pattern: string, setting: FileReadingSettingResponse): FormGroup {
@@ -185,7 +185,7 @@ export class ReadingSettingsComponent implements OnInit {
   saveSettings(): void {
     if (!this.settingsForm.valid) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     const formValue = this.settingsForm.value;
     
     // Convert arrays to dictionaries
@@ -216,26 +216,27 @@ export class ReadingSettingsComponent implements OnInit {
     };
 
     // Create updated settings
-    const updatedSettings = { ...this.settings };
+    const updatedSettings = { ...this.settings() };
     
     // If editing and pattern changed, remove old pattern
-    if (this.editingPattern && this.editingPattern !== formValue.pattern) {
-      delete updatedSettings[this.editingPattern];
+    const editingPattern = this.editingPattern();
+    if (editingPattern && editingPattern !== formValue.pattern) {
+      delete updatedSettings[editingPattern];
     }
     
     updatedSettings[formValue.pattern] = newSetting;
 
     this.apiService.updateReadingSettings(this.budgetId, updatedSettings).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.isEditMode = false;
-        this.isAddingNew = false;
-        this.editingPattern = null;
+        this.isLoading.set(false);
+        this.isEditMode.set(false);
+        this.isAddingNew.set(false);
+        this.editingPattern.set(null);
         this.showSuccess('Settings saved successfully');
         this.loadSettings();
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.handleError(error, 'Failed to save settings');
       }
     });
@@ -246,27 +247,27 @@ export class ReadingSettingsComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
-    const updatedSettings = { ...this.settings };
+    this.isLoading.set(true);
+    const updatedSettings = { ...this.settings() };
     delete updatedSettings[pattern];
 
     this.apiService.updateReadingSettings(this.budgetId, updatedSettings).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.showSuccess('Pattern deleted successfully');
         this.loadSettings();
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.handleError(error, 'Failed to delete pattern');
       }
     });
   }
 
   cancelEdit(): void {
-    this.isEditMode = false;
-    this.isAddingNew = false;
-    this.editingPattern = null;
+    this.isEditMode.set(false);
+    this.isAddingNew.set(false);
+    this.editingPattern.set(null);
     this.settingsForm = null as any;
   }
 
@@ -275,7 +276,7 @@ export class ReadingSettingsComponent implements OnInit {
   }
 
   downloadYaml(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.apiService.downloadReadingSettingsYaml(this.budgetId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -286,10 +287,10 @@ export class ReadingSettingsComponent implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.handleError(error, 'Failed to download YAML');
       }
     });
@@ -311,15 +312,15 @@ export class ReadingSettingsComponent implements OnInit {
           return;
         }
 
-        this.isLoading = true;
+        this.isLoading.set(true);
         this.apiService.uploadReadingSettingsYaml(this.budgetId, yamlContent).subscribe({
           next: () => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.showSuccess('Reading settings updated successfully from YAML');
             this.loadSettings();
           },
           error: (error) => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.handleError(error, 'Failed to upload YAML');
           }
         });
