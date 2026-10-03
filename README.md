@@ -23,13 +23,13 @@ Starting from this point you're ready to use service:
 
 The application consists of two main components that need to be hosted:
 
-1. **Web Server** (`NVs.Budget.Hosts.Web.Server`): .NET 8.0 ASP.NET Core API server
+1. **Web Server** (`NVs.Budget.Hosts.Web.Server`): .NET 10.0 ASP.NET Core API server
 2. **Web Client** (`NVs.Budget.Hosts.Web.Client`): Angular application served as static files
 
 #### Prerequisites
 
 - PostgreSQL 17+ database
-- .NET 8.0 SDK (for building)
+- .NET 10.0 SDK (for building)
 - Node.js 20+ and npm (for building client)
 - Docker (optional, for containerized deployment)
 

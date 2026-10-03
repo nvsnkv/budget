@@ -105,7 +105,7 @@ internal class OperationsRepository(PersistenceMapper mapper, BudgetContext cont
             .Include(o => o.Tags)
             .AsSplitQuery()
             .Where(o => ids.Contains(o.Id))
-            .ToDictionaryAsync(o => o.Id, ct);
+            .ToDictionaryAsync(o => o.Id, cancellationToken: ct);
 
         var results = new List<Result<TrackedOperation>>();
 
