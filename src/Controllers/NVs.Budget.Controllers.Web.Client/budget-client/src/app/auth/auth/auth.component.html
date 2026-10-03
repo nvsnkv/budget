@@ -1,4 +1,4 @@
-@if (isAuthenticated) {
+@if (isAuthenticated()) {
     <a tuiLink href="{{BaseUrl + '/auth/logout'}}" data-testid="auth-logout-link">Logout</a>
 } @else {
     <a tuiLink href="{{BaseUrl + '/auth/login'}}" data-testid="auth-login-link">Login</a>

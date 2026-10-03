@@ -1,16 +1,16 @@
-<tui-root [attr.tuiTheme]="(isDarkTheme$ | async) ? 'dark' : null">
+<tui-root [attr.tuiTheme]="isDarkTheme() ? 'dark' : null">
     <header tuiNavigationHeader class="flex-space-between">
             <span class="flex">
                 <span tuiNavigationLogo> <a routerLink="/" tuiLink>The Budget.</a></span>
-                @if (appVersion$ | async; as appVersion) {
+                @if (appVersion(); as appVersion) {
                     <span class="app-version">v{{ appVersion }}</span>
                 }
-                @if (isAuthenticated$ | async) {
+                @if (isAuthenticated()) {
                     <app-budget-selector />
                 }
             </span>
             <span class="flex">
-                @if (navLinks$ | async; as navLinks) {
+                @if (navLinks(); as navLinks) {
                     <nav class="budget-navigation">
                         @for (link of navLinks; track link.label) {
                             <a
@@ -25,18 +25,18 @@
                         }
                     </nav>
                 }
-                <button 
+                <button
                     tuiIconButton
                     appearance="icon"
                     size="s"
                     (click)="toggleTheme()"
-                    [attr.aria-label]="(isDarkTheme$ | async) ? 'Switch to light theme' : 'Switch to dark theme'"
+                    [attr.aria-label]="isDarkTheme() ? 'Switch to light theme' : 'Switch to dark theme'"
                 >
-                    <tui-icon [icon]="(isDarkTheme$ | async) ? '@tui.sun' : '@tui.moon'" />
+                    <tui-icon [icon]="isDarkTheme() ? '@tui.sun' : '@tui.moon'" />
                 </button>
-                @if (isAuthenticated$ | async) {
+                @if (isAuthenticated()) {
                     <span>
-                        <span data-testid="owner-name">{{ownerName$ | async}}</span>
+                        <span data-testid="owner-name">{{ownerName()}}</span>
                     </span>
                 }
                 <app-auth></app-auth>

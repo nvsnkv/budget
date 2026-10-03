@@ -1,67 +1,38 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { BudgetApiService as BudgetApiService } from '../budget-api.service';
-import { BudgetResponse } from '../models';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TuiButton, TuiDataList, TuiDropdown } from '@taiga-ui/core';
 import { TuiChevron } from '@taiga-ui/kit'
-import { BehaviorSubject, filter, Observable, Subscription } from 'rxjs';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-budget-selector',
   templateUrl: './budget-selector.component.html',
   styleUrls: ['./budget-selector.component.less'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [CommonModule, TuiButton, TuiChevron, TuiDataList, TuiDropdown, RouterLink, AsyncPipe]
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TuiButton, TuiChevron, TuiDataList, TuiDropdown, RouterLink]
 })
-export class BudgetSelectorComponent implements OnInit, OnDestroy {
-  private budgetIdPattern = new RegExp("^/budget/([^/]+)");
-  private budgetSub: Subscription | undefined;
-  private routerSub: Subscription | undefined;
-  private selectedBudgetId: string | null = null;
+export class BudgetSelectorComponent {
+  private readonly budgetIdPattern = new RegExp("^/budget/([^/]+)");
 
-  budgets$: Observable<BudgetResponse[]> | undefined;
-  budgetsSnapshot: BudgetResponse[] = [];
-  selectedBudget$: BehaviorSubject<BudgetResponse | undefined> = new BehaviorSubject<BudgetResponse | undefined>(undefined);
-  
-  constructor(
-    private budgetApiService: BudgetApiService, 
-    private router: Router
-  ) {}
-  
-  ngOnDestroy(): void {
-    console.log('destroying budget selector component');
-    this.budgetSub?.unsubscribe();
-    this.routerSub?.unsubscribe();
-  }
+  private readonly budgetApiService = inject(BudgetApiService);
+  private readonly router = inject(Router);
 
-  ngOnInit(): void {
-    this.setBudgetIdFrom(this.router.url);
+  readonly budgets = this.budgetApiService.budgets;
 
-    this.budgets$ = this.budgetApiService.getAllBudgets();
-    this.routerSub = this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe(n => {
-        this.setBudgetIdFrom(n.url);
-        this.updateSelectedBudget();
-      });
+  private readonly navigationEnd = toSignal<NavigationEnd | null>(
+    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)),
+    { initialValue: null },
+  );
 
-    this.budgetSub = this.budgets$.subscribe(budgets => {
-      this.budgetsSnapshot = budgets;
-      this.updateSelectedBudget();
-    });
-  }
+  readonly currentUrl = computed(() => {
+    this.navigationEnd();
+    return this.router.url;
+  });
 
-  setBudgetIdFrom(url:string) {
-    this.selectedBudgetId = this.budgetIdPattern.exec(url)?.[1] ?? null;
-  }
-
-  updateSelectedBudget() {
-    if (this.selectedBudgetId) {
-      const selectedBudget = this.budgetsSnapshot.find(budget => budget.id === this.selectedBudgetId);
-      this.selectedBudget$.next(selectedBudget);
-    } else {
-      this.selectedBudget$.next(undefined);
-    }
-  }
+  readonly selectedBudget = computed(() => {
+    const budgetId = this.budgetIdPattern.exec(this.currentUrl())?.[1];
+    return budgetId ? this.budgets().find(budget => budget.id === budgetId) : undefined;
+  });
 }

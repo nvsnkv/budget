@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { IndexComponent } from './index.component';
 import { BudgetApiService } from '../budget/budget-api.service';
@@ -17,6 +18,9 @@ describe('IndexComponent', () => {
         {
           provide: BudgetApiService,
           useValue: {
+            budgets: signal([]),
+            budgetsLoading: signal(false),
+            budgetsError: signal(null),
             getAllBudgets: () => of([]),
             removeBudget: () => of(void 0)
           }
@@ -34,3 +38,4 @@ describe('IndexComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

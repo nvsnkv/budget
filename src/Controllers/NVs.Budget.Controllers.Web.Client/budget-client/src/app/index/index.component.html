@@ -1,5 +1,5 @@
 <div class="index-container">
-  @if (isAuthenticated$ | async) {
+  @if (isAuthenticated()) {
     <div class="budgets-page">
       <div class="page-header">
         <h1 tuiTitle size="xl">My Budgets</h1>
@@ -13,7 +13,7 @@
         </button>
       </div>
 
-      @if (budgets$ | async; as budgets) {
+      @if (budgets(); as budgets) {
         @if (budgets.length > 0) {
           <div class="budgets-grid">
             @for (budget of budgets; track budget.id) {

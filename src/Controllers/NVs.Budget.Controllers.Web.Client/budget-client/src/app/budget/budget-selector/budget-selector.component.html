@@ -1,16 +1,16 @@
 <button tuiButton
     tuiChevron
     tuiDropdownAuto
-    type="button" 
+    type="button"
     data-testid="budget-selector-trigger"
-    [tuiDropdown]="content"> 
-        {{(selectedBudget$ | async)?.name ?? "Select budget from list..."}} 
+    [tuiDropdown]="content">
+        {{selectedBudget()?.name ?? "Select budget from list..."}}
 </button>
 
 <ng-template #content>
     <tui-data-list role="menu" [emptyContent]="">
         <tui-opt-group>
-            @for (budget of budgetsSnapshot; track budget.id) {
+            @for (budget of budgets(); track budget.id) {
                 <a tuiOption [routerLink]="['/budget', budget.id, 'operations']" role="menuitem" [attr.data-testid]="'budget-option-' + budget.id">
                     {{budget.name}}
                 </a>
