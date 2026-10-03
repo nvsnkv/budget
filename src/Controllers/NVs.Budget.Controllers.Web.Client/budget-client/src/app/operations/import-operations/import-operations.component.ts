@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
@@ -27,6 +27,7 @@ import { ImportResult } from '../shared/models/result.interface';
     OperationResultComponent
   ],
   templateUrl: './import-operations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./import-operations.component.less']
 })
 export class ImportOperationsComponent implements OnInit {

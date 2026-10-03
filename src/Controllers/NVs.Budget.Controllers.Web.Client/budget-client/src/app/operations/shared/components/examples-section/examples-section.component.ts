@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TuiButton } from '@taiga-ui/core';
 import { CriteriaExample } from '../../models/example.interface';
 
@@ -7,6 +7,7 @@ import { CriteriaExample } from '../../models/example.interface';
   standalone: true,
   imports: [TuiButton],
   templateUrl: './examples-section.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./examples-section.component.less']
 })
 export class ExamplesSectionComponent {

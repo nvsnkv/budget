@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -46,6 +46,7 @@ import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
     CurrencyFormatPipe
   ],
   templateUrl: './logbook-view.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./logbook-view.component.less']
 })
 export class LogbookViewComponent implements OnInit {

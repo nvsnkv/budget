@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { 
@@ -22,6 +22,7 @@ import { OperationResult } from '../shared/models/result.interface';
     OperationResultComponent
   ],
   templateUrl: './delete-operations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./delete-operations.component.less']
 })
 export class DeleteOperationsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -28,6 +28,7 @@ import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../sha
     TransfersTableComponent
   ],
   templateUrl: './transfers-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./transfers-list.component.less']
 })
 export class TransfersListComponent implements OnInit {

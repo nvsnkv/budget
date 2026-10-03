@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { 
@@ -22,6 +22,7 @@ import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../sha
     OperationsTableComponent
   ],
   templateUrl: './logbook-group.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./logbook-group.component.less']
 })
 export class LogbookGroupComponent implements OnInit {

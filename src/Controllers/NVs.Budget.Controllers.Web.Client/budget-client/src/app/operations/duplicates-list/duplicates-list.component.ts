@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { OperationResponse } from '../../budget/models';
@@ -24,6 +24,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
     CriteriaFilterComponent
   ],
   templateUrl: './duplicates-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./duplicates-list.component.less']
 })
 export class DuplicatesListComponent implements OnInit {

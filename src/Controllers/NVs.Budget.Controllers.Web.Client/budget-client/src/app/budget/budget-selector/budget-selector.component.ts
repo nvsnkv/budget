@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BudgetApiService as BudgetApiService } from '../budget-api.service';
 import { BudgetResponse } from '../models';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -11,6 +11,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
   selector: 'app-budget-selector',
   templateUrl: './budget-selector.component.html',
   styleUrls: ['./budget-selector.component.less'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, TuiButton, TuiChevron, TuiDataList, TuiDropdown, RouterLink, AsyncPipe]
 })
 export class BudgetSelectorComponent implements OnInit, OnDestroy {

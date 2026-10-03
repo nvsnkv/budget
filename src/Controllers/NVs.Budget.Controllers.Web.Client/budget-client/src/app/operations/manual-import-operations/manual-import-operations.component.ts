@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiLoader, TuiTitle } from '@taiga-ui/core';
@@ -32,6 +32,7 @@ interface ManualOperationRow {
     AttributesEditorComponent
   ],
   templateUrl: './manual-import-operations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./manual-import-operations.component.less']
 })
 export class ManualImportOperationsComponent implements OnInit {

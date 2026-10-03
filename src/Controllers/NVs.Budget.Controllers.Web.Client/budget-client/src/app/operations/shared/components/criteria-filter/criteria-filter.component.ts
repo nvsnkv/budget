@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TuiButton, TuiLabel, TuiInput } from '@taiga-ui/core';
 import { TuiTextarea } from '@taiga-ui/kit';
@@ -18,6 +18,7 @@ import { CtrlEnterDirective } from '../../directives/ctrl-enter.directive';
     CtrlEnterDirective
   ],
   templateUrl: './criteria-filter.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./criteria-filter.component.less']
 })
 export class CriteriaFilterComponent implements OnInit, OnChanges {

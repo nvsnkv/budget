@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BudgetApiService } from '../budget-api.service';
 import { RegisterBudgetRequest } from '../models';
@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './new-budget.component.html',
   styleUrls: ['./new-budget.component.less'],
   imports: [FormsModule, ReactiveFormsModule, TuiNotification, TuiInput, TuiButton, TuiError, TuiForm, TuiCheckbox],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [tuiValidationErrorsProvider({required: 'Please enter budget name'})]
 })
 export class NewBudgetComponent {

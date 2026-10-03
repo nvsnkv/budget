@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TuiButton } from '@taiga-ui/core';
 import { IError, ISuccess } from '../../../../budget/models';
 import { MetadataDisplayComponent } from '../metadata-display/metadata-display.component';
@@ -8,6 +8,7 @@ import { MetadataDisplayComponent } from '../metadata-display/metadata-display.c
   standalone: true,
   imports: [TuiButton, MetadataDisplayComponent],
   templateUrl: './operation-result.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./operation-result.component.less']
 })
 export class OperationResultComponent {

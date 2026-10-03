@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ObjectKeysPipe } from '../../pipes/object-keys.pipe';
 
 @Component({
@@ -6,6 +6,7 @@ import { ObjectKeysPipe } from '../../pipes/object-keys.pipe';
   standalone: true,
   imports: [ObjectKeysPipe],
   templateUrl: './metadata-display.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./metadata-display.component.less']
 })
 export class MetadataDisplayComponent {

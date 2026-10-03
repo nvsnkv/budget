@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
@@ -24,6 +24,7 @@ import { OperationResult } from '../shared/models/result.interface';
     OperationResultComponent
   ],
   templateUrl: './retag-operations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./retag-operations.component.less']
 })
 export class RetagOperationsComponent implements OnInit {

@@ -1,5 +1,5 @@
 // auth-status.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { UserService } from '../user.service';
@@ -9,6 +9,7 @@ import { TuiLink } from '@taiga-ui/core';
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.less'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TuiLink],
 })
 export class AuthComponent implements OnInit {

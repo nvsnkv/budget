@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +32,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
     TuiSelect
   ],
   templateUrl: './operations-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./operations-list.component.less']
 })
 export class OperationsListComponent implements OnInit {

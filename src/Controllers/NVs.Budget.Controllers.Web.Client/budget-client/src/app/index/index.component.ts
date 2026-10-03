@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TuiButton, TuiDialogService, TuiLoader, TuiTitle } from '@taiga-ui/core';
 import { UserService } from '../auth/user.service';
@@ -20,6 +20,7 @@ import { TuiChip } from '@taiga-ui/kit';
     TuiTitle
   ],
   templateUrl: './index.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './index.component.less'
 })
 export class IndexComponent {

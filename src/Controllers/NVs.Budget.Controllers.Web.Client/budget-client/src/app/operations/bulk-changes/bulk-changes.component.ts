@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiDropdown, TuiInput } from '@taiga-ui/core';
@@ -29,6 +29,7 @@ import { CriteriaExample } from '../shared/models/example.interface';
     AttributesEditorComponent
   ],
   templateUrl: './bulk-changes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./bulk-changes.component.less']
 })
 export class BulkChangesComponent implements OnInit {

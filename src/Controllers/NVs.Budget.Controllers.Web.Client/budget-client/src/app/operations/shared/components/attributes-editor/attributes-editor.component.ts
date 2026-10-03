@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
 
@@ -12,6 +12,7 @@ interface AttributeEntry {
   standalone: true,
   imports: [FormsModule, TuiButton],
   templateUrl: './attributes-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./attributes-editor.component.less']
 })
 export class AttributesEditorComponent implements OnChanges {

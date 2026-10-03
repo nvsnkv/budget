@@ -280,7 +280,7 @@
                         @for (range of ranges; track range.name) {
                           <td class="data-cell"
                               [class.clickable]="hasOperationsInRange(row, range.name)"
-                              [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + getEntryForRange(row, range.name)?.operationsCount + ' operations' : ''"
+                              [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + $safeNavigationMigration(getEntryForRange(row, range.name)?.operationsCount) + ' operations' : ''"
                               (click)="hasOperationsInRange(row, range.name) && viewGroupOperations(row, range.name, $event)">
                             <div class="data-cell-content">
                               @if (row.hasChildren) {

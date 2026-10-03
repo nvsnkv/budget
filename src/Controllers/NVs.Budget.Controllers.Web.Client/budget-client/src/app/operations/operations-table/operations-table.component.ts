@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OperationResponse } from '../../budget/models';
@@ -35,6 +35,7 @@ interface EditableOperation {
     AttributesEditorComponent
   ],
   templateUrl: './operations-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./operations-table.component.less']
 })
 export class OperationsTableComponent {

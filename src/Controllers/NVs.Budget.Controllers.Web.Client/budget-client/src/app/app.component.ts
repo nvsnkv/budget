@@ -1,6 +1,6 @@
 import { TuiRoot, TuiButton, TuiIcon } from "@taiga-ui/core";
 import { TuiBlockStatus, TuiNavigation } from "@taiga-ui/layout"
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthComponent } from './auth/auth/auth.component';
 import { UserService } from "./auth/user.service";
@@ -15,6 +15,7 @@ import { AppVersionService } from "./app-version.service";
   selector: 'app-root',
   imports: [RouterOutlet, AuthComponent, TuiRoot, TuiNavigation, TuiBlockStatus, CommonModule, RouterLink, RouterLinkActive, BudgetSelectorComponent, TuiButton, TuiIcon],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.less'
 })
 export class AppComponent {
