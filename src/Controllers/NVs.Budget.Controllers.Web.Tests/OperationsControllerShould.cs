@@ -16,6 +16,7 @@ using NVs.Budget.Controllers.Web.Controllers;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
 using NVs.Budget.Domain.Entities.Budgets;
+using NVs.Budget.Domain.ValueObjects;
 using NVs.Budget.Infrastructure.Files.CSV.Contracts;
 using NVs.Budget.Utilities.Expressions;
 
@@ -81,6 +82,59 @@ public class OperationsControllerShould
         importedOperations.First().Attributes.Should().NotBeNull();
         importedOperations.First().Attributes!.Keys.Should().Contain("source");
         importedOperations.First().Timestamp.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Fact]
+    public async Task ImportOperationsManuallySplitTransfersByConfidenceLevel()
+    {
+        // Arrange
+        var budget = CreateBudget();
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<ListOwnedBudgetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([budget]);
+
+        var exact = CreateTrackedTransfer(DetectionAccuracy.Exact);
+        var likely = CreateTrackedTransfer(DetectionAccuracy.Likely);
+        mediator.Setup(m => m.Send(It.IsAny<IRequest<ImportResult>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImportResult([], [exact, likely], [], Enumerable.Empty<IReason>()));
+
+        var controller = CreateController(mediator.Object);
+        SetJsonBody(controller, "[]");
+
+        // Act
+        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "UTC", "Exact", CancellationToken.None);
+
+        // Assert
+        var ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
+        var response = ok.Value.Should().BeOfType<ImportResultResponse>().Subject;
+        response.RegisteredTransfers.Should().ContainSingle().Which.SourceId.Should().Be(exact.Source.Id);
+        response.UnregisteredTransfers.Should().ContainSingle().Which.SourceId.Should().Be(likely.Source.Id);
+    }
+
+    [Fact]
+    public async Task ImportOperationsManuallyReportAllTransfersAsUnregisteredWithoutConfidenceLevel()
+    {
+        // Arrange
+        var budget = CreateBudget();
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<ListOwnedBudgetsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([budget]);
+
+        var exact = CreateTrackedTransfer(DetectionAccuracy.Exact);
+        mediator.Setup(m => m.Send(It.IsAny<IRequest<ImportResult>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImportResult([], [exact], [], Enumerable.Empty<IReason>()));
+
+        var controller = CreateController(mediator.Object);
+        SetJsonBody(controller, "[]");
+
+        // Act
+        var actionResult = await controller.ImportOperationsManually(budget.Id, "budget-v2", "UTC", null, CancellationToken.None);
+
+        // Assert
+        var ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
+        var response = ok.Value.Should().BeOfType<ImportResultResponse>().Subject;
+        response.RegisteredTransfers.Should().BeEmpty();
+        response.UnregisteredTransfers.Should().ContainSingle();
     }
 
     [Fact]
@@ -181,6 +235,7 @@ public class OperationsControllerShould
         var controller = new OperationsController(
             mediator,
             operationMapper,
+            new TransferMapper(operationMapper, new MoneyMapper()),
             new LogbookMapper(operationMapper),
             parser,
             Mock.Of<ICsvFileReader>(),
@@ -210,6 +265,37 @@ public class OperationsControllerShould
             Array.Empty<TrackedTransfer>(),
             [],
             reasons ?? Enumerable.Empty<IReason>());
+    }
+
+    private static TrackedTransfer CreateTrackedTransfer(DetectionAccuracy accuracy)
+    {
+        var budget = new Domain.Entities.Budgets.Budget(Guid.NewGuid(), "Test budget", [new Owner(Guid.NewGuid(), "Tester")]);
+        var source = new TrackedOperation(
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            new NMoneys.Money(-100m, NMoneys.CurrencyIsoCode.RUB),
+            "Source operation",
+            string.Empty,
+            budget,
+            Enumerable.Empty<Tag>(),
+            null)
+        {
+            Version = "v1"
+        };
+        var sink = new TrackedOperation(
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            new NMoneys.Money(100m, NMoneys.CurrencyIsoCode.RUB),
+            "Sink operation",
+            string.Empty,
+            budget,
+            Enumerable.Empty<Tag>(),
+            null)
+        {
+            Version = "v1"
+        };
+
+        return new TrackedTransfer(source, sink, "Test transfer") { Accuracy = accuracy };
     }
 
     private static async Task<List<T>> ToListAsync<T>(IAsyncEnumerable<T> source)

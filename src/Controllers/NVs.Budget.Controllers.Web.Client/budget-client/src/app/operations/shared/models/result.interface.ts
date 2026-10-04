@@ -5,9 +5,3 @@ export interface OperationResult {
   successes: ISuccess[];
 }
 
-export interface ImportResult extends OperationResult {
-  registered: number;
-  duplicates: number;
-  duplicatesList?: any[];
-}
-

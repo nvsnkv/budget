@@ -15,6 +15,7 @@ using NVs.Budget.Application.Contracts.UseCases.Budgets;
 using NVs.Budget.Application.Contracts.UseCases.Operations;
 using System.Linq;
 using NVs.Budget.Application.Contracts.Entities.Accounting;
+using NVs.Budget.Application.Contracts.Results;
 using NVs.Budget.Controllers.Web.Exceptions;
 using NVs.Budget.Controllers.Web.Models;
 using NVs.Budget.Controllers.Web.Utils;
@@ -32,6 +33,7 @@ namespace NVs.Budget.Controllers.Web.Controllers;
 public class OperationsController(
     IMediator mediator,
     OperationMapper mapper,
+    TransferMapper transferMapper,
     LogbookMapper logbookMapper,
     ReadableExpressionsParser parser,
     ICsvFileReader csvReader,
@@ -274,17 +276,20 @@ public class OperationsController(
             // Combine parsing errors with import reasons
             var importErrors = result.Reasons.Where(r => r is IError).Cast<IError>().ToList();
             var allErrors = parseErrors.Concat(importErrors).ToList();
-            
+
             var allSuccesses = result.Reasons
                 .Where(r => r is ISuccess)
                 .Cast<ISuccess>()
                 .ToList();
-            
+
+            var (registeredTransfers, unregisteredTransfers) = MapTransfers(result, transferAccuracy);
             var response = new ImportResultResponse(
                 result.Operations.Select(mapper.ToResponse).OrderHistorically().ToList(),
                 result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).OrderHistorically().ToList(),
                 allErrors,
-                allSuccesses
+                allSuccesses,
+                registeredTransfers,
+                unregisteredTransfers
             );
             return Ok(response);
         }
@@ -391,16 +396,41 @@ public class OperationsController(
                 .Cast<ISuccess>()
                 .ToList();
 
+            var (registeredTransfers, unregisteredTransfers) = MapTransfers(result, transferAccuracy);
             var response = new ImportResultResponse(
                 result.Operations.Select(mapper.ToResponse).OrderHistorically().ToList(),
                 result.Duplicates.Select(group => group.Select(mapper.ToResponse).ToList()).OrderHistorically().ToList(),
                 allErrors,
-                allSuccesses
+                allSuccesses,
+                registeredTransfers,
+                unregisteredTransfers
             );
             return Ok(response);
         }
 
         return BadRequest(result.Errors);
+    }
+
+    private (List<TransferResponse> Registered, List<TransferResponse> Unregistered) MapTransfers(ImportResult result, DetectionAccuracy? transferConfidenceLevel)
+    {
+        var registered = new List<TransferResponse>();
+        var unregistered = new List<TransferResponse>();
+
+        foreach (var transfer in result.Transfers)
+        {
+            var response = transferMapper.ToResponse(transfer);
+            // Mirrors the Accountant rule: only transfers at or above the requested confidence were registered during import
+            if (transferConfidenceLevel != null && transfer.Accuracy >= transferConfidenceLevel)
+            {
+                registered.Add(response);
+            }
+            else
+            {
+                unregistered.Add(response);
+            }
+        }
+
+        return (registered, unregistered);
     }
 
     private Result ValidateImportTimeZone(string? timeZone, DateTimeKind dateTimeKind)

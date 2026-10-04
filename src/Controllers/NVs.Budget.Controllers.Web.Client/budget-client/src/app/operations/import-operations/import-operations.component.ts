@@ -3,18 +3,16 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { BudgetResponse } from '../../budget/models';
+import { BudgetResponse, ImportResultResponse } from '../../budget/models';
 import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiInput } from '@taiga-ui/core';
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
-import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
-import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
-import { ImportResult } from '../shared/models/result.interface';
+import { ImportResultViewComponent } from '../shared/components/import-result-view/import-result-view.component';
 
 @Component({
   selector: 'app-import-operations',
   standalone: true,
-  imports: [    ReactiveFormsModule,
+  imports: [    ReactiveFormsModule,
     TuiButton,
     TuiLoader,
     TuiInput,
@@ -23,8 +21,7 @@ import { ImportResult } from '../shared/models/result.interface';
     TuiChevron,
     TuiDataListWrapper,
     TuiSelect,
-    OperationsTableComponent,
-    OperationResultComponent
+    ImportResultViewComponent
   ],
   templateUrl: './import-operations.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,13 +31,10 @@ export class ImportOperationsComponent {
   readonly budgetId: string;
   budget = signal<BudgetResponse | null>(null);
   isLoading = signal(false);
-  
-  selectedFile: File | null = null;
-  importResult = signal<ImportResult | null>(null);
-  readonly confidenceItems: string[] = ['Exact', 'Likely'];
 
-  // Section toggles
-  showDuplicates = false;
+  selectedFile: File | null = null;
+  importResult = signal<ImportResultResponse | null>(null);
+  readonly confidenceItems: string[] = ['Exact', 'Likely'];
 
   private readonly fb = inject(FormBuilder);
 
@@ -107,14 +101,8 @@ export class ImportOperationsComponent {
     ).subscribe({
       next: (result) => {
         this.isLoading.set(false);
-        this.importResult.set({
-          registered: result.registeredOperations.length,
-          duplicates: result.duplicates.length,
-          errors: result.errors,
-          successes: result.successes,
-          duplicatesList: result.duplicates
-        });
-        
+        this.importResult.set(result);
+
         if (result.errors.length === 0) {
           this.notificationService.showSuccess(`Successfully imported ${result.registeredOperations.length} operations`).subscribe();
           this.operationsApi.triggerRefresh(this.budgetId);
@@ -135,14 +123,6 @@ export class ImportOperationsComponent {
 
   viewOperations(): void {
     this.router.navigate(['/budget', this.budgetId]);
-  }
-
-  toggleDuplicates(): void {
-    this.showDuplicates = !this.showDuplicates;
-  }
-
-  getDuplicatesList(): any[] {
-    return this.importResult()?.duplicatesList || [];
   }
 }
 

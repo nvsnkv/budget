@@ -60,7 +60,9 @@ public record ImportResultResponse(
     IReadOnlyCollection<OperationResponse> RegisteredOperations,
     IReadOnlyCollection<IReadOnlyCollection<OperationResponse>> Duplicates,
     IReadOnlyCollection<IError> Errors,
-    IReadOnlyCollection<ISuccess> Successes);
+    IReadOnlyCollection<ISuccess> Successes,
+    IReadOnlyCollection<TransferResponse> RegisteredTransfers,
+    IReadOnlyCollection<TransferResponse> UnregisteredTransfers);
 
 public record UpdateResultResponse(
     IReadOnlyCollection<OperationResponse> UpdatedOperations,

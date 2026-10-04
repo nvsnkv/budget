@@ -81,61 +81,10 @@
         </form>
 
         @if (importResult(); as result) {
-          <div class="import-result">
-            <h3 tuiTitle size="m">Import Results</h3>
-            <div class="result-stats">
-              <div class="stat-item success">
-                <span class="stat-label">Registered:</span>
-                <span class="stat-value">{{ result.registered }}</span>
-              </div>
-              <div class="stat-item warning">
-                <span class="stat-label">Duplicates:</span>
-                <span class="stat-value">{{ result.duplicates }}</span>
-              </div>
-              @if (result.errors.length > 0) {
-                <div class="stat-item error">
-                  <span class="stat-label">Errors:</span>
-                  <span class="stat-value">{{ result.errors.length }}</span>
-                </div>
-              }
-              @if (result.successes.length > 0) {
-                <div class="stat-item info">
-                  <span class="stat-label">Successes:</span>
-                  <span class="stat-value">{{ result.successes.length }}</span>
-                </div>
-              }
-            </div>
-            
-            <!-- Duplicates Section -->
-            @if (result.duplicates > 0) {
-              <div class="duplicates-section">
-                <div class="section-header-with-toggle">
-                  <h4>Duplicates ({{ result.duplicates }} groups)</h4>
-                  <button 
-                    tuiButton
-                    type="button"
-                    appearance="flat"
-                    size="xs"
-                    (click)="toggleDuplicates()">
-                    {{ showDuplicates ? '▼ Hide' : '▶ Show' }}
-                  </button>
-                </div>
-                @if (showDuplicates) {
-                  @for (group of getDuplicatesList(); track $index; let groupIdx = $index) {
-                    <div class="duplicate-group">
-                      <h5>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h5>
-                      <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
-                    </div>
-                  }
-                }
-              </div>
-            }
-            
-            <app-operation-result
-              [successes]="result.successes"
-              [errors]="result.errors">
-            </app-operation-result>
-          </div>
+          <app-import-result-view
+            [budgetId]="budgetId"
+            [result]="result">
+          </app-import-result-view>
         }
       } @else {
         <div class="loading-placeholder">Loading budget()...</div>

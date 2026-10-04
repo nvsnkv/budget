@@ -6,9 +6,7 @@ import { BudgetApiService } from '../../budget/budget-api.service';
 import { BudgetResponse, ImportResultResponse, UnregisteredOperationRequest } from '../../budget/models';
 import { OperationsApiService } from '../operations-api.service';
 import { NotificationService } from '../shared/notification.service';
-import { OperationResultComponent } from '../shared/components/operation-result/operation-result.component';
-import { ImportResult } from '../shared/models/result.interface';
-import { OperationsTableComponent } from '../operations-table/operations-table.component';
+import { ImportResultViewComponent } from '../shared/components/import-result-view/import-result-view.component';
 import { AttributesEditorComponent } from '../shared/components/attributes-editor/attributes-editor.component';
 
 interface ManualOperationRow {
@@ -27,8 +25,7 @@ interface ManualOperationRow {
     TuiButton,
     TuiLoader,
     TuiTitle,
-    OperationResultComponent,
-    OperationsTableComponent,
+    ImportResultViewComponent,
     AttributesEditorComponent
   ],
   templateUrl: './manual-import-operations.component.html',
@@ -42,8 +39,7 @@ export class ManualImportOperationsComponent {
 
   transferConfidenceLevel = '';
   manualRows: ManualOperationRow[] = [];
-  importResult = signal<ImportResult | null>(null);
-  showDuplicates = false;
+  importResult = signal<ImportResultResponse | null>(null);
 
   readonly currencyItems: string[] = ['RUB', 'USD', 'EUR'];
   readonly confidenceItems: string[] = ['Exact', 'Likely'];
@@ -132,26 +128,12 @@ export class ManualImportOperationsComponent {
     });
   }
 
-  toggleDuplicates(): void {
-    this.showDuplicates = !this.showDuplicates;
-  }
-
-  getDuplicatesList(): any[] {
-    return this.importResult()?.duplicatesList || [];
-  }
-
   viewOperations(): void {
     this.router.navigate(['/budget', this.budgetId, 'operations']);
   }
 
   private applyImportResult(result: ImportResultResponse): void {
-    this.importResult.set({
-      registered: result.registeredOperations.length,
-      duplicates: result.duplicates.length,
-      errors: result.errors,
-      successes: result.successes,
-      duplicatesList: result.duplicates
-    });
+    this.importResult.set(result);
   }
 
   private buildRequest(): { isValid: boolean; message: string; operations: UnregisteredOperationRequest[] } {

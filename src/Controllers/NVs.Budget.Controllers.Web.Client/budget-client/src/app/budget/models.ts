@@ -187,6 +187,8 @@ export interface ImportResultResponse {
   duplicates: OperationResponse[][];
   errors: IError[];
   successes: ISuccess[];
+  registeredTransfers: TransferResponse[];
+  unregisteredTransfers: TransferResponse[];
 }
 
 export interface UpdateResultResponse {
