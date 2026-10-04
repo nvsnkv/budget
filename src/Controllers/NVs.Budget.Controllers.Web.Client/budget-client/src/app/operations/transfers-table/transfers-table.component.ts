@@ -1,6 +1,5 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TuiButton, TuiExpand } from '@taiga-ui/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TuiButton } from '@taiga-ui/core';
 import { TuiChip } from '@taiga-ui/kit';
 import { TransferResponse } from '../../budget/models';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
@@ -11,26 +10,25 @@ import { OperationsTableComponent } from '../operations-table/operations-table.c
   selector: 'app-transfers-table',
   standalone: true,
   imports: [
-    CommonModule,
     TuiButton,
-    TuiExpand,
     TuiChip,
     CurrencyFormatPipe,
     DateFormatPipe,
     OperationsTableComponent
   ],
   templateUrl: './transfers-table.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./transfers-table.component.less']
 })
 export class TransfersTableComponent {
-  @Input() transfers: TransferResponse[] = [];
-  @Input() showActions = true;
-  @Input() showQuickRegister = false;
-  @Input() enableSelection = false;
-  @Output() transferDeleted = new EventEmitter<TransferResponse>();
-  @Output() transferRegistered = new EventEmitter<TransferResponse>();
-  @Output() selectionChanged = new EventEmitter<TransferResponse[]>();
-  
+  readonly transfers = input<TransferResponse[]>([]);
+  readonly showActions = input(true);
+  readonly showQuickRegister = input(false);
+  readonly enableSelection = input(false);
+  readonly transferDeleted = output<TransferResponse>();
+  readonly transferRegistered = output<TransferResponse>();
+  readonly selectionChanged = output<TransferResponse[]>();
+
   expandedTransferId: string | null = null;
   selectedTransferIds = new Set<string>();
 
@@ -58,7 +56,7 @@ export class TransfersTableComponent {
   toggleSelectAll(isSelected: boolean): void {
     this.selectedTransferIds.clear();
     if (isSelected) {
-      for (const transfer of this.transfers) {
+      for (const transfer of this.transfers()) {
         this.selectedTransferIds.add(transfer.sourceId);
       }
     }
@@ -70,11 +68,11 @@ export class TransfersTableComponent {
   }
 
   isAllSelected(): boolean {
-    return this.transfers.length > 0 && this.selectedTransferIds.size === this.transfers.length;
+    return this.transfers().length > 0 && this.selectedTransferIds.size === this.transfers().length;
   }
 
   private emitSelection(): void {
-    const selectedTransfers = this.transfers.filter(transfer => this.selectedTransferIds.has(transfer.sourceId));
+    const selectedTransfers = this.transfers().filter(transfer => this.selectedTransferIds.has(transfer.sourceId));
     this.selectionChanged.emit(selectedTransfers);
   }
 
@@ -86,4 +84,3 @@ export class TransfersTableComponent {
     return index;
   }
 }
-

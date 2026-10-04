@@ -1,11 +1,11 @@
 <div class="budget-detail-container">
   @if (budget$ | async; as budget) {
-    <tui-loader [overlay]="true" [showLoader]="isLoading">
+    <tui-loader [overlay]="true" [loading]="isLoading()">
       <div class="budget-card">
         <!-- Header with title and actions -->
         <h2 tuiTitle size="l">{{ budget.name }}</h2>
         <div class="header-actions">
-          @if (!isEditMode) {
+          @if (!isEditMode()) {
             <button 
               tuiButton
               type="button"
@@ -90,21 +90,21 @@
             <h3 tuiTitle size="m">Owners</h3>
             <div class="owners-list">
                 @for (owner of budget.owners; track owner.id) {
-                <tui-chip size="m">
+                <span tuiChip size="m">
                   {{ owner.name }}
-                </tui-chip>
+                </span>
               }
             </div>
-            @if (!isEditMode && isOwnersEditMode) {
+            @if (!isEditMode() && isOwnersEditMode()) {
               <div class="owners-edit">
                 <p class="owners-hint">Select owners that can access this budget.</p>
-                @if (availableOwners.length > 0) {
+                @if (availableOwners().length > 0) {
                   <div class="owners-checkboxes">
-                    @for (owner of availableOwners; track owner.id) {
+                    @for (owner of availableOwners(); track owner.id) {
                       <label class="owner-checkbox">
                         <input 
                           type="checkbox"
-                          [checked]="selectedOwnerIds.has(owner.id)"
+                          [checked]="selectedOwnerIds().has(owner.id)"
                           (change)="toggleOwnerSelection(owner.id, $event)" />
                         <span>{{ owner.name }}</span>
                       </label>
@@ -119,7 +119,7 @@
                     type="button"
                     appearance="primary"
                     size="m"
-                    [disabled]="isLoading || selectedOwnerIds.size === 0"
+                    [disabled]="isLoading() || selectedOwnerIds().size === 0"
                     (click)="saveOwners()">
                     Save Owners
                   </button>
@@ -138,14 +138,14 @@
         </div>
 
         <!-- Edit Form -->
-        @if (isEditMode && budgetForm) {
+        @if (isEditMode() && budgetForm) {
           <form [formGroup]="budgetForm" class="budget-form">
             <!-- Budget Name -->
             <div class="form-section">
               <h3 tuiTitle size="m">Basic Information</h3>
               <tui-textfield>
                 <label tuiLabel>Budget Name</label>
-                <input tuiTextfield formControlName="name" type="text" />
+                <input tuiInput formControlName="name" type="text" />
               </tui-textfield>
             </div>
 
@@ -176,36 +176,35 @@
               </div>
               
               @if (showTaggingCriteria) {
-                <tui-accordion>
-                  <div formArrayName="taggingCriteria">
-                    @for (criterion of taggingCriteria.controls; track $index; let i = $index) {
-                      <tui-accordion-item [formGroupName]="i">
-                        <header>
-                          <span>Tagging Criterion {{ i + 1 }}</span>
-                          <button 
-                            tuiButton
-                            type="button"
-                            appearance="destructive"
-                            size="xs"
-                            (click)="removeTaggingCriterion(i)">
-                            Remove
-                          </button>
-                        </header>
-                        
-                        <div class="criterion-fields">
-                          <tui-textfield>
-                            <label tuiLabel>Tag Expression</label>
-                            <textarea tuiTextarea formControlName="tag" rows="2"></textarea>
-                          </tui-textfield>
-                          
-                          <tui-textfield>
-                            <label tuiLabel>Condition Expression</label>
-                            <textarea tuiTextarea formControlName="condition" rows="2"></textarea>
-                          </tui-textfield>
-                        </div>
-                      </tui-accordion-item>
-                    }
-                  </div>
+                <tui-accordion formArrayName="taggingCriteria">
+                  @for (criterion of taggingCriteria.controls; track $index; let i = $index) {
+                    <header class="criterion-item-header">
+                      <button tuiAccordion type="button">
+                        Tagging Criterion {{ i + 1 }}
+                      </button>
+                      <button
+                        tuiButton
+                        type="button"
+                        appearance="destructive"
+                        size="xs"
+                        (click)="removeTaggingCriterion(i)">
+                        Remove
+                      </button>
+                    </header>
+                    <tui-expand [formGroupName]="i">
+                      <div class="criterion-fields">
+                        <tui-textfield>
+                          <label tuiLabel>Tag Expression</label>
+                          <textarea tuiTextarea formControlName="tag" rows="2"></textarea>
+                        </tui-textfield>
+
+                        <tui-textfield>
+                          <label tuiLabel>Condition Expression</label>
+                          <textarea tuiTextarea formControlName="condition" rows="2"></textarea>
+                        </tui-textfield>
+                      </div>
+                    </tui-expand>
+                  }
                 </tui-accordion>
               }
             </div>
@@ -237,41 +236,40 @@
               </div>
               
               @if (showTransferCriteria) {
-                <tui-accordion>
-                  <div formArrayName="transferCriteria">
-                    @for (criterion of transferCriteria.controls; track $index; let i = $index) {
-                      <tui-accordion-item [formGroupName]="i">
-                        <header>
-                          <span>Transfer Criterion {{ i + 1 }}</span>
-                          <button 
-                            tuiButton
-                            type="button"
-                            appearance="destructive"
-                            size="xs"
-                            (click)="removeTransferCriterion(i)">
-                            Remove
-                          </button>
-                        </header>
-                        
-                        <div class="criterion-fields">
-                          <tui-textfield>
-                            <label tuiLabel>Accuracy (Exact or Likely)</label>
-                            <input tuiTextfield formControlName="accuracy" type="text" />
-                          </tui-textfield>
-                          
-                          <tui-textfield>
-                            <label tuiLabel>Comment</label>
-                            <input tuiTextfield formControlName="comment" type="text" />
-                          </tui-textfield>
-                          
-                          <tui-textfield>
-                            <label tuiLabel>Criterion Expression</label>
-                            <textarea tuiTextarea formControlName="criterion" rows="3"></textarea>
-                          </tui-textfield>
-                        </div>
-                      </tui-accordion-item>
-                    }
-                  </div>
+                <tui-accordion formArrayName="transferCriteria">
+                  @for (criterion of transferCriteria.controls; track $index; let i = $index) {
+                    <header class="criterion-item-header">
+                      <button tuiAccordion type="button">
+                        Transfer Criterion {{ i + 1 }}
+                      </button>
+                      <button
+                        tuiButton
+                        type="button"
+                        appearance="destructive"
+                        size="xs"
+                        (click)="removeTransferCriterion(i)">
+                        Remove
+                      </button>
+                    </header>
+                    <tui-expand [formGroupName]="i">
+                      <div class="criterion-fields">
+                        <tui-textfield>
+                          <label tuiLabel>Accuracy (Exact or Likely)</label>
+                          <input tuiInput formControlName="accuracy" type="text" />
+                        </tui-textfield>
+
+                        <tui-textfield>
+                          <label tuiLabel>Comment</label>
+                          <input tuiInput formControlName="comment" type="text" />
+                        </tui-textfield>
+
+                        <tui-textfield>
+                          <label tuiLabel>Criterion Expression</label>
+                          <textarea tuiTextarea formControlName="criterion" rows="3"></textarea>
+                        </tui-textfield>
+                      </div>
+                    </tui-expand>
+                  }
                 </tui-accordion>
               }
             </div>
@@ -332,7 +330,7 @@
                 <div class="logbook-fields">
                 <tui-textfield>
                   <label tuiLabel>Description</label>
-                  <input tuiTextfield formControlName="description" type="text" placeholder="Criteria description" />
+                  <input tuiInput formControlName="description" type="text" placeholder="Criteria description" />
                 </tui-textfield>
 
                 <div class="radio-group">
@@ -377,7 +375,7 @@
 
                   <tui-textfield>
                     <label tuiLabel>Tags (comma-separated)</label>
-                    <input tuiTextfield formControlName="tags" type="text" placeholder="Tag1, Tag2, Tag3" />
+                    <input tuiInput formControlName="tags" type="text" placeholder="Tag1, Tag2, Tag3" />
                   </tui-textfield>
                 }
 
@@ -456,7 +454,7 @@
                         <div class="logbook-fields subcriteria-fields">
                           <tui-textfield>
                             <label tuiLabel>Description</label>
-                            <input tuiTextfield formControlName="description" type="text" placeholder="Criteria description" />
+                            <input tuiInput formControlName="description" type="text" placeholder="Criteria description" />
                           </tui-textfield>
 
                           <div class="radio-group">
@@ -501,7 +499,7 @@
 
                             <tui-textfield>
                               <label tuiLabel>Tags (comma-separated)</label>
-                              <input tuiTextfield formControlName="tags" type="text" placeholder="Tag1, Tag2" />
+                              <input tuiInput formControlName="tags" type="text" placeholder="Tag1, Tag2" />
                             </tui-textfield>
                           }
 
@@ -580,7 +578,7 @@
                                 <div class="logbook-fields nested-fields">
                                   <tui-textfield>
                                     <label tuiLabel>Description</label>
-                                    <input tuiTextfield formControlName="description" type="text" />
+                                    <input tuiInput formControlName="description" type="text" />
                                   </tui-textfield>
 
                                   <div class="radio-group">
@@ -623,7 +621,7 @@
                                     </div>
                                     <tui-textfield>
                                       <label tuiLabel>Tags</label>
-                                      <input tuiTextfield formControlName="tags" type="text" />
+                                      <input tuiInput formControlName="tags" type="text" />
                                     </tui-textfield>
                                   }
 
@@ -698,7 +696,7 @@
                                         <div class="logbook-fields level4-fields">
                                           <tui-textfield>
                                             <label tuiLabel>Description</label>
-                                            <input tuiTextfield formControlName="description" type="text" />
+                                            <input tuiInput formControlName="description" type="text" />
                                           </tui-textfield>
 
                                           <div class="radio-group">
@@ -740,7 +738,7 @@
                                             </div>
                                             <tui-textfield>
                                               <label tuiLabel>Tags</label>
-                                              <input tuiTextfield formControlName="tags" type="text" />
+                                              <input tuiInput formControlName="tags" type="text" />
                                             </tui-textfield>
                                           }
 
@@ -815,7 +813,7 @@
                                                 <div class="logbook-fields level5-fields">
                                                   <tui-textfield>
                                                     <label tuiLabel>Description</label>
-                                                    <input tuiTextfield formControlName="description" type="text" />
+                                                    <input tuiInput formControlName="description" type="text" />
                                                   </tui-textfield>
 
                                                   <div class="radio-group">
@@ -857,7 +855,7 @@
                                                     </div>
                                                     <tui-textfield>
                                                       <label tuiLabel>Tags</label>
-                                                      <input tuiTextfield formControlName="tags" type="text" />
+                                                      <input tuiInput formControlName="tags" type="text" />
                                                     </tui-textfield>
                                                   }
 
@@ -914,7 +912,7 @@
                 type="button"
                 appearance="primary"
                 size="m"
-                [disabled]="!budgetForm.valid || isLoading"
+                [disabled]="!budgetForm.valid || isLoading()"
                 (click)="saveBudget()">
                 Save Changes
               </button>
@@ -958,7 +956,7 @@
                   <div class="criterion-card">
                     <div class="criterion-row">
                       <span class="criterion-label">Accuracy:</span>
-                      <tui-chip size="s">{{ criterion.accuracy }}</tui-chip>
+                      <span tuiChip size="s">{{ criterion.accuracy }}</span>
                     </div>
                     <div class="criterion-row">
                       <span class="criterion-label">Comment:</span>
@@ -997,7 +995,7 @@
       </div>
     </tui-loader>
   } @else {
-    <tui-loader [showLoader]="true">
+    <tui-loader [loading]="true">
       <div class="loading-placeholder">Loading budget...</div>
     </tui-loader>
   }
@@ -1013,18 +1011,18 @@
     @if (criteria.subcriteria && criteria.subcriteria.length > 0) {
       <div class="criterion-row">
         <span class="criterion-label">Type:</span>
-        <tui-chip size="m">Group</tui-chip>
+        <span tuiChip size="m">Group</span>
       </div>
       @if (criteria.isUniversal) {
         <div class="criterion-row">
-          <tui-chip size="s" appearance="outline">Universal (matches all operations)</tui-chip>
+          <span tuiChip size="s" appearance="outline">Universal (matches all operations)</span>
         </div>
       }
     }
     @if (criteria.type) {
       <div class="criterion-row">
         <span class="criterion-label">Type:</span>
-        <tui-chip size="s">{{ criteria.type }}</tui-chip>
+        <span tuiChip size="s">{{ criteria.type }}</span>
       </div>
     }
     @if (criteria.tags && criteria.tags.length > 0) {
@@ -1032,7 +1030,7 @@
         <span class="criterion-label">Tags:</span>
         <div class="tags-list">
           @for (tag of criteria.tags; track tag) {
-            <tui-chip size="s">{{ tag }}</tui-chip>
+            <span tuiChip size="s">{{ tag }}</span>
           }
         </div>
       </div>

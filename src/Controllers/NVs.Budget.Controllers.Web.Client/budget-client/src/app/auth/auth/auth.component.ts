@@ -1,8 +1,6 @@
 // auth-status.component.ts
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
-import { CommonModule } from '@angular/common';
 import { UserService } from '../user.service';
 import { TuiLink } from '@taiga-ui/core';
 
@@ -10,15 +8,14 @@ import { TuiLink } from '@taiga-ui/core';
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.less'],
-  imports: [CommonModule, TuiLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TuiLink],
 })
 export class AuthComponent implements OnInit {
-  isAuthenticated = false;
+  private readonly user = inject(UserService);
+  private readonly authService = inject(AuthService);
 
-  constructor(
-    private authService: AuthService,
-    private user: UserService
-  ) {}
+  readonly isAuthenticated = computed(() => this.user.currentUser().isAuthenticated);
 
   ngOnInit() {
     // Base URL is already set by APP_INITIALIZER
@@ -31,7 +28,6 @@ export class AuthComponent implements OnInit {
 
   checkAuthentication() {
     this.authService.whoAmI().subscribe(response => {
-      this.isAuthenticated = response.isAuthenticated;
       if (response.isAuthenticated) {
         this.user.setCurrentUser({
           isAuthenticated: true,

@@ -42,3 +42,7 @@ testem.log
 Thumbs.db
 /certificates/dev/nginx.crt
 /certificates/dev/nginx.key
+
+# Playwright
+/test-results
+/playwright-report

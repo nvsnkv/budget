@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
 
@@ -11,23 +10,24 @@ interface AttributeEntry {
 @Component({
   selector: 'app-attributes-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, TuiButton],
+  imports: [FormsModule, TuiButton],
   templateUrl: './attributes-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./attributes-editor.component.less']
 })
-export class AttributesEditorComponent implements OnChanges {
-  @Input() model: Record<string, any> | null | undefined = {};
-  @Output() modelChange = new EventEmitter<Record<string, any>>();
+export class AttributesEditorComponent {
+  readonly model = model<Record<string, any> | null | undefined>({});
 
   entries: AttributeEntry[] = [];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['model']) {
-      this.entries = Object.entries(this.model ?? {}).map(([key, value]) => ({
+  constructor() {
+    effect(() => {
+      this.model();
+      this.entries = Object.entries(this.model() ?? {}).map(([key, value]) => ({
         key,
         value: value == null ? '' : String(value)
       }));
-    }
+    });
   }
 
   addAttribute(): void {
@@ -60,7 +60,7 @@ export class AttributesEditorComponent implements OnChanges {
       next[key] = entry.value;
     }
 
-    this.modelChange.emit(next);
+    this.model.set(next);
   }
 
   private nextDefaultKey(): string {

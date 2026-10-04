@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, startWith, switchMap, tap } from 'rxjs';
-import { 
-  BudgetResponse, 
-  RegisterBudgetRequest, 
-  UpdateBudgetRequest, 
-  ChangeBudgetOwnersRequest, 
+import { HttpClient, HttpHeaders, httpResource } from '@angular/common/http';
+import { computed } from '@angular/core';
+import { Observable, map, tap } from 'rxjs';
+import {
+  BudgetResponse,
+  RegisterBudgetRequest,
+  UpdateBudgetRequest,
+  ChangeBudgetOwnersRequest,
   MergeBudgetsRequest,
   IError,
   FileReadingSettingResponse,
@@ -21,7 +22,15 @@ import { AppConfigService } from '../config/app-config.service';
 })
 export class BudgetApiService {
   public readonly baseUrl: string;
-  private refresh$ = new BehaviorSubject<boolean>(false);
+
+  private readonly budgetsResource = httpResource<BudgetResponse[]>(
+    () => ({ url: `${this.baseUrl}/budget`, withCredentials: true }),
+  );
+
+  /** All budgets visible to the current user; reloaded automatically after every mutation. */
+  readonly budgets = computed<BudgetResponse[]>(() => this.budgetsResource.value() ?? []);
+  readonly budgetsLoading = computed(() => this.budgetsResource.isLoading());
+  readonly budgetsError = computed(() => this.budgetsResource.error());
 
   constructor(
     private http: HttpClient,
@@ -30,15 +39,22 @@ export class BudgetApiService {
     this.baseUrl = this.configService.apiUrl + '/api/v0.1';
   }
 
-  /**
-   * Get all budgets available to the current user
-   */
+  /** One-shot fetch of all budgets, for imperative callers that do not want the shared signal. */
   getAllBudgets(): Observable<BudgetResponse[]> {
-    return this.refresh$.pipe(
-      startWith(undefined),
-      switchMap(() => 
-        this.http.get<BudgetResponse[]>(`${this.baseUrl}/budget`, { withCredentials: true })
-      ));
+    return this.http.get<BudgetResponse[]>(`${this.baseUrl}/budget`, { withCredentials: true });
+  }
+
+  /**
+   * Get budget by ID (from list)
+   */
+  getBudgetById(id: string): Observable<BudgetResponse | undefined> {
+    return this.getAllBudgets().pipe(
+      map(budgets => budgets.find(b => b.id === id))
+    );
+  }
+
+  private reloadBudgets(): void {
+    this.budgetsResource.reload();
   }
 
   /**
@@ -49,15 +65,6 @@ export class BudgetApiService {
   }
 
   /**
-   * Get budget by ID (from list)
-   */
-  getBudgetById(id: string): Observable<BudgetResponse | undefined> {
-    return this.getAllBudgets().pipe(
-      switchMap(budgets => [budgets.find(b => b.id === id)])
-    );
-  }
-
-  /**
    * Register a new budget
    */
   createBudget(request: RegisterBudgetRequest): Observable<BudgetResponse> {
@@ -65,7 +72,7 @@ export class BudgetApiService {
     return this.http.post<BudgetResponse>(`${this.baseUrl}/budget`, request, { 
       headers, 
       withCredentials: true 
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   /**
@@ -76,7 +83,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}`, request, { 
       headers,
       withCredentials: true 
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   /**
@@ -87,7 +94,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/owners`, request, { 
       headers,
       withCredentials: true 
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   /**
@@ -96,7 +103,7 @@ export class BudgetApiService {
   removeBudget(id: string, version: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/budget/${id}?version=${encodeURIComponent(version)}`, { 
       withCredentials: true 
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   /**
@@ -107,7 +114,7 @@ export class BudgetApiService {
     return this.http.post<void>(`${this.baseUrl}/budget/merge`, request, { 
       headers,
       withCredentials: true 
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   /**
@@ -129,7 +136,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}`, yamlContent, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   downloadTaggingCriteriaYaml(id: string): Observable<Blob> {
@@ -145,7 +152,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/tagging`, yamlContent, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   updateTaggingCriteria(id: string, request: UpdateTaggingCriteriaRequest): Observable<void> {
@@ -153,7 +160,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/tagging`, request, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   downloadTransferCriteriaYaml(id: string): Observable<Blob> {
@@ -169,7 +176,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/transfers`, yamlContent, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   updateTransferCriteria(id: string, request: UpdateTransferCriteriaRequest): Observable<void> {
@@ -177,7 +184,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/transfers`, request, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   downloadLogbookCriterionYaml(id: string, name: string): Observable<Blob> {
@@ -193,7 +200,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/logbook/${encodeURIComponent(name)}`, yamlContent, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   updateLogbookCriterion(id: string, name: string, request: UpdateLogbookCriteriaRequest): Observable<void> {
@@ -201,7 +208,7 @@ export class BudgetApiService {
     return this.http.put<void>(`${this.baseUrl}/budget/${id}/criteria/logbook/${encodeURIComponent(name)}`, request, {
       headers,
       withCredentials: true
-    }).pipe(tap(() => this.refresh$.next(true)));
+    }).pipe(tap(() => this.reloadBudgets()));
   }
 
   /**

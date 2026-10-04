@@ -1,25 +1,21 @@
 import { TuiRoot, TuiButton, TuiIcon } from "@taiga-ui/core";
 import { TuiBlockStatus, TuiNavigation } from "@taiga-ui/layout"
-import { Component, enableProdMode } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthComponent } from './auth/auth/auth.component';
-import { environment } from '../environments/environment';
 import { UserService } from "./auth/user.service";
-import { CommonModule } from "@angular/common";
-import { combineLatest, filter, map, Observable, startWith } from "rxjs";
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter } from "rxjs";
 import { BudgetSelectorComponent } from "./budget/budget-selector/budget-selector.component";
 import { ThemeService } from "./theme.service";
 import { AppVersionService } from "./app-version.service";
 
-if (environment.production) {
-  enableProdMode();
-} 
-
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, AuthComponent, TuiRoot, TuiNavigation, TuiBlockStatus, CommonModule, RouterLink, RouterLinkActive, BudgetSelectorComponent, TuiButton, TuiIcon],
+  imports: [RouterOutlet, AuthComponent, TuiRoot, TuiNavigation, TuiBlockStatus, RouterLink, RouterLinkActive, BudgetSelectorComponent, TuiButton, TuiIcon],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.less'
+  styleUrl: './app.component.less',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
   title = 'budget-client';
@@ -29,73 +25,72 @@ export class AppComponent {
   private readonly detailsContextPattern = new RegExp("^/budget/[^/]+/details(?:/|$)");
   private readonly readingSettingsContextPattern = new RegExp("^/budget/[^/]+/reading-settings(?:/|$)");
 
-  get currentUser$() { return this.user.current$; }
-  get isAuthenticated$() { return this.user.current$.pipe(map(u => u.isAuthenticated)); }
-  get userId$() { return this.user.current$.pipe(map(u => u.id)); }
-  get ownerName$() { return this.user.current$.pipe(map(u => u.ownerInfo?.name)); }
-  get isDarkTheme$() { return this.theme.isDark$; }
-  get appVersion$() { return this.versionService.getVersion(); }
-  readonly currentUrl$: Observable<string>;
-  readonly selectedBudgetId$: Observable<string | null>;
-  readonly navLinks$: Observable<{ label: string; commands: string[] }[]>;
+  private readonly user = inject(UserService);
+  private readonly theme = inject(ThemeService);
+  private readonly versionService = inject(AppVersionService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private user: UserService,
-    private theme: ThemeService,
-    private versionService: AppVersionService,
-    private router: Router
-  ) {
-    this.currentUrl$ = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(() => this.router.url),
-      startWith(this.router.url)
-    );
+  readonly appVersion = toSignal(this.versionService.getVersion(), { initialValue: null as string | null });
+  readonly currentUser = this.user.currentUser;
+  readonly isAuthenticated = computed(() => this.currentUser().isAuthenticated);
+  readonly ownerName = computed(() => this.currentUser().ownerInfo?.name);
+  readonly isDarkTheme = this.theme.isDark;
 
-    this.selectedBudgetId$ = this.currentUrl$.pipe(
-      map(url => this.budgetIdPattern.exec(url)?.[1] ?? null)
-    );
+  private readonly navigationEnd = toSignal<NavigationEnd | null>(
+    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)),
+    { initialValue: null },
+  );
 
-    this.navLinks$ = combineLatest([this.selectedBudgetId$, this.currentUrl$]).pipe(
-      map(([budgetId, url]) => {
-        if (this.newBudgetRoutePattern.test(url)) {
-          return [];
-        }
+  readonly currentUrl = computed(() => {
+    this.navigationEnd();
+    return this.router.url;
+  });
 
-        if (!budgetId) {
-          return [];
-        }
+  readonly selectedBudgetId = computed(() =>
+    this.budgetIdPattern.exec(this.currentUrl())?.[1] ?? null
+  );
 
-        const isDetailsSelected = this.detailsContextPattern.test(url);
-        const isReadingSettingsSelected = this.readingSettingsContextPattern.test(url);
-        const baseLinks = [
-          { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
-          { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
-          { label: 'details', commands: ['/budget', budgetId, 'details'] }
-        ];
+  readonly navLinks = computed<{ label: string; commands: string[] }[]>(() => {
+    const url = this.currentUrl();
+    const budgetId = this.selectedBudgetId();
 
-        if (isDetailsSelected || isReadingSettingsSelected) {
-          baseLinks.push({ label: 'file reading settings', commands: ['/budget', budgetId, 'reading-settings'] });
-        }
+    if (this.newBudgetRoutePattern.test(url)) {
+      return [];
+    }
 
-        if (this.operationsContextPattern.test(url)) {
-          return [
-            { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
-            { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
-            { label: 'retag', commands: ['/budget', budgetId, 'operations', 'retag'] },
-            { label: 'bulk changes', commands: ['/budget', budgetId, 'operations', 'bulk-changes'] },
-            { label: 'import', commands: ['/budget', budgetId, 'operations', 'import'] },
-            { label: 'manual import', commands: ['/budget', budgetId, 'operations', 'manual-import'] },
-            { label: 'delete', commands: ['/budget', budgetId, 'operations', 'delete'] },
-            { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
-            { label: 'details', commands: ['/budget', budgetId, 'details'] }
-          ];
-        }
+    if (!budgetId) {
+      return [];
+    }
 
-        return baseLinks;
-      })
-    );
-  }  
-  
+    const isDetailsSelected = this.detailsContextPattern.test(url);
+    const isReadingSettingsSelected = this.readingSettingsContextPattern.test(url);
+    const baseLinks = [
+      { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
+      { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
+      { label: 'details', commands: ['/budget', budgetId, 'details'] }
+    ];
+
+    if (isDetailsSelected || isReadingSettingsSelected) {
+      baseLinks.push({ label: 'file reading settings', commands: ['/budget', budgetId, 'reading-settings'] });
+    }
+
+    if (this.operationsContextPattern.test(url)) {
+      return [
+        { label: 'logbook', commands: ['/budget', budgetId, 'operations', 'logbook'] },
+        { label: 'operations', commands: ['/budget', budgetId, 'operations'] },
+        { label: 'retag', commands: ['/budget', budgetId, 'operations', 'retag'] },
+        { label: 'bulk changes', commands: ['/budget', budgetId, 'operations', 'bulk-changes'] },
+        { label: 'import', commands: ['/budget', budgetId, 'operations', 'import'] },
+        { label: 'manual import', commands: ['/budget', budgetId, 'operations', 'manual-import'] },
+        { label: 'delete', commands: ['/budget', budgetId, 'operations', 'delete'] },
+        { label: 'transfers', commands: ['/budget', budgetId, 'transfers'] },
+        { label: 'details', commands: ['/budget', budgetId, 'details'] }
+      ];
+    }
+
+    return baseLinks;
+  });
+
   toggleTheme(): void {
     this.theme.toggleTheme();
   }

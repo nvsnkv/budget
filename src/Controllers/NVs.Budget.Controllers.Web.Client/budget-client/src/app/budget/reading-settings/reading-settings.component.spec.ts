@@ -5,35 +5,35 @@ import { BudgetApiService } from '../budget-api.service';
 import { of } from 'rxjs';
 
 describe('ReadingSettingsComponent', () => {
-  let component: ReadingSettingsComponent;
-  let fixture: ComponentFixture<ReadingSettingsComponent>;
+    let component: ReadingSettingsComponent;
+    let fixture: ComponentFixture<ReadingSettingsComponent>;
 
-  beforeEach(async () => {
-    const apiServiceMock = {
-      getReadingSettings: jasmine.createSpy('getReadingSettings').and.returnValue(of({})),
-      updateReadingSettings: jasmine.createSpy('updateReadingSettings').and.returnValue(of(void 0))
-    };
+    beforeEach(async () => {
+        const apiServiceMock = {
+            getReadingSettings: vi.fn().mockName('getReadingSettings').mockReturnValue(of({})),
+            updateReadingSettings: vi.fn().mockName('updateReadingSettings').mockReturnValue(of(void 0))
+        };
 
-    const activatedRouteMock = {
-      params: of({ budgetId: 'test-id' })
-    };
+        const activatedRouteMock = {
+            params: of({ budgetId: 'test-id' })
+        };
 
-    await TestBed.configureTestingModule({
-      imports: [ReadingSettingsComponent],
-      providers: [
-        { provide: BudgetApiService, useValue: apiServiceMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock }
-      ]
-    })
-    .compileComponents();
-    
-    fixture = TestBed.createComponent(ReadingSettingsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        await TestBed.configureTestingModule({
+            imports: [ReadingSettingsComponent],
+            providers: [
+                { provide: BudgetApiService, useValue: apiServiceMock },
+                { provide: ActivatedRoute, useValue: activatedRouteMock }
+            ]
+        })
+            .compileComponents();
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+        fixture = TestBed.createComponent(ReadingSettingsComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
 

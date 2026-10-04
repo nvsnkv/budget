@@ -1,5 +1,5 @@
 <div class="logbook-container">
-  <tui-loader [overlay]="true" [showLoader]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading()">
     <div class="logbook-card">
       <div class="header">
       <h2 tuiTitle size="l">Operations Logbook</h2>
@@ -38,7 +38,7 @@
                 <tui-textfield>
                   <label tuiLabel>From Date</label>
                   <input
-                    tuiTextfield
+                    tuiInput
                     type="date"
                     [(ngModel)]="fromDate"
                   />
@@ -49,7 +49,7 @@
                 <tui-textfield>
                   <label tuiLabel>Till Date</label>
                   <input
-                    tuiTextfield
+                    tuiInput
                     type="date"
                     [(ngModel)]="tillDate"
                   />
@@ -58,7 +58,7 @@
             </div>
           } @else {
             <div class="preset-buttons">
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'lastYear' ? 'primary' : 'secondary'"
@@ -66,7 +66,7 @@
                 (click)="setDateRange('lastYear')">
                 Last Year
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'currentYear' ? 'primary' : 'secondary'"
@@ -74,7 +74,7 @@
                 (click)="setDateRange('currentYear')">
                 This Year
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'lastMonth' ? 'primary' : 'secondary'"
@@ -82,7 +82,7 @@
                 (click)="setDateRange('lastMonth')">
                 Last Month
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedDatePreset === 'currentMonth' ? 'primary' : 'secondary'"
@@ -112,7 +112,7 @@
               <tui-textfield>
                 <label tuiLabel>Cron Expression (optional - to split into periods)</label>
                 <input
-                  tuiTextfield
+                  tuiInput
                   type="text"
                   [(ngModel)]="cronExpression"
                   placeholder="e.g., 0 0 1 * * for monthly"
@@ -121,7 +121,7 @@
             </div>
           } @else {
             <div class="preset-buttons">
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedCronPreset === 'monthly' ? 'primary' : 'secondary'"
@@ -129,7 +129,7 @@
                 (click)="setCronPreset('monthly')">
                 Monthly
               </button>
-              <button
+<button
                 tuiButton
                 type="button"
                     [appearance]="selectedCronPreset === 'yearly' ? 'primary' : 'secondary'"
@@ -147,7 +147,7 @@
           [showExamplesInitially]="false"
           (criteriaSubmitted)="onCriteriaSubmitted($event)"
           (criteriaCleared)="onCriteriaCleared()">            
-            @if (availableLogbookCriteria.length > 0) {
+            @if (availableLogbookCriteria().length > 0) {
               <div class="currency-section">
                 <tui-textfield tuiChevron class="currency-selector">
                   <input
@@ -158,9 +158,9 @@
                     [ngModelOptions]="{standalone: true}"
                   />
                   <tui-data-list-wrapper
-                    *tuiTextfieldDropdown
+                    *tuiDropdown
                     new
-                    [items]="availableLogbookCriteria"
+                    [items]="availableLogbookCriteria()"
                   />
                 </tui-textfield>
               </div>
@@ -174,7 +174,7 @@
                   [(ngModel)]="outputCurrency"
                 />
                 <tui-data-list-wrapper
-                  *tuiTextfieldDropdown
+                  *tuiDropdown
                   new
                   [items]="items"
                 />
@@ -185,7 +185,7 @@
         }
       </div>
 
-      @if (logbook) {
+      @if (logbook(); as logbook) {
         <div class="logbook-section">
           <div class="header">
             <h3 tuiTitle size="m">Logbook Statistics</h3>
@@ -236,13 +236,13 @@
             </div>
           </div>
 
-          @if (criteriaRows.length > 0 && ranges.length > 0) {
+          @if (criteriaRows().length > 0 && ranges().length > 0) {
             <div class="logbook-table-container">
               <table class="logbook-table">
                 <thead>
                   <tr>
                     <th class="criteria-column">Category</th>
-                    @for (range of ranges; track range.name) {
+                    @for (range of ranges(); track range.name) {
                       <th class="range-column" [title]="(range.from | dateFormat) + ' - ' + (range.till | dateFormat)">
                         <div class="range-header">
                           <span>{{ range.name }}</span>
@@ -257,7 +257,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (row of criteriaRows; track row.path) {
+                  @for (row of criteriaRows(); track row.path) {
                     @if (isRowVisible(row)) {
                       <tr class="criteria-row" [class.has-children]="row.hasChildren" [attr.data-level]="row.level">
                         <td class="criteria-cell" [style.padding-left.rem]="row.level * 2">
@@ -277,10 +277,10 @@
                             }
                           </div>
                         </td>
-                        @for (range of ranges; track range.name) {
+                        @for (range of ranges(); track range.name) {
                           <td class="data-cell"
                               [class.clickable]="hasOperationsInRange(row, range.name)"
-                              [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + getEntryForRange(row, range.name)?.operationsCount + ' operations' : ''"
+                              [title]="hasOperationsInRange(row, range.name) ? 'Click to view ' + $safeNavigationMigration(getEntryForRange(row, range.name)?.operationsCount) + ' operations' : ''"
                               (click)="hasOperationsInRange(row, range.name) && viewGroupOperations(row, range.name, $event)">
                             <div class="data-cell-content">
                               @if (row.hasChildren) {

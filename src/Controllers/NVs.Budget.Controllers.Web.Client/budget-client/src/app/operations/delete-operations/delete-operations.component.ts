@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { 
@@ -16,21 +15,20 @@ import { OperationResult } from '../shared/models/result.interface';
 @Component({
   selector: 'app-delete-operations',
   standalone: true,
-  imports: [
-    CommonModule,
-    TuiButton,
+  imports: [    TuiButton,
     TuiLoader,
     TuiTitle,
     CriteriaFilterComponent,
     OperationResultComponent
   ],
   templateUrl: './delete-operations.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./delete-operations.component.less']
 })
-export class DeleteOperationsComponent implements OnInit {
-  budgetId!: string;
-  isLoading = false;
-  deleteResult: OperationResult | null = null;
+export class DeleteOperationsComponent {
+  readonly budgetId: string;
+  isLoading = signal(false);
+  deleteResult = signal<OperationResult | null>(null);
   currentCriteria = 'o => true';
   
   criteriaExamples: CriteriaExample[] = [
@@ -44,14 +42,12 @@ export class DeleteOperationsComponent implements OnInit {
   ];
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private operationsApi: OperationsApiService,
-    private notificationService: NotificationService
-  ) {}
-
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
+    private notificationService: NotificationService,
+    route: ActivatedRoute
+  ) {
+    this.budgetId = route.snapshot.params['budgetId'];
   }
 
   onCriteriaSubmitted(criteria: string): void {
@@ -65,16 +61,16 @@ export class DeleteOperationsComponent implements OnInit {
     const confirmed = confirm(confirmMessage);
     if (!confirmed) return;
 
-    this.isLoading = true;
-    this.deleteResult = null;
+    this.isLoading.set(true);
+    this.deleteResult.set(null);
 
     this.operationsApi.removeOperations(this.budgetId, { criteria }).subscribe({
       next: (result) => {
-        this.isLoading = false;
-        this.deleteResult = {
+        this.isLoading.set(false);
+        this.deleteResult.set({
           errors: result.errors,
           successes: result.successes
-        };
+        });
         
         if (result.errors.length === 0) {
           this.notificationService.showSuccess('Operations deleted successfully').subscribe();
@@ -87,7 +83,7 @@ export class DeleteOperationsComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to delete operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -99,7 +95,7 @@ export class DeleteOperationsComponent implements OnInit {
   }
 
   resetResult(): void {
-    this.deleteResult = null;
+    this.deleteResult.set(null);
   }
 }
 

@@ -41,7 +41,7 @@
     <!-- Filters -->
     <div class="filters-section">
       <app-criteria-filter
-        [initialCriteria]="currentCriteria"
+        [initialCriteria]="currentCriteria()"
         [showExamplesInitially]="false"
         (criteriaSubmitted)="onCriteriaSubmitted($event)"
         (criteriaCleared)="onCriteriaCleared()">
@@ -54,7 +54,7 @@
                 [(ngModel)]="outputCurrency"
               />
               <tui-data-list-wrapper
-                *tuiTextfieldDropdown
+                *tuiDropdown
                 new
                 [items]="items"
               />
@@ -73,10 +73,10 @@
 
     <!-- Operations List -->
     <div class="operations-section">
-      @if (operations$ | async; as ops) {
+      @if (operations(); as ops) {
         @if (ops.length > 0) {
           <app-operations-table
-            [operations]="operations"
+            [operations]="ops"
             [showActions]="true"
             (operationsDeleted)="onDeleteOperations($event)"
             (operationsUpdated)="onUpdateOperations($event)"
@@ -84,7 +84,7 @@
           </app-operations-table>
 
           <div class="operations-count">
-            Total: {{ operations.length }} operations
+            Total: {{ operations().length }} operations
           </div>
         } @else {
           <div class="empty-state">
@@ -118,15 +118,15 @@
           </div>
         }
       } @else {
-        <tui-loader [showLoader]="true">
+        <tui-loader [loading]="true">
           <div class="loading-placeholder">Loading operations...</div>
         </tui-loader>
       }
 
-      @if (isLoading) {
+      @if (isMutating()) {
         <div class="processing-overlay" aria-live="polite" aria-busy="true">
           <div class="processing-overlay-content">
-            <tui-loader [showLoader]="true" [inheritColor]="true"></tui-loader>
+            <tui-loader [loading]="true" [inheritColor]="true"></tui-loader>
             <span>Processing changes...</span>
           </div>
         </div>

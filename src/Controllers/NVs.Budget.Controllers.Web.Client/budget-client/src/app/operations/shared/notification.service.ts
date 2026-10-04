@@ -12,7 +12,7 @@ export class NotificationService {
     return this.dialogService.open(message, {
       label: 'Error',
       size: 'm',
-      closeable: true,
+      closable: true,
       dismissible: true
     });
   }
@@ -21,7 +21,7 @@ export class NotificationService {
     return this.dialogService.open(message, {
       label: 'Success',
       size: 's',
-      closeable: true,
+      closable: true,
       dismissible: true
     });
   }
@@ -30,7 +30,7 @@ export class NotificationService {
     return this.dialogService.open(message, {
       label: 'Warning',
       size: 'm',
-      closeable: true,
+      closable: true,
       dismissible: true
     });
   }
@@ -40,7 +40,7 @@ export class NotificationService {
       this.dialogService.open(message, {
         label: title,
         size: 'm',
-        closeable: true,
+        closable: true,
         dismissible: true
       }).subscribe({
         next: () => {

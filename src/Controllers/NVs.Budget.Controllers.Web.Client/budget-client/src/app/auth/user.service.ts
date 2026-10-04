@@ -1,17 +1,14 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private readonly user = new BehaviorSubject<User>({isAuthenticated: false});
+  private readonly userSignal = signal<User>({isAuthenticated: false});
 
-  get current$() { return this.user.asObservable(); }
+  readonly currentUser = this.userSignal.asReadonly();
 
-  constructor() { }
-
-  setCurrentUser(user: User) { this.user.next(user); }
+  setCurrentUser(user: User) { this.userSignal.set(user); }
 }
 
 export interface User {

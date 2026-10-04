@@ -1,8 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, effect, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OperationResponse } from '../../budget/models';
-import { TuiButton, TuiExpand, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiExpand, TuiInput } from '@taiga-ui/core';
 import { TuiChip } from '@taiga-ui/kit';
 import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../shared/pipes/date-format.pipe';
@@ -23,35 +22,27 @@ interface EditableOperation {
   selector: 'app-operations-table',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TuiButton,
     TuiExpand,
     TuiChip,
-    TuiTextfield,
+    TuiInput,
     CurrencyFormatPipe,
     DateFormatPipe,
     ObjectKeysPipe,
     AttributesEditorComponent
   ],
   templateUrl: './operations-table.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./operations-table.component.less']
 })
 export class OperationsTableComponent {
-  private _operations: OperationResponse[] = [];
-  @Input() set operations(value: OperationResponse[]) {
-    this._operations = value;
-    this.syncNoteDrafts(value);
-  }
+  readonly operations = input<OperationResponse[]>([]);
+  readonly showActions = input(true);
+  readonly operationsUpdated = output<OperationResponse[]>();
+  readonly operationsDeleted = output<OperationResponse[]>();
+  readonly operationNoteUpdated = output<OperationResponse>();
 
-  get operations(): OperationResponse[] {
-    return this._operations;
-  }
-  @Input() showActions = true;
-  @Output() operationsUpdated = new EventEmitter<OperationResponse[]>();
-  @Output() operationsDeleted = new EventEmitter<OperationResponse[]>();
-  @Output() operationNoteUpdated = new EventEmitter<OperationResponse>();
-  
   expandedOperationId: string | null = null;
   editingOperations: Record<string, EditableOperation> = {};
   pendingDeleteIds = new Set<string>();
@@ -63,10 +54,15 @@ export class OperationsTableComponent {
   noteEditingId: string | null = null;
   showChangedOnly = false;
 
+  constructor() {
+    effect(() => this.syncNoteDrafts(this.operations()));
+  }
+
   get displayedOperations(): OperationResponse[] {
+    const allOperations = this.operations();
     const baseOperations = this.showChangedOnly
-      ? this.operations.filter(operation => this.isChanged(operation.id))
-      : this.operations;
+      ? allOperations.filter(operation => this.isChanged(operation.id))
+      : allOperations;
 
     if (!this.sortField || !this.sortDirection) return baseOperations;
 
@@ -140,7 +136,7 @@ export class OperationsTableComponent {
   }
 
   saveAllEdits(): void {
-    const updatedOperations = this.operations
+    const updatedOperations = this.operations()
       .filter(operation => this.editingOperations[operation.id])
       .map(operation => this.buildUpdatedOperation(operation, this.editingOperations[operation.id]));
 
@@ -156,7 +152,7 @@ export class OperationsTableComponent {
   }
 
   deleteAllMarked(): void {
-    const operationsToDelete = this.operations.filter(operation => this.pendingDeleteIds.has(operation.id));
+    const operationsToDelete = this.operations().filter(operation => this.pendingDeleteIds.has(operation.id));
     if (operationsToDelete.length === 0) {
       return;
     }

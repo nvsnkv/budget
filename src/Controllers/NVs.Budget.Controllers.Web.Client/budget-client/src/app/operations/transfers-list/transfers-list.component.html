@@ -27,7 +27,7 @@
             <tui-textfield>
               <label tuiLabel>Source Operation ID</label>
               <input
-                tuiTextfield
+                tuiInput
                 [(ngModel)]="newTransfer.sourceId"
                 type="text"
                 placeholder="Enter source operation ID"
@@ -39,7 +39,7 @@
             <tui-textfield>
               <label tuiLabel>Sink Operation ID</label>
               <input
-                tuiTextfield
+                tuiInput
                 [(ngModel)]="newTransfer.sinkId"
                 type="text"
                 placeholder="Enter sink operation ID"
@@ -51,7 +51,7 @@
             <tui-textfield>
               <label tuiLabel>Comment</label>
               <input
-                tuiTextfield
+                tuiInput
                 [(ngModel)]="newTransfer.comment"
                 type="text"
                 placeholder="Enter transfer comment"
@@ -68,7 +68,7 @@
                 tuiTextfieldSize="s"
               />
               <tui-data-list-wrapper
-                *tuiTextfieldDropdown
+                *tuiDropdown
                 new
                 [items]="accuracyOptions"
               />
@@ -82,7 +82,7 @@
             type="button"
             appearance="primary"
             size="m"
-            [disabled]="isLoading"
+            [disabled]="isMutating()"
             (click)="registerTransfer()">
             Register Transfer
           </button>
@@ -91,7 +91,7 @@
             type="button"
             appearance="secondary"
             size="m"
-            [disabled]="isLoading"
+            [disabled]="isMutating()"
             (click)="toggleRegisterForm()">
             Cancel
           </button>
@@ -107,9 +107,9 @@
           <tui-textfield>
             <label tuiLabel>From Date</label>
             <input
-              tuiTextfield
+              tuiInput
               [(ngModel)]="fromDate"
-              (ngModelChange)="onDateChange()"
+              
               type="date"
             />
           </tui-textfield>
@@ -119,9 +119,9 @@
           <tui-textfield>
             <label tuiLabel>Till Date</label>
             <input
-              tuiTextfield
+              tuiInput
               [(ngModel)]="tillDate"
-              (ngModelChange)="onDateChange()"
+              
               type="date"
             />
           </tui-textfield>
@@ -133,11 +133,11 @@
             <input
               tuiSelect
               [(ngModel)]="accuracyFilter"
-              (ngModelChange)="onAccuracyChange()"
+              
               tuiTextfieldSize="s"
             />
             <tui-data-list-wrapper
-              *tuiTextfieldDropdown
+              *tuiDropdown
               new
               [items]="accuracyFilterOptions"
             />
@@ -159,7 +159,7 @@
 
     <!-- Transfers List -->
     <div class="transfers-section">
-      @if (transfers$ | async; as transfersList) {
+      @if (transfers(); as transfersList) {
         <!-- Recorded Transfers -->
         @if (transfersList.recorded && transfersList.recorded.length > 0) {
           <div class="transfers-group">
@@ -199,9 +199,9 @@
                 type="button"
                 appearance="primary"
                 size="m"
-                [disabled]="isLoading || selectedUnregisteredTransfers.length === 0"
+                [disabled]="isMutating() || selectedUnregisteredTransfers().length === 0"
                 (click)="registerSelectedTransfers()">
-                Register Selected ({{ selectedUnregisteredTransfers.length }})
+                Register Selected ({{ selectedUnregisteredTransfers().length }})
               </button>
             </div>
             <app-transfers-table
@@ -236,7 +236,7 @@
           </div>
         }
       } @else {
-        <tui-loader [showLoader]="true">
+        <tui-loader [loading]="true">
           <div class="loading-placeholder">Loading transfers...</div>
         </tui-loader>
       }

@@ -1,5 +1,5 @@
 <div class="index-container">
-  @if (isAuthenticated$ | async) {
+  @if (isAuthenticated()) {
     <div class="budgets-page">
       <div class="page-header">
         <h1 tuiTitle size="xl">My Budgets</h1>
@@ -13,7 +13,7 @@
         </button>
       </div>
 
-      @if (budgets$ | async; as budgets) {
+      @if (budgets(); as budgets) {
         @if (budgets.length > 0) {
           <div class="budgets-grid">
             @for (budget of budgets; track budget.id) {
@@ -27,25 +27,25 @@
                     <span class="summary-label">Owners:</span>
                     <div class="owners-chips">
                       @for (owner of budget.owners; track owner.id) {
-                        <tui-chip size="s">
+                        <span tuiChip size="s">
                           {{ owner.name }}
-                        </tui-chip>
+                        </span>
                       }
                     </div>
                   </div>
                   
                   <div class="summary-row">
                     <span class="summary-label">Tagging Rules:</span>
-                    <tui-chip size="s">
+                    <span tuiChip size="s">
                       {{ budget.taggingCriteria.length }}
-                    </tui-chip>
+                    </span>
                   </div>
                   
                   <div class="summary-row">
                     <span class="summary-label">Transfer Rules:</span>
-                    <tui-chip size="s">
+                    <span tuiChip size="s">
                       {{ budget.transferCriteria.length }}
-                    </tui-chip>
+                    </span>
                   </div>
                 </div>
 
@@ -77,7 +77,7 @@
           </div>
         }
       } @else {
-        <tui-loader [showLoader]="true">
+        <tui-loader [loading]="true">
           <div class="loading-placeholder">Loading budgets...</div>
         </tui-loader>
       }

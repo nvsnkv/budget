@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TuiButton, TuiTextfield, TuiLabel } from '@taiga-ui/core';
+import { TuiButton, TuiLabel, TuiInput } from '@taiga-ui/core';
 import { TuiTextarea } from '@taiga-ui/kit';
 import { CriteriaExample } from '../../models/example.interface';
 import { ExamplesSectionComponent } from '../examples-section/examples-section.component';
@@ -10,40 +9,37 @@ import { CtrlEnterDirective } from '../../directives/ctrl-enter.directive';
 @Component({
   selector: 'app-criteria-filter',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
+  imports: [    ReactiveFormsModule,
     TuiButton,
-    TuiTextfield,
+    TuiInput,
     TuiLabel,
     TuiTextarea,
     ExamplesSectionComponent,
     CtrlEnterDirective
   ],
   templateUrl: './criteria-filter.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./criteria-filter.component.less']
 })
-export class CriteriaFilterComponent implements OnInit, OnChanges {
-  @Input() initialCriteria = 'o => true';
-  @Input() examples: CriteriaExample[] = [];
-  @Input() showExamplesInitially = false;
-  @Output() criteriaSubmitted = new EventEmitter<string>();
-  @Output() criteriaCleared = new EventEmitter<void>();
+export class CriteriaFilterComponent {
+  readonly initialCriteria = input('o => true');
+  readonly examples = input<CriteriaExample[]>([]);
+  readonly showExamplesInitially = input(false);
+  readonly criteriaSubmitted = output<string>();
+  readonly criteriaCleared = output<void>();
 
-  filterForm!: FormGroup;
+  filterForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {}
+  private readonly fb = inject(FormBuilder);
 
-  ngOnInit(): void {
+  constructor() {
     this.filterForm = this.fb.group({
-      criteria: [this.initialCriteria]
+      criteria: [this.initialCriteria()]
     });
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['initialCriteria'] && this.filterForm && !changes['initialCriteria'].firstChange) {
-      this.filterForm.patchValue({ criteria: this.initialCriteria });
-    }
+    effect(() => {
+      this.filterForm.patchValue({ criteria: this.initialCriteria() }, { emitEvent: false });
+    });
   }
 
   apply(): void {
@@ -52,8 +48,7 @@ export class CriteriaFilterComponent implements OnInit, OnChanges {
   }
 
   clear(): void {
-    this.filterForm.patchValue({ criteria: this.initialCriteria });
+    this.filterForm.patchValue({ criteria: this.initialCriteria() });
     this.criteriaCleared.emit();
   }
 }
-

@@ -1,44 +1,41 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TuiButton, TuiDialogService, TuiLoader, TuiTitle } from '@taiga-ui/core';
 import { UserService } from '../auth/user.service';
 import { BudgetApiService } from '../budget/budget-api.service';
 import { BudgetResponse } from '../budget/models';
-import { Observable, map, catchError, of } from 'rxjs';
-import { AsyncPipe, CommonModule } from '@angular/common';
 import { TuiChip } from '@taiga-ui/kit';
 
 @Component({
   selector: 'app-index',
   standalone: true,
   imports: [
-    CommonModule,
-    AsyncPipe, 
     TuiButton,
     TuiChip,
     TuiLoader,
     TuiTitle
   ],
   templateUrl: './index.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './index.component.less'
 })
 export class IndexComponent {
-  isAuthenticated$: Observable<boolean>;
-  budgets$: Observable<BudgetResponse[]>;
+  private readonly user = inject(UserService);
+  private readonly budgetService = inject(BudgetApiService);
+  private readonly router = inject(Router);
+  private readonly dialogService = inject(TuiDialogService);
 
-  constructor(
-    private user: UserService,
-    private budgetService: BudgetApiService,
-    private router: Router,
-    private dialogService: TuiDialogService
-  ) {
-    this.isAuthenticated$ = user.current$.pipe(map(u => u.isAuthenticated));
-    this.budgets$ = this.budgetService.getAllBudgets().pipe(
-      catchError(error => {
+  readonly isAuthenticated = computed(() => this.user.currentUser().isAuthenticated);
+  readonly budgets = this.budgetService.budgets;
+  readonly isLoading = this.budgetService.budgetsLoading;
+
+  constructor() {
+    effect(() => {
+      const error = this.budgetService.budgetsError();
+      if (error) {
         console.error('Error loading budgets:', error);
-        return of([]);
-      })
-    );
+      }
+    });
   }
 
   createNewBudget(): void {
@@ -51,7 +48,7 @@ export class IndexComponent {
 
   deleteBudget(budget: BudgetResponse, event: Event): void {
     event.stopPropagation();
-    
+
     const confirmed = confirm(`Are you sure you want to delete budget "${budget.name}"?`);
     if (confirmed) {
         this.budgetService.removeBudget(budget.id, budget.version).subscribe({

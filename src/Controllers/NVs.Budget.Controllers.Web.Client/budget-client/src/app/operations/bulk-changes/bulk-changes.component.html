@@ -1,5 +1,5 @@
 <div class="bulk-changes-container">
-  <tui-loader [overlay]="true" [showLoader]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading()">
     <div class="bulk-changes-card">
       <div class="header">
         <h2 tuiTitle size="l">Bulk Changes</h2>
@@ -16,12 +16,12 @@
             <h4 tuiTitle size="s">Tags</h4>
             <tui-textfield>
               <label tuiLabel>Tags to Add (comma-separated)</label>
-              <input tuiTextfield type="text" [(ngModel)]="tagsToAdd" placeholder="e.g. food, expense" />
+              <input tuiInput type="text" [(ngModel)]="tagsToAdd" placeholder="e.g. food, expense" />
             </tui-textfield>
             
             <tui-textfield class="mt-2">
               <label tuiLabel>Tags to Remove (comma-separated)</label>
-              <input tuiTextfield type="text" [(ngModel)]="tagsToRemove" placeholder="e.g. temporary, to-review" />
+              <input tuiInput type="text" [(ngModel)]="tagsToRemove" placeholder="e.g. temporary, to-review" />
             </tui-textfield>
           </div>
 
@@ -32,7 +32,7 @@
             
             <tui-textfield class="mt-2">
               <label tuiLabel>Attributes to Remove (comma-separated)</label>
-              <input tuiTextfield type="text" [(ngModel)]="attributesToRemove" placeholder="e.g. originalCategory, source" />
+              <input tuiInput type="text" [(ngModel)]="attributesToRemove" placeholder="e.g. originalCategory, source" />
             </tui-textfield>
           </div>
         </div>
@@ -51,10 +51,10 @@
       <div class="operations-section" [hidden]="operations.length === 0">
         <div class="section-header">
           <h3 tuiTitle size="m">3. Review and Save</h3>
-          <p>Loaded {{ operations.length }} operations and applied changes. Please review and click "Save all edits" in the table.</p>
+          <p>Loaded {{ operations().length }} operations and applied changes. Please review and click "Save all edits" in the table.</p>
         </div>
         <app-operations-table
-          [operations]="operations"
+          [operations]="operations()"
           (operationsUpdated)="onUpdateOperations($event)">
         </app-operations-table>
       </div>

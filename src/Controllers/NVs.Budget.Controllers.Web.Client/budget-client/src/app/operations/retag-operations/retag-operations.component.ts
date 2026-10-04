@@ -1,15 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OperationsApiService } from '../operations-api.service';
 import { BudgetApiService } from '../../budget/budget-api.service';
-import { 
-  TuiButton, 
-  TuiLoader,
-  TuiTitle,
-  TuiLabel
-} from '@taiga-ui/core';
-import { TuiCheckbox } from '@taiga-ui/kit';
+import { TuiButton, TuiLoader, TuiTitle, TuiLabel, TuiCheckbox } from '@taiga-ui/core';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../shared/notification.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
@@ -21,7 +14,6 @@ import { OperationResult } from '../shared/models/result.interface';
   selector: 'app-retag-operations',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TuiButton,
     TuiLoader,
@@ -32,16 +24,24 @@ import { OperationResult } from '../shared/models/result.interface';
     OperationResultComponent
   ],
   templateUrl: './retag-operations.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./retag-operations.component.less']
 })
-export class RetagOperationsComponent implements OnInit {
-  budgetId!: string;
-  budgetVersion!: string;
-  isLoading = false;
-  retagResult: OperationResult | null = null;
+export class RetagOperationsComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly operationsApi = inject(OperationsApiService);
+  private readonly budgetApi = inject(BudgetApiService);
+  private readonly notificationService = inject(NotificationService);
+
+  readonly budgetId: string = this.route.snapshot.params['budgetId'];
+
+  budgetVersion = signal('');
+  isLoading = signal(false);
+  retagResult = signal<OperationResult | null>(null);
   currentCriteria = 'o => true';
   fromScratch = false;
-  
+
   criteriaExamples: CriteriaExample[] = [
     { label: 'All operations:', code: 'o => true' },
     { label: 'Specific year:', code: 'o => o.Timestamp.Year == 2023' },
@@ -52,16 +52,7 @@ export class RetagOperationsComponent implements OnInit {
     { label: 'Specific attribute:', code: 'o => o.Attributes.ContainsKey("category") && o.Attributes["category"] == "food"' }
   ];
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private operationsApi: OperationsApiService,
-    private budgetApi: BudgetApiService,
-    private notificationService: NotificationService
-  ) {}
-
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
+  constructor() {
     this.loadBudgetVersion();
   }
 
@@ -70,7 +61,7 @@ export class RetagOperationsComponent implements OnInit {
       next: (budgets: any) => {
         const budget = budgets.find((b: any) => b.id === this.budgetId);
         if (budget) {
-          this.budgetVersion = budget.version;
+          this.budgetVersion.set(budget.version);
         }
       },
       error: (error: any) => {
@@ -84,46 +75,46 @@ export class RetagOperationsComponent implements OnInit {
     this.currentCriteria = criteria;
     const action = this.fromScratch ? 'retag from scratch' : 'retag';
     const confirmMessage = `Are you sure you want to ${action} all operations matching the criteria:\n\n${criteria}\n\n${this.fromScratch ? 'This will remove all existing tags and apply tagging criteria from the beginning.' : 'This will apply tagging criteria to operations that match.'}`;
-    
+
     const confirmed = confirm(confirmMessage);
     if (!confirmed) return;
 
-    if (!this.budgetVersion) {
+    if (!this.budgetVersion()) {
       this.notificationService.showError('Budget version not loaded. Please try again.').subscribe();
       return;
     }
 
-    this.isLoading = true;
-    this.retagResult = null;
+    this.isLoading.set(true);
+    this.retagResult.set(null);
 
     const request = {
-      budgetVersion: this.budgetVersion,
+      budgetVersion: this.budgetVersion(),
       criteria: criteria,
       fromScratch: this.fromScratch
     };
 
     this.operationsApi.retagOperations(this.budgetId, request).subscribe({
       next: (result) => {
-        this.isLoading = false;
-        this.retagResult = {
+        this.isLoading.set(false);
+        this.retagResult.set({
           errors: result.errors,
           successes: result.successes
-        };
-        
+        });
+
         if (result.errors.length === 0) {
           this.notificationService.showSuccess('Operations retagged successfully').subscribe();
           this.operationsApi.triggerRefresh(this.budgetId);
           // Reload budget version after successful retag
           this.loadBudgetVersion();
         } else {
-          const errorMessage = result.errors.length > 5 
+          const errorMessage = result.errors.length > 5
             ? `Retagging completed with ${result.errors.length} errors. Check the results below.`
             : `Retagging completed with errors. See details below.`;
           this.notificationService.showError(errorMessage).subscribe();
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to retag operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -135,7 +126,6 @@ export class RetagOperationsComponent implements OnInit {
   }
 
   resetResult(): void {
-    this.retagResult = null;
+    this.retagResult.set(null);
   }
 }
-

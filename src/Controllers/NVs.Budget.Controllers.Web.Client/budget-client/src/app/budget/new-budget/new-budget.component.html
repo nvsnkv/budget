@@ -6,14 +6,15 @@
     [formGroup]="nameGroup"
     (ngSubmit)="onSubmit()"
 >
-    <tui-notification
-        *ngIf="errorMessage"
-        appearance="error"
-        class="tui-space_bottom-4"
-        (closed)="errorMessage = ''"
-    >
-        {{ errorMessage }}
-    </tui-notification>
+    @if (errorMessage(); as error) {
+        <div tuiNotification
+            appearance="negative"
+            class="tui-space_bottom-4"
+            (closed)="errorMessage.set('')"
+        >
+            {{ error }}
+        </div>
+    }
     <h2 tuiTitle size="l" class="tui-space_bottom-4">
         Create New Budget
     </h2>
@@ -23,12 +24,12 @@
             formControlName="name"
             placeholder="My new budget"
             data-testid="new-budget-name-input"
-            tuiTextfield
+            tuiInput
         />
     </tui-textfield>
     <tui-error
         formControlName="name"
-        [error]="[] | tuiFieldError | async"
+        
     />
     <label class="tui-space_top-2 tui-space_bottom-2">
         <input

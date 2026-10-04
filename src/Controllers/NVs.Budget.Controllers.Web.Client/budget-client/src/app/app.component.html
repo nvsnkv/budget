@@ -1,35 +1,44 @@
-<tui-root [attr.tuiTheme]="(isDarkTheme$ | async) ? 'dark' : null">
+<tui-root [attr.tuiTheme]="isDarkTheme() ? 'dark' : null">
     <header tuiNavigationHeader class="flex-space-between">
             <span class="flex">
                 <span tuiNavigationLogo> <a routerLink="/" tuiLink>The Budget.</a></span>
-                <span class="app-version" *ngIf="appVersion$ | async as appVersion">v{{ appVersion }}</span>
-                <app-budget-selector *ngIf="isAuthenticated$ | async"/>
+                @if (appVersion(); as appVersion) {
+                    <span class="app-version">v{{ appVersion }}</span>
+                }
+                @if (isAuthenticated()) {
+                    <app-budget-selector />
+                }
             </span>
             <span class="flex">
-                <nav class="budget-navigation" *ngIf="navLinks$ | async as navLinks">
-                    <a
-                        *ngFor="let link of navLinks"
-                        tuiLink
-                        [routerLink]="link.commands"
-                        [attr.data-testid]="'nav-link-' + link.label"
-                        routerLinkActive="active-nav-link"
-                        [routerLinkActiveOptions]="{ exact: link.label !== 'operations' }"
-                    >
-                        {{ link.label }}
-                    </a>
-                </nav>
-                <button 
+                @if (navLinks(); as navLinks) {
+                    <nav class="budget-navigation">
+                        @for (link of navLinks; track link.label) {
+                            <a
+                                tuiLink
+                                [routerLink]="link.commands"
+                                [attr.data-testid]="'nav-link-' + link.label"
+                                routerLinkActive="active-nav-link"
+                                [routerLinkActiveOptions]="{ exact: link.label !== 'operations' }"
+                            >
+                                {{ link.label }}
+                            </a>
+                        }
+                    </nav>
+                }
+                <button
                     tuiIconButton
                     appearance="icon"
                     size="s"
                     (click)="toggleTheme()"
-                    [attr.aria-label]="(isDarkTheme$ | async) ? 'Switch to light theme' : 'Switch to dark theme'"
+                    [attr.aria-label]="isDarkTheme() ? 'Switch to light theme' : 'Switch to dark theme'"
                 >
-                    <tui-icon [icon]="(isDarkTheme$ | async) ? '@tui.sun' : '@tui.moon'" />
+                    <tui-icon [icon]="isDarkTheme() ? '@tui.sun' : '@tui.moon'" />
                 </button>
-                <span *ngIf="isAuthenticated$ | async">
-                    <span data-testid="owner-name">{{ownerName$ | async}}</span>
-                </span>
+                @if (isAuthenticated()) {
+                    <span>
+                        <span data-testid="owner-name">{{ownerName()}}</span>
+                    </span>
+                }
                 <app-auth></app-auth>
             </span>
     </header>

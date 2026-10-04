@@ -1,109 +1,89 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, catchError, of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
+import { catchError } from 'rxjs';
 import { OperationsApiService } from '../operations-api.service';
 import { OperationResponse } from '../../budget/models';
-import {
-  TuiButton,
-  TuiLoader,
-  TuiTitle,
-  TuiTextfield,
-  TuiLabel
-} from '@taiga-ui/core';
-import {TuiCheckbox, TuiChevron, TuiDataListWrapper, TuiSelect} from '@taiga-ui/kit';
+import { TuiButton, TuiLoader, TuiTitle } from '@taiga-ui/core';
+import {TuiChevron, TuiDataListWrapper, TuiSelect} from '@taiga-ui/kit';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
 import { CriteriaFilterComponent } from '../shared/components/criteria-filter/criteria-filter.component';
-import { CriteriaExample } from '../shared/models/example.interface';
+
+interface OperationsFilters {
+  criteria: string;
+  outputCurrency: string;
+  excludeTransfers: boolean;
+}
 
 @Component({
   selector: 'app-operations-list',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TuiButton,
     TuiLoader,
-    TuiTextfield,
     TuiChevron,
     TuiDataListWrapper,
-    TuiLabel,
     TuiTitle,
-    TuiCheckbox,
     OperationsTableComponent,
     CriteriaFilterComponent,
     TuiSelect
   ],
   templateUrl: './operations-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./operations-list.component.less']
 })
-export class OperationsListComponent implements OnInit {
-  budgetId!: string;
-  operations$!: Observable<OperationResponse[]>;
-  operations: OperationResponse[] = [];
-  isLoading = false;
+export class OperationsListComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly operationsApi = inject(OperationsApiService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly operationsHelper = inject(OperationsHelperService);
 
-  currentCriteria = `o => o.Timestamp.Year == ${new Date().getFullYear()} && o.Timestamp.Month >= ${new Date().getMonth()}`;
-  outputCurrency = '';
-  excludeTransfers = true;
+  readonly budgetId: string = this.route.snapshot.params['budgetId'];
 
-  criteriaExamples: CriteriaExample[] = [
-    { label: 'All operations:', code: 'o => true' },
-    { label: 'Positive amounts:', code: 'o => o.Amount.Amount > 0' },
-    { label: 'Negative amounts:', code: 'o => o.Amount.Amount < 0' },
-    { label: 'Specific year:', code: 'o => o.Timestamp.Year == 2023' },
-    { label: 'Contains text:', code: 'o => o.Description.Contains("groceries")' },
-    { label: 'By tag:', code: 'o => o.Tags.Any(t => t.Value == "food")' },
-    { label: 'Without tags:', code: 'o => o.Tags.Count == 0' },
-    { label: 'Amount range:', code: 'o => o.Amount.Amount >= -1000 && o.Amount.Amount <= -100' }
-  ];
+  currentCriteria = signal(`o => o.Timestamp.Year == ${new Date().getFullYear()} && o.Timestamp.Month >= ${new Date().getMonth()}`);
+  outputCurrency = signal('');
+  excludeTransfers = signal(true);
+  isMutating = signal(false);
 
   readonly items: string[] = ["RUB", "USD", "EUR"];
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private operationsApi: OperationsApiService,
-    private notificationService: NotificationService,
-    private operationsHelper: OperationsHelperService
-  ) {}
+  private readonly operationsResource = resource<OperationResponse[], OperationsFilters>({
+    params: () => ({
+      criteria: this.currentCriteria(),
+      outputCurrency: this.outputCurrency(),
+      excludeTransfers: this.excludeTransfers(),
+    }),
+    loader: ({ params }) => firstValueFrom(
+      this.operationsApi.getOperations(
+        this.budgetId,
+        params.criteria || undefined,
+        params.outputCurrency || undefined,
+        params.excludeTransfers
+      ).pipe(
+        catchError(error => {
+          const errorMessage = this.notificationService.handleError(error, 'Failed to load operations');
+          this.notificationService.showError(errorMessage).subscribe();
+          return of<OperationResponse[]>([]);
+        })
+      )
+    ),
+  });
 
-  ngOnInit(): void {
-    this.budgetId = this.route.snapshot.params['budgetId'];
-    this.loadOperations();
-  }
-
-  loadOperations(): void {
-    this.operations$ = this.operationsApi.getOperations(
-      this.budgetId,
-      this.currentCriteria || undefined,
-      this.outputCurrency || undefined,
-      this.excludeTransfers
-    ).pipe(
-      catchError(error => {
-        const errorMessage = this.notificationService.handleError(error, 'Failed to load operations');
-        this.notificationService.showError(errorMessage).subscribe();
-        return of([]);
-      })
-    );
-
-    // Subscribe to update the array for the table component
-    this.operations$.subscribe(ops => this.operations = ops);
-  }
+  readonly operations = computed(() => this.operationsResource.value() ?? []);
 
   onCriteriaSubmitted(criteria: string): void {
-    this.currentCriteria = criteria;
-    this.loadOperations();
+    this.currentCriteria.set(criteria);
   }
 
   onCriteriaCleared(): void {
-    this.currentCriteria = '';
-    this.outputCurrency = '';
-    this.excludeTransfers = false;
-    this.loadOperations();
+    this.currentCriteria.set('o => true');
+    this.outputCurrency.set('');
+    this.excludeTransfers.set(false);
   }
 
   navigateToImport(): void {
@@ -151,22 +131,22 @@ export class OperationsListComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.isMutating.set(true);
 
     this.operationsHelper.deleteOperations(this.budgetId, operations.map(operation => operation.id)).subscribe({
       next: (result) => {
-        this.isLoading = false;
+        this.isMutating.set(false);
 
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map((e: any) => e.message || 'Unknown error').join('; ');
           this.notificationService.showError(`Failed to delete operations: ${errorMessage}`).subscribe();
         } else {
           this.notificationService.showSuccess(`Deleted ${count} operation${count === 1 ? '' : 's'} successfully`).subscribe();
-          this.loadOperations();
+          this.operationsResource.reload();
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isMutating.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to delete operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -174,11 +154,11 @@ export class OperationsListComponent implements OnInit {
   }
 
   onUpdateOperations(operations: OperationResponse[]): void {
-    this.isLoading = true;
+    this.isMutating.set(true);
 
     this.operationsHelper.updateOperations(this.budgetId, operations).subscribe({
       next: (result) => {
-        this.isLoading = false;
+        this.isMutating.set(false);
 
         if (result.errors && result.errors.length > 0) {
           const errorMessage = result.errors.map(e => e.message || 'Unknown error').join('; ');
@@ -186,11 +166,11 @@ export class OperationsListComponent implements OnInit {
         } else {
           const count = result.updatedOperations?.length ?? operations.length;
           this.notificationService.showSuccess(`Updated ${count} operation${count === 1 ? '' : 's'} successfully`).subscribe();
-          this.loadOperations();
+          this.operationsResource.reload();
         }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isMutating.set(false);
         const errorMessage = this.notificationService.handleError(error, 'Failed to update operations');
         this.notificationService.showError(errorMessage).subscribe();
       }
@@ -198,7 +178,7 @@ export class OperationsListComponent implements OnInit {
   }
 
   onUpdateOperationNote(operation: OperationResponse): void {
-    const current = this.operations.find(o => o.id === operation.id);
+    const current = this.operations().find(o => o.id === operation.id);
     const previousNotes = current?.notes ?? '';
 
     this.operationsHelper.updateOperation(this.budgetId, operation).subscribe({
@@ -212,10 +192,7 @@ export class OperationsListComponent implements OnInit {
           return;
         }
 
-        const updatedOperation = result.updatedOperations?.[0] ?? operation;
-        this.operations = this.operations.map(item =>
-          item.id === updatedOperation.id ? updatedOperation : item
-        );
+        this.operationsResource.reload();
       },
       error: (error) => {
         const errorMessage = this.notificationService.handleError(error, 'Failed to update notes');

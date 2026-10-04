@@ -1,5 +1,5 @@
 <div class="logbook-group-container">
-  <tui-loader [overlay]="true" [showLoader]="isLoading">
+  <tui-loader [overlay]="true" [loading]="isLoading()">
     <div class="logbook-group-card">
       <div class="header">
         <h2 tuiTitle size="l">{{ groupTitle }}</h2>
@@ -13,14 +13,14 @@
         </button>
       </div>
 
-      @if (operations.length > 0) {
+      @if (operations().length > 0) {
         <div class="operations-section">
           <div class="operations-count">
-            {{ operations.length }} operations
+            {{ operations().length }} operations
           </div>
           
           <app-operations-table 
-            [operations]="operations" 
+            [operations]="operations()" 
             [showActions]="true"
             (operationsDeleted)="onDeleteOperations($event)"
             (operationsUpdated)="onUpdateOperations($event)"
