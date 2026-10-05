@@ -28,8 +28,8 @@
                 (click)="fileInput.click()">
                 Choose CSV File
               </button>
-              @if (selectedFile) {
-                <span class="file-selected">✓ {{ selectedFile.name }}</span>
+              @if (selectedFile(); as file) {
+                <span class="file-selected">✓ {{ file.name }}</span>
               }
             </div>
           </div>
@@ -73,7 +73,7 @@
               type="button"
               appearance="primary"
               size="m"
-              [disabled]="!selectedFile || isLoading"
+              [disabled]="!selectedFile() || isLoading()"
               (click)="importCsv()">
               Import Operations
             </button>

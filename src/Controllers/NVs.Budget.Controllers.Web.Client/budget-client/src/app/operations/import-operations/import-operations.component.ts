@@ -32,7 +32,7 @@ export class ImportOperationsComponent {
   budget = signal<BudgetResponse | null>(null);
   isLoading = signal(false);
 
-  selectedFile: File | null = null;
+  selectedFile = signal<File | null>(null);
   importResult = signal<ImportResultResponse | null>(null);
   readonly confidenceItems: string[] = ['Exact', 'Likely'];
 
@@ -72,16 +72,17 @@ export class ImportOperationsComponent {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
-      this.selectedFile = null;
+      this.selectedFile.set(null);
       return;
     }
 
-    this.selectedFile = input.files[0];
+    this.selectedFile.set(input.files[0]);
   }
 
   importCsv(): void {
     const budget = this.budget();
-    if (!this.selectedFile || !budget) {
+    const file = this.selectedFile();
+    if (!file || !budget) {
       this.notificationService.showError('Please select a CSV file first').subscribe();
       return;
     }
@@ -94,7 +95,7 @@ export class ImportOperationsComponent {
 
     this.operationsApi.importOperations(
       this.budgetId,
-      this.selectedFile,
+      file,
       budget.version,
       transferConfidenceLevel,
       filePattern
