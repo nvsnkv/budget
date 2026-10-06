@@ -61,27 +61,26 @@ The script will save these settings in `docker-registry-config.json` for future 
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `-Version` | Version tag for images | `latest` |
-| `-SkipBuild` | Skip building images, only push existing ones | `false` |
-| `-SkipPush` | Build images but don't push to registry | `false` |
+| `-Version` | Version tag for the image | Auto-generated `Year.Month.Number` (e.g., `2026.10.1`) |
+| `-SkipBuild` | Skip building the image, only push an existing one | `false` |
+| `-SkipPush` | Build the image but don't push to registry | `false` |
 | `-ConfigureRegistry` | Force reconfiguration of registry settings | `false` |
+| `-CleanupOldImages` | Remove old local Docker images, keeping the most recent versions | `false` |
+| `-KeepVersions` | Number of recent versions to keep when cleaning up | `5` |
 
 ## What the Script Does
 
 1. **Validates Environment**: Checks that Docker is installed and accessible
 2. **Loads/Creates Configuration**: Uses saved registry config or prompts for new configuration
-3. **Builds Client Image** (Angular build only): 
-   - Uses `Controllers/NVs.Budget.Controllers.Web.Client/Dockerfile`
-   - Build context: `Controllers/NVs.Budget.Controllers.Web.Client` directory
-   - Builds Angular production bundle
-   - Tags as `budget-client:<version>` (intermediate build image)
-4. **Builds Server Image** (with embedded client): 
+3. **Builds the Server Image** (single multi-stage build):
    - Uses `NVs.Budget.Hosts.Web.Server/Dockerfile`
-   - Build context: Repository root
-   - Copies client assets from client image via build arg
+   - Build context: Repository root (see the root `.dockerignore`; `.git` is intentionally included so GitVersion can derive the assembly version)
+   - Stage 1 (node): builds the Angular client production bundle
+   - Stage 2 (sdk): publishes the .NET server
+   - Final stage: aspnet runtime with the client assets embedded in `/app/wwwroot`
    - Tags as `budget-server:<version>`
-5. **Logs into Registry**: Authenticates with the configured Docker registry
-6. **Pushes Server Image**: Tags and pushes the server image (which includes the embedded client) to the registry
+4. **Logs into Registry**: Authenticates with the configured Docker registry
+5. **Pushes Server Image**: Tags and pushes the server image (which includes the embedded client) to the registry
 
 ## Registry Configuration
 
@@ -144,7 +143,7 @@ Images will be: `registry.mycompany.com/mycompany/budget/budget-server:latest`
 
 ### Build Failed
 ```
-✗ Failed to build Server/Client
+✗ Failed to build Server
 ```
 **Solution**: 
 - Check Docker logs for specific errors

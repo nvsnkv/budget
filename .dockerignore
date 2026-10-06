@@ -1,0 +1,32 @@
+# NOTE: .git must stay in the context - GitVersion.MsBuild reads git tags
+# during dotnet publish inside the container.
+
+**/.angular
+**/.dockerignore
+**/.env
+**/.gitattributes
+**/.gitignore
+**/.idea
+**/.vs
+**/.vscode
+**/*.log
+**/*.md
+**/Dockerfile*
+**/bin
+**/dist
+**/docker-compose*
+**/node_modules
+**/npm-debug.log
+**/obj
+**/TestResults
+.zcode
+.zcodeignore
+.github
+.gitmodules
+*.DotSettings.user
+*.sln.DotSettings
+*.user
+LICENSE
+qodana.yaml
+src/Hosts/web-debug
+src/Hosts/web-release

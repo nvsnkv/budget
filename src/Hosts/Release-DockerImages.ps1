@@ -1,14 +1,15 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Builds and releases Docker images for Budget application (Client and Server)
+    Builds and releases the Docker image for the Budget application (server with embedded client)
 
 .DESCRIPTION
-    This script builds Docker images for both the client and server components,
-    optionally tags them with version information, and pushes them to a Docker registry.
+    This script builds the budget-server Docker image (ASP.NET Core app with the
+    Angular client embedded in wwwroot), optionally tags it with version information,
+    and pushes it to a Docker registry.
 
 .PARAMETER Version
-    Version tag for the images (e.g., "1.0.0", "2026.1.1"). If not specified, automatically generates next version in format Year.Month.Number (e.g., 2026.1.1, 2026.1.2)
+    Version tag for the image (e.g., "1.0.0", "2026.1.1"). If not specified, automatically generates next version in format Year.Month.Number (e.g., 2026.1.1, 2026.1.2)
 
 .PARAMETER SkipBuild
     Skip building images and only push existing ones
@@ -27,11 +28,11 @@
 
 .EXAMPLE
     .\Release-DockerImages.ps1
-    Automatically generates next version (e.g., 2026.1.1) and builds/pushes images
+    Automatically generates next version (e.g., 2026.1.1) and builds/pushes the image
 
 .EXAMPLE
     .\Release-DockerImages.ps1 -Version "1.2.3"
-    Builds and pushes images with version "1.2.3"
+    Builds and pushes the image with version "1.2.3"
 
 .EXAMPLE
     .\Release-DockerImages.ps1 -SkipPush
@@ -104,17 +105,28 @@ function Write-Step {
 # Get next version in format Year.Month.Number
 function Get-NextVersion {
     param(
-        [string]$ImageName,
-        [string]$RegistryPrefix = $null
+        [string]$RepositoryRoot,
+        [string]$ImageName
     )
-    
+
     $currentYear = (Get-Date).Year
     $currentMonth = (Get-Date).Month
     $versionPattern = "^${currentYear}\.${currentMonth}\.(\d+)$"
-    
+
     $existingVersions = @()
-    
-    # Get local image tags
+
+    # Git tags are the authoritative record of released versions
+    try {
+        $gitTags = git -C $RepositoryRoot tag --list
+        if ($gitTags) {
+            $existingVersions += $gitTags | Where-Object { $_ -match $versionPattern }
+        }
+    }
+    catch {
+        Write-Warning "Could not query git tags: $_"
+    }
+
+    # Local image tags serve as an additional source
     try {
         $localImages = docker images --format "{{.Tag}}" "${ImageName}" 2>$null
         if ($localImages) {
@@ -124,21 +136,7 @@ function Get-NextVersion {
     catch {
         Write-Warning "Could not query local images: $_"
     }
-    
-    # Get remote tags if registry is configured
-    if ($RegistryPrefix) {
-        try {
-            $remoteImage = "${RegistryPrefix}/${ImageName}"
-            $remoteTags = docker images --format "{{.Tag}}" $remoteImage 2>$null
-            if ($remoteTags) {
-                $existingVersions += $remoteTags | Where-Object { $_ -match $versionPattern }
-            }
-        }
-        catch {
-            Write-Warning "Could not query remote images: $_"
-        }
-    }
-    
+
     # Find the highest number for current year.month
     $maxNumber = 0
     foreach ($version in $existingVersions) {
@@ -149,7 +147,7 @@ function Get-NextVersion {
             }
         }
     }
-    
+
     # Return next version
     $nextNumber = $maxNumber + 1
     return "${currentYear}.${currentMonth}.${nextNumber}"
@@ -536,9 +534,9 @@ function Main {
     
     # Define image names
     $serverImageName = "budget-server"
-    $clientImageName = "budget-client"
-    
-    # Determine registry prefix for version detection
+    $legacyClientImageName = "budget-client"   # old intermediate image, cleaned up only
+
+    # Determine registry prefix for remote tags
     $registryPrefix = $null
     if ($config -and $config.Registry) {
         $registryPrefix = "$($config.Registry)"
@@ -546,76 +544,46 @@ function Main {
             $registryPrefix = "$registryPrefix/$($config.Namespace)"
         }
     }
-    
+
     # Auto-generate version if not provided
     if ([string]::IsNullOrWhiteSpace($Version)) {
         Write-Step "Auto-generating next version"
-        $Version = Get-NextVersion -ImageName $serverImageName -RegistryPrefix $registryPrefix
+        $Version = Get-NextVersion -RepositoryRoot $repoRoot -ImageName $serverImageName
         Write-Success "Generated version: $Version"
     }
-    
+
     # Create git tag before building images
     Ensure-GitTag -RepositoryRoot $repoRoot -Version $Version
-    
-    # Local tags
+
+    # Local and remote tags
     $serverLocalTag = "${serverImageName}:${Version}"
-    $clientLocalTag = "${clientImageName}:${Version}"
-    
-    # Remote tags (if registry is configured)
     $serverRemoteTag = $null
-    $clientRemoteTag = $null
-    
+
     if ($config -and $config.Registry) {
         $serverRemoteTag = "${registryPrefix}/${serverImageName}:${Version}"
-        $clientRemoteTag = "${registryPrefix}/${clientImageName}:${Version}"
     }
     
-    # Build images
+    # Build image
     if (-not $SkipBuild) {
-        Write-Step "Starting Docker Image Build Process"
-        
-        # Build Client first (Angular build only)
-        $clientDockerfile = Join-Path $srcDir "Controllers\NVs.Budget.Controllers.Web.Client\Dockerfile"
-        $clientContext = Join-Path $srcDir "Controllers\NVs.Budget.Controllers.Web.Client"
-        $clientSuccess = Build-DockerImage `
-            -Name "Client" `
-            -DockerfilePath $clientDockerfile `
-            -Context $clientContext `
-            -Tag $clientLocalTag
-        
-        if (-not $clientSuccess) {
-            Write-ErrorMessage "Client build failed. Aborting."
-            exit 1
-        }
-        
-        # Build Server with client image as build arg
+        Write-Step "Starting Docker Image Build"
+
         $serverDockerfile = Join-Path $hostsDir "NVs.Budget.Hosts.Web.Server\Dockerfile"
-        Write-Step "Building Server (with client assets)"
-        Write-Info "Dockerfile: $serverDockerfile"
-        Write-Info "Context: $repoRoot"
-        Write-Info "Tag: $serverLocalTag"
-        Write-Info "Client Image: $clientLocalTag"
-        
-        try {
-            docker build -f $serverDockerfile --build-arg CLIENT_IMAGE=$clientLocalTag -t $serverLocalTag $repoRoot
-            
-            if ($LASTEXITCODE -ne 0) {
-                Write-ErrorMessage "Failed to build Server"
-                exit 1
-            }
-            
-            Write-Success "Successfully built Server"
-        }
-        catch {
-            Write-ErrorMessage "Error building Server : $_"
+        $serverSuccess = Build-DockerImage `
+            -Name "Server (with embedded client)" `
+            -DockerfilePath $serverDockerfile `
+            -Context $repoRoot `
+            -Tag $serverLocalTag
+
+        if (-not $serverSuccess) {
+            Write-ErrorMessage "Server build failed. Aborting."
             exit 1
         }
-        
-        Write-Success "`nAll images built successfully!"
-        
+
+        Write-Success "`nImage built successfully!"
+
         # Display local images
         Write-Step "Local Images Built"
-        docker images | Select-String -Pattern "(REPOSITORY|$serverImageName|$clientImageName)"
+        docker images | Select-String -Pattern "(REPOSITORY|$serverImageName)"
     }
     else {
         Write-Warning "Skipping build phase"
@@ -630,17 +598,16 @@ function Main {
             Write-Warning "Failed to login to registry. Skipping push."
         }
         else {
-            # Push Server (client is only an intermediate build image, not pushed)
             $serverPushSuccess = Publish-DockerImage `
                 -LocalTag $serverLocalTag `
                 -RemoteTag $serverRemoteTag `
                 -Name "Server"
-            
+
             if ($serverPushSuccess) {
                 Write-Success "`nServer image published successfully!"
                 Write-Host ""
                 Write-Info "Server Image: $serverRemoteTag"
-                Write-Info "Note: Client is now embedded in the server image"
+                Write-Info "Note: Client assets are embedded in the server image"
             }
             else {
                 Write-ErrorMessage "`nSome images failed to publish"
@@ -659,14 +626,14 @@ function Main {
     # Cleanup old images if requested
     if ($CleanupOldImages) {
         Remove-OldImages -ImageName $serverImageName -RegistryPrefix $registryPrefix -KeepCount $KeepVersions
+        Remove-OldImages -ImageName $legacyClientImageName -KeepCount $KeepVersions
     }
-    
+
     Write-Host ""
     Write-Step "Release Process Complete"
     Write-Host ""
-    Write-Success "Local images are tagged as:"
-    Write-Host "  - $serverLocalTag (includes embedded client)"
-    Write-Host "  - $clientLocalTag (intermediate build image)"
+    Write-Success "Local image is tagged as:"
+    Write-Host "  - $serverLocalTag (client assets embedded in wwwroot)"
     
     if ($config -and $config.Registry -and -not $SkipPush) {
         Write-Host ""
