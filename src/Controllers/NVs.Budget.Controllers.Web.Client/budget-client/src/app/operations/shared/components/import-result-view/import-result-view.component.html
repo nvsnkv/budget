@@ -1,0 +1,111 @@
+@if (result(); as importResult) {
+  <div class="import-result">
+    <h3 tuiTitle size="m">Import Results</h3>
+    <div class="result-stats">
+      <div class="stat-item success">
+        <span class="stat-label">Registered:</span>
+        <span class="stat-value">{{ registeredOperations().length }}</span>
+      </div>
+      @if (duplicatesList().length > 0) {
+        <div class="stat-item warning">
+          <span class="stat-label">Duplicates:</span>
+          <span class="stat-value">{{ duplicatesList().length }}</span>
+        </div>
+      }
+      @if (registeredTransfers().length > 0) {
+        <div class="stat-item info">
+          <span class="stat-label">Registered Transfers:</span>
+          <span class="stat-value">{{ registeredTransfers().length }}</span>
+        </div>
+      }
+      @if (unregisteredTransfers().length > 0) {
+        <div class="stat-item info">
+          <span class="stat-label">Possible Transfers:</span>
+          <span class="stat-value">{{ unregisteredTransfers().length }}</span>
+        </div>
+      }
+      @if (importResult.errors.length > 0) {
+        <div class="stat-item error">
+          <span class="stat-label">Errors:</span>
+          <span class="stat-value">{{ importResult.errors.length }}</span>
+        </div>
+      }
+    </div>
+
+    @if (registeredOperations().length > 0) {
+      <div class="operations-section">
+        <h4>Imported Operations ({{ registeredOperations().length }})</h4>
+        <p class="help-text">
+          Imported operations are listed below and can be edited — fix descriptions, amounts, tags or attributes,
+          then press "Save all". Marked operations can be deleted with "Delete marked".
+        </p>
+        <app-operations-table
+          [operations]="registeredOperations()"
+          [showActions]="true"
+          (operationsUpdated)="onUpdateOperations($event)"
+          (operationsDeleted)="onDeleteOperations($event)"
+          (operationNoteUpdated)="onUpdateOperationNote($event)">
+        </app-operations-table>
+      </div>
+    }
+
+    @if (hasTransfers()) {
+      <div class="transfers-section">
+        <h4>Transfers</h4>
+        @if (registeredTransfers().length > 0) {
+          <h5>Registered Transfers ({{ registeredTransfers().length }})</h5>
+          <p class="help-text">
+            Transfers registered automatically during import. Use the delete action to unregister a transfer if it was detected incorrectly.
+          </p>
+          <app-transfers-table
+            [transfers]="registeredTransfers()"
+            [showActions]="true"
+            [showQuickRegister]="false"
+            (transferDeleted)="onTransferDeleted($event)">
+          </app-transfers-table>
+        }
+        @if (unregisteredTransfers().length > 0) {
+          <h5>Possible Transfers ({{ unregisteredTransfers().length }})</h5>
+          <p class="help-text">
+            Transfers detected below the selected confidence level. Review them and register the correct ones.
+          </p>
+          <app-transfers-table
+            [transfers]="unregisteredTransfers()"
+            [showActions]="true"
+            [showQuickRegister]="true"
+            (transferRegistered)="onTransferRegistered($event)">
+          </app-transfers-table>
+        }
+      </div>
+    }
+
+    @if (duplicatesList().length > 0) {
+      <div class="duplicates-section">
+        <div class="section-header-with-toggle">
+          <h4>Duplicates ({{ duplicatesList().length }} groups)</h4>
+          <button
+            tuiButton
+            type="button"
+            appearance="flat"
+            size="xs"
+            (click)="toggleDuplicates()">
+            {{ showDuplicates ? '▼ Hide' : '▶ Show' }}
+          </button>
+        </div>
+        @if (showDuplicates) {
+          @for (group of duplicatesList(); track $index; let groupIdx = $index) {
+            <div class="duplicate-group">
+              <h5>Duplicate Group {{ groupIdx + 1 }} ({{ group.length }} operations)</h5>
+              <app-operations-table [operations]="group" [showActions]="false"></app-operations-table>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <app-operation-result
+      [successes]="importResult.successes"
+      [errors]="importResult.errors">
+    </app-operation-result>
+  </div>
+}
