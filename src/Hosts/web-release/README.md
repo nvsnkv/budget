@@ -63,6 +63,15 @@ cd ../
 ./release-docker-images.sh --version 1.0.0 --skip-push
 ```
 
+On Windows, use the PowerShell equivalent:
+
+```powershell
+.\Release-DockerImages.ps1 -Version "1.0.0"
+.\Release-DockerImages.ps1 -Version "1.0.0" -SkipPush
+```
+
+The helper scripts in this directory (`start.sh`/`start.ps1`, `stop.sh`/`stop.ps1`, `update.sh`/`update.ps1`, `logs.sh`/`logs.ps1`) also come in both variants.
+
 If images are already in your registry, they will be pulled automatically.
 
 ### 3. Start the Application

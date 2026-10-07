@@ -2,9 +2,11 @@
 
 This guide explains how to use the `release-docker-images.sh` script to build and publish Docker images for the Budget application.
 
+A PowerShell equivalent, `Release-DockerImages.ps1`, lives next to it for Windows users. Both scripts do the same thing; parameter names map directly (`--version 1.2.3` ↔ `-Version "1.2.3"`, `--skip-push` ↔ `-SkipPush`, `--cleanup-old-images` ↔ `-CleanupOldImages`, etc.). Examples below use the bash variant.
+
 ## Prerequisites
 
-- Bash (Linux/Mac, or WSL/Git Bash on Windows)
+- Bash (Linux/Mac) or PowerShell 7+ (Windows)
 - Docker installed and running
 - Access to a Docker registry (Docker Hub, GitHub Container Registry, or private registry)
 
@@ -84,19 +86,23 @@ The script will save these settings in `docker-registry-config.json` for future 
 
 ## Registry Configuration
 
-The script stores registry credentials in `docker-registry-config.json`. This file contains:
+The scripts store registry credentials in `docker-registry-config.json`. This file contains:
 - Registry URL
 - Username
 - Password
 - Namespace/repository path
 - Configuration date
 
-**⚠️ Security Note**: The password is stored in plain text (the Windows DPAPI encryption used by the previous PowerShell version is not available on Linux). The script restricts the file permissions to `600` (readable by the owner only). Do not commit this file to version control. Alternatively, you can keep the password out of the file entirely and supply it via the `DOCKER_REGISTRY_PASSWORD` environment variable at run time.
+**⚠️ Security Note**: the two scripts store the password differently:
+- `release-docker-images.sh` stores it in plain text (`Password`) because Linux has no DPAPI; the file is created with `600` permissions (owner-only). You can also keep the password out of the file entirely and supply it via the `DOCKER_REGISTRY_PASSWORD` environment variable at run time.
+- `Release-DockerImages.ps1` stores it Windows-DPAPI-encrypted (`EncryptedPassword`), decryptable only by the same user on the same machine.
+
+Do not commit this file to version control.
 
 ## Configuration File Location
 
 - **Config File**: `src/Hosts/docker-registry-config.json`
-- **Script Location**: `src/Hosts/release-docker-images.sh`
+- **Scripts**: `src/Hosts/release-docker-images.sh` (bash) and `src/Hosts/Release-DockerImages.ps1` (PowerShell)
 
 ## Docker Registry Examples
 

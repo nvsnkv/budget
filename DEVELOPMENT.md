@@ -6,7 +6,7 @@ This guide covers setting up and running the Budget application for local develo
 
 ### Required Software
 - Docker Desktop
-- Bash (Linux/Mac, or WSL/Git Bash on Windows)
+- Bash (Linux/Mac) or PowerShell 7+ (Windows)
 - .NET SDK 10.0+
 - Node.js 22+
 - npm
@@ -19,6 +19,8 @@ The easiest way to start development is using the scripts in `src/Hosts/web-debu
 cd src/Hosts/web-debug
 ./start-all.sh
 ```
+
+On Windows, use the PowerShell equivalents (`.\start-all.ps1`, `.\start-server.ps1`, etc.) — every script in `web-debug/` and `web-release/` comes in both a bash (`.sh`) and a PowerShell (`.ps1`) variant with matching parameters. The examples below use the bash variants.
 
 This will:
 1. Start PostgreSQL database in Docker
@@ -189,10 +191,10 @@ src/Hosts/web-debug/
 ├── dev-certs.Dockerfile    # Certificate generation
 ├── server.env              # Server environment variables (gitignored)
 ├── server.env.example      # Template for server.env
-├── start-all.sh            # Master script to start everything
-├── start-server.sh         # Start .NET server on host
-├── start-client.sh         # Start Angular client on host
-├── stop-all.sh             # Stop Docker services
+├── start-all.sh / .ps1     # Master script to start everything
+├── start-server.sh / .ps1  # Start .NET server on host
+├── start-client.sh / .ps1  # Start Angular client on host
+├── stop-all.sh / .ps1      # Stop Docker services
 └── README.md               # Additional details
 ```
 

@@ -11,7 +11,7 @@ This directory contains scripts to run the Budget application in development mod
 
 ### Required Software
 - Docker Desktop
-- Bash (Linux/Mac, or WSL/Git Bash on Windows)
+- Bash (Linux/Mac) or PowerShell 7+ (Windows)
 - .NET SDK 8.0+
 - Node.js 20+
 - npm
@@ -25,6 +25,8 @@ This directory contains scripts to run the Budget application in development mod
    ```
 
 ## Quick Start
+
+Every script in this directory comes in both a bash (`.sh`) and a PowerShell (`.ps1`) variant with matching parameters — use whichever matches your OS. The examples below use the bash variants (on Windows: `.\start-all.ps1`, `.\start-server.ps1`, etc.).
 
 ### Start All Services
 ```bash
@@ -126,10 +128,10 @@ web-debug/
 ├── dev-certs.Dockerfile    # Certificate generation
 ├── server.env              # Server environment variables (gitignored)
 ├── server.env.example      # Template for server.env
-├── start-all.sh            # Master script to start everything
-├── start-server.sh         # Start .NET server on host
-├── start-client.sh         # Start Angular client on host
-├── stop-all.sh             # Stop Docker services
+├── start-all.sh / .ps1     # Master script to start everything
+├── start-server.sh / .ps1  # Start .NET server on host
+├── start-client.sh / .ps1  # Start Angular client on host
+├── stop-all.sh / .ps1      # Stop Docker services
 └── README.md               # This file
 ```
 
