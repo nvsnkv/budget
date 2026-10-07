@@ -57,10 +57,10 @@ If you need to build the images first:
 cd ../
 
 # Build and push images using the release script
-.\Release-DockerImages.ps1 -Version "1.0.0"
+./release-docker-images.sh --version 1.0.0
 
 # Or just build locally
-.\Release-DockerImages.ps1 -Version "1.0.0" -SkipPush
+./release-docker-images.sh --version 1.0.0 --skip-push
 ```
 
 If images are already in your registry, they will be pulled automatically.

@@ -1,10 +1,10 @@
 # Docker Release Guide
 
-This guide explains how to use the `Release-DockerImages.ps1` script to build and publish Docker images for the Budget application.
+This guide explains how to use the `release-docker-images.sh` script to build and publish Docker images for the Budget application.
 
 ## Prerequisites
 
-- PowerShell 5.1 or later (PowerShell Core 7+ recommended)
+- Bash (Linux/Mac, or WSL/Git Bash on Windows)
 - Docker installed and running
 - Access to a Docker registry (Docker Hub, GitHub Container Registry, or private registry)
 
@@ -13,13 +13,13 @@ This guide explains how to use the `Release-DockerImages.ps1` script to build an
 ### First Time Setup
 
 1. Navigate to the Hosts directory:
-```powershell
-cd src\Hosts
+```bash
+cd src/Hosts
 ```
 
 2. Run the script (it will prompt for registry configuration):
-```powershell
-.\Release-DockerImages.ps1
+```bash
+./release-docker-images.sh
 ```
 
 3. When prompted, provide:
@@ -32,41 +32,41 @@ The script will save these settings in `docker-registry-config.json` for future 
 
 ## Usage Examples
 
-### Build and Push with Default Version (latest)
-```powershell
-.\Release-DockerImages.ps1
+### Build and Push with Auto-Generated Version
+```bash
+./release-docker-images.sh
 ```
 
 ### Build and Push with Specific Version
-```powershell
-.\Release-DockerImages.ps1 -Version "1.2.3"
+```bash
+./release-docker-images.sh --version 1.2.3
 ```
 
 ### Build Locally Without Pushing
-```powershell
-.\Release-DockerImages.ps1 -SkipPush
+```bash
+./release-docker-images.sh --skip-push
 ```
 
 ### Push Previously Built Images
-```powershell
-.\Release-DockerImages.ps1 -SkipBuild -Version "1.2.3"
+```bash
+./release-docker-images.sh --skip-build --version 1.2.3
 ```
 
 ### Reconfigure Registry Settings
-```powershell
-.\Release-DockerImages.ps1 -ConfigureRegistry
+```bash
+./release-docker-images.sh --configure-registry
 ```
 
 ## Parameters
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `-Version` | Version tag for the image | Auto-generated `Year.Month.Number` (e.g., `2026.10.1`) |
-| `-SkipBuild` | Skip building the image, only push an existing one | `false` |
-| `-SkipPush` | Build the image but don't push to registry | `false` |
-| `-ConfigureRegistry` | Force reconfiguration of registry settings | `false` |
-| `-CleanupOldImages` | Remove old local Docker images, keeping the most recent versions | `false` |
-| `-KeepVersions` | Number of recent versions to keep when cleaning up | `5` |
+| `--version <v>` | Version tag for the image | Auto-generated `Year.Month.Number` (e.g., `2026.10.1`) |
+| `--skip-build` | Skip building the image, only push an existing one | `false` |
+| `--skip-push` | Build the image but don't push to registry | `false` |
+| `--configure-registry` | Force reconfiguration of registry settings | `false` |
+| `--cleanup-old-images` | Remove old local Docker images, keeping the most recent versions | `false` |
+| `--keep-versions <n>` | Number of recent versions to keep when cleaning up | `5` |
 
 ## What the Script Does
 
@@ -87,16 +87,16 @@ The script will save these settings in `docker-registry-config.json` for future 
 The script stores registry credentials in `docker-registry-config.json`. This file contains:
 - Registry URL
 - Username
-- Encrypted password (Windows DPAPI encrypted)
+- Password
 - Namespace/repository path
 - Configuration date
 
-**⚠️ Security Note**: The password is encrypted using Windows Data Protection API (DPAPI), which means it can only be decrypted by the same user on the same machine. Do not commit this file to version control.
+**⚠️ Security Note**: The password is stored in plain text (the Windows DPAPI encryption used by the previous PowerShell version is not available on Linux). The script restricts the file permissions to `600` (readable by the owner only). Do not commit this file to version control. Alternatively, you can keep the password out of the file entirely and supply it via the `DOCKER_REGISTRY_PASSWORD` environment variable at run time.
 
 ## Configuration File Location
 
 - **Config File**: `src/Hosts/docker-registry-config.json`
-- **Script Location**: `src/Hosts/Release-DockerImages.ps1`
+- **Script Location**: `src/Hosts/release-docker-images.sh`
 
 ## Docker Registry Examples
 
@@ -130,7 +130,7 @@ Images will be: `registry.mycompany.com/mycompany/budget/budget-server:latest`
 ```
 ✗ Docker is not installed or not in PATH
 ```
-**Solution**: Install Docker Desktop or ensure Docker is in your PATH
+**Solution**: Install Docker (Docker Engine/Docker Desktop) and ensure the `docker` command is in your PATH
 
 ### Login Failed
 ```
@@ -139,7 +139,7 @@ Images will be: `registry.mycompany.com/mycompany/budget/budget-server:latest`
 **Solution**: 
 - Verify your credentials
 - Check if you have access to the registry
-- Run with `-ConfigureRegistry` to re-enter credentials
+- Run with `--configure-registry` to re-enter credentials
 
 ### Build Failed
 ```
@@ -166,30 +166,37 @@ For automated builds in CI/CD pipelines, you can:
 
 1. Store credentials in pipeline secrets
 2. Create the config file programmatically:
-```powershell
-$config = @{
-    Registry = $env:DOCKER_REGISTRY
-    Username = $env:DOCKER_USERNAME
-    EncryptedPassword = ConvertFrom-SecureString (ConvertTo-SecureString $env:DOCKER_PASSWORD -AsPlainText -Force)
-    Namespace = $env:DOCKER_NAMESPACE
+```bash
+cat > docker-registry-config.json <<EOF
+{
+  "Registry": "$DOCKER_REGISTRY",
+  "Username": "$DOCKER_USERNAME",
+  "Password": "$DOCKER_PASSWORD",
+  "Namespace": "$DOCKER_NAMESPACE"
 }
-$config | ConvertTo-Json | Set-Content "docker-registry-config.json"
+EOF
+chmod 600 docker-registry-config.json
+```
+
+   Or skip storing the password in the file and export it instead:
+```bash
+export DOCKER_REGISTRY_PASSWORD="$DOCKER_PASSWORD"
 ```
 
 3. Run the build:
-```powershell
-.\Release-DockerImages.ps1 -Version $env:BUILD_VERSION
+```bash
+./release-docker-images.sh --version "$BUILD_VERSION"
 ```
 
 ## Local Development
 
 For local testing without pushing to registry:
-```powershell
-.\Release-DockerImages.ps1 -SkipPush -Version "dev"
+```bash
+./release-docker-images.sh --skip-push --version dev
 ```
 
 Then run locally:
-```powershell
+```bash
 docker run -p 5153:5153 budget-server:dev
 ```
 
@@ -204,16 +211,16 @@ Consider using semantic versioning:
 - **Branch names**: `feature-auth`, `hotfix-123`
 
 Example workflow:
-```powershell
+```bash
 # Development build
-.\Release-DockerImages.ps1 -Version "dev" -SkipPush
+./release-docker-images.sh --version dev --skip-push
 
 # Release candidate
-.\Release-DockerImages.ps1 -Version "1.2.3-rc1"
+./release-docker-images.sh --version 1.2.3-rc1
 
 # Production release
-.\Release-DockerImages.ps1 -Version "1.2.3"
-.\Release-DockerImages.ps1 -Version "latest"
+./release-docker-images.sh --version 1.2.3
+./release-docker-images.sh --version latest
 ```
 
 ## Support
