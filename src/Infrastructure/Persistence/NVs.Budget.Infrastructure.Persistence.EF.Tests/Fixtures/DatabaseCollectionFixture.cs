@@ -13,7 +13,7 @@ public class DatabaseCollectionFixture : ICollectionFixture<DbContextManager>;
 
 public class DbContextManager : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
+    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder("postgres:17").Build();
 
     public readonly TestDataFixture TestData = new();
     internal readonly PersistenceMapper PersistenceMapper = new(ReadableExpressionsParser.Default);

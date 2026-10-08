@@ -11,7 +11,7 @@ public class DatabaseCollectionFixture : ICollectionFixture<DbContextManager>;
 [UsedImplicitly]
 public class DbContextManager : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
+    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder("postgres:17").Build();
 
     public async Task InitializeAsync()
     {
