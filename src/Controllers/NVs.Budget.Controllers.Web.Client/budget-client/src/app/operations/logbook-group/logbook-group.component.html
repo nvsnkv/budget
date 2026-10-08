@@ -15,8 +15,17 @@
 
       @if (operations().length > 0) {
         <div class="operations-section">
-          <div class="operations-count">
-            {{ operations().length }} operations
+          <div class="operations-summary">
+            <span class="operations-count">
+              {{ operations().length }} operations
+            </span>
+            @if (groupSum(); as sum) {
+              <span class="operations-sum"
+                    [class.positive]="sum.value > 0"
+                    [class.negative]="sum.value < 0">
+                {{ sum.value | currencyFormat:sum.currencyCode }}
+              </span>
+            }
           </div>
           
           <app-operations-table 
@@ -29,8 +38,15 @@
         </div>
       } @else {
         <div class="empty-state">
-          <p>No operations found for this group.</p>
-          <button 
+          @if (emptiedAfterChanges()) {
+            <p class="empty-state-title">No operations match this group anymore</p>
+            <p class="empty-state-hint">
+              The operations were edited or deleted, and no longer satisfy the group's criteria.
+            </p>
+          } @else {
+            <p>No operations found for this group.</p>
+          }
+          <button
             tuiButton
             type="button"
             appearance="primary"

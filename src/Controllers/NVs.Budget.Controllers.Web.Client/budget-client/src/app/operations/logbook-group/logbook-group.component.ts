@@ -8,8 +8,9 @@ import {
 } from '@taiga-ui/core';
 import { NotificationService } from '../shared/notification.service';
 import { OperationsHelperService } from '../shared/operations-helper.service';
+import { CurrencyFormatPipe } from '../shared/pipes/currency-format.pipe';
 import { OperationsTableComponent } from '../operations-table/operations-table.component';
-import { LogbookResponse, OperationResponse } from '../../budget/models';
+import { LogbookResponse, MoneyResponse, OperationResponse } from '../../budget/models';
 import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../shared/date-api.utils';
 
 @Component({
@@ -19,6 +20,7 @@ import { calendarDateToUtcExclusiveEnd, calendarDateToUtcStart } from '../../sha
     TuiButton,
     TuiLoader,
     TuiTitle,
+    CurrencyFormatPipe,
     OperationsTableComponent
   ],
   templateUrl: './logbook-group.component.html',
@@ -38,6 +40,8 @@ export class LogbookGroupComponent {
   
   isLoading = signal(false);
   operations = signal<OperationResponse[]>([]);
+  groupSum = signal<MoneyResponse | null>(null);
+  emptiedAfterChanges = signal(false);
   groupTitle = '';
 
   constructor(
@@ -81,19 +85,17 @@ export class LogbookGroupComponent {
     ).subscribe({
       next: (result: LogbookResponse) => {
         this.isLoading.set(false);
-        
-        // Find the specific range and criteria path
+
+        const hadOperations = this.operations().length > 0;
+
+        // Find the specific range and criteria path; reset state when it is gone,
+        // e.g. after edits the operations may no longer match the group criteria
         const rangedEntry = result.ranges.find(r => r.range.name === this.rangeName);
-        if (rangedEntry) {
-          const entry = this.findEntryByPath(rangedEntry.entry, this.criteriaPath);
-          if (entry) {
-            this.operations.set(entry.operations || []);
-          }
-        }
-        
-        if (this.operations().length === 0) {
-          this.notificationService.showWarning('No operations found for this group').subscribe();
-        }
+        const entry = rangedEntry ? this.findEntryByPath(rangedEntry.entry, this.criteriaPath) : null;
+
+        this.operations.set(entry?.operations || []);
+        this.groupSum.set(entry?.sum || null);
+        this.emptiedAfterChanges.set(hadOperations && this.operations().length === 0);
       },
       error: (error) => {
         this.isLoading.set(false);

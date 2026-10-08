@@ -26,23 +26,44 @@
   margin-top: 1rem;
 }
 
-.operations-count {
+.operations-summary {
   margin-bottom: 1rem;
   padding: 0.75rem;
   background: var(--tui-background-neutral-1);
   border-radius: 0.5rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1rem;
   font-weight: 600;
+}
+
+.operations-sum {
+  &.positive {
+    color: var(--tui-success-fill, #2e7d32);
+  }
+
+  &.negative {
+    color: var(--tui-error-fill, #c62828);
+  }
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
-  
+
   p {
     margin-bottom: 1.5rem;
     color: var(--tui-text-secondary);
     font-size: 1.125rem;
+  }
+
+  .empty-state-title {
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state-hint {
+    font-size: 0.9rem;
   }
 }
 
