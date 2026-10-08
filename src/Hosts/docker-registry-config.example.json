@@ -1,7 +1,8 @@
 {
   "Registry": "docker.io",
   "Username": "your-username",
-  "EncryptedPassword": "01000000d08c9ddf0115d1118c7a00c04fc297eb...",
+  "Password": "your-registry-password (used by release-docker-images.sh)",
+  "EncryptedPassword": "01000000d08c9ddf0115d1118c7a00c04fc297eb... (used by Release-DockerImages.ps1, DPAPI-encrypted)",
   "Namespace": "your-namespace/budget",
   "ConfiguredDate": "2026-01-17 12:00:00"
 }

@@ -11,7 +11,7 @@ This directory contains scripts to run the Budget application in development mod
 
 ### Required Software
 - Docker Desktop
-- PowerShell 7+
+- Bash (Linux/Mac) or PowerShell 7+ (Windows)
 - .NET SDK 8.0+
 - Node.js 20+
 - npm
@@ -26,40 +26,43 @@ This directory contains scripts to run the Budget application in development mod
 
 ## Quick Start
 
+Every script in this directory comes in both a bash (`.sh`) and a PowerShell (`.ps1`) variant with matching parameters — use whichever matches your OS. The examples below use the bash variants (on Windows: `.\start-all.ps1`, `.\start-server.ps1`, etc.).
+
 ### Start All Services
-```powershell
-.\start-all.ps1
+```bash
+./start-all.sh
 ```
 
 This will:
 1. Start PostgreSQL and generate SSL certificates in Docker
 2. Extract certificates to the `certs/` directory
-3. Launch the .NET server with watch mode in a new window
-4. Launch the Angular client with watch mode in a new window
+3. Launch the .NET server with watch mode (in the background)
+4. Launch the Angular client with watch mode (in the foreground)
 
 ### Start Services Individually
 
 **Start only Docker dependencies:**
-```powershell
+```bash
 docker compose up -d
 ```
 
 **Start only the server:**
-```powershell
-.\start-server.ps1
+```bash
+./start-server.sh
 ```
 
 **Start only the client:**
-```powershell
-.\start-client.ps1
+```bash
+./start-client.sh
 ```
 
 ### Stop All Services
-```powershell
-.\stop-all.ps1
+```bash
+./stop-all.sh
 ```
 
-Then manually stop server/client processes (Ctrl+C in their windows).
+Then manually stop any server/client processes still running in other terminals (Ctrl+C).
+When started via `./start-all.sh`, Ctrl+C stops the client and the server together.
 
 ## Service URLs
 
@@ -70,7 +73,7 @@ Then manually stop server/client processes (Ctrl+C in their windows).
 
 ## Development Workflow
 
-1. Start all services with `.\start-all.ps1`
+1. Start all services with `./start-all.sh`
 2. Make changes to your code
 3. Watch mode will automatically detect changes and reload:
    - **.NET Server**: `dotnet watch` rebuilds and restarts
@@ -81,16 +84,16 @@ Then manually stop server/client processes (Ctrl+C in their windows).
 
 ### Certificate Issues
 If you encounter SSL certificate errors:
-```powershell
+```bash
 # Delete the certs directory
-Remove-Item -Recurse -Force .\certs
+rm -rf ./certs
 
 # Restart services to regenerate
-.\start-all.ps1
+./start-all.sh
 ```
 
 ### Database Connection Issues
-```powershell
+```bash
 # Check if PostgreSQL is running
 docker compose ps
 
@@ -113,7 +116,7 @@ If ports are already in use, stop any conflicting services:
 - `web-debug_certs`: SSL certificates
 
 To reset the database:
-```powershell
+```bash
 docker compose down -v
 ```
 
@@ -125,10 +128,10 @@ web-debug/
 ├── dev-certs.Dockerfile    # Certificate generation
 ├── server.env              # Server environment variables (gitignored)
 ├── server.env.example      # Template for server.env
-├── start-all.ps1           # Master script to start everything
-├── start-server.ps1        # Start .NET server on host
-├── start-client.ps1        # Start Angular client on host
-├── stop-all.ps1            # Stop Docker services
+├── start-all.sh / .ps1     # Master script to start everything
+├── start-server.sh / .ps1  # Start .NET server on host
+├── start-client.sh / .ps1  # Start Angular client on host
+├── stop-all.sh / .ps1      # Stop Docker services
 └── README.md               # This file
 ```
 

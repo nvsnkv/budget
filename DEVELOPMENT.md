@@ -6,7 +6,7 @@ This guide covers setting up and running the Budget application for local develo
 
 ### Required Software
 - Docker Desktop
-- PowerShell 7+ (for Windows) or Bash (for Linux/Mac)
+- Bash (Linux/Mac) or PowerShell 7+ (Windows)
 - .NET SDK 10.0+
 - Node.js 22+
 - npm
@@ -15,10 +15,12 @@ This guide covers setting up and running the Budget application for local develo
 
 The easiest way to start development is using the scripts in `src/Hosts/web-debug/`:
 
-```powershell
+```bash
 cd src/Hosts/web-debug
-.\start-all.ps1
+./start-all.sh
 ```
+
+On Windows, use the PowerShell equivalents (`.\start-all.ps1`, `.\start-server.ps1`, etc.) — every script in `web-debug/` and `web-release/` comes in both a bash (`.sh`) and a PowerShell (`.ps1`) variant with matching parameters. The examples below use the bash variants.
 
 This will:
 1. Start PostgreSQL database in Docker
@@ -61,9 +63,9 @@ Once all services are running:
 ## Development Workflow
 
 1. **Start all services**:
-   ```powershell
+   ```bash
    cd src/Hosts/web-debug
-   .\start-all.ps1
+   ./start-all.sh
    ```
 
 2. **Make changes** to your code in the editor
@@ -77,30 +79,31 @@ Once all services are running:
 ## Starting Services Individually
 
 ### Start only Docker dependencies
-```powershell
+```bash
 cd src/Hosts/web-debug
 docker compose up -d
 ```
 
 ### Start only the server
-```powershell
+```bash
 cd src/Hosts/web-debug
-.\start-server.ps1
+./start-server.sh
 ```
 
 ### Start only the client
-```powershell
+```bash
 cd src/Hosts/web-debug
-.\start-client.ps1
+./start-client.sh
 ```
 
 ### Stop all services
-```powershell
+```bash
 cd src/Hosts/web-debug
-.\stop-all.ps1
+./stop-all.sh
 ```
 
-Then manually stop server/client processes (Ctrl+C in their windows).
+Then manually stop any server/client processes still running in other terminals (Ctrl+C).
+When started via `./start-all.sh`, Ctrl+C stops the client and the server together.
 
 ## Database Management
 
@@ -119,7 +122,7 @@ curl -k https://localhost:7237/admin/patch-db
 ### Reset Database
 
 To completely reset the database (removes all data):
-```powershell
+```bash
 cd src/Hosts/web-debug
 docker compose down -v
 ```
@@ -132,18 +135,18 @@ This removes the Docker volume containing PostgreSQL data. The database will be 
 
 If you encounter SSL certificate errors:
 
-```powershell
+```bash
 cd src/Hosts/web-debug
 # Delete the certs directory
-Remove-Item -Recurse -Force .\certs
+rm -rf ./certs
 
 # Restart services to regenerate certificates
-.\start-all.ps1
+./start-all.sh
 ```
 
 ### Database Connection Issues
 
-```powershell
+```bash
 cd src/Hosts/web-debug
 # Check if PostgreSQL is running
 docker compose ps
@@ -166,7 +169,7 @@ If ports are already in use, stop any conflicting services:
 
 1. Check that PostgreSQL is running: `docker compose ps`
 2. Verify connection strings in `server.env`
-3. Check server logs in the PowerShell window where it's running
+3. Check server logs in the terminal where it's running
 4. Ensure ports 7237 and 5153 are not in use
 
 ### Client Won't Start
@@ -188,10 +191,10 @@ src/Hosts/web-debug/
 ├── dev-certs.Dockerfile    # Certificate generation
 ├── server.env              # Server environment variables (gitignored)
 ├── server.env.example      # Template for server.env
-├── start-all.ps1           # Master script to start everything
-├── start-server.ps1        # Start .NET server on host
-├── start-client.ps1        # Start Angular client on host
-├── stop-all.ps1            # Stop Docker services
+├── start-all.sh / .ps1     # Master script to start everything
+├── start-server.sh / .ps1  # Start .NET server on host
+├── start-client.sh / .ps1  # Start Angular client on host
+├── stop-all.sh / .ps1      # Stop Docker services
 └── README.md               # Additional details
 ```
 
@@ -203,7 +206,7 @@ The development setup creates persistent Docker volumes:
 - `web-debug_certs`: SSL certificates
 
 To remove all volumes and start fresh:
-```powershell
+```bash
 docker compose down -v
 ```
 
