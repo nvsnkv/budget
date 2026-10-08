@@ -16,6 +16,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
+[assembly: ApiController]
 [assembly: InternalsVisibleTo("NVs.Budget.Controllers.Web.Tests")]
 
 namespace NVs.Budget.Controllers.Web;
@@ -92,9 +93,6 @@ public static class WebControllersExtensions
                 opts.OutputFormatters.Add(new YamlOutputFormatter(serializer));
                 opts.InputFormatters.Insert(0, new YamlInputFormatter(deserializer));
                 opts.FormatterMappings.SetMediaTypeMappingForFormat("yaml", "application/yaml");
-                
-                // Add model state validation filter to return 400 on invalid input
-                opts.Filters.Add<ValidateModelStateFilter>();
             })
             .ConfigureApplicationPartManager(apm => apm.ApplicationParts.Add(part))
             .AddJsonOptions(options =>
@@ -103,7 +101,24 @@ public static class WebControllersExtensions
                 options.JsonSerializerOptions.Converters.Add(new NullableUtcDateTimeJsonConverter());
             });
 
-        services.AddApiVersioning();
+        services.AddApiVersioning(options => options.ApiVersionReader = new UrlSegmentApiVersionReader())
+            .AddApiExplorer();
+
+        // Keep the 400 response shape for invalid model state (previously produced by
+        // ValidateModelStateFilter) now that [ApiController] is applied assembly-wide
+        services.Configure<ApiBehaviorOptions>(options => options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .SelectMany(x => x.Value!.Errors.Select(e => new
+                {
+                    Field = x.Key,
+                    Message = string.IsNullOrEmpty(e.ErrorMessage) ? e.Exception?.Message : e.ErrorMessage
+                }))
+                .ToList();
+
+            return new BadRequestObjectResult(errors);
+        });
 
 
         return services;
